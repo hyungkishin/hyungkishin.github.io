@@ -3,6 +3,7 @@ import { graphql } from 'gatsby'
 import { PostPageItemType } from 'types/PostItem.types' // 바로 아래에서 정의할 것입니다
 import Template from 'components/common/Template'
 import PostHead from 'components/post/PostHead'
+import PostContent from 'components/post/PostContent'
 
 type PostTemplateProps = {
   data: {
@@ -22,7 +23,7 @@ const PostTemplate: FunctionComponent<PostTemplateProps> = function ({
       html,
       frontmatter: {
         title,
-        summary, // 나중에 사용할 예정입니다!
+        summary,
         date,
         categories,
         thumbnail: {
@@ -40,6 +41,32 @@ const PostTemplate: FunctionComponent<PostTemplateProps> = function ({
         categories={categories}
         thumbnail={gatsbyImageData}
       />
+      <PostContent html={html} />
     </Template>
   )
 }
+
+export default PostTemplate
+
+export const queryMarkdownDataBySlug = graphql`
+  query queryMarkdownDataBySlug($slug: String) {
+    allMarkdownRemark(filter: { fields: { slug: { eq: $slug } } }) {
+      edges {
+        node {
+          html
+          frontmatter {
+            title
+            summary
+            date(formatString: "YYYY.MM.DD.")
+            categories
+            thumbnail {
+              childImageSharp {
+                gatsbyImageData
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`

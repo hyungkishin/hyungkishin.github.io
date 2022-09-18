@@ -28,7 +28,9 @@ const BackgroundImage = styled((props: GatsbyImgProps) => (
   filter: brightness(0.25);
 `
 
-const PostHead: FunctionComponent<PostHeadProps> = function ({ thumbnail }) {
+const PostHead: FunctionComponent<PostHeadProps> = function ({
+  thumbnail,
+}) {
   return (
     <PostHeadWrapper>
       <BackgroundImage image={thumbnail} alt="thumbnail" />
