@@ -1,5 +1,6 @@
 import React, { FunctionComponent } from 'react'
 import { graphql } from 'gatsby'
+import Template from 'components/common/Template'
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type PostTemplateProps = {}
@@ -7,7 +8,7 @@ type PostTemplateProps = {}
 const PostTemplate: FunctionComponent<PostTemplateProps> = function (props) {
   console.log(props)
 
-  return <div>Post Template</div>
+  return <Template>Post Template</Template>
 }
 
 export default PostTemplate
