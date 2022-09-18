@@ -1,5 +1,5 @@
 ---
-date: '2022-09-18'
+date: '2022-09-05'
 title: 'test 알티클6'
 categories: ['Web', 'SEO', 'Optimization']
 summary: '테스트 글입니다.'
