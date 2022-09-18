@@ -8,7 +8,7 @@ const defaultStyle = css`
     padding: 0;
     margin: 0;
     box-sizing: border-box;
-    font-family: 'Nanum Myeongjo', serif;
+    font-family: 'Spoqa Han Sans', sans-serif;
   }
 
   html,

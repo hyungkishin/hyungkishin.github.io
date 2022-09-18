@@ -88,29 +88,29 @@ const PostItemContent = styled.div`
 `
 
 const PostItem: FunctionComponent<PostItemProps> = function ({
-    title,
-    date,
-    categories,
-    summary,
-    thumbnail,
-    link,
-  }) {
-    return (
-      <PostItemWrapper to={link}>
-        <ThumbnailImage src={thumbnail} alt="Post Item Image" />
-  
-        <PostItemContent>
-          <Title>{title}</Title>
-          <Date>{date}</Date>
-          <Category>
-            {categories.map(category => (
-              <CategoryItem key={category}>{category}</CategoryItem>
-            ))}
-          </Category>
-          <Summary>{summary}</Summary>
-        </PostItemContent>
-      </PostItemWrapper>
-    )
-  }
-  
-  export default PostItem
+  title,
+  date,
+  categories,
+  summary,
+  thumbnail,
+  link,
+}) {
+  return (
+    <PostItemWrapper to={link}>
+      <ThumbnailImage src={thumbnail} alt="Post Item Image" />
+
+      <PostItemContent>
+        <Title>{title}</Title>
+        <Date>{date}</Date>
+        <Category>
+          {categories.map(category => (
+            <CategoryItem key={category}>{category}</CategoryItem>
+          ))}
+        </Category>
+        <Summary>{summary}</Summary>
+      </PostItemContent>
+    </PostItemWrapper>
+  )
+}
+
+export default PostItem
