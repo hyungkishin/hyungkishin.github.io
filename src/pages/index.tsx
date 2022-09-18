@@ -4,28 +4,14 @@ import GlobalStyle from 'components/common/GlobalStyle'
 import Footer from 'components/common/Footer'
 import CategoryList from 'components/main/CategoryList'
 import Introduction from 'components/main/Introduction'
-import PostList from 'components/main/PostList'
+import PostList, { PostType } from 'components/main/PostList'
 import { graphql } from 'gatsby'
+import { PostListItemType } from 'types/PostItem.types'
 
 type IndexPageProps = {
   data: {
     allMarkdownRemark: {
-      edges: [
-        {
-          node: {
-            id: string
-            frontmatter: {
-              title: string
-              summary: string
-              date: string
-              categories: string[]
-              thumbnail: {
-                publicURL: string
-              }
-            }
-          }
-        },
-      ]
+      edges: PostListItemType[]
     }
   }
 }
@@ -52,7 +38,7 @@ const IndexPage: FunctionComponent<IndexPageProps> = function ({
       <GlobalStyle />
       <Introduction />
       <CategoryList selectedCategory="Web" categoryList={CATEGORY_LIST} />
-      <PostList />
+      <PostList posts={edges} />
       <Footer />
     </Container>
   )
