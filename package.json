@@ -11,13 +11,22 @@
     "gatsby-plugin-emotion": "^7.23.0",
     "gatsby-plugin-image": "^2.23.0",
     "gatsby-plugin-manifest": "^4.23.0",
+    "gatsby-plugin-react-helmet": "^5.23.0",
     "gatsby-plugin-sharp": "^4.23.0",
     "gatsby-plugin-typescript": "^4.23.0",
+    "gatsby-remark-copy-linked-files": "^5.23.0",
+    "gatsby-remark-external-links": "^0.0.4",
+    "gatsby-remark-images": "^6.23.0",
+    "gatsby-remark-prismjs": "^6.23.0",
+    "gatsby-remark-smartypants": "^5.23.0",
     "gatsby-source-filesystem": "^4.23.0",
+    "gatsby-transformer-remark": "^5.23.0",
     "gatsby-transformer-sharp": "^4.23.0",
+    "prismjs": "^1.29.0",
     "prop-types": "^15.8.1",
     "react": "^18.1.0",
-    "react-dom": "^18.1.0"
+    "react-dom": "^18.1.0",
+    "react-helmet": "^6.1.0"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.37.0",
