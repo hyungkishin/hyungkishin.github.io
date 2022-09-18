@@ -17,6 +17,17 @@ exports.onCreateWebpackConfig = ({ getConfig, actions }) => {
   });
 };
 
+// Generate a Slug Each Post Data
+exports.onCreateNode = ({ node, getNode, actions }) => {
+  const { createNodeField } = actions;
+
+  if (node.internal.type === `MarkdownRemark`) {
+    const slug = createFilePath({ node, getNode });
+
+    createNodeField({ node, name: 'slug', value: slug });
+  }
+};
+
 // Generate Post Page Through Markdown Data
 exports.createPages = async ({ actions, graphql, reporter }) => {
   const { createPage } = actions;
