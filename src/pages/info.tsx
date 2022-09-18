@@ -39,27 +39,27 @@ const Text1 = styled.div<{ disable: boolean }>`
 
 // Camel Case 적용
 const Text2 = styled('div')<{ disable: boolean }>(({ disable }) => ({
-    fontSize: '15px',
-    color: 'blue',
-    textDecoration: disable ? 'line-through' : 'none',
-  }))
+  fontSize: '15px',
+  color: 'blue',
+  textDecoration: disable ? 'line-through' : 'none',
+}))
 
 const InfoPage: FunctionComponent<InfoPageProps> = function ({
-    data: {
-      site: {
-        siteMetadata: { title, description, author },
-      },
+  data: {
+    site: {
+      siteMetadata: { title, description, author },
     },
-  }) {
-    return (
-        <div>
-            <Global styles={globalStyle} />
-            <div css={TextStyle}>{title}</div>
-            <Text1 disable={true}>{description}</Text1>
-            <Text2 disable={true}>{author}</Text2>
-        </div>
-    )
-  }
+  },
+}) {
+  return (
+    <div>
+      <Global styles={globalStyle} />
+      <div css={TextStyle}>{title}</div>
+      <Text1 disable={true}>{description}</Text1>
+      <Text2 disable={true}>{author}</Text2>
+    </div>
+  )
+}
 
 export default InfoPage
 

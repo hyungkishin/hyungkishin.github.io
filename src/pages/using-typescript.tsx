@@ -1,9 +1,9 @@
 // If you don't want to use TypeScript you can delete this file!
-import * as React from "react"
-import { PageProps, Link, graphql, HeadFC } from "gatsby"
+import * as React from 'react'
+import { PageProps, Link, graphql, HeadFC } from 'gatsby'
 
-import Layout from "../components/layout"
-import Seo from "../components/seo"
+import Layout from '../components/layout'
+import Seo from '../components/seo'
 
 type DataProps = {
   site: {
@@ -33,7 +33,7 @@ const UsingTypescript: React.FC<PageProps<DataProps>> = ({
       built on {data.site.buildTime}.
     </p>
     <p>
-      To learn more, head over to our{" "}
+      To learn more, head over to our{' '}
       <a href="https://www.gatsbyjs.com/docs/how-to/custom-configuration/typescript/">
         documentation about TypeScript
       </a>
