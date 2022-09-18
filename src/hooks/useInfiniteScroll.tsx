@@ -40,6 +40,20 @@ const useInfiniteScroll = function (
     },
   )
 
+  useEffect(() => setCount(1), [selectedCategory])
+
+  useEffect(() => {
+    if (
+      NUMBER_OF_ITEMS_PER_PAGE * count >= postListByCategory.length ||
+      containerRef.current === null ||
+      containerRef.current.children.length === 0
+    )
+      return
+    observer.observe(
+      containerRef.current.children[containerRef.current.children.length - 1],
+    )
+  }, [count, selectedCategory])
+
   return {
     containerRef,
     postList: postListByCategory.slice(0, count * NUMBER_OF_ITEMS_PER_PAGE),
