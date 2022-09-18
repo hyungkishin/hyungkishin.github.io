@@ -3,13 +3,12 @@ import styled from '@emotion/styled'
 
 // 자신이 원하는 프로필 이미지 링크로 설정해주세요.
 const PROFILE_IMAGE_LINK =
-  'https://cdn.pixabay.com/photo/2021/05/01/13/10/leaf-6220977__480.jpg'
+  'https://www.jungle.co.kr/image/f210b6d74179b200e4a14582'
 
 const ProfileImageWrapper = styled.img`
-  width: 120px;
+  width: auto;
   height: 120px;
   margin-bottom: 30px;
-  border-radius: 50%;
 `
 
 const ProfileImage: FunctionComponent = function () {
