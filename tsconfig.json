@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "types": [
+      "@emotion/react/types/css-prop"
+    ],
     "target": "es5",
     "module": "commonjs",
     "allowJs": true,
@@ -10,15 +13,25 @@
     "noImplicitReturns": true,
     "baseUrl": "./src",
     "paths": {
-      "components/*": ["./components/*"],
-      "utils/*": ["./utils/*"],
-      "hooks/*": ["./hooks/*"]
+      "components/*": [
+        "./components/*"
+      ],
+      "utils/*": [
+        "./utils/*"
+      ],
+      "hooks/*": [
+        "./hooks/*"
+      ]
     },
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true
   },
-  "include": ["src/**/*.tsx"],
-  "exclude": ["node_modules"]
+  "include": [
+    "src/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
