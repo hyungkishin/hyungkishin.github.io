@@ -14,18 +14,52 @@ type PostTemplateProps = {
   }
 }
 
+// const PostTemplate: FunctionComponent<PostTemplateProps> = function ({
+//   data: {
+//     allMarkdownRemark: { edges },
+//   },
+// }) {
+//   const {
+//     node: { html, frontmatter },
+//   } = edges[0];
+
+//   return (
+//     <Template>
+//       <PostHead {...frontmatter} />
+//       <PostContent html={html} />
+//       <CommentWidget />
+//     </Template>
+//   )
+// }
+
 const PostTemplate: FunctionComponent<PostTemplateProps> = function ({
   data: {
     allMarkdownRemark: { edges },
   },
 }) {
   const {
-    node: { html, frontmatter },
-  } = edges[0];
+    node: {
+      html,
+      frontmatter: {
+        title,
+        summary,
+        date,
+        categories,
+        thumbnail: {
+          childImageSharp: { gatsbyImageData },
+        },
+      },
+    },
+  } = edges[0]
 
   return (
     <Template>
-      <PostHead {...frontmatter} />
+      <PostHead
+        title={title}
+        date={date}
+        categories={categories}
+        thumbnail={gatsbyImageData}
+      />
       <PostContent html={html} />
       <CommentWidget />
     </Template>
