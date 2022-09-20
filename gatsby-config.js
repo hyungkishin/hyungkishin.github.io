@@ -3,7 +3,7 @@ module.exports = {
     title: `하나투어 테크 블로그`,
     description: `하나투어 기술 블로그입니다.`,
     author: `hyungkiShin`,
-    siteUrl: 'https://my-website-link.com', // 배포 후 변경 예정
+    siteUrl: 'https://hyungkiShin.github.io/', // 배포 후 변경 예정
   },
   plugins: [
     {
@@ -11,6 +11,14 @@ module.exports = {
       options: {
         isTSX: true,
         allExtensions: true,
+      },
+    },
+
+    {
+      resolve: 'gatsby-plugin-canonical-urls',
+      options: {
+        siteUrl: 'https://hyungkiShin.github.io/',
+        stripQueryString: true,
       },
     },
 
