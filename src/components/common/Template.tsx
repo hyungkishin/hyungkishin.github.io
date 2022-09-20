@@ -1,9 +1,8 @@
 import React, { FunctionComponent, ReactNode } from 'react'
 import styled from '@emotion/styled'
-import GlobalStyle from 'components/common/GlobalStyle'
-import Footer from 'components/common/Footer'
+import GlobalStyle from './GlobalStyle'
+import Footer from './Footer'
 import { Helmet } from 'react-helmet'
-
 type TemplateProps = {
   title: string
   description: string
@@ -12,10 +11,10 @@ type TemplateProps = {
   children: ReactNode
 }
 
-const Container = styled.div`
+const Container = styled.main`
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
 `
 
 const Template: FunctionComponent<TemplateProps> = function ({
@@ -47,6 +46,15 @@ const Template: FunctionComponent<TemplateProps> = function ({
         <meta name="twitter:image" content={image} />
         <meta name="twitter:site" content="@사용자이름" />
         <meta name="twitter:creator" content="@사용자이름" />
+
+        <meta
+          name="google-site-verification"
+          content="2iQCD8mbMmwhEhQnrYibeMnJCMHXLcP8DgGNFr6cIcM"
+        />
+        <meta
+          name="naver-site-verification"
+          content="85439973861206f261be8e209d26b2215ded88be"
+        />
 
         <html lang="ko" />
       </Helmet>

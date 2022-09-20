@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react'
 import { graphql } from 'gatsby'
-import { PostPageItemType } from 'types/PostItem.types' // 바로 아래에서 정의할 것입니다
+import { PostFrontmatterType } from 'types/PostItem.types'
 import Template from 'components/common/Template'
 import PostHead from 'components/post/PostHead'
 import PostContent from 'components/post/PostContent'
@@ -16,25 +16,6 @@ type PostTemplateProps = {
     href: string
   }
 }
-
-
-// const PostTemplate: FunctionComponent<PostTemplateProps> = function ({
-//   data: {
-//     allMarkdownRemark: { edges },
-//   },
-// }) {
-//   const {
-//     node: { html, frontmatter },
-//   } = edges[0];
-
-//   return (
-//     <Template>
-//       <PostHead {...frontmatter} />
-//       <PostContent html={html} />
-//       <CommentWidget />
-//     </Template>
-//   )
-// }
 
 const PostTemplate: FunctionComponent<PostTemplateProps> = function ({
   data: {
@@ -56,7 +37,7 @@ const PostTemplate: FunctionComponent<PostTemplateProps> = function ({
         },
       },
     },
-  } = edges[0];
+  } = edges[0]
 
   return (
     <Template title={title} description={summary} url={href} image={publicURL}>
@@ -83,7 +64,7 @@ export const queryMarkdownDataBySlug = graphql`
           frontmatter {
             title
             summary
-            date(formatString: "YYYY.MM.DD.")
+            date(formatString: "YYYY.MM.DD")
             categories
             thumbnail {
               childImageSharp {
@@ -97,3 +78,10 @@ export const queryMarkdownDataBySlug = graphql`
     }
   }
 `
+
+export type PostPageItemType = {
+  node: {
+    html: string
+    frontmatter: PostFrontmatterType
+  }
+}
