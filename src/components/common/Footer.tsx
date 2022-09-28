@@ -17,8 +17,7 @@ const FooterWrapper = styled.footer`
 const Footer: FunctionComponent = function () {
   return (
     <FooterWrapper>
-      Thank You for Visiting HanaTour Blog, Have a Good Day 😆
-      <br />COPYRIGHTⓒ HANATOUR SERVICE INC. ALL RIGHTS RESERVED
+      Thank You for Visiting My Blog, Have a Good Day 😆
     </FooterWrapper>
   )
 }
