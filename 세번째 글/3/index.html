@@ -1,0 +1,351 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="ie=edge"/><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/><meta name="generator" content="Gatsby 4.23.0"/><meta data-react-helmet="true" name="description" content="세번째 글"/><meta data-react-helmet="true" name="viewport" content="width=device-width, initial-scale=1.0"/><meta data-react-helmet="true" http-equiv="Content-Type" content="text/html;charset=UTF-8"/><meta data-react-helmet="true" property="og:type" content="website"/><meta data-react-helmet="true" property="og:title" content="배포전략"/><meta data-react-helmet="true" property="og:description" content="세번째 글"/><meta data-react-helmet="true" property="og:image" content="/static/92aaebc3579224555c38b81f80501a9b/3.png"/><meta data-react-helmet="true" property="og:url"/><meta data-react-helmet="true" property="og:site_name" content="배포전략"/><meta data-react-helmet="true" name="twitter:card" content="summary"/><meta data-react-helmet="true" name="twitter:title" content="배포전략"/><meta data-react-helmet="true" name="twitter:description" content="세번째 글"/><meta data-react-helmet="true" name="twitter:image" content="/static/92aaebc3579224555c38b81f80501a9b/3.png"/><meta data-react-helmet="true" name="twitter:site" content="@사용자이름"/><meta data-react-helmet="true" name="twitter:creator" content="@사용자이름"/><meta data-react-helmet="true" name="google-site-verification" content="2iQCD8mbMmwhEhQnrYibeMnJCMHXLcP8DgGNFr6cIcM"/><meta data-react-helmet="true" name="naver-site-verification" content="85439973861206f261be8e209d26b2215ded88be"/><style data-href="/styles.811b76fa2f764e4356d7.css" data-identity="gatsby-global-css">code[class*=language-],pre[class*=language-]{word-wrap:normal;background:none;color:#ccc;font-family:Consolas,Monaco,Andale Mono,Ubuntu Mono,monospace;font-size:1em;-webkit-hyphens:none;hyphens:none;line-height:1.5;-o-tab-size:4;tab-size:4;text-align:left;white-space:pre;word-break:normal;word-spacing:normal}pre[class*=language-]{margin:.5em 0;overflow:auto;padding:1em}:not(pre)>code[class*=language-],pre[class*=language-]{background:#2d2d2d}:not(pre)>code[class*=language-]{border-radius:.3em;padding:.1em;white-space:normal}.token.block-comment,.token.cdata,.token.comment,.token.doctype,.token.prolog{color:#999}.token.punctuation{color:#ccc}.token.attr-name,.token.deleted,.token.namespace,.token.tag{color:#e2777a}.token.function-name{color:#6196cc}.token.boolean,.token.function,.token.number{color:#f08d49}.token.class-name,.token.constant,.token.property,.token.symbol{color:#f8c555}.token.atrule,.token.builtin,.token.important,.token.keyword,.token.selector{color:#cc99cd}.token.attr-value,.token.char,.token.regex,.token.string,.token.variable{color:#7ec699}.token.entity,.token.operator,.token.url{color:#67cdcc}.token.bold,.token.important{font-weight:700}.token.italic{font-style:italic}.token.entity{cursor:help}.token.inserted{color:green}</style><title data-react-helmet="true">배포전략</title><link rel="sitemap" type="application/xml" href="/sitemap/sitemap-index.xml"/><style>.gatsby-image-wrapper{position:relative;overflow:hidden}.gatsby-image-wrapper picture.object-fit-polyfill{position:static!important}.gatsby-image-wrapper img{bottom:0;height:100%;left:0;margin:0;max-width:none;padding:0;position:absolute;right:0;top:0;width:100%;object-fit:cover}.gatsby-image-wrapper [data-main-image]{opacity:0;transform:translateZ(0);transition:opacity .25s linear;will-change:opacity}.gatsby-image-wrapper-constrained{display:inline-block;vertical-align:top}</style><noscript><style>.gatsby-image-wrapper noscript [data-main-image]{opacity:1!important}.gatsby-image-wrapper [data-placeholder-image]{opacity:0!important}</style></noscript><script type="module">const e="undefined"!=typeof HTMLImageElement&&"loading"in HTMLImageElement.prototype;e&&document.body.addEventListener("load",(function(e){const t=e.target;if(void 0===t.dataset.mainImage)return;if(void 0===t.dataset.gatsbyImageSsr)return;let a=null,n=t;for(;null===a&&n;)void 0!==n.parentNode.dataset.gatsbyImageWrapper&&(a=n.parentNode),n=n.parentNode;const o=a.querySelector("[data-placeholder-image]"),r=new Image;r.src=t.currentSrc,r.decode().catch((()=>{})).then((()=>{t.style.opacity=1,o&&(o.style.opacity=0,o.style.transition="opacity 500ms linear")}))}),!0);</script><link rel="canonical" href="https://hyungkishin.github.io/세번째%20글/3/" data-baseprotocol="https:" data-basehost="hyungkishin.github.io"/></head><body><div id="___gatsby"><div style="outline:none" tabindex="-1" id="gatsby-focus-wrapper"><style data-emotion="css 13ku56z">.css-13ku56z{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;height:100%;}</style><main class="css-13ku56z e1oj83b30"><style data-emotion="css-global 17dczb7">@import url('https://fonts.googleapis.com/css2?family=Stylish&display=swap');*{padding:0;margin:0;box-sizing:border-box;font-family:'Spoqa Han Sans',sans-serif;}html,body,#___gatsby{height:100%;}a,a:hover{color:inherit;-webkit-text-decoration:none;text-decoration:none;cursor:pointer;}</style><style data-emotion="css 16cz9yp">.css-16cz9yp{position:relative;width:100%;height:400px;}@media (max-width: 768px){.css-16cz9yp{height:300px;}}</style><div class="css-16cz9yp ewnd50x1"><style data-emotion="css 1bjn9yo">.css-1bjn9yo{z-index:-1;width:100%;height:400px;object-fit:cover;-webkit-filter:brightness(0.25);filter:brightness(0.25);}@media (max-width: 768px){.css-1bjn9yo{height:300px;}}</style><div data-gatsby-image-wrapper="" style="position:absolute" class="gatsby-image-wrapper gatsby-image-wrapper-constrained css-1bjn9yo ewnd50x0"><div style="max-width:512px;display:block"><img alt="" role="presentation" aria-hidden="true" src="data:image/svg+xml;charset=utf-8,%3Csvg height=&#x27;512&#x27; width=&#x27;512&#x27; xmlns=&#x27;http://www.w3.org/2000/svg&#x27; version=&#x27;1.1&#x27;%3E%3C/svg%3E" style="max-width:100%;display:block;position:static"/></div><img aria-hidden="true" data-placeholder-image="" style="opacity:1;transition:opacity 500ms linear" decoding="async" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAACXBIWXMAAAsTAAALEwEAmpwYAAAC+ElEQVQ4y9WUXUgUURTHTzMPURQGhSVRkBFKWdm2M7uaFfYgERKBoPYQ1UMUaF9KmbIo7s6sWlZWJipJD9IHGtFDPUQl9E0QBfVUPdRDRFmROufO7szu3BN3d91cNesp6MLh3jlz5zfnnHvPH+BfDNQUwIAbUHPH12OM6WrMxPrvQKkmMV0VNi1hsvBRawk4TRuT+/4KJgDJiMQc9AD6XYC1mWB2lUnGwblgHFkEqKt/BCZBqCmbUFMvoKY8Zrr6gOnqGfRlucz2bWDdOQ3GsSUx4IQoY6CapcCCXmAt6wErZwtgB9NVQk0hpnsIA2sJ/WuIHd9ArGV9HWvbDGZHSfznmjoemEgrXi8xnxQwpqtRFvTa6HdFsTE3at1ts4mIrHvnyDgwp2J4B4i9sgCmRIlxh4S6B1D3rETNTRhwcdQUBxtWEmst5Pbzfu58fkPOl3fR8C2d0Jf91ezePm+0TEYqUETnkY39aWAcXVwTvlZDztAnO3y9lsyucm4NnCezs5RYMI+b3eWcnSqKiBIw3VOaAMoTgUGvNFwGYBxZ2GENtIvMIs7IIHe+fSDrbhtFXlyn6MfXXLywn/fbWLeM2PGNVYlSyTgR6JFHdgMY1RnN1p222HeRVzfJftjDrftdFLq4i0KXKnjk5Q0eunrIjpWied2e0QhTgIZfEccvoy8bsH55sXlmC4UuV0bYqSKODTk83FfF7Uc9PHxTo3BfNTc7Szn613DWXLBqtAFSgYH4HYwSwTcZABtzn2D9CnEwYRb0OujL4qHevdz58tYhorD9tJeM6owrP4rEKXukCR0Td7iBNeVJrCkfWEtBJgt63yfvYVM+oS+L2IlCsm63itSf/SiEtKGtIDKbNmn7xaD6r/BRU9JRU7pRVwdRU2wW9FoYcH80qhY0D86CGSP7poNRNV/C3wnFmHZLQhPPc1BXXai5V7OzxTOHdwJ8zwEwDqdLIxWzplaecQIh1EWaRDTk0X6fUm3GQ81UsZDGlCIpCExzw/83fgLe3UMMCPB8uQAAAABJRU5ErkJggg==" alt=""/><picture><source type="image/webp" data-srcset="/static/92aaebc3579224555c38b81f80501a9b/b529c/3.webp 128w,/static/92aaebc3579224555c38b81f80501a9b/99d55/3.webp 256w,/static/92aaebc3579224555c38b81f80501a9b/3591c/3.webp 512w" sizes="(min-width: 512px) 512px, 100vw"/><img data-gatsby-image-ssr="" data-main-image="" style="opacity:0" sizes="(min-width: 512px) 512px, 100vw" decoding="async" loading="lazy" data-src="/static/92aaebc3579224555c38b81f80501a9b/8a20a/3.png" data-srcset="/static/92aaebc3579224555c38b81f80501a9b/bb95d/3.png 128w,/static/92aaebc3579224555c38b81f80501a9b/5ce94/3.png 256w,/static/92aaebc3579224555c38b81f80501a9b/8a20a/3.png 512w" alt="thumbnail"/></picture><noscript><picture><source type="image/webp" srcSet="/static/92aaebc3579224555c38b81f80501a9b/b529c/3.webp 128w,/static/92aaebc3579224555c38b81f80501a9b/99d55/3.webp 256w,/static/92aaebc3579224555c38b81f80501a9b/3591c/3.webp 512w" sizes="(min-width: 512px) 512px, 100vw"/><img data-gatsby-image-ssr="" data-main-image="" style="opacity:0" sizes="(min-width: 512px) 512px, 100vw" decoding="async" loading="lazy" src="/static/92aaebc3579224555c38b81f80501a9b/8a20a/3.png" srcSet="/static/92aaebc3579224555c38b81f80501a9b/bb95d/3.png 128w,/static/92aaebc3579224555c38b81f80501a9b/5ce94/3.png 256w,/static/92aaebc3579224555c38b81f80501a9b/8a20a/3.png 512w" alt="thumbnail"/></picture></noscript><script type="module">const t="undefined"!=typeof HTMLImageElement&&"loading"in HTMLImageElement.prototype;if(t){const t=document.querySelectorAll("img[data-main-image]");for(let e of t){e.dataset.src&&(e.setAttribute("src",e.dataset.src),e.removeAttribute("data-src")),e.dataset.srcset&&(e.setAttribute("srcset",e.dataset.srcset),e.removeAttribute("data-srcset"));const t=e.parentNode.querySelectorAll("source[data-srcset]");for(let e of t)e.setAttribute("srcset",e.dataset.srcset),e.removeAttribute("data-srcset");e.complete&&(e.style.opacity=1,e.parentNode.parentNode.querySelector("[data-placeholder-image]").style.opacity=0)}}</script></div><style data-emotion="css m1156n">.css-m1156n{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;width:768px;height:100%;margin:0 auto;padding:60px 0;color:#ffffff;}@media (max-width: 768px){.css-m1156n{width:100%;padding:40px 20px;}}</style><div class="css-m1156n e22nvw21"><style data-emotion="css gywgo7">.css-gywgo7{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#ffffff;color:#000000;font-size:22px;cursor:pointer;box-shadow:0 0 10px rgba(0, 0, 0, 0.3);}@media (max-width: 768px){.css-gywgo7{width:30px;height:30px;font-size:18px;}}</style><div class="css-gywgo7 e22nvw20"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="arrow-left" class="svg-inline--fa fa-arrow-left " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"></path></svg></div><style data-emotion="css gn4qtp">.css-gn4qtp{display:-webkit-box;overflow:hidden;overflow-wrap:break-word;margin-top:auto;text-overflow:ellipsis;white-space:normal;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:45px;font-weight:800;}@media (max-width: 768px){.css-gn4qtp{font-size:30px;}}</style><div class="css-gn4qtp e22nvw23">배포전략</div><style data-emotion="css 3gcnt2">.css-3gcnt2{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;margin-top:10px;font-size:18px;font-weight:700;}@media (max-width: 768px){.css-3gcnt2{-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;-webkit-align-items:flex-start;-webkit-box-align:flex-start;-ms-flex-align:flex-start;align-items:flex-start;font-size:15px;font-weight:400;}}</style><div class="css-3gcnt2 e22nvw22"><div>Web</div><div>2023.05.30</div></div></div></div><style data-emotion="css 15r2yyn">.css-15r2yyn{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;width:768px;margin:0 auto;padding:100px 0;word-break:break-all;line-height:1.8;font-size:16px;font-weight:400;}.css-15r2yyn p{padding:3px 0;}.css-15r2yyn h1,.css-15r2yyn h2,.css-15r2yyn h3{font-weight:800;margin-bottom:10px;}.css-15r2yyn *+h1,.css-15r2yyn *+h2,.css-15r2yyn *+h3{margin-top:10px;}.css-15r2yyn hr+h1,.css-15r2yyn hr+h2,.css-15r2yyn hr+h3{margin-top:0;}.css-15r2yyn h1{font-size:30px;}.css-15r2yyn h2{font-size:25px;}.css-15r2yyn h3{font-size:20px;}.css-15r2yyn blockquote{margin:30px 0;padding:5px 15px;border-left:2px solid #000000;font-weight:800;}.css-15r2yyn ol,.css-15r2yyn ul{margin-left:20px;padding:30px 0;}.css-15r2yyn hr{border:1px solid #000000;margin:100px 0;}.css-15r2yyn a{color:#4263eb;-webkit-text-decoration:underline;text-decoration:underline;}.css-15r2yyn pre[class*='language-']{margin:30px 0;padding:5px;font-size:15px;}.css-15r2yyn pre[class*='language-']::-webkit-scrollbar-thumb{background:rgba(255, 255, 255, 0.5);border-radius:3px;}.css-15r2yyn code[class*='language-'],.css-15r2yyn pre[class*='language-']{tab-size:2;font-family:'Inconsolata',Consolas,Monaco,'Andale Mono','Ubuntu Mono',monospace;font-size:1em;line-height:2;}@media (max-width: 768px){.css-15r2yyn{width:100%;padding:80px 20px;line-height:1.6;font-size:14px;}.css-15r2yyn h1{font-size:23px;}.css-15r2yyn h2{font-size:20px;}.css-15r2yyn h3{font-size:17px;}.css-15r2yyn img{width:100%;}.css-15r2yyn hr{margin:50px 0;}}</style><div class="css-15r2yyn ek55sos0"><h1>배포 전략에 관하여</h1>
+<p>문득 dev 환경에서 테스트를 할겸 <br/>
+열씸히 dev 브렌치를 merge 후 열씸히 젠킨스 빌드버튼을 누르던 중</p>
+<p><img src="/166e6b53a510290d1ca6ed292dc645ee/click.gif" alt=""></p>
+<p>배포 전략에 대한 내용을 생각해보게 되었습니다. <br/></p>
+<h1>배포 전략 ?</h1>
+<p>모놀리틱 서비스 환경에서 마이크로 서비스 환경으로 바뀌면서 배포 주기가 짧아졌기 때문에 <br/>
+배포 전략이 필요하게 되었답니다. <br/></p>
+<h1>중단 배포 방식, 다운타임 (DownTime)</h1>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 418px; "
+    >
+      <a
+    class="gatsby-resp-image-link"
+    href="/static/f0c27252e558244c925197a59eba9a2a/2bbac/dcacd6b0.png"
+    style="display: block"
+    target="_blank"
+    rel="noopener"
+  >
+    <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 95.83333333333334%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAATCAYAAACQjC21AAAACXBIWXMAAAsTAAALEwEAmpwYAAAFI0lEQVQ4y03S6VMUZACA8Re1RQRBHU2MtsAAA5blXEmuFBJcQ5PkEBDIA1bADE1YElYCuTfAQg2PSo3oQC0yFKYyJxQxVCzTCklxHEU3iGtjBWSfJutDH35/wfMIs8AkzEPSMVv6BiYr8jGJr0L6+iFSt+ymdmUGm1LeQaapZ6qmkRnqBqSZx7HbdgLbnEZsc5qYq2nCTtOE7T9yGhFTFm9i4tI3ME0oR/Hau+QnF3F5wSoeTpKBcAAzL3TukXyaUMAruZ/jpD3DE/mnmZf7NY553z4y73/ERKUab5WW/dHp/Gq/mKEp7nSFrqMraA2DdksYm+IDwhkmuII0iE5lKtm5n/JMyVlcd5zCqfA0LgX/KTyNEC/vYEt6CboJ9twWjvQKGbeVKhquXOVqaTWj0mD0C2J48PQLGC29QTiCdCGppSew1bYiL/4el9JmXEr+JSTxlRQlbeeWyTzumsjom7qAX9KL+X1jPjczyuiNTufHE6cw+EWiX6HijzVZGO1DGFBEE/b2GZy05/DUnsVN24K7tgUxPWUfh+Je546wRzfRjeEJ7nQvTaF7dQYd1bX0JGZyY+cHDAfFwBxfbtQc5X5GITwfw8XsXfhWteFR0YqishXvylbEnK2HaVqezF1hR+9jHoyaenK1+mM6y6rRB8TQs1bNndLdjDmHgqmMrgO1jHiH05eYwUiahobEIjzfv4bvzvMseKcN4ZJdy/nAaO6KufRJPBgxV/BQughdsobunHJ06mJ+q2/CoFjJ0ItJXO7spD9+K4bgRO6ry8DSi4LyBrz3/czCPRcRwbk1XJEr6RYO9Es8GBVykHg8KjtmG4whIIpR9zCY48dt7V4GEjdzv7CK3s0FdOdXwUQnTmzdjc/hDkL2tiPit79P5+z53BHODAhn+p9dRpdmJ7qkHIxPPc+Y5wrGbRdhtPEHS3ewkjPiE85AUha9WwrAQs6ZDSX4f9TJ4r2XETUfH+aS4iXuCXv0woGbqjxuairoi1cz9LKKntcKuPVBHQ9dlAxGbcTwQhzM8AapH0YbP7D0oCNOTdrJG6TUtCPazp/km2OfcV0ayJBwxGAdyC3N2/yxcTuYy9GHqehJL+BBQCx339rPnykaBle9yr2K/RheXAsSVwzRG3lg1PNQ34NQb0pkW04aH+bvoEci5/fUNxnyjaLrwGcY/CPRh6fQm5bLcFgy/QkZ6JXr0eVUoNNUcL98H9gE8pdvFEdrdlN7QItoO3uSaxdOceXGJS4VlnPPK5LrxXu4XbyHcRt/Btep6c0sZsR/Fb3qEgbXqunJKqV710EG49LBygND8GqutjfzU9u3iFdWR5C0Jpb1sSsJj4/iuwgVSNwYs/AEMzfGZGGM+EbBTG8GVDn05FYwvHwd/el5YPYsyEK5dvQIv11vp+NKK8JMMglz08ewMp+MxSQT/JaE0hGZCsKJMSsF49M8GZ/uxfgTz2F8XAGz52O0C2TUKQScl3AwOQ2FvxcBnjJ8vWSIGRYSZk41fWS2pSmTheClMCW6wAgwk4O1P1j7wizFo2X+YZzmBtY+1MWtR2r/JDZWk5HOsuTJmRaIaVIHHndw42m5Dw7zFyEPVOIStJzcyoPUa3dRl5zG8dgNnI9R0ZeUyUj8ZghJ4Oa2IhKSEggPXUhsxDKiw5UkxoQjsqpqeKu2gfJDR3jv80aOnWqhseUiTT+0k1f2Js6uc8nWlpFdmkfFJ9V8/UsLXzZ/yRetDXx17jiNFxppaGvgWHMd9efq+BstVah/AFwxvQAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+  ></span>
+  <picture>
+          <source
+              srcset="/static/f0c27252e558244c925197a59eba9a2a/a59e9/dcacd6b0.webp 192w,
+/static/f0c27252e558244c925197a59eba9a2a/0ca9f/dcacd6b0.webp 384w,
+/static/f0c27252e558244c925197a59eba9a2a/c7272/dcacd6b0.webp 418w"
+              sizes="(max-width: 418px) 100vw, 418px"
+              type="image/webp"
+            />
+          <source
+            srcset="/static/f0c27252e558244c925197a59eba9a2a/3b721/dcacd6b0.png 192w,
+/static/f0c27252e558244c925197a59eba9a2a/66595/dcacd6b0.png 384w,
+/static/f0c27252e558244c925197a59eba9a2a/2bbac/dcacd6b0.png 418w"
+            sizes="(max-width: 418px) 100vw, 418px"
+            type="image/png"
+          />
+          <img
+            class="gatsby-resp-image-image"
+            src="/static/f0c27252e558244c925197a59eba9a2a/2bbac/dcacd6b0.png"
+            alt="dcacd6b0"
+            title="dcacd6b0"
+            loading="lazy"
+            decoding="async"
+            style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+          />
+        </picture>
+  </a>
+    </span></p>
+<p>중단 배포 방식은 배포 중에 서비스가 중단되는 방식입니다. <br/>
+사용자들은 자연스레 서비스가 중단되는 시간동안 서비스를 이용할 수 없게 되겠습니다. <br/>
+서비스를 사용할 수 없는 시간대를 downtime 이라고 합니다. <br/>
+때문에 현대에 웹 어플리케이션 에서 중단 배포 방식은 자연스레 사용하지 않게 되었습니다. <br/>
+그래서 등장한 전략이 ” 무중단 배포 ” 전략입니다.</p>
+<h1>무중단 배포 전략의 종류 로는 크게 세가지가 있습니다.</h1>
+<ul>
+<li>Rolling 배포</li>
+<li>Blue/Green 배포</li>
+<li>Canary 배포</li>
+</ul>
+<p>각각의 전략에 따라 장단 점이 극명한데 <br/>
+주관적인 생각으로는 서비스의 특성에 따라 적절한 전략을 선택하는 것이 좋을 것 같습니다. <br/></p>
+<h2>Rolling 배포</h2>
+<p>사실 여러 블로그, 문서들을 찾아보면서 배포 전략에 대한 내용을 찾아보았는데 <br/>
+그림이 마땅치가 않습니다… <br/>
+제일 널리 알려져 있는 그림은 아래와 같으나, 제가 본 최고의 그림은 저작권이 있어서 아래 그림으로 대체하겠습니다. <br/>
+100 만의 트레픽을 받는 인스턴스가 총 3대가 띄워져 있다고 가정하겠습니다 :) <br/></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 768px; "
+    >
+      <a
+    class="gatsby-resp-image-link"
+    href="/static/bc75195362d482d5677caa47da3700c1/665fb/3ce58422.png"
+    style="display: block"
+    target="_blank"
+    rel="noopener"
+  >
+    <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 52.083333333333336%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAKCAYAAAC0VX7mAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB80lEQVQoz42Ry05TURiF+wIMHfsGPoDxLTAO6oAZVSPFhGACHRCideCghFjSVJCIIVgLiBNUiNCgQGvLvS09hVMOF8+l51B65SKa85kesDiRsCZ7/8nKt/+9lg3gsFSgaKiYp8f8T6ZpUsjpHBVzl3ps1csXIU99n0B3SObJpIYjINEfMXAEd3j6+YdlrKpnRsH+ehPfNw3XR4WHwR1Cu/P0xF8QUSKWxwL2hg1sD6Lc7ktzsztNXWuMxoBE3eMlbnUlasCGoW1szqgFvfE8ybW2ZV6uDnLnUz0B4d0FcF4q0/hW5NWciiek0DIqEljUaXm/RdfUHuc8BmMGTUGRN9+zPJvYpe2DxOxelN41Pwvq4hnQ8pq/gN9cprMtzb/T5RluqzmmV7aQ9DL7xznUSpb8ScE6q7N5DhDlDAsbSwi7abRDneyhTuGkgFJRKJ2WLr48uprnemecRyMivoSX9rl2RjZHcIVdeFe8tQyDm0FaZ1sZEobwLHvoCHcwJo7R/LWZ8cz4v6Xo2Jpi3B0QcC92cm/qPv3JfhzTDtxRdw3oj/tpmGzAt+azHnPOOBlYH8A+YWd4Y/gCqBV/MpU6IKmU2S5KrBvrqBWVlJFCyku1jOSyTEJPIJdkMgcZhH0BraIR1+NkK9nzUkyTq+gqvmopfwDvEL+SjOds6gAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+  ></span>
+  <picture>
+          <source
+              srcset="/static/bc75195362d482d5677caa47da3700c1/a59e9/3ce58422.webp 192w,
+/static/bc75195362d482d5677caa47da3700c1/0ca9f/3ce58422.webp 384w,
+/static/bc75195362d482d5677caa47da3700c1/dc9b9/3ce58422.webp 768w,
+/static/bc75195362d482d5677caa47da3700c1/f3abd/3ce58422.webp 880w"
+              sizes="(max-width: 768px) 100vw, 768px"
+              type="image/webp"
+            />
+          <source
+            srcset="/static/bc75195362d482d5677caa47da3700c1/3b721/3ce58422.png 192w,
+/static/bc75195362d482d5677caa47da3700c1/66595/3ce58422.png 384w,
+/static/bc75195362d482d5677caa47da3700c1/fe486/3ce58422.png 768w,
+/static/bc75195362d482d5677caa47da3700c1/665fb/3ce58422.png 880w"
+            sizes="(max-width: 768px) 100vw, 768px"
+            type="image/png"
+          />
+          <img
+            class="gatsby-resp-image-image"
+            src="/static/bc75195362d482d5677caa47da3700c1/fe486/3ce58422.png"
+            alt="3ce58422"
+            title="3ce58422"
+            loading="lazy"
+            decoding="async"
+            style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+          />
+        </picture>
+  </a>
+    </span></p>
+<p>3 대중 2대만이 운영 트레픽을 받게되고 1대는 LB (로드벨런서) 에서 떼어놓습니다. <br/>
+그렇게 2대만이 가용서버가 되고 트레픽은 각각 50만 50만 씩 사이좋게 나누어 받습니다. <br/>
+배포가 완료되고 다음차례인 서버에 배포를 진행합니다. <br/>
+이과정에서 로드벨런서 를 붙였다 뗏다를 반복하며, 순차적으로 모든 서버가 신규 서버로 점진적 교체가 이루어 지면서 배포가 완료됩니다. <br/>
+(물론 이때 트레픽은 100% 운영중인 서버에만 흘러가게 됩니다.) <br/></p>
+<p>이것이 Rolling 배포방식이 되겠습니다 :) <br/></p>
+<h2>장점</h2>
+<ul>
+<li>서비스 자원을 그대로 이용하기 때문에 낭비가 없습니다.</li>
+<li>배포를 차례로 진행하기 때문에 상황에 따라 손쉽게 롤백이 가능하다는 점.</li>
+</ul>
+<h2>단점</h2>
+<ul>
+<li>구 버전과 신 버전이 공존하며, 호환성 문제가 발생할 수 있다는점.</li>
+<li>트레픽이 몰리다보니 도메인에 따라, 사용자들이 덜 몰리는 새벽작업이 필연적일 수 있다는점.</li>
+</ul>
+<h2>Blue/Green 배포</h2>
+<p>역시 총 3대의 인스턴스가 띄워져 있다고 가정하겠습니다. <strike>그림에서 서버가 3개 라 가정함… </strike>  <br/></p>
+<p>구버전이 배포되어 있는 인스턴스를 Blue, 신버전이 배포되어 있는 인스턴스를 Green 이라고 합니다. <br/>
+색깔에 많은 의의를 두지 않아도 됩니다 :) <br/></p>
+<p>아무 의미가 없지만 레드 옐로 배포가 아닌 이유는, 우리가 보통 신호들에서 빨간불엔 안건ㄴ…<br/></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 253px; "
+    >
+      <a
+    class="gatsby-resp-image-link"
+    href="/static/cbf162d0c22c543d7911637cbc7f0c9a/09511/b9b77309.png"
+    style="display: block"
+    target="_blank"
+    rel="noopener"
+  >
+    <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 71.875%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAOCAYAAAAvxDzwAAAACXBIWXMAAAsTAAALEwEAmpwYAAADnklEQVQ4yz3P6U+TBwCA8df36oFtx1lqSy94C7allNJC6UVpXyxga7FyxatB50FmlTmBwYgXGo0bW1TinHGGzGwmmyz7sGwf9ml/2bPIlv0DvzyPoA/KVIsO2juaMBplQh6RszNunjz+lJnyIBP5ThZmguQTLqoTAc7VYtRnRzhVjlAaD5CK2zm7MMTcMRduh4BQjCqUsyY+apYYiHlIBE3MFW1srGRYOOVhqe5jbT3H7XsNnj5/wJu9Z7zZe87TFw+4c6/BzesVVq7GWZh24v0fzCm4jqh43RYGAzKLpRau1V2kklaySSu1chermx/z3etv+OX9Hu/39/jhx12e7W5zd6vO2iepgyvNdQDKTKUU2poVzCaFcLfEYqmZuZKF9jYT+WwXlUIrtclBfv3tLb//uc/P+3u8/WmXF6++5OH2ZdYamQOwz/MfOJlSsbfKjBf6yQzZqOUOkx+2YDJKCKqIP9BG48ZF/vj7L969e8X3r5/weu9rnn/7mO37l2lcTbI43UXwABwwoCcMeJwm7HaVAU2lkjEQ7FERBBlRFDGZzYSjfiqzJTbXLrK1fp6XL7fZ+WqDjfV5zsx3U9M7CHlFhELEwFhUxmZW8HmPMNTXxOSoSr9moNn6AZQwm42UKyke7qxz+06DxvJJdnbW2L5/nVs3Zzl/OsTJYjthn4yQ71fJR2XcDpUJPUI21kxhSGQgIOOyq4iSjCAIODxO9LkTnDgzy8pKnbt3r7D5xRUayxUWZvxU8y2EvBJCPqySjch02o20tihE/Aq5fpmwX8Z7REFRpQOwo7OD3oEeghEvK40aq7dOs7pa5+oFnVrJwfGs7V8wFzQcgCNxI4kBI7FulWSvwlGXSMApYbN9KBQxGw1ovT483X4KhREuXSpzrVHl/OkRpsYsFBNGQh4VId2nkAmLTKRFCkmFuGZgVFPoc4h47CLtHRJmo4LT7SStj1OuVRlMphhNdlOf9VAtdlBMyBSiCiGvgpAOGMiERPRRifywTLxHJakp9HsPEdWMlHIOnHYL0V4rsYCNXMxJr89ONOzlwefTrFyIM1Owog+qHHXLCKOaSjooMT4ikotLxLplRjSJsUQTJ485OTPjIRFpI9wpkNMOkfYJDPdauLg0yaPb82zcKHCu6mZiyEjAJSMkNYlsSGVqzIqethDzq2SOyuhpMxXdwvHCYSazVlKaTMonkfKJpMKHub6sc39rns3Ppri2NIQ+bMbXKfEP3bfVku8dCmsAAAAASUVORK5CYII='); background-size: cover; display: block;"
+  ></span>
+  <picture>
+          <source
+              srcset="/static/cbf162d0c22c543d7911637cbc7f0c9a/a59e9/b9b77309.webp 192w,
+/static/cbf162d0c22c543d7911637cbc7f0c9a/742b6/b9b77309.webp 253w"
+              sizes="(max-width: 253px) 100vw, 253px"
+              type="image/webp"
+            />
+          <source
+            srcset="/static/cbf162d0c22c543d7911637cbc7f0c9a/3b721/b9b77309.png 192w,
+/static/cbf162d0c22c543d7911637cbc7f0c9a/09511/b9b77309.png 253w"
+            sizes="(max-width: 253px) 100vw, 253px"
+            type="image/png"
+          />
+          <img
+            class="gatsby-resp-image-image"
+            src="/static/cbf162d0c22c543d7911637cbc7f0c9a/09511/b9b77309.png"
+            alt="b9b77309"
+            title="b9b77309"
+            loading="lazy"
+            decoding="async"
+            style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+          />
+        </picture>
+  </a>
+    </span></p>
+<p>아래 그림과 같이 구버전과 운영중인 블루 서버가 있고, <br/>
+신버전과 배포중인 그린 서버가 있습니다. <br/></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 768px; "
+    >
+      <a
+    class="gatsby-resp-image-link"
+    href="/static/5cd37fe5045d1211a1c19fed546f3089/665fb/c95558a1.png"
+    style="display: block"
+    target="_blank"
+    rel="noopener"
+  >
+    <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 59.375%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAAAsTAAALEwEAmpwYAAAB3ElEQVQoz42ST2sTURTFs9RP4HfpN1DBhUsXFly2FNSVFAVtwWKRIi3NptkURehCughFI9TaktKqSNo0k060oTGZSdI0TsifiU5m3vvJvDpJik3rhcOdufe+M2feuSEGhJRSZc/zEEKo7KO/d1aELiK0bRtd10mlUrTb7YsJg54/1A8hThrV6k8mJid5/GSCUrmsar7iQaShwV8MaoJMeg9dS4J0/0fhSfO3K2h3BL/60HY8vpl13sWTCt+LDTwhzvyjgEcp7HiS45arCMuNDjnLodRwSZo2t56uMDT2kqGxV9x+9hbHdZFIhBR40lM5wLmmBPGjYPJ1N62Qy5fPnfVVKsL3mQYv1o+IZxuEN6ss71pEtTozH4+o2l73QNOts1HcYKu0hWZprBqr7Fv7qpaoJHoK77w+5PL9z9x7k+PKwx2uh9PciBxw6e42m9l6lzBjZRhdG2U8Ps7C3gLDsWEWtUVG1kaY/jLdI3z+ocS1cJr5dZObkQwPlrM8WjG4Oq+RLtldQqNpMJeYI5KMED2IMvVpithhjNnELEv6Us9lT0icTgfTLJIvFDBNk2ar1XPvr4P+xfvvtVqNfCGPYRhUjis4jqOMUnfYv1PB8+k9k2oj/5mTnFqXwJQ/oel/UHtzCmIAAAAASUVORK5CYII='); background-size: cover; display: block;"
+  ></span>
+  <picture>
+          <source
+              srcset="/static/5cd37fe5045d1211a1c19fed546f3089/a59e9/c95558a1.webp 192w,
+/static/5cd37fe5045d1211a1c19fed546f3089/0ca9f/c95558a1.webp 384w,
+/static/5cd37fe5045d1211a1c19fed546f3089/dc9b9/c95558a1.webp 768w,
+/static/5cd37fe5045d1211a1c19fed546f3089/f3abd/c95558a1.webp 880w"
+              sizes="(max-width: 768px) 100vw, 768px"
+              type="image/webp"
+            />
+          <source
+            srcset="/static/5cd37fe5045d1211a1c19fed546f3089/3b721/c95558a1.png 192w,
+/static/5cd37fe5045d1211a1c19fed546f3089/66595/c95558a1.png 384w,
+/static/5cd37fe5045d1211a1c19fed546f3089/fe486/c95558a1.png 768w,
+/static/5cd37fe5045d1211a1c19fed546f3089/665fb/c95558a1.png 880w"
+            sizes="(max-width: 768px) 100vw, 768px"
+            type="image/png"
+          />
+          <img
+            class="gatsby-resp-image-image"
+            src="/static/5cd37fe5045d1211a1c19fed546f3089/fe486/c95558a1.png"
+            alt="c95558a1"
+            title="c95558a1"
+            loading="lazy"
+            decoding="async"
+            style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+          />
+        </picture>
+  </a>
+    </span></p>
+<p>그린 서버가 배포가 완료되면, 블루 서버와 그린 서버의 역할을 바꿔줍니다. <br/>
+그렇기 때문에 한번에 배포가 가능해 지겠죠 :)</p>
+<h2>장점</h2>
+<ul>
+<li>Rolling 배포와 다르게 구버전과 신버전이 공존하지 않기 때문에 호환성 문제가 발생하지 않습니다.</li>
+<li>한번에 배포가 가능하기 때문에 트레픽이 몰리는 새벽작업이 필요없습니다.</li>
+</ul>
+<h2>단점</h2>
+<ul>
+<li>운영 서버가 운영되고 있는 서비스 자원이 두배로 들게 됩니다.</li>
+</ul>
+<h2>Canary 배포</h2>
+<p>카나리 배포는 조금 슬픈 이야기가 존재합니다. <br/>
+19세기만 해도 탄광에서 가스 중독 사고가 많았답니다. <br/>
+광부들에게 희망을 준 것은 카나리아 라는 새였습니다. <br/></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 533px; "
+    >
+      <a
+    class="gatsby-resp-image-link"
+    href="/static/8431239d11d8b1b789a2c124efd9f81a/4907d/b5d42848.png"
+    style="display: block"
+    target="_blank"
+    rel="noopener"
+  >
+    <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 45.833333333333336%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAAAsTAAALEwEAmpwYAAACZ0lEQVQozy2OSU8TAQBGx7t/QKMejIk3PRhlUyJaEOk2XZiZTks73eje0lCW0jIUsRZoS8JiWVoQQsSgRkHjQQ/axIMxnrz5b56RePiSl7zk5ROCcy/Qik204g7eQhNXuoxXC+LXfIwkiii5deRsHTG1gis6TS1r5GDGQD5u4540RrcjQ48jSbc9RY8jhRDQW/hnm2cLzO2hpXV8qozTZiEQjuGdXMWcWMERLbE/doMf89do69dpF6+S8xu4JWbosSfOgl22BII22yQ4t0uy3GK82iJfrhHQVFyKg4I+yeHJR5a2ttjLdXEUOs/b9EXeZy/xJnWB1ugV7JJCh32MbnuSTjGO4Cts8+9lurJHvt6kWGsQiwV5tebkT7vA919tvv084bTcx777HPuRy2xHb1ILdpOV7tNhiXDbGqfTGjljwTP9HN/MFqOlHcaWdlmoVmg+6eP3sYGXG0E+fDll47BFMOynEFc4Lkd5t7nI591lGmkbkjJCny3AHVOY2+ZRBHViDTW3hntyHX9hk4y+iFcxIT56gGwz8qxeR8rW6fUtkJ9d5OtBlU/NRY6r4xzpGlMRFUmWsco+7lpDCI7kEo5kBWe6ije3zNNKmfWVEo16npVKjsJUkkA0g03L4tHCvF7VaRRjlH0GahMhJHUERVFQFYlhWUUwhnQsoyWcyTLDiXk8aZ1wJEQmrhGP+AlqbnwjbrweN6rqwu0UMT7sxTzYj0d24lJVXC4XkiSdeWFQm2HIP4MjXkJKziMmljFYvTweGEAU7ZiNJkxDQ9hEEYvJhCiKDPT3YzFbsFqtyJKELMv/gyp/Aa9lllB3RSkGAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <picture>
+          <source
+              srcset="/static/8431239d11d8b1b789a2c124efd9f81a/a59e9/b5d42848.webp 192w,
+/static/8431239d11d8b1b789a2c124efd9f81a/0ca9f/b5d42848.webp 384w,
+/static/8431239d11d8b1b789a2c124efd9f81a/aaa87/b5d42848.webp 533w"
+              sizes="(max-width: 533px) 100vw, 533px"
+              type="image/webp"
+            />
+          <source
+            srcset="/static/8431239d11d8b1b789a2c124efd9f81a/3b721/b5d42848.png 192w,
+/static/8431239d11d8b1b789a2c124efd9f81a/66595/b5d42848.png 384w,
+/static/8431239d11d8b1b789a2c124efd9f81a/4907d/b5d42848.png 533w"
+            sizes="(max-width: 533px) 100vw, 533px"
+            type="image/png"
+          />
+          <img
+            class="gatsby-resp-image-image"
+            src="/static/8431239d11d8b1b789a2c124efd9f81a/4907d/b5d42848.png"
+            alt="b5d42848"
+            title="b5d42848"
+            loading="lazy"
+            decoding="async"
+            style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+          />
+        </picture>
+  </a>
+    </span></p>
+<p>이 새는 일산화탄소와 메탄에 유독 약하기 때문에 광부들은 카나리아를 새장에 넣어 갱도로 들어가서 <br/>
+석탄을 캐다가 카나리아가 이상증세를 보이면 즉시 탈출했다. (아차 싶을땐 역시 도망이 최고) <br/>
+“이상 증세가 보이면 바로 롤백 이 핵심” <br/></p>
+<p>카나리 배포는 아래 그림과 같이 소규모 유저들에게 신버전을 배포하고, <br/>
+이상증세가 보이면 바로 롤백을 진행하는 전략입니다. <br/></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 768px; "
+    >
+      <a
+    class="gatsby-resp-image-link"
+    href="/static/30f446b6e73314bafc48e8af489e0df6/665fb/6acb038a.png"
+    style="display: block"
+    target="_blank"
+    rel="noopener"
+  >
+    <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 66.14583333333334%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAANCAYAAACpUE5eAAAACXBIWXMAAAsTAAALEwEAmpwYAAACQElEQVQ4y3WSTW8SURSG+WHGxMS1K39DNxo1dl0Xrmx1U3cukNoyaSuhtlWaWNNKKUGtQKTpF1No6RQoCMLAMB9lZnjM0A4Mjb7JvTNz5r3PPeee6+v1ejhynqqqUqvV+sO27UHclfve7XaRZZlKpdJf4/5zhs+Z3MWiKDI5NUU4HMayrBGjOxyZpkl4aYkXk5OI4nE/5jD6QPfDUT6fQxAE1tfXsSzzvxk6mzkeIRgkl8vhZfhcszdLTdM82eEBDqFOqd7sXPls+8qwV6hz79kKdx7PcuvRDG8i6SvzP0qeXt7h9pMZ7o6/5f7zMCcXzWvw9Rk6aquXvP+8w7uPCQIrCTLHpWugDT1GgD/3C/g/xJj7FCf0JYWiXg4q8rnpN+QWy5k6e+UWilFG7bT63fQ2ZrABJlq3QV11NjWwsYYlO1NKahPPNUkVdTbyGvvVBuVmmQulgtkzB2bN1MjKWSpalXO1xFErS02vk2/lKXVKQ2Dge5WH84fMJiSehkSmN4sExTkmEhOcyqcDYFWtsigusnq8SiQbwZ/ys1XYYj47z4a04QF+K/NA2MMfP2c8lOX11zNe/XrJ2OYYJ8oocOFogUg+wpq4RiAdIHYWQzgUiErRITBZkAnGT4jtlwj9kIhl/7Ar7bItblOsFjEMo29WugqZ3xmSUpL0WZqoGOWgfEC6kibXyHnvoYmttTAUmZ7Rdo4era2ht3WajSa6ruOVpVt05A5G28DoGCMXv39teozKvhnwdPqqyzf99iD+F23AxF/pH0k8AAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <picture>
+          <source
+              srcset="/static/30f446b6e73314bafc48e8af489e0df6/a59e9/6acb038a.webp 192w,
+/static/30f446b6e73314bafc48e8af489e0df6/0ca9f/6acb038a.webp 384w,
+/static/30f446b6e73314bafc48e8af489e0df6/dc9b9/6acb038a.webp 768w,
+/static/30f446b6e73314bafc48e8af489e0df6/f3abd/6acb038a.webp 880w"
+              sizes="(max-width: 768px) 100vw, 768px"
+              type="image/webp"
+            />
+          <source
+            srcset="/static/30f446b6e73314bafc48e8af489e0df6/3b721/6acb038a.png 192w,
+/static/30f446b6e73314bafc48e8af489e0df6/66595/6acb038a.png 384w,
+/static/30f446b6e73314bafc48e8af489e0df6/fe486/6acb038a.png 768w,
+/static/30f446b6e73314bafc48e8af489e0df6/665fb/6acb038a.png 880w"
+            sizes="(max-width: 768px) 100vw, 768px"
+            type="image/png"
+          />
+          <img
+            class="gatsby-resp-image-image"
+            src="/static/30f446b6e73314bafc48e8af489e0df6/fe486/6acb038a.png"
+            alt="6acb038a"
+            title="6acb038a"
+            loading="lazy"
+            decoding="async"
+            style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+          />
+        </picture>
+  </a>
+    </span></p>
+<p>그러나 이런 전략 덕분에 A/B 테스트가 가능해 지겠네요 :) <br/>
+물론 점진적으로 신버전을 확장하다가 뒤늦게 이상증세를 확인하여 롤백하게 되는날엔 마음이 아프겠지만요 :) <br/></p>
+<h2>장점</h2>
+<ul>
+<li>단계적인 전환 방식을 통해 부정적 영향을 최소화하고 상황에 따라 트래픽 양을 늘리거나 롤백할 수 있다.</li>
+<li>A/B 테스트가 가능하다.</li>
+</ul>
+<h2>단점</h2>
+<ul>
+<li>신버전과 구버전이 동시에 존재하기 때문에 버전관리가 까다롭다.</li>
+</ul>
+<h1>결론</h1>
+<p>흥미로운 이름의 배포전략이 존재했고, <br/>
+모놀리식에서 마이크로서비스로 전환하면서 배포전략이 어떻게 변화했는지 알아보았습니다. <br/></p>
+<h2>운영 관점에서 느낀 주관적인 생각과 궁금증</h2>
+<ul>
+<li>시간을 내어서 AWS 를 이용해 Blue Green 배포를 직접 진행해 보겠습니다. (나중에) <br/></li>
+<li>도메인별 전략에 따라, 전략이 다를것 같습니다. <br/></li>
+<li>결제 도메인의 경우는 어떤 전략 방식이 나을까 ? <br/></li>
+</ul>
+<h2>참고자료</h2>
+<ul>
+<li><a href="https://hudi.blog/zero-downtime-deployment/" target="_blank" rel="nofollow">https://hudi.blog/zero-downtime-deployment/</a></li>
+<li><a href="https://loosie.tistory.com/781" target="_blank" rel="nofollow">https://loosie.tistory.com/781</a></li>
+</ul></div><style data-emotion="css hx9xpc">@media (max-width: 768px){.css-hx9xpc{padding:0 20px;}}</style><div class="css-hx9xpc e37rk6g0"></div><style data-emotion="css 9w9jmx">.css-9w9jmx{display:grid;place-items:center;margin-top:auto;padding:50px 0;font-size:15px;text-align:center;line-height:1.5;}@media (max-width: 768px){.css-9w9jmx{font-size:13px;}}</style><footer class="css-9w9jmx evi8j960">Thank You for Visiting My Blog, Have a Good Day 😆</footer></main></div><div id="gatsby-announcer" style="position:absolute;top:0;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border:0" aria-live="assertive" aria-atomic="true"></div></div><script id="gatsby-script-loader">/*<![CDATA[*/window.pagePath="/세번째 글/3/";window.___webpackCompilationHash="09e358f056a30104f968";/*]]>*/</script><script id="gatsby-chunk-mapping">/*<![CDATA[*/window.___chunkMapping={"polyfill":["/polyfill-c9fa82aa5b1f9c65f078.js"],"app":["/app-c414a4bc6bd54e339c65.js"],"component---src-pages-404-tsx":["/component---src-pages-404-tsx-7f90ce383bc906cdc886.js"],"component---src-pages-index-tsx":["/component---src-pages-index-tsx-64fe464e7a23cfe6de99.js"],"component---src-pages-info-tsx":["/component---src-pages-info-tsx-fd724997a36f7bed6403.js"],"component---src-templates-post-template-tsx":["/component---src-templates-post-template-tsx-b660ede85aff2fa77a3b.js"]};/*]]>*/</script><script src="/polyfill-c9fa82aa5b1f9c65f078.js" nomodule=""></script><script src="/app-c414a4bc6bd54e339c65.js" async=""></script><script src="/framework-c45ea1cbb39153ed5c73.js" async=""></script><script src="/webpack-runtime-a1d39edcfd2322f3bcb3.js" async=""></script></body></html>
