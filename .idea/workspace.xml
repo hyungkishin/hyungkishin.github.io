@@ -5,7 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c0bd35de-7468-49e2-b548-8c68a7e74b28" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/contents/posts/kotlin/01 코들린의 현재와 미래.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/contents/posts/kotlin/02. 자바와 코틀린의 차이점.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/contents/posts/kotlin/03. 코틀린 의 spring 지원.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/contents/posts/kotlin/img.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/contents/posts/kotlin/img_1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,7 +67,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
     "git-widget-placeholder": "develop",
-    "last_opened_file_path": "/Users/dev-shin/proj/study/hyungkishin.github.io",
+    "last_opened_file_path": "/Users/dev-shin/proj/study/hyungkishin.github.io/contents/posts/kotlin",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -74,6 +79,8 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/contents/posts/kotlin" />
+      <recent name="$PROJECT_DIR$/contents/posts/회고" />
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
@@ -85,7 +92,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1711889962457</updated>
-      <workItem from="1711889963533" duration="3241000" />
+      <workItem from="1711889963533" duration="3928000" />
     </task>
     <servers />
   </component>
