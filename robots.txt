@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Sitemap: https://hyungkishin.github.io/sitemap-index.xml
+Host: https://hyungkishin.github.io
