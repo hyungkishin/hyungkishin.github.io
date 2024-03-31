@@ -71,7 +71,8 @@
     "clean": "gatsby clean",
     "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\" && exit 1",
     "deploy-gh": "gatsby build && gh-pages -d public",
-    "deploy-gh-prefix-paths": "gatsby build --prefix-paths && gh-pages -d public"
+    "deploy-gh-prefix-paths": "gatsby build --prefix-paths && gh-pages -d public",
+    "deploy": "gatsby build && gh-pages -d public -b master"
   },
   "repository": {
     "type": "git",
