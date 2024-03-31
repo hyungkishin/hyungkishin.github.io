@@ -1,4 +1,365 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Sun, 31 Mar 2024 14:17:55 GMT</lastBuildDate><item><title><![CDATA[배포전략]]></title><description><![CDATA[배포 전략에 관하여 문득 dev 환경에서 테스트를 할겸 
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Sun, 31 Mar 2024 14:29:40 GMT</lastBuildDate><item><title><![CDATA[자바와 코틀린의 차이점]]></title><description><![CDATA[자바에는 있는데 코틀린엔 없는기능 체크드 익셉션(Checked Exception) 자바의 익셉션 계층  Throwable : 예외 계층의 최상위 클래스 Error : 시스템에 비정상적인 상황이 발생 예측이 어렵고 기본적으로 복구가 불가능 함 e.g…]]></description><link>https://hyungkishin.github.io/02. 자바와 코틀린의 차이점/</link><guid isPermaLink="false">https://hyungkishin.github.io/02. 자바와 코틀린의 차이점/</guid><pubDate>Fri, 12 Jan 2024 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;자바에는 있는데 코틀린엔 없는기능&lt;/h1&gt;
+&lt;h3&gt;체크드 익셉션(Checked Exception)&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;자바의 익셉션 계층 &lt;/li&gt;
+&lt;li&gt;Throwable : 예외 계층의 최상위 클래스&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Error : 시스템에 비정상적인 상황이 발생 예측이 어렵고 기본적으로 복구가 불가능 함&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;e.g) OutOfMemoryError, StackOverflowError, etc&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Exception : 시스템에서 포착 가능하여 etc (try-catch) 복구 가능&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;예외 처리 강제 IOException, FileNotFoundException, &lt;/li&gt;
+&lt;li&gt;@Transactional 에서 해당 예외가 발생하면 기본적으론 롤백이 동작하지 않음 &lt;/li&gt;
+&lt;li&gt;rollbackFor: 를 사용해야함&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;RuntimeException &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;런타임시에 발생하는 예외 예외 처리를 강제하지 않음&lt;/li&gt;
+&lt;li&gt;e.g ) NullPointerException, ArrayIndexOutOfBoundsException, etc&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/bed4c7cee13c8413ce5eafe30d7203d6/a7903/img.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 62.94117647058823%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAANCAYAAACpUE5eAAAACXBIWXMAAAsTAAALEwEAmpwYAAABqUlEQVR42oWTyYoCQRBE+/8/xIvoRXQaFxQv4qUVFVEUcd9x37cYXkFJjz3DFCRdVZkZlRGZ7eiX9Xq9NJ/PNZ1OtVgstFwuNR6PdTwe9d9ySMb86/F4qFgsKpFIKBqNKhKJKJvNajAYGP/z+QzkvAHthiC7brebWq2WGo2GSqWSqtWqOW82mzeDPyvs9Xrq9/uq1+tqNpsGZLfb6XK5GDufz8Y6nY7xE0d8t9s1cZ8POFBJJpMKh8PK5/OG2ul0+hF4v99VKBQUj8cVCoVMrOu6opgAIGKPRiO1221NJhMjPhp+Nmk2mxk/1NFyOBxqv98HATmg3+FwCFSFQZsu46fLgHCHzlBGDn+es16v5ZU8uV+u0We1WpkKK5WKYrGY6TT02NMgHsfPFzA7Sm9AXmHeyuWyAMdIoDlom06nlclklEqlzIP+RZWfegfm0O5tFdfr1SRxb7Xly72VAGDOP+bQD2o1RbtarWao8udwRxxAGA3yPM/IBDB5zm/DSQUkAMIo5XI5IwuAJOHbbrfmb2LMmEvrc/6aeGggOlTY01lLi+77fezxQ/kboCPas0D9g6UAAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img.png&apos; title=&apos;&apos; src=&apos;/static/bed4c7cee13c8413ce5eafe30d7203d6/ca1dc/img.png&apos; srcset=&apos;/static/bed4c7cee13c8413ce5eafe30d7203d6/e7570/img.png 170w,
+/static/bed4c7cee13c8413ce5eafe30d7203d6/f46e7/img.png 340w,
+/static/bed4c7cee13c8413ce5eafe30d7203d6/ca1dc/img.png 680w,
+/static/bed4c7cee13c8413ce5eafe30d7203d6/02d09/img.png 1020w,
+/static/bed4c7cee13c8413ce5eafe30d7203d6/a7903/img.png 1219w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;java 에서 체크드 익셉션은 무조건 try catch 로 감싸줘야 하거나 throw 라는 키워드로 예외를 전파하지 않으면 컴파일 에러가 발생.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;java&quot;&gt;&lt;pre class=&quot;language-java&quot;&gt;&lt;code class=&quot;language-java&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;token class-name&quot;&gt;Thread&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;slepp&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;catch&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token class-name&quot;&gt;InterrupedException&lt;/span&gt; e&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;token comment&quot;&gt;// 예외처리    &lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;kotlin 에서는 체크드 익셉션을 강제 하지 않는다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;그러나 원한다면 가능하다.&lt;/li&gt;
+&lt;li&gt;자바에서 의미없는 체크드 exception 을 지양하는듯해.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;기본 자료형&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;자바는 원시 자료형을 지원하며 객체로된 레퍼런스 타입도 지원한다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;java&quot;&gt;&lt;pre class=&quot;language-java&quot;&gt;&lt;code class=&quot;language-java&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;int&lt;/span&gt; i &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;token class-name&quot;&gt;Integer&lt;/span&gt; ii &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;token class-name&quot;&gt;String&lt;/span&gt; str &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; ii&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;toString&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;코틀린은 레퍼런스 타입만 지원한다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;kotlin&quot;&gt;&lt;pre class=&quot;language-kotlin&quot;&gt;&lt;code class=&quot;language-kotlin&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;val&lt;/span&gt; i&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; Int &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;token keyword&quot;&gt;val&lt;/span&gt; str&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; String &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; i&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;toString&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;코틀린의 레퍼런스 타입은 최적화된 방식으로 컴파일 한다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;kotlin&quot;&gt;&lt;pre class=&quot;language-kotlin&quot;&gt;&lt;code class=&quot;language-kotlin&quot;&gt;int i &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
+String str &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; String&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;valueOf&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;i&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;--&lt;/p&gt;
+&lt;h3&gt;정적멤버&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;자바는 static 키워드로 정적멤버를 선언한다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;java&quot;&gt;&lt;pre class=&quot;language-java&quot;&gt;&lt;code class=&quot;language-java&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;token class-name&quot;&gt;JavaClass&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;token keyword&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;int&lt;/span&gt; i &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;token keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;staticMethod&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;token comment&quot;&gt;// ...&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;코틀린은 companion object 로 대체&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;kotlin&quot;&gt;&lt;pre class=&quot;language-kotlin&quot;&gt;&lt;code class=&quot;language-kotlin&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;class&lt;/span&gt; KotlinClass &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;token keyword&quot;&gt;companion&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;object&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;val&lt;/span&gt; i&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; Int &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;fun&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;token comment&quot;&gt;// ...&lt;/span&gt;
+    &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;3항 연산자&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;자바&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;java&quot;&gt;&lt;pre class=&quot;language-java&quot;&gt;&lt;code class=&quot;language-java&quot;&gt;&lt;span class=&quot;token class-name&quot;&gt;String&lt;/span&gt; animalSound &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;호랑이&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;equals&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;animal&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;?&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;어흥&quot;&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;야홍&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;코틀린은 if else 로 대체한다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;kotlin&quot;&gt;&lt;pre class=&quot;language-kotlin&quot;&gt;&lt;code class=&quot;language-kotlin&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;val&lt;/span&gt; animalSound&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; String &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string-literal singleline&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;호랑이&quot;&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;==&lt;/span&gt; animal&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token string-literal singleline&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;어흥&quot;&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string-literal singleline&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;야홍&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;-- &lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;세미콜론&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;자바는 무조건 ; 세미콜론이 붙지만 코틀린은 안붙는다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;java&quot;&gt;&lt;pre class=&quot;language-java&quot;&gt;&lt;code class=&quot;language-java&quot;&gt;&lt;span class=&quot;token class-name&quot;&gt;Boolean&lt;/span&gt; isAdmin &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; userService&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;isAdmin&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;userId&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;kotlin&quot;&gt;&lt;pre class=&quot;language-kotlin&quot;&gt;&lt;code class=&quot;language-kotlin&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;val&lt;/span&gt; isAdmin&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; Boolean &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; userService&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;isAdmin&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;userId&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h1&gt;코틀린에는 있는데 자바에는 없는기능&lt;/h1&gt;
+&lt;h3&gt;확장&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;개발자가 임의로 객체의 함수나 프로퍼티를 확장해서 사용할 수 있다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;kotlin&quot;&gt;&lt;pre class=&quot;language-kotlin&quot;&gt;&lt;code class=&quot;language-kotlin&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;fun&lt;/span&gt; String&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;first&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; Char &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;token keyword&quot;&gt;fun&lt;/span&gt; String&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;addFirst&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;char&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; Char&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; String &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; char &lt;span class=&quot;token operator&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;substring&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;token keyword&quot;&gt;fun&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;token function&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string-literal singleline&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;ABCD&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;first&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token comment&quot;&gt;// 출력 A&lt;/span&gt;
+    &lt;span class=&quot;token function&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string-literal singleline&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;ABCD&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;addFirst&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token char&quot;&gt;&apos;Z&apos;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token comment&quot;&gt;// 출력 ZABCD &lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h3&gt;데이터 클래스&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;데이터를 보관하거나 전달하는 목적을 가진 불변 객체로 사용&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;kotlin&quot;&gt;&lt;pre class=&quot;language-kotlin&quot;&gt;&lt;code class=&quot;language-kotlin&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;Person&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token keyword&quot;&gt;val&lt;/span&gt; name&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; String&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;val&lt;/span&gt; age&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; Int&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;token comment&quot;&gt;// hashCode(), equals(), toString() 자동생성됨&lt;/span&gt;
+    &lt;span class=&quot;token comment&quot;&gt;// 이외에도 copy(), componentN 도 유용함.&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;기존 자바에선 주로 lombok 을 사용&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;java&quot;&gt;&lt;pre class=&quot;language-java&quot;&gt;&lt;code class=&quot;language-java&quot;&gt;&lt;span class=&quot;token annotation punctuation&quot;&gt;@Getter&lt;/span&gt;
+&lt;span class=&quot;token keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;token class-name&quot;&gt;Person&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;token class-name&quot;&gt;String&lt;/span&gt; name&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;int&lt;/span&gt; age&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;kotlin&quot;&gt;&lt;pre class=&quot;language-kotlin&quot;&gt;&lt;code class=&quot;language-kotlin&quot;&gt;&lt;span class=&quot;token comment&quot;&gt;// jdk 15 에선 record 라는 이름이 추가됨&lt;/span&gt;
+&lt;span class=&quot;token keyword&quot;&gt;public&lt;/span&gt; record &lt;span class=&quot;token function&quot;&gt;Person&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;String name&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; int age&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+    
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;--&lt;/p&gt;
+&lt;h1&gt;문자열 템플릿&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;문자열에 변수를 사용하거나 여러행으로 된 텍스트 블록을 사용 할 수 있다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;kotlin&quot;&gt;&lt;pre class=&quot;language-kotlin&quot;&gt;&lt;code class=&quot;language-kotlin&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;val&lt;/span&gt; text &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token string-literal singleline&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;World&quot;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;token keyword&quot;&gt;val&lt;/span&gt; greeting &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token string-literal singleline&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;Hello, &lt;/span&gt;&lt;span class=&quot;token interpolation&quot;&gt;&lt;span class=&quot;token interpolation-punctuation punctuation&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;token expression&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;token interpolation-punctuation punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;println(greeting) // Hello, World&lt;/p&gt;
+&lt;p&gt;//  문자열 템플릿 기반의 다이나믹 쿼리
+fun sql(nameIncluded: Boolean) =
+&quot;&quot;&quot;
+SELECT id, name, email, age
+FROM users
+WHERE id = :id ${
+if (nameIncluded) {
+&quot;&quot;&quot;
+AND name = :name
+&quot;&quot;&quot;
+} else &quot;&quot;
+}
+&quot;&quot;&quot;&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;text&quot;&gt;&lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;### 기타
+- 스마트 캐스트 실드 클래스 (Jdk15 추가)
+- 위임
+- 중위 표현식
+- 연산자 오버로딩
+- 코루틴
+- etc&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</content:encoded></item><item><title><![CDATA[코틀린의 현재와 미래]]></title><description><![CDATA[코들린의 현재와 미래 코틀린을 배워야하는 이유 코틀린은 IntelliJ로 유명한 젯브레인사에서 만든 언어이기 때문에 IntelliJ에서 자동완성, 자 바-코틀린 변환, 코루틴 등 코틀린 관련 편의 기능을 완벽하게 지원 자바는 발표된지 2…]]></description><link>https://hyungkishin.github.io/01 코들린의 현재와 미래/</link><guid isPermaLink="false">https://hyungkishin.github.io/01 코들린의 현재와 미래/</guid><pubDate>Fri, 12 Jan 2024 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;코들린의 현재와 미래&lt;/h1&gt;
+&lt;h3&gt;코틀린을 배워야하는 이유&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;코틀린은 IntelliJ로 유명한 젯브레인사에서 만든 언어이기 때문에 IntelliJ에서 자동완성, 자 바-코틀린 변환, 코루틴 등 코틀린 관련 편의 기능을 완벽하게 지원&lt;/li&gt;
+&lt;li&gt;자바는 발표된지 20년이 넘었지만 코틀린, C#, 스위프트와 같은 현대적 언어에 비해 기능 이 부족함&lt;/li&gt;
+&lt;li&gt;자바에서 Best-Practice로 불리는 기법들을 언어적 차원에서 기본 제공&lt;/li&gt;
+&lt;li&gt;자바에 비해 문법이 간결하기 때문에 가독성과 생산성이 높고 오류 가능성이 적어진다&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;kotlin&quot;&gt;&lt;pre class=&quot;language-kotlin&quot;&gt;&lt;code class=&quot;language-kotlin&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;Person&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;
+        &lt;span class=&quot;token keyword&quot;&gt;val&lt;/span&gt; name&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; String&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; 
+        &lt;span class=&quot;token keyword&quot;&gt;val&lt;/span&gt; age&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; Int&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; 
+        &lt;span class=&quot;token keyword&quot;&gt;val&lt;/span&gt; email&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; String
+&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token comment&quot;&gt;// equals(), hashCode(), toString() 등 유용한 함수를 자동 생성&lt;/span&gt;
+
+&lt;span class=&quot;token keyword&quot;&gt;object&lt;/span&gt; MyCompany &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;token comment&quot;&gt;// 싱글턴 객체 &lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;val&lt;/span&gt; name&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; String &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token string-literal singleline&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;MyCompany&quot;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;token comment&quot;&gt;// 탑- 레벨 함수로 클래스 외부에서 함수 작성 가능&lt;/span&gt;
+&lt;span class=&quot;token keyword&quot;&gt;fun&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;token comment&quot;&gt;// `new` 키워드 없이 객체 생성&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;val&lt;/span&gt; person &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;Person&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string-literal singleline&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;이상훈 &quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;35&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string-literal singleline&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot; digimon1740 @gmail.com &quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h3&gt;좀더 파해쳐 보자&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;문법 간결&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;data class 라는 기능을 사용하게 되면&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;자동으로 equals, hashcode, toString 을 자동으로 생성함&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;object 라는 키워드를 사용하게되면&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;간단하게 싱글턴 객체를 만들어준다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;함수를 탑 레벨에 위치&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;탑 레벨 함수는 클래스 외부에서 함수를 작성할 수 있는 기능이다. ( 별도의 클래스 없이 작성가능 )&lt;/li&gt;
+&lt;li&gt;반면 자바에서는 기본적으로 클래스를 만들고 그 안에서 메서드를 만든다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;new 키워드 없이 객체를 만들 수 있다.&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;멀티 플랫폼 언어이다&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;서버개발&lt;/li&gt;
+&lt;li&gt;e.g ) 모바일 앱, 프론트 js, 안드로이드&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;기업의 개선점&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;google 의 경우 npe 를 33% 절감 함&lt;/li&gt;
+&lt;li&gt;그로인해 사용자 환경은 크게 향상 시켰다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;코틀린 타임라인&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;2016년 2월 코틀린 1.0 릴리즈&lt;/li&gt;
+&lt;li&gt;2017년 1월 스프링 프레임워크 5.0 부터 코틀린 공식 지원 발표&lt;/li&gt;
+&lt;li&gt;2017년 5월 구글 IO 에서 안드로이드 공식 지원 언어로 발표&lt;/li&gt;
+&lt;li&gt;2019년 5월 구글 IO 에서 안드로이드 개발시 최우선 언어 (Kotlin-First) 발표&lt;/li&gt;
+&lt;li&gt;2022년 5월 코틀린 1.7 베타 릴리즈&lt;/li&gt;
+&lt;li&gt;...&lt;/li&gt;
+&lt;/ul&gt;</content:encoded></item><item><title><![CDATA[코틀린의 spring 지원]]></title><description><![CDATA[공식문서 https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-servlet.html 공식 문서의 샘플 코드를 보면 kotlin 탭을 제공  Spring initializr…]]></description><link>https://hyungkishin.github.io/03. 코틀린 의 spring 지원/</link><guid isPermaLink="false">https://hyungkishin.github.io/03. 코틀린 의 spring 지원/</guid><pubDate>Fri, 12 Jan 2024 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;공식문서&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-servlet.html&quot;&gt;https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-servlet.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;공식 문서의 샘플 코드를 보면 kotlin 탭을 제공&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/91afd7f1810be84d0b8328323c194071/d9c1b/img_1.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 34.11764705882353%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAHCAYAAAAIy204AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAsElEQVR42qWR0Q6CMAxF9/F8GvFFvoAHNVHUQVAGyMZGd8x48sVE4k1umrTNbXurimJPlmVorUmIMfIP1OlUkec76qbG9AZjDONo8X5J8uuAX2itJYSAevQvJjvj3czs3JpcRDZvmvpFBNU+R6prQ9t0dO3AZF2qEmX76UlULTFyvmjK8sDxcuR+0zyeLdemYppf2wWjCNZ5+mGitx0+eCQKQcIaNwsmzz79+vUJ3/gGDuslaOxxliQAAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_1.png&apos; title=&apos;&apos; src=&apos;/static/91afd7f1810be84d0b8328323c194071/ca1dc/img_1.png&apos; srcset=&apos;/static/91afd7f1810be84d0b8328323c194071/e7570/img_1.png 170w,
+/static/91afd7f1810be84d0b8328323c194071/f46e7/img_1.png 340w,
+/static/91afd7f1810be84d0b8328323c194071/ca1dc/img_1.png 680w,
+/static/91afd7f1810be84d0b8328323c194071/02d09/img_1.png 1020w,
+/static/91afd7f1810be84d0b8328323c194071/d9c1b/img_1.png 1040w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_1.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;h1&gt;Spring initializr&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;기본 언어로 코틀린을 선택할 수 있고 코틀린인 경우 Gradle Project를 선택하면 빌드 설정 을 기반으로 생성해준다&lt;/li&gt;
+&lt;li&gt;Spring initialzr 를 통해 생성된 build.gralde.kts&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;gradle&quot;&gt;&lt;pre class=&quot;language-gradle&quot;&gt;&lt;code class=&quot;language-gradle&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;import&lt;/span&gt; org&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;jetbrains&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;kotlin&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;gradle&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token keyword&quot;&gt;tasks&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;KotlinCompile
+
+&lt;span class=&quot;token keyword&quot;&gt;plugins&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt; 
+    &lt;span class=&quot;token function&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token interpolation-string&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;org.springframework.boot&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; version &lt;span class=&quot;token interpolation-string&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;2.6.7&quot;&lt;/span&gt;&lt;/span&gt; 
+    &lt;span class=&quot;token function&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token interpolation-string&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;io.spring.dependency-management&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; version &lt;span class=&quot;token interpolation-string&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;1.0.11.RELEASE&quot;&lt;/span&gt;&lt;/span&gt; 
+    &lt;span class=&quot;token function&quot;&gt;kotlin&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token interpolation-string&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;jvm&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; version &lt;span class=&quot;token interpolation-string&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;1.6.21&quot;&lt;/span&gt;&lt;/span&gt; 
+    &lt;span class=&quot;token function&quot;&gt;kotlin&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token interpolation-string&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;plugin.spring&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; version &lt;span class=&quot;token interpolation-string&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;1.6.21&quot;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+
+group &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token interpolation-string&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;com.example&quot;&lt;/span&gt;&lt;/span&gt;
+
+version &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token interpolation-string&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;0.0.1-SNAPSHOT&quot;&lt;/span&gt;&lt;/span&gt;
+
+java&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;sourceCompatibility &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; JavaVersion&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;VERSION_11
+
+&lt;span class=&quot;token keyword&quot;&gt;repositories&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt; 
+    &lt;span class=&quot;token function&quot;&gt;mavenCentral&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; 
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;token keyword&quot;&gt;dependencies&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt; 
+    &lt;span class=&quot;token keyword&quot;&gt;implementation&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token interpolation-string&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;org.springframework.boot:spring-boot-starter&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; 
+    &lt;span class=&quot;token keyword&quot;&gt;implementation&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token interpolation-string&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;org.jetbrains.kotlin:kotlin-reflect&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; 
+    &lt;span class=&quot;token keyword&quot;&gt;implementation&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token interpolation-string&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;org.jetbrains.kotlin:kotlin-stdlib-jdk8&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; 
+    &lt;span class=&quot;token function&quot;&gt;testImplementation&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token interpolation-string&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;org.springframework.boot:spring-boot-starter-test&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; 
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;token keyword&quot;&gt;tasks&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;withType&lt;span class=&quot;token operator&quot;&gt;&amp;lt;&lt;/span&gt;KotlinCompile&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt; 
+kotlinOptions &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt; 
+        freeCompilerArgs &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;listOf&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token interpolation-string&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;-Xjsr305=strict&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; jvmTarget &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token interpolation-string&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;11&quot;&lt;/span&gt;&lt;/span&gt; 
+    &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt; 
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;token keyword&quot;&gt;tasks&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;withType&lt;span class=&quot;token operator&quot;&gt;&amp;lt;&lt;/span&gt;Test&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt; 
+    &lt;span class=&quot;token function&quot;&gt;useJUnitPlatform&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; 
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;코틀린 스프링 프로젝트에서 필수적인 플러그인&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;kotlin(&quot;plugin.spring&quot;)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;코틀린 스프링 프로젝트에서 필수적인 의존성&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;org.jetbrains.kotlin:kotlin-reflect&lt;/li&gt;
+&lt;li&gt;org.jetbrains.kotlin:kotlin-stdlib&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;이외에도 plugin.jpa, jackson-module-kotlin 등 프로젝트를 구성하면서 필요한 플러그인 과 &lt;br/&gt;
+코틀린 의존성이 있고 Springinitialzr에서 프로젝트를 구성할 경우 자동으로 세팅해준다&lt;/p&gt;
+&lt;h1&gt;스프링 부트&lt;/h1&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;text&quot;&gt;&lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;@SpringBootApplication class DemoApplication
+
+// fun 탑- 레벨 함수이므로 클래스 바깥에서{ 호출
+main(args: Array&amp;lt;String&gt;) {
+    runApplication&amp;lt;DemoApplication&gt;(*args)
+}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h3&gt;@ConfigurationProperties&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;스프링 애플리케이션에 지정한 설정을 기반으로 설정 클래스를 만들때, &lt;br/&gt;
+@ConstructorBinding 을 사용하면 setter가 아닌 생성자를 통해 바인딩 하므로 &lt;br/&gt;
+불변 객체를 쉽게 생성할 수 있다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;kotlin&quot;&gt;&lt;pre class=&quot;language-kotlin&quot;&gt;&lt;code class=&quot;language-kotlin&quot;&gt;&lt;span class=&quot;token annotation builtin&quot;&gt;@ConstructorBinding&lt;/span&gt;
+&lt;span class=&quot;token annotation builtin&quot;&gt;@ConfigurationProperties&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string-literal singleline&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;example.kotlin&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; 
+
+&lt;span class=&quot;token keyword&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;KotlinExampleProperties&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;
+                &lt;span class=&quot;token keyword&quot;&gt;val&lt;/span&gt; name&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; String&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+                &lt;span class=&quot;token keyword&quot;&gt;val&lt;/span&gt; description&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; String&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+                &lt;span class=&quot;token keyword&quot;&gt;val&lt;/span&gt; myService&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; MyService
+                &lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+
+&lt;span class=&quot;token keyword&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;MyService&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;
+            &lt;span class=&quot;token keyword&quot;&gt;val&lt;/span&gt; apiToken&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; String&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+            &lt;span class=&quot;token keyword&quot;&gt;val&lt;/span&gt; uri&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; URI
+        &lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h3&gt;테스트 지원&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;기본 제공되는 Junit5 기반의 테스트를 특별한 설정 없이 그대로 사용이 가능하다 &lt;/li&gt;
+&lt;li&gt;모의 객체를 만들어 테스트하려면 Mockito 대신 MockK를 사용할 수 있다&lt;/li&gt;
+&lt;/ul&gt;</content:encoded></item><item><title><![CDATA[배포전략]]></title><description><![CDATA[배포 전략에 관하여 문득 dev 환경에서 테스트를 할겸 
 열씸히 dev 브렌치를 merge…]]></description><link>https://hyungkishin.github.io/deploy-strategy/</link><guid isPermaLink="false">https://hyungkishin.github.io/deploy-strategy/</guid><pubDate>Fri, 18 Nov 2022 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;배포 전략에 관하여&lt;/h1&gt;
 &lt;p&gt;문득 dev 환경에서 테스트를 할겸 &lt;br/&gt;
 열씸히 dev 브렌치를 merge 후 열씸히 젠킨스 빌드버튼을 누르던 중&lt;/p&gt;
