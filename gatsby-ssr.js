@@ -4,6 +4,4 @@
  * See: https://www.gatsbyjs.com/docs/ssr-apis/
  */
 
-exports.onRenderBody = ({ setHtmlAttributes }) => {
-  setHtmlAttributes({ lang: `en` })
-}
+// You can delete this file if you're not using it

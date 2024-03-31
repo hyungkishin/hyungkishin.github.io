@@ -1,104 +1,115 @@
-// exports.createPages = async ({ actions }) => {
-//   const { createPage } = actions
-//   createPage({
-//     path: "/using-dsg",
-//     component: require.resolve("./src/templates/using-dsg.js"),
-//     context: {},
-//     defer: true,
-//   })
-// }
-
-/**
- * Implement Gatsby's Node APIs in this file.
- *
- * See: <https://www.gatsbyjs.com/docs/node-apis/>
- */
-
-// You can delete this file if you're not using it
-
-const path = require('path')
 const { createFilePath } = require(`gatsby-source-filesystem`)
+const _ = require("lodash")
 
-// Setup Import Alias
-exports.onCreateWebpackConfig = ({ getConfig, actions }) => {
-  const output = getConfig().output || {}
+exports.createPages = async ({ graphql, actions, reporter }) => {
+  const { createPage } = actions
 
-  actions.setWebpackConfig({
-    output,
-    resolve: {
-      alias: {
-        components: path.resolve(__dirname, 'src/components'),
-        utils: path.resolve(__dirname, 'src/utils'),
-        hooks: path.resolve(__dirname, 'src/hooks'),
-      },
+  const postTemplate = require.resolve(`./src/templates/Post.jsx`)
+  const seriesTemplate = require.resolve(`./src/templates/Series.jsx`)
+
+  const result = await graphql(`
+    {
+      postsRemark: allMarkdownRemark(
+        sort: { fields: [frontmatter___date], order: ASC }
+        limit: 1000
+      ) {
+        nodes {
+          id
+          fields {
+            slug
+          }
+          frontmatter {
+            series
+          }
+        }
+      }
+      tagsGroup: allMarkdownRemark(limit: 2000) {
+        group(field: frontmatter___tags) {
+          fieldValue
+        }
+      }
+    }
+  `)
+
+  if (result.errors) {
+    reporter.panicOnBuild(
+      `There was an error loading your blog posts`,
+      result.errors
+    )
+    return
+  }
+
+  const posts = result.data.postsRemark.nodes
+  const series = _.reduce(
+    posts,
+    (acc, cur) => {
+      const seriesName = cur.frontmatter.series
+      if (seriesName && !_.includes(acc, seriesName))
+        return [...acc, seriesName]
+      return acc
     },
-  })
+    []
+  )
+
+  if (posts.length > 0) {
+    posts.forEach((post, index) => {
+      const previousPostId = index === 0 ? null : posts[index - 1].id
+      const nextPostId = index === posts.length - 1 ? null : posts[index + 1].id
+
+      createPage({
+        path: post.fields.slug,
+        component: postTemplate,
+        context: {
+          id: post.id,
+          series: post.frontmatter.series,
+          previousPostId,
+          nextPostId,
+        },
+      })
+    })
+  }
+
+  if (series.length > 0) {
+    series.forEach(singleSeries => {
+      const path = `/series/${_.replace(singleSeries, /\s/g, "-")}`
+      createPage({
+        path,
+        component: seriesTemplate,
+        context: {
+          series: singleSeries,
+        },
+      })
+    })
+  }
 }
 
-// Generate a Slug Each Post Data
-exports.onCreateNode = ({ node, getNode, actions }) => {
+exports.onCreateNode = ({ node, actions, getNode }) => {
   const { createNodeField } = actions
 
   if (node.internal.type === `MarkdownRemark`) {
     const slug = createFilePath({ node, getNode })
+    const newSlug = `/${slug.split("/").reverse()[1]}/`
 
-    createNodeField({ node, name: 'slug', value: slug })
+    createNodeField({
+      node,
+      name: `slug`,
+      value: newSlug,
+    })
   }
 }
 
-// Generate Post Page Through Markdown Data
-exports.createPages = async ({ actions, graphql, reporter }) => {
-  const { createPage } = actions
-
-  // Get All Markdown File For Paging
-  const queryAllMarkdownData = await graphql(
-    `
-      {
-        allMarkdownRemark(
-          sort: {
-            order: DESC
-            fields: [frontmatter___date, frontmatter___title]
-          }
-        ) {
-          edges {
-            node {
-              fields {
-                slug
-              }
-            }
-          }
-        }
-      }
-    `,
-  )
-
-  // Handling GraphQL Query Error
-  if (queryAllMarkdownData.errors) {
-    reporter.panicOnBuild(`Error while running query`)
-    return
+exports.createSchemaCustomization = ({ actions }) => {
+  const { createTypes } = actions
+  const typeDefs = `
+  type MarkdownRemark implements Node {
+    frontmatter: Frontmatter!
   }
-
-  // Import Post Template Component
-  const PostTemplateComponent = path.resolve(
-    __dirname,
-    'src/templates/post_template.tsx',
-  )
-
-  // Page Generating Function
-  const generatePostPage = ({
-    node: {
-      fields: { slug },
-    },
-  }) => {
-    const pageOptions = {
-      path: slug,
-      component: PostTemplateComponent,
-      context: { slug },
-    }
-
-    createPage(pageOptions)
+  type Frontmatter {
+    title: String!
+    description: String
+    tags: [String!]!
+    series: String
   }
-
-  // Generate Post Page And Passing Slug Props for Query
-  queryAllMarkdownData.data.allMarkdownRemark.edges.forEach(generatePostPage)
+  `
+  createTypes(typeDefs)
 }

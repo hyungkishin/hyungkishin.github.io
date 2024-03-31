@@ -1,96 +1,193 @@
+const blogConfig = require("./blog-config")
+const { title, description, author, siteUrl } = blogConfig
+
 module.exports = {
+  pathPrefix: "/gatsby-starter-hoodie",
   siteMetadata: {
-    title: `형기's 블로그`,
-    description: `매일매일 기록하는 삶`,
-    author: `hyungkiShin`,
-    siteUrl: 'https://hyungkiShin.github.io/', // 배포 후 변경 예정
+    title,
+    description,
+    author,
+    siteUrl,
   },
   plugins: [
     {
-      resolve: `gatsby-plugin-typescript`,
+      resolve: `gatsby-plugin-google-gtag`,
       options: {
-        isTSX: true,
-        allExtensions: true,
+        trackingIds: ["G-9EMQVPHMY6"],
       },
     },
-    `gatsby-plugin-react-helmet`,
-    'gatsby-plugin-emotion',
-    `gatsby-plugin-sitemap`,
+    `gatsby-plugin-catch-links`,
+    `gatsby-plugin-robots-txt`,
     {
-      resolve: `gatsby-source-filesystem`,
+      resolve: `gatsby-plugin-react-redux`,
       options: {
-        name: `contents`,
-        path: `${__dirname}/contents`,
+        pathToCreateStoreModule: "./src/reducers/createStore",
+        serialize: {
+          space: 0,
+          isJSON: true,
+          unsafe: false,
+          ignoreFunction: true,
+        },
+        cleanupOnClient: true,
+        windowKey: "__PRELOADED_STATE__",
       },
     },
+    {
+      resolve: `gatsby-plugin-google-fonts`,
+      options: {
+        fonts: [
+          `noto sans kr\:300,400,500,700,900`,
+          `source code pro\:700`, // you can also specify font weights and styles
+        ],
+        display: "swap",
+      },
+    },
+    "gatsby-plugin-styled-components",
+    "gatsby-remark-reading-time",
+    `gatsby-plugin-react-helmet`,
     {
       resolve: `gatsby-source-filesystem`,
       options: {
         name: `images`,
-        path: `${__dirname}/static`,
-      },
-    },
-    {
-      resolve: `gatsby-plugin-sharp`,
-      options: {
-        defaults: {
-          formats: ['auto', 'webp'],
-          quality: 100,
-          placeholder: 'blurred',
-        },
+        path: `${__dirname}/src/images`,
       },
     },
     `gatsby-transformer-sharp`,
-    `gatsby-plugin-image`,
+    `gatsby-plugin-sharp`,
+    {
+      resolve: `gatsby-plugin-manifest`,
+      options: {
+        name: title,
+        short_name: title,
+        description: description,
+        start_url: `/`,
+        background_color: `#ffffff`,
+        theme_color: `#ced4da`,
+        display: `standalone`,
+        icon: `src/images/gatsby-icon.png`, // This path is relative to the root of the site.
+      },
+    },
+    {
+      resolve: `gatsby-source-filesystem`,
+      options: {
+        name: `markdown-pages`,
+        path: `${__dirname}/contents/posts`,
+      },
+    },
     {
       resolve: `gatsby-transformer-remark`,
       options: {
+        commonmark: true,
+        footnotes: true,
+        pedantic: true,
+        gfm: true,
         plugins: [
           {
-            resolve: `gatsby-remark-smartypants`,
+            resolve: `gatsby-remark-images`,
             options: {
-              dashes: 'oldschool',
+              maxWidth: 680,
+              loading: "lazy",
+              wrapperStyle: "margin-bottom: 1rem;",
+              quality: 100,
+              showCaptions: true,
             },
           },
           {
             resolve: `gatsby-remark-prismjs`,
             options: {
-              classPrefix: 'language-',
+              classPrefix: "language-",
+              inlineCodeMarker: null,
+              aliases: {},
+              showLineNumbers: false,
+              noInlineHighlight: false,
+              languageExtensions: [
+                {
+                  language: "superscript",
+                  extend: "javascript",
+                  definition: {
+                    superscript_types: /(SuperType)/,
+                  },
+                  insertBefore: {
+                    function: {
+                      superscript_keywords: /(superif|superelse)/,
+                    },
+                  },
+                },
+              ],
+              prompt: {
+                user: "root",
+                host: "localhost",
+                global: false,
+              },
+              escapeEntities: {},
             },
           },
           {
-            resolve: `gatsby-remark-images`,
+            resolve: `gatsby-remark-katex`,
             options: {
-              maxWidth: 768,
-              quality: 100,
-              withWebp: true,
+              strict: `ignore`,
             },
           },
           {
-            resolve: `gatsby-remark-copy-linked-files`,
-            options: {},
-          },
-          {
-            resolve: `gatsby-remark-external-links`,
-            options: {
-              target: `_blank`,
-              rel: `nofollow`,
-            },
+            resolve: "gatsby-remark-static-images",
           },
         ],
       },
     },
+    `gatsby-plugin-resolve-src`,
+    `gatsby-plugin-sitemap`,
     {
-      resolve: `gatsby-plugin-canonical-urls`,
+      resolve: `gatsby-plugin-feed`,
       options: {
-        siteUrl: `https://hyungkiShin.github.io/`,
-        stripQueryString: true,
-      },
-    },
-    {
-      resolve: `gatsby-plugin-robots-txt`,
-      options: {
-        policy: [{ userAgent: '*', allow: '/' }],
+        query: `
+          {
+            site {
+              siteMetadata {
+                title
+                description
+                siteUrl
+                site_url: siteUrl
+              }
+            }
+          }
+        `,
+        feeds: [
+          {
+            serialize: ({ query: { site, allMarkdownRemark } }) => {
+              return allMarkdownRemark.edges.map(edge => {
+                return Object.assign({}, edge.node.frontmatter, {
+                  description: edge.node.excerpt,
+                  date: edge.node.frontmatter.date,
+                  url: site.siteMetadata.siteUrl + edge.node.fields.slug,
+                  guid: site.siteMetadata.siteUrl + edge.node.fields.slug,
+                  custom_elements: [{ "content:encoded": edge.node.html }],
+                })
+              })
+            },
+            query: `
+              {
+                allMarkdownRemark(
+                  sort: { order: DESC, fields: [frontmatter___date] },
+                ) {
+                  edges {
+                    node {
+                      excerpt
+                      html
+                      fields { slug }
+                      frontmatter {
+                        title
+                        date
+                      }
+                    }
+                  }
+                }
+              }
+            `,
+            output: `/rss.xml`,
+            title: `RSS Feed of ${title}`,
+            match: "^/blog/",
+          },
+        ],
       },
     },
   ],
