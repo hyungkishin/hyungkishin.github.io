@@ -5,21 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c0bd35de-7468-49e2-b548-8c68a7e74b28" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/contents/posts/kotlin/index.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/spring/cpu-bound-vs-io-bound/img.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/spring/cpu-bound-vs-io-bound/img_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/spring/cpu-bound-vs-io-bound/img_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/spring/cpu-bound-vs-io-bound/img_3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/spring/cpu-bound-vs-io-bound/img_4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/spring/cpu-bound-vs-io-bound/img_5.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/spring/cpu-bound-vs-io-bound/img_6.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/spring/cpu-bound-vs-io-bound/img_7.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/spring/cpu-bound-vs-io-bound/img_8.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/spring/cpu-bound-vs-io-bound/index.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contents/posts/kotlin/01 코들린의 현재와 미래.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/contents/posts/kotlin/02. 자바와 코틀린의 차이점.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/contents/posts/kotlin/03. 코틀린 의 spring 지원.md" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -104,7 +90,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1711889962457</updated>
-      <workItem from="1711889963533" duration="7552000" />
+      <workItem from="1711889963533" duration="9050000" />
     </task>
     <servers />
   </component>
