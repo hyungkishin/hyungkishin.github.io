@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Sun, 31 Mar 2024 15:55:20 GMT</lastBuildDate><item><title><![CDATA[CPU Bound 와 IO Bound]]></title><description><![CDATA[문득 java 21 이 등장하면서 virtual Thread 가 hot 한 지금..  한물 간다는 webFlux 를 공부하는게 맞을까 ...? 아니다... 왜 사라지는지 확실하게 짚고 넘어가는 게 맞다... cpu Bound 와 IO Bound…]]></description><link>https://hyungkishin.github.io/cpu-bound-vs-io-bound/</link><guid isPermaLink="false">https://hyungkishin.github.io/cpu-bound-vs-io-bound/</guid><pubDate>Fri, 12 Jan 2024 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;문득 java 21 이 등장하면서 virtual Thread 가 hot 한 지금..&lt;/h1&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Mon, 01 Apr 2024 14:39:17 GMT</lastBuildDate><item><title><![CDATA[CPU Bound 와 IO Bound]]></title><description><![CDATA[문득 java 21 이 등장하면서 virtual Thread 가 hot 한 지금..  한물 간다는 webFlux 를 공부하는게 맞을까 ...? 아니다... 왜 사라지는지 확실하게 짚고 넘어가는 게 맞다... cpu Bound 와 IO Bound…]]></description><link>https://hyungkishin.github.io/cpu-bound-vs-io-bound/</link><guid isPermaLink="false">https://hyungkishin.github.io/cpu-bound-vs-io-bound/</guid><pubDate>Fri, 12 Jan 2024 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;문득 java 21 이 등장하면서 virtual Thread 가 hot 한 지금..&lt;/h1&gt;
 &lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
       &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/ef44c1322d4232b1a1538b78df1955f2/4a1c5/img.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
@@ -131,7 +131,92 @@ CPU 로 스케줄링 되어 실행될때, 기계어 실행을 위해 필요한 �
     &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_8.png&lt;/figcaption&gt;
   &lt;/figure&gt;&lt;/p&gt;
 &lt;p&gt;흔히 말할 수 있는 정략은 위와 같이 병렬 처리 되어야 효과적이다. &lt;br/&gt;
-동 시간대 각각의 명령어를 동 시간대에 처리할 수 있기 때문이다. &lt;br/&gt;&lt;/p&gt;</content:encoded></item><item><title><![CDATA[코틀린의 현재와 미래]]></title><description><![CDATA[코들린의 현재와 미래 코틀린을 배워야하는 이유 코틀린은 IntelliJ로 유명한 젯브레인사에서 만든 언어이기 때문에 IntelliJ에서 자동완성, 자 바-코틀린 변환, 코루틴 등 코틀린 관련 편의 기능을 완벽하게 지원 자바는 발표된지 2…]]></description><link>https://hyungkishin.github.io/kotlin/</link><guid isPermaLink="false">https://hyungkishin.github.io/kotlin/</guid><pubDate>Fri, 12 Jan 2024 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;코들린의 현재와 미래&lt;/h1&gt;
+동 시간대 각각의 명령어를 동 시간대에 처리할 수 있기 때문이다. &lt;br/&gt;&lt;/p&gt;
+&lt;h2&gt;I/O Bound 란&lt;/h2&gt;
+&lt;p&gt;입출력 장치의 중점적인 작업들을 말한다. &lt;br/&gt;
+대표적인 작업들은 키보드와 같은 사용자 입력, 디스크 파일 복사, 네트워크를 통한 데이터를 주고받는 행위들을 모두 I/O 작업이라고 한다.
+&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 486px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/7497709726e6ffd838d7bac55b9c7970/c42ee/img_9.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 37.05882352941176%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAHCAYAAAAIy204AAAACXBIWXMAAAsTAAALEwEAmpwYAAABjUlEQVR42i3Q25KaUBCFYd7/CVKpisk4ZjQiqHhAwL1B3JyPwmhiknf5UzC56Kq++nr10l6nnzDMKbat47prhLCQck8UeaSpIM99qioky3y6LuF2i+n7hMcj435Pee8TilwixQZjNUGbzT6zXH7FcUzEeYuUO8LQHrEBquvrOGkq6buE57Pkfv+PvSeUhU8ae1zDI66jo83nXxjG2i7w5R7X3RAER/I8GNOoq4u6eniuRaQ8mjoiVmey4UCf0PcxZRkQRyekWKMt5hNM45XdboEQO5RyuQQ2aSLJs4A08VGhiy8OxNGZtorpbglNrWgbRZqcUaGNFFuck45m6C8Y+hRDnzH/PsGXB9JYUmQBTaN43PMRT2Mx7n//tPx+VvS3mLZWFJlPEjn4wsKxdTRTf2G7fuN0XLGzFti2Mb5WVx/dVUXI2bUQnjV2OKQb4K6NqKuQpr5QlT6RsvFcA81cfWNjzrAPSw7WD7bmG1LsR7C/JbRNNKa4+AeaMuT5sxwTPn8V9N2ABpS5/AA9nX97I8cL4f9B+wAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_9.png&apos; title=&apos;&apos; src=&apos;/static/7497709726e6ffd838d7bac55b9c7970/c42ee/img_9.png&apos; srcset=&apos;/static/7497709726e6ffd838d7bac55b9c7970/e7570/img_9.png 170w,
+/static/7497709726e6ffd838d7bac55b9c7970/f46e7/img_9.png 340w,
+/static/7497709726e6ffd838d7bac55b9c7970/c42ee/img_9.png 486w&apos; sizes=&apos;(max-width: 486px) 100vw, 486px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_9.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;위 그림과 같이 client 와 server 는 연결이 되어있는 상태이고, Hello 라는 문자열을 네트워크를 통해 전송한다고 가정해보자. &lt;br/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 490px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/8af848b5bb126f9f142974ff9db36627/ce5c5/img_10.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 72.35294117647058%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAOCAYAAAAvxDzwAAAACXBIWXMAAAsTAAALEwEAmpwYAAAC/UlEQVR42j2T6XLaSBRG9ch5gKm8xNRMVWzH44XFgEEIhBYESGhHiEWyBCTg2BPPe5yp7krlR1d1949T5977XaXff0DXuziOJo/rTghCmyh28JYGfmARJw5x7JCkc5JkTprO5TuV/zbbjUex91h6AxRVbWCafWaz8W9YnMzIMpcwnBLHM1aZS7b2SJKZhKXpjCiy5VsAV6nDS+lTVz6KYfRwnCGuZ7BcmqxWC7LMY7cLCQNhIcAOm01AfcjZFzHbrS8NxQkCgyg02W5cjocQZai2aTX/YTTsYFtD1muP/T6iKBLWmc8mD8nXvgRWVca3b1uOp5zNZiltg8AkWOpkqxlVFaCYRh/DeGbmjKWhsCvLlKpacTjklGXGfp9S12tOpy2XS8nbW835XFC9pEShhb/UiSOLsliiTCZd5vMxnmcSRY7s2W4XSZvLueTHay3vx+OG10vJ+/uR/z6+8/HxnZ8/TxRFROBPWCVTDnWAMhq1peFioRMEtgSLSeb5Ulr++37k9fJCXa841Gtpdj7vOJ/3XF5LDvVK2iWRRS1KVtUmmtbGtlW8X4MRQNc1mdoj8tyXpgJUFrEsU1i9lDGH45qyiIhDU0KLwkPpdu5oPt4wHndkbOSkUxdvYeD7FpGITuRwOua8/ai4nPdU1S/oS8Ju58sph8GE/X6B0u3eMVSbiF5ObVX2U5QuepmmCxkN8b/O3N8ln04bqiqh2Idst0uS2GbpDckyC+WpdUO/d486eJRQ2xrIjRFgARWBH2lPLGZikjOOx1yWLkrNswVJIsJv4bkqUaihdFs3tB6+0Hj4gtp/ZKJ3sMw+ljXANgdM9B7a8AnLVOVm7HYBgW/jia3yTRkZz9WYTnvMnS5Ku3nN/e3f3F7/Se/pK2OthWU+YxnPjLWOPP3eA7alskoXRKEjgYEv8mdgG32m1jNq/47e0xVKp31Nv3dLp3lFp3GF+nyPPmqjqQ20YYuJ3mU4aDDSWoRiKzwTb6Ezmw4x9B5Te0Dg6zQe/uLzH5/4H2TFjQzOBD4GAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_10.png&apos; title=&apos;&apos; src=&apos;/static/8af848b5bb126f9f142974ff9db36627/ce5c5/img_10.png&apos; srcset=&apos;/static/8af848b5bb126f9f142974ff9db36627/e7570/img_10.png 170w,
+/static/8af848b5bb126f9f142974ff9db36627/f46e7/img_10.png 340w,
+/static/8af848b5bb126f9f142974ff9db36627/ce5c5/img_10.png 490w&apos; sizes=&apos;(max-width: 490px) 100vw, 490px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_10.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;NIC ( Network Interface Card ) 장치 는 네트워크 패킷을 주고 받는 역할을 맡고 있다. &lt;br/&gt;
+Client 가 전달한 Hello 패킷을 Nic 장치를 통해 전달받고, 커널에서 네트워크 프로토콜을 진행하게 되는데 &lt;br/&gt;
+서버 application 입장에선, Kerner 에서 패킷을 전달받기 전까지 &lt;code class=&quot;language-text&quot;&gt;대기&lt;/code&gt; 를 하게 된다. &lt;br/&gt;
+Nic 장치 로 부터 패킷을 받고 커널 까지의 과정 또한 CPU 사용이 필요한 영역이긴 한데, &lt;br/&gt;
+application 관점에서는 패킷을 수신 완료까지 를 대기하기 때문에, CPU 를 중점적으로 사용하지 않는 상태라고 볼 수 있다. &lt;br/&gt;
+만약 패킷이 오지 않았다 라고 가정한다면, 해당 서버의 프로세스는 계속해서 대기를 하게 되는것이다. &lt;br/&gt;&lt;/p&gt;
+&lt;h2&gt;Web Application 서버 관점에서 어떠한 I/O 들이 있을까&lt;/h2&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/d0904df234446f503d521c51cd16e459/58299/img_11.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 23.52941176470588%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAFCAYAAABFA8wzAAAACXBIWXMAAAsTAAALEwEAmpwYAAABMElEQVR42h3P3VKCQABAYd5/uqmbZuzCn3IsSdPVBFEWWJCFBSHEbLLe5TTxAt+cYw1HPZ5fhkztR8TKRikPFe9Qasch9dFZgCljyjLheDxw+ar4/m5Ikj1FqYiTLa47Y7kYIxZPWKPHB+zXJ5ZiihB2h4XBlvVqTqoDsjxE64Cq1pg8pmkMPz9nYrWnrlN06uM6c14mfcaje6y72xsGgx6L5RSxmuH7G/a7Dd52jZQucbwnSXzyPKJtC67Xht/fM5dLSXvOaU4aY0I276+I5RhrOOwxmQx4WzzjOG/dSiCdDo1CjyyLOuwfro4pdZV1paF0KIzC2wqkv0ap/wgbq9+/78D5fML6fUYYupgiJjeKjw/N5+XIqTUdemqLrrKuNOlB0jSaLJNE0QYpBZ5n8wf/XEGY5ElECwAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_11.png&apos; title=&apos;&apos; src=&apos;/static/d0904df234446f503d521c51cd16e459/ca1dc/img_11.png&apos; srcset=&apos;/static/d0904df234446f503d521c51cd16e459/e7570/img_11.png 170w,
+/static/d0904df234446f503d521c51cd16e459/f46e7/img_11.png 340w,
+/static/d0904df234446f503d521c51cd16e459/ca1dc/img_11.png 680w,
+/static/d0904df234446f503d521c51cd16e459/02d09/img_11.png 1020w,
+/static/d0904df234446f503d521c51cd16e459/9d567/img_11.png 1360w,
+/static/d0904df234446f503d521c51cd16e459/58299/img_11.png 2902w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_11.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;그림으로 보면 클라이언트로 부터 전달 받는 http 프로토콜을 처리하는것도 web Application 에서는 network I/O 이고, &lt;br/&gt;
+Web Application 에서 비즈니스 로직 이후 DB 에 쿼리하는 영역도 I/O 이다. &lt;br/&gt;
+또한 DB 시스템에서 데이터를 조회하고, 삭제하고, 저장하는것도 I/O 라고 볼 수 있고, &lt;br/&gt;
+Web Application 에서 외부 API 서버 요청 에 대한 것도 네트워크 I/O 가 발생하게 된다 &lt;br/&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;하나의 웹 서비스 에서도 I/O 작업이 여기저기 산재되어 있는데, 반드시 인지하고 있어야 할 개념이다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;만약 클라이언트로 부터 많은 요청이 들어오게 된다면, 어떻게 해야할까&lt;/h2&gt;
+&lt;p&gt;전통적인 해결 방법은 webApplication Thread 갯수를 늘리는 것이다.
+&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 469px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/5c85b754c54944360bd1d70a07725bdf/44038/img_13.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 58.235294117647065%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAAAsTAAALEwEAmpwYAAACpElEQVR42i2S2XLiRhRA9a15ma/IS/KSpJJ4mNhmMQIECK1oF1rQgiQE2MbxjJOqVL7mpOjKU1ffe/v0uX1bWqtTNvoMz9dIM5csDyiqiP5c0p8rLs8Np0sl9qdzRdvteb12/PPvO3/9/cLXjxPvHyf6c0HTJUiaPkMz5gSRSRBabDYKfmCxLyLaLufYl/Sniv5U0vclhybl0GZc344C+O3jzPu3E39+7QVUMm0Fy1aIYosk9VguZZ6eHlHVOVkecmgy8jwk34fC/ngqhG3dpAJSHWJ++PF7Pn36juHwDkmePXL/cMdCmRDFWwxjjWmuiWKHoox5fetIUh/H1UX+ZtefCurDjstzzfO1oawjNH1OFNs34JDhcICynJDtfdFa02YUZSSszpcDXV+IWLYPKOsd3bGgrGK6457TpeTl2nB9a2nbFGk6fWA0+sJUfiROHOKdK0zinSOA9SFF0xQ26gJNW1BWEd0xZ18ElGVE1+e0XUbTJFSHCGkmD7m1rShjoVwfEvHwVZ2QZT7nS83La0t7zCnrmGzv0TSZyKWpS1XFFGVIUQVkexfp4f6O33/7idFogL1VCQObMNzieoYwvME9z2Q+HyPLQ/zA4NAkpKknBNLMI9qZJKnNbmchrVYTdH2BZS2x7RVZ5lHXCVW9E8VhZIvpu56O46qEkSFgQWASJzZBaOB6Kp6v4gUa0mz2yHo9RdfnGKYiDu0Sh7wISFIX3zfFn7zZON4Ga7vCdtYEoYkf6GiajKIMWa3HmOYCaTS64wZVVZnNZoZhLv43sQQ4zT2x3g67rirqRuMBm43M58+/MB4PuP/jV8ajAev1BOnL4GcRXC4nrFZPAmqaCq6zIQwNkvQ2eQvHUTEtRTzNajkRF2+3K0xrga7LLJcj5vN7/gOI9OBvE9D83QAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_13.png&apos; title=&apos;&apos; src=&apos;/static/5c85b754c54944360bd1d70a07725bdf/44038/img_13.png&apos; srcset=&apos;/static/5c85b754c54944360bd1d70a07725bdf/e7570/img_13.png 170w,
+/static/5c85b754c54944360bd1d70a07725bdf/f46e7/img_13.png 340w,
+/static/5c85b754c54944360bd1d70a07725bdf/44038/img_13.png 469w&apos; sizes=&apos;(max-width: 469px) 100vw, 469px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_13.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;Thread Per Request 혹은 Thread for Connection 이러고도 하는데, 이는 &lt;br/&gt;
+하나의 요청에 하나의 Thread 가 필요하다는 의미이다. &lt;br/&gt;&lt;/p&gt;
+&lt;p&gt;예를들어 굉장히 많은 Thread 가 실행된다고 가정한다면, &lt;br/&gt;
+성능 관점에서 CPU 컨텍스트 스위칭을 고려해야 하는데, 이런 컨텍스트 스위칭 오버헤드를 감수하더라도 I/O 요청을 최대한 처리할 수 있도록 하는 전략이라고 볼 수 있다. &lt;br/&gt;&lt;/p&gt;
+&lt;p&gt;만약에 하나에 Thread 가 하나의 연결을 처리하고 있는 순간 다른 추가 요청이 있게 되면, &lt;br/&gt;
+대기를 하는게 아니라 또다른 Thread 를 처리하게 된다. &lt;br/&gt;&lt;/p&gt;
+&lt;p&gt;만약 대량의 요청을 처리하기 위해 요청 수 만큼 Thread 갯수를 늘리게 되면 결국 OOM 이 나버리게 된다.&lt;br/&gt;
+만약 10만의 요청을 동시처리하고 싶다고 가정한다면, &lt;code class=&quot;language-text&quot;&gt;(10 만 * 스레드 크기 )&lt;/code&gt; == &lt;code class=&quot;language-text&quot;&gt;메모리 용량&lt;/code&gt; 이 되버린다.&lt;br/&gt;
+거기에 하드웨어 최대 메모리까지 사용하게 되면 시스템이 아예 동작하지 못할수도 있다.&lt;br/&gt;&lt;/p&gt;
+&lt;p&gt;커널에는 OOM 이라는 안전장치가 존재한다. ( 주요 프로세스를 Kill 해서 시스템 다운을 예방하는 역할 )&lt;br/&gt;&lt;/p&gt;
+&lt;p&gt;반면 사용이 완료된 Thread 를 삭제하는것도 문제다. &lt;br/&gt;
+새로 들어오는 요청에 의해 다시 만들어야 되니까 ..&lt;br/&gt;
+결국 쓰레드를 관리해야 하는것이 성능 관점에서 손해이다. &lt;br/&gt;&lt;/p&gt;
+&lt;p&gt;이떄문에 Thread Pool 이 해결 방안으로 볼 수 있겠다. &lt;br/&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;가용 가능한 다수의 쓰레드를 미리 만들어 놓고, &lt;br/&gt;
+요청이 들어오면 미리 만들어 놓은 쓰레드를 활용하고 사용이 다 했으면 해당 쓰레드를 다시 쓰레드 풀 에 반납하는 전략을 말한다. &lt;br/&gt;&lt;/p&gt;
+&lt;/blockquote&gt;</content:encoded></item><item><title><![CDATA[코틀린의 현재와 미래]]></title><description><![CDATA[코들린의 현재와 미래 코틀린을 배워야하는 이유 코틀린은 IntelliJ로 유명한 젯브레인사에서 만든 언어이기 때문에 IntelliJ에서 자동완성, 자 바-코틀린 변환, 코루틴 등 코틀린 관련 편의 기능을 완벽하게 지원 자바는 발표된지 2…]]></description><link>https://hyungkishin.github.io/kotlin/</link><guid isPermaLink="false">https://hyungkishin.github.io/kotlin/</guid><pubDate>Fri, 12 Jan 2024 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;코들린의 현재와 미래&lt;/h1&gt;
 &lt;h3&gt;코틀린을 배워야하는 이유&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;코틀린은 IntelliJ로 유명한 젯브레인사에서 만든 언어이기 때문에 IntelliJ에서 자동완성, 자 바-코틀린 변환, 코루틴 등 코틀린 관련 편의 기능을 완벽하게 지원&lt;/li&gt;
