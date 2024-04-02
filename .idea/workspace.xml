@@ -5,12 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c0bd35de-7468-49e2-b548-8c68a7e74b28" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/contents/posts/spring/cpu-bound-vs-io-bound/img_10.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/spring/cpu-bound-vs-io-bound/img_11.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/spring/cpu-bound-vs-io-bound/img_13.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/spring/cpu-bound-vs-io-bound/img_9.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/contents/posts/data-base/redis/img.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/contents/posts/data-base/redis/index.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contents/posts/spring/cpu-bound-vs-io-bound/index.md" beforeDir="false" afterPath="$PROJECT_DIR$/contents/posts/spring/cpu-bound-vs-io-bound/index.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
