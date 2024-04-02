@@ -1,4 +1,12 @@
-# Redis 기본기
+---
+title: "Redis"
+date: 2024-04-02
+update: 2024-04-02
+tags:
+  - Redis
+---
+
+# Redis 에 대해서
 
 ## 개념 :)
 - Remote Dictionary Storage 의 약자로 'Redis' 라고 불리운다. 
