@@ -1,4 +1,45 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Sun, 07 Apr 2024 11:42:11 GMT</lastBuildDate><item><title><![CDATA[Redis]]></title><description><![CDATA[팀 이동을 하면서 알게된 Redis 의 존재  Redis 로고는 무슨 의미일까 .. 
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Sat, 29 Mar 2025 13:29:32 GMT</lastBuildDate><item><title><![CDATA[Spring-Ai 그리고 ai 기초 체력]]></title><description><![CDATA[점점 개발자에게 요구되는 Ai 지식 2022 년을 기점으로 한참 AI 가 Boom-up이 되고 나서, 웹 개발자들의 생산성이 급격하게 올라갔어요. 심지어 ai 의 종류도 다양하고 프로젝트를 진행하면서 ai…]]></description><link>https://hyungkishin.github.io/spring-ai/</link><guid isPermaLink="false">https://hyungkishin.github.io/spring-ai/</guid><pubDate>Sat, 29 Mar 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;점점 개발자에게 요구되는 Ai 지식&lt;/h1&gt;
+&lt;p&gt;2022 년을 기점으로 한참 AI 가 Boom-up이 되고 나서, 웹 개발자들의 생산성이 급격하게 올라갔어요. 심지어 ai 의 종류도 다양하고 프로젝트를 진행하면서 ai 를 잘 이용하는게 오히려 필수 스킬이 되고 회사에서 원하는 인재상 이기도 하죠. &lt;br/&gt; &lt;/p&gt;
+&lt;p&gt;기술의 패러다임이 5년 주기로 바뀐다는데, AI 가 개발자 세상에 등장하고 나서 활성화 된지 어언 3년.. 이제는 AI 를 인정하고 미련을 버리기로 하였습니다.&lt;/p&gt;
+&lt;p&gt;AI 의 모든것을 공부하기엔 너무 오래 &lt;/p&gt;
+&lt;h3&gt;Spring AI 를 왜 사용할까 ?&lt;/h3&gt;
+&lt;p&gt;Spring AI를 사용하면 개발자가 OpenAI의 GPT-4 및 DALL-E 3의 기능을 쉽 게 활용할 수 있으므로 Java 개발자가 복잡한 인공 지능 기능에 액세스할 수 있다 &lt;br/&gt;&lt;/p&gt;
+&lt;p&gt;Spring Boot와 OpenAI를 활용하여 다양한 AI 솔루션을 구축할 수 있고, AI 기본 사항을 배울 필요 없이 문서 유사성 검색, 추천 시스템, 음성-텍스트 변환과 같은 실제 애 플리케이션을 개발할수 있게 된다.&lt;/p&gt;
+&lt;h3&gt;Rag 이란 ?&lt;/h3&gt;
+&lt;p&gt;RAG 은 Retrieval-Augmented Generation의 약자로, 정보 검색과 생성 AI를 결합한 기술이다. &lt;br/&gt;
+대규모 언어 모델(LLM)과 데이터베이스를 조합하여, 질문에 대해 더 정확하고 신뢰할 수 있는 답변을 생성하는 데 사용된다. &lt;br/&gt;
+&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/12351874d7740aa21254fbd16deffcd7/e39d5/image.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 59.411764705882355%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAABYlAAAWJQFJUiTwAAABp0lEQVR42o1TTW/UMBDNb+4v4H8gVUJI5YzEBaGVOLSXIgG7CA4QtulG3e3mA2KP7TiJ7VeN26RRd1UYaeRkMvPmPc8kwT8shDD53IQQICLsdjsMwzDFk+eAOJGLhBSQUqJtW3jv0fd9BFRKYblcQmuNrutiPHmCAu+6WKiNiQVVVSHLMmy3NxGcC/ms6xrWWqRpCq0V8jxHIwQDPkoJvkdL28iGu7HxqZRG3zs456bcpmkiOAOPuZNklja/o11B+J3VcM7Hd2tb2LbB1Xod2bGxzLHBvDbpzS2qqogyuVPTSJyefcbJiw9I1yW8d9CaYOgWafoLROoAZG5J8B2M0Q+TCpDU4u37n3j5+hLL7xsWHZlwPUma5Hme/DHA4xMGiuIGeZ5hsCVCcPhfS47RN6ZFWVbx5C+8KuzMlJ2fS9lAGH2waocMvYUUNSRRvFdjzOQ8iN52KP7+wavzBd59/QQf7gcXDiXfh8JAWKc/kF1vIpNxYUfn3dtXNd5cfMTi2xd0nY15zI4JJPNfa5ReViX2xf7oHXEDZiolgZSCkDJeA8dXqxXuAKbxpCwUu17jAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;alt text&apos; title=&apos;&apos; src=&apos;/static/12351874d7740aa21254fbd16deffcd7/ca1dc/image.png&apos; srcset=&apos;/static/12351874d7740aa21254fbd16deffcd7/e7570/image.png 170w,
+/static/12351874d7740aa21254fbd16deffcd7/f46e7/image.png 340w,
+/static/12351874d7740aa21254fbd16deffcd7/ca1dc/image.png 680w,
+/static/12351874d7740aa21254fbd16deffcd7/02d09/image.png 1020w,
+/static/12351874d7740aa21254fbd16deffcd7/9d567/image.png 1360w,
+/static/12351874d7740aa21254fbd16deffcd7/e39d5/image.png 1672w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;alt text&lt;/figcaption&gt;
+  &lt;/figure&gt;
+( LLM과 함께 RAG를 사용하는 개념적 흐름 )&lt;/p&gt;
+&lt;h3&gt;AI 모델 이란?&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;데이터를 통해 특정 작업을 수행할 수 있도록 학습된 수학적 표현 또는 프로그램이다.&lt;/li&gt;
+&lt;li&gt;데이터를 분석하여 패턴을 인식하고, 이를 바탕으로 주어진 작업을 처리하는 방식을 동작한다.&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;인간이 학습하고 연습을 통해 기술을 익히듯, AI 모델도 예제를 학습하여 작업을 수행하는 &quot;똑똑한 시스템&quot; 으로 볼 수 있다.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;AI 도델은 데이터를 통해 학습된 문제 해결 도구이다. &lt;br/&gt;
+예를들어 이미지 분류 모델이라던가, 자연어 처리, 음성 인식등 다양한 작업에 사용될 수 있다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;GPT 란 ?&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;GPT(Generative Pre-trained Transformer) 는 OpenAI에서 개발한 언어 모델로, 자연어 처리(NLP) 작업에 사용된다.&lt;/li&gt;
+&lt;li&gt;사람이 텍스트를 생성하거나, 이해할 수 있도록 훈련된 모델이다.&lt;/li&gt;
+&lt;/ul&gt;</content:encoded></item><item><title><![CDATA[Redis]]></title><description><![CDATA[팀 이동을 하면서 알게된 Redis 의 존재  Redis 로고는 무슨 의미일까 .. 
 별 모양으로, 데이터를 신속하게 저장하고 검색하는 그의 주요 기능을 상징한다. 
 별은 네트워크 노드와 데이터 속도를 연상시키며, Redis…]]></description><link>https://hyungkishin.github.io/basic/</link><guid isPermaLink="false">https://hyungkishin.github.io/basic/</guid><pubDate>Tue, 02 Apr 2024 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;팀 이동을 하면서 알게된 Redis 의 존재&lt;/h2&gt;
 &lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
@@ -21,14 +62,14 @@ Redis는 주로 데이터베이스, 캐시, 메시지 브로커 등 다양한 �
 이러한 용도를 반영하듯 로고는 단순하면서도 인식하기 쉽게 디자인 되었다. - feat G 선생 &lt;br/&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;h2&gt;본격, 본인 이 알고있던 Redis 란&lt;/h2&gt;
-&lt;p&gt;Key Value 형식으로 응답속도가 무척 빠른 NoSql DB&lt;/p&gt;
-&lt;p&gt;흠 … 본격 Redis 라는 친구를 파헤치기 앞서, 캐시 라는 본질적인 키워드 부터 살펴보자.&lt;/p&gt;
+&lt;p&gt;Key Value 형식으로 응답속도가 무척 빠른 NoSql DB &lt;br/&gt;
+흠 … 본격 Redis 라는 친구를 파헤치기 앞서, 캐시 라는 본질적인 키워드 부터 살펴보자.&lt;/p&gt;
 &lt;h2&gt;캐시 란&lt;/h2&gt;
 &lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;요청 결과를 어딘가에 미리 저장해 두었다가 재 요청이 왔을때 빨리 주는것&lt;/code&gt;&lt;/p&gt;
 &lt;h2&gt;DB 엔 캐시가 없나 ..?&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;
-&lt;p&gt;ㄴㄴㄴ RDB 도 사실 내부적으로 캐시가 있다.&lt;/p&gt;
+&lt;p&gt;RDB 도 사실 내부적으로 캐시가 있다.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;그런데 여러 query 로 계속 접근 하다보면, 기존의 캐시를 날리고 Disk 에서 새로 읽어야 한다.&lt;/li&gt;
 &lt;/ul&gt;
@@ -692,7 +733,7 @@ String str &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; String&lt
 &lt;li&gt;
 &lt;p&gt;코틀린은 if else 로 대체한다.&lt;/p&gt;
 &lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;kotlin&quot;&gt;&lt;pre class=&quot;language-kotlin&quot;&gt;&lt;code class=&quot;language-kotlin&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;val&lt;/span&gt; animalSound&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; String &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string-literal singleline&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;호랑이&quot;&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;==&lt;/span&gt; animal&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token string-literal singleline&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;어흥&quot;&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string-literal singleline&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;야홍&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;--&lt;/p&gt;
+&lt;hr&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
 &lt;h3&gt;세미콜론&lt;/h3&gt;
