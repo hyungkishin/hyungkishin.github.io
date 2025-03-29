@@ -44,9 +44,15 @@ const StyledMarkdown = styled.div`
     font-weight: 700;
   }
 
+  & h1 {
+    margin-top: 55px;
+    margin-bottom: 10px;
+    font-size: 35px;
+  }
+
   & h2 {
-    margin-top: 100px;
-    margin-bottom: 24px;
+    margin-top: 55px;
+    margin-bottom: 10px;
     font-size: 28px;
   }
 

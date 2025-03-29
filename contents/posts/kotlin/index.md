@@ -137,7 +137,7 @@ String animalSound = "호랑이".equals(animal) ? "어흥" : "야홍";
 ```kotlin
 val animalSound: String = if ("호랑이" == animal) "어흥" : "야홍";
 ```
---
+---
 
 ### 세미콜론
 - 자바는 무조건 ; 세미콜론이 붙지만 코틀린은 안붙는다.
