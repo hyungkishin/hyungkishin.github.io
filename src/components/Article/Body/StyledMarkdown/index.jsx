@@ -177,7 +177,7 @@ const StyledMarkdown = styled.div`
   }
 
   & li {
-    margin-bottom: 15px;
+    margin-bottom: 8px;
   }
 
   & li p {
@@ -208,7 +208,7 @@ const StyledMarkdown = styled.div`
     margin-top: 5px;
     text-align: center;
     color: #868e96;
-    font-size: 12px;
+    font-size: 19px;
     font-style: italic;
   }
 
