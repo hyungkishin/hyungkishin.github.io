@@ -1,45 +1,121 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Sat, 29 Mar 2025 13:29:32 GMT</lastBuildDate><item><title><![CDATA[Spring-Ai 그리고 ai 기초 체력]]></title><description><![CDATA[점점 개발자에게 요구되는 Ai 지식 2022 년을 기점으로 한참 AI 가 Boom-up이 되고 나서, 웹 개발자들의 생산성이 급격하게 올라갔어요. 심지어 ai 의 종류도 다양하고 프로젝트를 진행하면서 ai…]]></description><link>https://hyungkishin.github.io/spring-ai/</link><guid isPermaLink="false">https://hyungkishin.github.io/spring-ai/</guid><pubDate>Sat, 29 Mar 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;점점 개발자에게 요구되는 Ai 지식&lt;/h1&gt;
-&lt;p&gt;2022 년을 기점으로 한참 AI 가 Boom-up이 되고 나서, 웹 개발자들의 생산성이 급격하게 올라갔어요. 심지어 ai 의 종류도 다양하고 프로젝트를 진행하면서 ai 를 잘 이용하는게 오히려 필수 스킬이 되고 회사에서 원하는 인재상 이기도 하죠. &lt;br/&gt; &lt;/p&gt;
-&lt;p&gt;기술의 패러다임이 5년 주기로 바뀐다는데, AI 가 개발자 세상에 등장하고 나서 활성화 된지 어언 3년.. 이제는 AI 를 인정하고 미련을 버리기로 하였습니다.&lt;/p&gt;
-&lt;p&gt;AI 의 모든것을 공부하기엔 너무 오래 &lt;/p&gt;
-&lt;h3&gt;Spring AI 를 왜 사용할까 ?&lt;/h3&gt;
-&lt;p&gt;Spring AI를 사용하면 개발자가 OpenAI의 GPT-4 및 DALL-E 3의 기능을 쉽 게 활용할 수 있으므로 Java 개발자가 복잡한 인공 지능 기능에 액세스할 수 있다 &lt;br/&gt;&lt;/p&gt;
-&lt;p&gt;Spring Boot와 OpenAI를 활용하여 다양한 AI 솔루션을 구축할 수 있고, AI 기본 사항을 배울 필요 없이 문서 유사성 검색, 추천 시스템, 음성-텍스트 변환과 같은 실제 애 플리케이션을 개발할수 있게 된다.&lt;/p&gt;
-&lt;h3&gt;Rag 이란 ?&lt;/h3&gt;
-&lt;p&gt;RAG 은 Retrieval-Augmented Generation의 약자로, 정보 검색과 생성 AI를 결합한 기술이다. &lt;br/&gt;
-대규모 언어 모델(LLM)과 데이터베이스를 조합하여, 질문에 대해 더 정확하고 신뢰할 수 있는 답변을 생성하는 데 사용된다. &lt;br/&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Sun, 30 Mar 2025 07:36:31 GMT</lastBuildDate><item><title><![CDATA[Ai. Spring AI 로 때워도 되나유? 1편]]></title><description><![CDATA[아이스 브레이킹 22 년 어느날, Back-end 개발자로 개발생활을 영위하며 바쁜 일상생활을 보내고 있었던 🍁가을무렵 이였다. 헤성처럼 나타나 개발자들에게 "코더 계속 하실 ?" 이라는 극딜을 준 G…]]></description><link>https://hyungkishin.github.io/spring-ai/</link><guid isPermaLink="false">https://hyungkishin.github.io/spring-ai/</guid><pubDate>Sat, 29 Mar 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;아이스 브레이킹&lt;/h2&gt;
+&lt;p&gt;22 년 어느날, Back-end 개발자로 개발생활을 영위하며 바쁜 일상생활을 보내고 있었던 🍁가을무렵 이였다. 헤성처럼 나타나 개발자들에게 &lt;em&gt;&quot;코더 계속 하실 ?&quot;&lt;/em&gt; 이라는 극딜을 준 G 선생. 솔직히 처음 모델만 해도 리펙토링 정도만 살짝 참고하는 정도여서 전혀 &lt;code class=&quot;language-text&quot;&gt;긁&lt;/code&gt;히지 않았다. 분명 그랬을 터인데, 24년 여름쯤 이였다. 일정 테트리스로 인하여 여러 프로젝트가 겹쳐 시간이 빠듯하였고 결국 생성형 AI 를 적극 활용하기로 하였다. 그 결과 무려 10배 혹은 20배나 되는 &lt;code class=&quot;language-text&quot;&gt;생산성의 맛&lt;/code&gt; 을 봐 버렸고. 요망한 AI 에게 의존하는 삶을 살게 되었다.
 &lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
-      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/12351874d7740aa21254fbd16deffcd7/e39d5/image.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 59.411764705882355%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAABYlAAAWJQFJUiTwAAABp0lEQVR42o1TTW/UMBDNb+4v4H8gVUJI5YzEBaGVOLSXIgG7CA4QtulG3e3mA2KP7TiJ7VeN26RRd1UYaeRkMvPmPc8kwT8shDD53IQQICLsdjsMwzDFk+eAOJGLhBSQUqJtW3jv0fd9BFRKYblcQmuNrutiPHmCAu+6WKiNiQVVVSHLMmy3NxGcC/ms6xrWWqRpCq0V8jxHIwQDPkoJvkdL28iGu7HxqZRG3zs456bcpmkiOAOPuZNklja/o11B+J3VcM7Hd2tb2LbB1Xod2bGxzLHBvDbpzS2qqogyuVPTSJyefcbJiw9I1yW8d9CaYOgWafoLROoAZG5J8B2M0Q+TCpDU4u37n3j5+hLL7xsWHZlwPUma5Hme/DHA4xMGiuIGeZ5hsCVCcPhfS47RN6ZFWVbx5C+8KuzMlJ2fS9lAGH2waocMvYUUNSRRvFdjzOQ8iN52KP7+wavzBd59/QQf7gcXDiXfh8JAWKc/kF1vIpNxYUfn3dtXNd5cfMTi2xd0nY15zI4JJPNfa5ReViX2xf7oHXEDZiolgZSCkDJeA8dXqxXuAKbxpCwUu17jAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;alt text&apos; title=&apos;&apos; src=&apos;/static/12351874d7740aa21254fbd16deffcd7/ca1dc/image.png&apos; srcset=&apos;/static/12351874d7740aa21254fbd16deffcd7/e7570/image.png 170w,
-/static/12351874d7740aa21254fbd16deffcd7/f46e7/image.png 340w,
-/static/12351874d7740aa21254fbd16deffcd7/ca1dc/image.png 680w,
-/static/12351874d7740aa21254fbd16deffcd7/02d09/image.png 1020w,
-/static/12351874d7740aa21254fbd16deffcd7/9d567/image.png 1360w,
-/static/12351874d7740aa21254fbd16deffcd7/e39d5/image.png 1672w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/afe1637547cb1963741d37dd050370c5/3a6ec/image-2.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 106.47058823529412%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,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&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;ㅎ...형!!!&apos; title=&apos;&apos; src=&apos;/static/afe1637547cb1963741d37dd050370c5/ca1dc/image-2.png&apos; srcset=&apos;/static/afe1637547cb1963741d37dd050370c5/e7570/image-2.png 170w,
+/static/afe1637547cb1963741d37dd050370c5/f46e7/image-2.png 340w,
+/static/afe1637547cb1963741d37dd050370c5/ca1dc/image-2.png 680w,
+/static/afe1637547cb1963741d37dd050370c5/3a6ec/image-2.png 686w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
   &lt;/a&gt;
     &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;alt text&lt;/figcaption&gt;
-  &lt;/figure&gt;
-( LLM과 함께 RAG를 사용하는 개념적 흐름 )&lt;/p&gt;
-&lt;h3&gt;AI 모델 이란?&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;데이터를 통해 특정 작업을 수행할 수 있도록 학습된 수학적 표현 또는 프로그램이다.&lt;/li&gt;
-&lt;li&gt;데이터를 분석하여 패턴을 인식하고, 이를 바탕으로 주어진 작업을 처리하는 방식을 동작한다.&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;인간이 학습하고 연습을 통해 기술을 익히듯, AI 모델도 예제를 학습하여 작업을 수행하는 &quot;똑똑한 시스템&quot; 으로 볼 수 있다.&lt;/p&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;ㅎ...형!!!&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;의존 하다보니 느끼는 감정은 날것 그대로 쓰기엔 오류도 많고 아직 사람손이 타야하는 영역이 많긴한데, 점점 그 빈도가 &lt;strong&gt;줄어들고 있다는 점&lt;/strong&gt;에서 불안과 걱정의 씨앗이 심어졌다. 정말 어느 순간 모르게 급격하게 발전해서 &lt;strong&gt;&quot;비즈니스 영역까지 커버하게 된다면&quot;&lt;/strong&gt; 더이상 내 자신이 회사에 필요하지 않게될 날이 도래하겠다는 생각이 들었다. &quot;에이 ~ AI 는 아직 부족한 부분이 많으니 대체되지 않을거야&quot; 라는 &lt;strong&gt;미련을 빨리 버려야 된다&lt;/strong&gt;고 생각했다. 그러나 처음부터 AI 의 모든 영역을 공부하기엔 현실적으로 많은 러닝커브가 따르고 막막하여 생각에 잠긴다.&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;AI 도델은 데이터를 통해 학습된 문제 해결 도구이다. &lt;br/&gt;
-예를들어 이미지 분류 모델이라던가, 자연어 처리, 음성 인식등 다양한 작업에 사용될 수 있다.&lt;/p&gt;
+&lt;p&gt;1️⃣ Web 개발자 관점에서 AI 를 활용하기 위해 어떤 개념들을 알아야 할까 🤔 ? &lt;br/&gt;
+2️⃣ Spring AI 가 있다는데, python 없이도 AI 기술들을 커버할 수 있는걸까 🤔 ? &lt;br/&gt;
+3️⃣ 많이 뒤쳐진것 같아 불안해. 빠르게 AI 기술들을 적용해보고 싶어 ‼️ &lt;br/&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3&gt;GPT 란 ?&lt;/h3&gt;
+&lt;h2&gt;돈워리. Web 개발자 관점에서 요구되는 AI 기술 부터&lt;/h2&gt;
+&lt;p&gt;웹 개발자는 AI 모델을 직접 연구하거나 신경망을 설계하는 사람이 아니다. &lt;strong&gt;AI를 활용하여 제품을 개발하고 사용자 경험을 향상시키는 데 초점&lt;/strong&gt;을 맞추어야 한다. 단, 요구되는 지식은 다음과 같다.&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;GPT(Generative Pre-trained Transformer) 는 OpenAI에서 개발한 언어 모델로, 자연어 처리(NLP) 작업에 사용된다.&lt;/li&gt;
-&lt;li&gt;사람이 텍스트를 생성하거나, 이해할 수 있도록 훈련된 모델이다.&lt;/li&gt;
-&lt;/ul&gt;</content:encoded></item><item><title><![CDATA[Redis]]></title><description><![CDATA[팀 이동을 하면서 알게된 Redis 의 존재  Redis 로고는 무슨 의미일까 .. 
+&lt;li&gt;&lt;strong&gt;AI 기술 이해&lt;/strong&gt;: ( 머신러닝 딥러닝 기본 개념 ), AI 모델 작동 방식&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;API 및 라이브러리 활용&lt;/strong&gt;: openAi API 과 같은 도구를 사용하여 애플리케이션에 AI 기능 통합&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;멀티모달 데이터 처리&lt;/strong&gt;: 텍스트, 이미지, 음성 등 다양한 데이터를 처리하여 사용자 경험 개선&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;데이터 기반 의사결정&lt;/strong&gt;: 사용자 데이터를 분석하고 이를 기반으로 제품 설계 및 최적화.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;blockquote&gt;
+&lt;p&gt;기술의 발전과 패러다임을 보면 항상 사용자에게 시간을 준다. 딱 5년. 2년도 안남았네 .. &lt;br/&gt;
+🏃🏿 지금부터 SpringAI 를 기점으로 AI 와 빠르게 친해지는 길로 달려보는 수 밖에.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;Spring AI란 무엇인가?&lt;/h2&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/78a2a15fae8b90f5c31abc8da70a2adc/010a2/image-3.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 91.1764705882353%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAASCAYAAABb0P4QAAAACXBIWXMAABYlAAAWJQFJUiTwAAAC30lEQVR42pWTy47jRBSG+x2YTufi+FaxXWWXb7ET59ZJuqcvox4Qg5BGiA1IM0KzYjkCCZY8AeonGBbsEY8AYsE7fajsNGoQKJrF5zo+p/TrnPOrTqQuuL37mHza0Bs6DG1xwGfkiPfmxA1CVJnghRFOEODJEHsywRURY3fy/oJBHnHzxYz6SrN5UbJ8nrN+UVI1S0SUcDZy2m4HY4/+gcFjTM02cTfRie2HxEWJykoinTORGl3kSJUSKU0oE8KoQ8UZMjb5h9qhLhMmUXzoUKU06wvirEZEmkBqlEpRMkFJTRTFLSZO4pTYCEYx8lCXhigmCFUn6IcxRd0QZ1N0UZHkU1RaEucmrtBFTVrOMOa1uaImrxqyqmlrupy1yLTsBEWoqOdLZosN8+V5y6xZU9YL5qvzNt/WFl1tsd5SzVdoI55NScuaopojkxzLnXCSzNbMrj5EqAw/VAip2z0aQyYPseziMM4wKzJ771vewSz/b0PaDmXZcP3J5yy2N8xXe+rljmmzpVlf0mwuqRY7lvvblvn2mmZ7w2r/jNXFM5bm3HdnWq06QUdIFpsrmu01cT5DpTUyq1BZjdQ1YVwRqge6nMoO9w6Y/zCZdiMb1b7ltpgRzCsZOT5jz0eoAFlGpKuEbJOgZgo3DP5xr4sfjWw+1qMXYbmCJ31B34+ItzmiTCh2KeU+ZbrTVE8zbBFg/d9L+XfC9nzuLi2+fTPg7esRb1728Ryb3pnL0PIocxetfWzf3BUMjwr6Pt981eP3d6f89m7ILz/2uLyL0KuU1dzms48GPH86xA98xu6RDs1eXOHz5adn3H/3Afffn/LD10/Y3EjmtwVF5rSC1zsLxxfHBdu92IK3r0758+dT/vhpxK/3PRJpMRh6xMphWY+pCgedeMcFux0KLNs4LNCzgCibUJwnLboKyRcSmQX4vtcaeFTQMBgL7ElItsnI1rpz+CIl3WjStWbsT+hb/+3yX4haGyxt7gCIAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;출처 - https://spring.io/projects/spring-ai&apos; title=&apos;&apos; src=&apos;/static/78a2a15fae8b90f5c31abc8da70a2adc/ca1dc/image-3.png&apos; srcset=&apos;/static/78a2a15fae8b90f5c31abc8da70a2adc/e7570/image-3.png 170w,
+/static/78a2a15fae8b90f5c31abc8da70a2adc/f46e7/image-3.png 340w,
+/static/78a2a15fae8b90f5c31abc8da70a2adc/ca1dc/image-3.png 680w,
+/static/78a2a15fae8b90f5c31abc8da70a2adc/02d09/image-3.png 1020w,
+/static/78a2a15fae8b90f5c31abc8da70a2adc/9d567/image-3.png 1360w,
+/static/78a2a15fae8b90f5c31abc8da70a2adc/010a2/image-3.png 1716w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;출처 - https://spring.io/projects/spring-ai&lt;/figcaption&gt;
+  &lt;/figure&gt;
+Spring AI는 Java 개발자를 위한 AI 통합 프레임워크다. 기존에 AI 기능을 추가하려면 Python, 머신 러닝, 딥 러닝에 대한 광범위한 지식이 필요했는데 Spring AI를 사용하면 개발자가 OpenAI의 GPT-4 및 DALL-E 3의 기능을 쉽 게 활용할 수 있어, Java 개발자가 복잡한 인공 지능 기능에 액세스 할 수 있게 되었다. Spring 기술과 자연스럽게 연결되기 때문에 AI 기술을 &lt;code class=&quot;language-text&quot;&gt;처음부터&lt;/code&gt; 배우지 않아도 된다.&lt;/p&gt;
+&lt;h2&gt;왜 Spring AI로 시작해야 할까?&lt;/h2&gt;
+&lt;p&gt;Spring AI는 복잡한 AI 기술을 Java 개발자가 쉽게 접근할 수 있도록 단순화 되어있다. 굳이 채택하려는 이유라고 하면 다음과 같다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;효율성&lt;/strong&gt;: 기존 Spring 생태계를 활용해 빠르게 시작 가능.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;확장성&lt;/strong&gt;: 다양한 모델과 데이터베이스를 유연하게 교체 및 확장 가능.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;생산성 향상&lt;/strong&gt;: 반복 작업을 자동화하고, 개발자가 중요한 문제 해결에 집중할 수 있도록 도움.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Spring AI로 무엇을 만들 수 있을까?&lt;/h2&gt;
+&lt;p&gt;Spring AI를 활용하면 다음과 같은 애플리케이션을 개발할 수 있다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;RAG 기반 검색 시스템: 질문에 대해 정확한 답변을 제공하는 검색 엔진.&lt;/li&gt;
+&lt;li&gt;대화형 챗봇: OpenAI GPT-4와 연동된 스마트 대화 시스템.&lt;/li&gt;
+&lt;li&gt;이미지 분석 및 생성: 멀티모달 기능을 활용한 이미지 처리 애플리케이션.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Toy Project 딱대 🥰  마지막으로 Spring AI 의 주요 기능과 설명으로 이번 포스팅을 마치며, &lt;br/&gt; 대화형 chat api 를 open ai 를 활용하여 toy project 를 다루는 방향으로 2 편을 작성해보려고 한다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;주요 기능 과 설명&lt;/h2&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;기능&lt;/th&gt;
+&lt;th&gt;설명&lt;/th&gt;
+&lt;th&gt;장점&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Boot Auto Configuration Support&lt;/td&gt;
+&lt;td&gt;Spring Boot와의 통합으로 AI 기능을 쉽게 설정할 수 있다.&lt;/td&gt;
+&lt;td&gt;복잡한 설정 코드를 줄여 개발 속도를 높인다.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Multiple AI Support&lt;/td&gt;
+&lt;td&gt;OpenAI, Hugging Face, Google BERT 등 여러 AI 모델을 쉽게 사용할 수 있다.&lt;/td&gt;
+&lt;td&gt;다양한 AI 모델 간의 비교와 최적화를 쉽게 수행할 수 있으며, 모델 변경 시 코드 수정이 최소화된다.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ChatClient API&lt;/td&gt;
+&lt;td&gt;AI와 대화하는 기능을 쉽게 구현할 수 있다.&lt;/td&gt;
+&lt;td&gt;대화형 AI 애플리케이션을 쉽게 구축할 수 있으며, 사용자와의 상호작용을 원활하게 처리한다.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Prompt Template&lt;/td&gt;
+&lt;td&gt;프롬프트 템플릿을 통해 AI에 보낼 입력값을 쉽게 조정할 수 있다.&lt;/td&gt;
+&lt;td&gt;코드의 재사용성을 높이고, 다양한 요구 사항에 맞는 질의를 손쉽게 작성할 수 있다.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Vector Embedding and Search&lt;/td&gt;
+&lt;td&gt;문서를 벡터화하고, 벡터 검색을 통해 고성능 검색 엔진을 구현할 수 있다.&lt;/td&gt;
+&lt;td&gt;복잡한 데이터를 효율적으로 검색하고 분석할 수 있으며, 이는 정보 검색 및 추천 시스템에 유용하다.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Advisors API&lt;/td&gt;
+&lt;td&gt;반복적인 생성 AI 패턴을 캡슐화하고, 데이터를 변환하여 다양한 모델과 사용 사례에 걸쳐 이식성을 제공한다.&lt;/td&gt;
+&lt;td&gt;AI 애플리케이션의 구조적 설계를 간소화하고, 성능을 최적화하며, 변화하는 요구사항에 빠르게 적응할 수 있다.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Retrieval Augmented Generation (RAG)&lt;/td&gt;
+&lt;td&gt;정보 검색과 생성 AI를 결합하여 더 정확하고 신뢰할 수 있는 콘텐츠를 생성하는 기술을 지원한다.&lt;/td&gt;
+&lt;td&gt;대규모 언어 모델의 한계를 보완하여 질문에 대한 더 정확한 답변을 제공한다.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Observability and Model Evaluation&lt;/td&gt;
+&lt;td&gt;AI 관련 작업에 대한 통찰력을 제공하고, 생성된 콘텐츠의 품질을 평가하는 도구를 지원한다.&lt;/td&gt;
+&lt;td&gt;AI 모델의 성능을 모니터링하고, 잘못된 응답을 방지하여 시스템의 신뢰성을 높인다.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;hr&gt;</content:encoded></item><item><title><![CDATA[Redis]]></title><description><![CDATA[팀 이동을 하면서 알게된 Redis 의 존재  Redis 로고는 무슨 의미일까 .. 
 별 모양으로, 데이터를 신속하게 저장하고 검색하는 그의 주요 기능을 상징한다. 
 별은 네트워크 노드와 데이터 속도를 연상시키며, Redis…]]></description><link>https://hyungkishin.github.io/basic/</link><guid isPermaLink="false">https://hyungkishin.github.io/basic/</guid><pubDate>Tue, 02 Apr 2024 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;팀 이동을 하면서 알게된 Redis 의 존재&lt;/h2&gt;
 &lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
