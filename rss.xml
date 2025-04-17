@@ -1,4 +1,26 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Sun, 30 Mar 2025 15:38:58 GMT</lastBuildDate><item><title><![CDATA[Ai. Spring AI 로 때워도 되나유? 1편]]></title><description><![CDATA[아이스 브레이킹 22 년 어느날, Back-end 개발자로 개발생활을 영위하며 바쁜 일상생활을 보내고 있었던 🍁가을무렵 이였다. 헤성처럼 나타나 개발자들에게 "코더 계속 하실 ?" 이라는 극딜을 준 G…]]></description><link>https://hyungkishin.github.io/spring-ai/</link><guid isPermaLink="false">https://hyungkishin.github.io/spring-ai/</guid><pubDate>Sat, 29 Mar 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;아이스 브레이킹&lt;/h2&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Thu, 17 Apr 2025 04:16:29 GMT</lastBuildDate><item><title><![CDATA[Rag]]></title><description><![CDATA[Rag (Retrieval Augmented Generation) 의 탄생 배경 RAG 은 대규모 언어 모델(LLM…]]></description><link>https://hyungkishin.github.io/rag/</link><guid isPermaLink="false">https://hyungkishin.github.io/rag/</guid><pubDate>Sat, 29 Mar 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;Rag (Retrieval Augmented Generation) 의 탄생 배경&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;RAG&lt;/strong&gt; 은 대규모 언어 모델(LLM)의 한계를 극복하기 위해 개발된 기술로, 검색과 생성의 결합을 통해, 작업에서 정확하고 맥락에 맞는 답변을 생성하거나. 최신 정보와 특정 도메인 데이터를 동적으로 활용할 수 있도록 설계된 기술이다.&lt;/p&gt;
+&lt;h2&gt;LLM 은 어떤 한계를 가졌을까 ?&lt;/h2&gt;
+&lt;p&gt;LLM 의 한계는 학습 데이터를 기반으로 응답을 생성하다 보니, 새로운 정보나 특정 도메인 지식에 대한 질문에 대한 질의 응답을 할수가 없었다. 만약 한다 하더라도 AI 헛소리 라고 불리우는 &lt;strong&gt;할루시네이션&lt;/strong&gt; 문제가 발생하였다. 즉, &lt;strong&gt;거짓말&lt;/strong&gt; 이다.&lt;/p&gt;
+&lt;h2&gt;RAG 의 탄생 배경&lt;/h2&gt;
+&lt;p&gt;2020년 9월 28일 Meta AI 연구진이 발표한 논문 &lt;em&gt;&quot;Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks&quot;&lt;/em&gt;를 통해 처음 소개되었다. &lt;br/&gt;
+이 연구는 Facebook AI Research(현재 Meta AI), University College London, 그리고 New York University의 협력으로 이루어졌다. &lt;br/&gt;
+주요 저자는 Patrick Lewis를 포함한 여러 연구진으로, 이들은 기존 LLM이 가진 정적 데이터 의존성과 할루시네이션(hallucination) 문제를 해결하기 위해 RAG를 개발했다. &lt;br/&gt;
+외부 데이터베이스나 문서 저장소 등에서 관련 정보를 검색하고 이를 기반으로 응답을 생성하는 구조를 채택했다.&lt;/p&gt;
+&lt;h2&gt;RAG의 작동 방식&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;검색(retrieval): 사용자가 입력한 질문에 따라 관련된 지식을 외부 데이터베이스나 문서에서 검색한다.&lt;/li&gt;
+&lt;li&gt;생성(generation): 검색된 정보를 &lt;strong&gt;통합&lt;/strong&gt;하여 &lt;strong&gt;적절한 텍스트&lt;/strong&gt;로 생성한다. ( 맥락에 맞는 답변 )&lt;/li&gt;
+&lt;li&gt;증강(augmentation): 검색된 데이터를 LLM의 입력 프롬프트에 추가하여 응답의 품질을 높인다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;RAG의 주요 특징&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;동적 정보 활용&lt;/strong&gt;: 정적 학습 데이터에 의존하지 않고 최신 정보를 반영할 수 있다.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;효율성&lt;/strong&gt;: 모델 전체를 재학습하지 않아도 외부 데이터베이스만 업데이트하면 된다.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;신뢰도 향상&lt;/strong&gt;: 검색된 데이터를 기반으로 응답을 생성해 할루시네이션 문제를 완화한다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&quot;검색(retrieval)&quot;과 &quot;생성(generation)&quot;을 결합한 구조를 도입 함으로써, 사용자의 입력에 따라 외부 지식 베이스(예: 데이터베이스, 문서 저장소)에서 관련 정보를 검색하고, 이를 기반으로 더욱 정확하고 맥락에 맞는 응답을 생성하게 되었다.
+RAG는 정적 데이터에 의존하지 않고 동적으로 정보를 활용할 수 있는 능력을 갖추게 된다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[Ai. Spring AI 로 때워도 되나유? 1편]]></title><description><![CDATA[아이스 브레이킹 22 년 어느날, Back-end 개발자로 개발생활을 영위하며 바쁜 일상생활을 보내고 있었던 🍁가을무렵 이였다. 헤성처럼 나타나 개발자들에게 "코더 계속 하실 ?" 이라는 극딜을 준 G…]]></description><link>https://hyungkishin.github.io/spring-ai/</link><guid isPermaLink="false">https://hyungkishin.github.io/spring-ai/</guid><pubDate>Sat, 29 Mar 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;아이스 브레이킹&lt;/h2&gt;
 &lt;p&gt;22 년 어느날, Back-end 개발자로 개발생활을 영위하며 바쁜 일상생활을 보내고 있었던 🍁가을무렵 이였다. 헤성처럼 나타나 개발자들에게 &lt;em&gt;&quot;코더 계속 하실 ?&quot;&lt;/em&gt; 이라는 극딜을 준 G 선생. 솔직히 처음 모델만 해도 리펙토링 정도만 살짝 참고하는 정도여서 전혀 &lt;code class=&quot;language-text&quot;&gt;긁&lt;/code&gt;히지 않았다. 분명 그랬을 터인데, 24년 여름쯤 이였다. 일정 테트리스로 인하여 여러 프로젝트가 겹쳐 시간이 빠듯하였고 결국 생성형 AI 를 적극 활용하기로 하였다. 그 결과 무려 10배 혹은 20배나 되는 &lt;code class=&quot;language-text&quot;&gt;생산성의 맛&lt;/code&gt; 을 봐 버렸고. 요망한 AI 에게 의존하는 삶을 살게 되었다.
 &lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
@@ -115,225 +137,7 @@ Spring AI는 Java 개발자를 위한 AI 통합 프레임워크다. 기존에 AI
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;hr&gt;</content:encoded></item><item><title><![CDATA[Redis]]></title><description><![CDATA[Redis 를 활용한 분산 lock]]></description><link>https://hyungkishin.github.io/basic/</link><guid isPermaLink="false">https://hyungkishin.github.io/basic/</guid><pubDate>Tue, 02 Apr 2024 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;Redis 를 활용한 분산 lock&lt;/h2&gt;</content:encoded></item><item><title><![CDATA[CPU Bound 와 IO Bound]]></title><description><![CDATA[문득 java 21 이 등장하면서 virtual Thread 가 hot 한 지금..  한물 간다는 webFlux 를 공부하는게 맞을까 ...? 아니다... 왜 사라지는지 확실하게 짚고 넘어가는 게 맞다... cpu Bound 와 IO Bound…]]></description><link>https://hyungkishin.github.io/cpu-bound-vs-io-bound/</link><guid isPermaLink="false">https://hyungkishin.github.io/cpu-bound-vs-io-bound/</guid><pubDate>Fri, 12 Jan 2024 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;문득 java 21 이 등장하면서 virtual Thread 가 hot 한 지금..&lt;/h1&gt;
-&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
-      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/ef44c1322d4232b1a1538b78df1955f2/4a1c5/img.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 40%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAICAYAAAD5nd/tAAAACXBIWXMAAAsTAAALEwEAmpwYAAABq0lEQVR42p2SzW8SURTF57910ZUfG9dGg9ou3JSycjPVmhCIBNhoqhUHBKkxfGioBGuhfBQY7Lw3TJl57/0MQxd248Jzc3Lv4uaem3uuBQZjNHG+DmL+HyytFcYYlFFoozBao3S0GW02XON3MGfo/WIqh4zFGRdiwEQMGHtnTLwB/VmPMFphzYMB/WWb8bJL16vHdf+qSaBkPGgtskahvc+Dt7d49vE+Dw+3ePz+NttHd3l0uMXO0T2evrvDTI6xhPDonLa4FAs8f0Gn+43alyrT6QVCCKSUjIYjZOAxExMm7jljt89kMaA/+cnpqMtcTnH9GUorrGazyfaTHWx7n4ODV5Q+lNhL7lHI59lN7pJIJMhkMvGWKrxiVX9J9Nkmqr8gqjwn+v4G/fcNG40GyWSSarVKrVaj1WqRTqfp9XpEUYTv+ygVxc1huKLjFPjh5OmWi5yUXnPert6w0HJdl2KxSC6XI5vNYts2qVSK4+Pj6xtu9CMTsgyWOJUaZaeM41QoOZ/42mihlIq5NtD61wvcdHmG9AVKG7Q/Z3npEoYhUnhI6RMEAVpr/gAz8EmYTNRKeQAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img.png&apos; title=&apos;&apos; src=&apos;/static/ef44c1322d4232b1a1538b78df1955f2/ca1dc/img.png&apos; srcset=&apos;/static/ef44c1322d4232b1a1538b78df1955f2/e7570/img.png 170w,
-/static/ef44c1322d4232b1a1538b78df1955f2/f46e7/img.png 340w,
-/static/ef44c1322d4232b1a1538b78df1955f2/ca1dc/img.png 680w,
-/static/ef44c1322d4232b1a1538b78df1955f2/4a1c5/img.png 808w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
-  &lt;/a&gt;
-    &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img.png&lt;/figcaption&gt;
-  &lt;/figure&gt;&lt;/p&gt;
-&lt;h3&gt;한물 간다는 webFlux 를 공부하는게 맞을까 ...?&lt;/h3&gt;
-&lt;blockquote&gt;
-&lt;p&gt;아니다... 왜 사라지는지 확실하게 짚고 넘어가는 게 맞다...&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h3&gt;cpu Bound 와 IO Bound 에 대해서 알아보자&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;단순 cpu 를 쓴다 라고 끝나는게 아니라, 다수의 데이터에 대한 집계 혹은 암호화 등 cpu 계산 능력에 따라 성능이 좌지우지 되는 능력을 말한다.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3&gt;아래 그림을 보자&lt;/h3&gt;
-&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 150px; &apos;&gt;
-      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/6e275cab280b992148a92b7002ec6959/a9205/img_1.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 70%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAOCAYAAAAvxDzwAAAACXBIWXMAAAsTAAALEwEAmpwYAAABl0lEQVR42o2TyYoCUQxF/f/PceHCnSvBWdByFlQQnMp5Hm5zIimqq0U6cM0zU+Xd5KWez6cul4uu12ukz+ezNpuNttutwjC08/F4NNxuN4tL5qDxpSTp9XpFQHCMRiNNp1OtVisNBgP7j9BAPD4JK5iU0+lknVGw1+tpNpupXq9HBb/Jx4JcOQgCQ7VaValUMv2vgiTvdjvr6nA4GOCq0+mo0Wio1WqpVqtZl84jMfv93nJce651CKkE4nDc73c9Hg/TcOPDoIF4nAO7cchPv9/XfD7XYrEwcKYjBwMZj8fRoDwWDdbrtd0Gf4ouhsOhfNpJ8Q9SsNvtqtls/vEjbEKlUnlfGY6KxaLK5fJHFAoFGwzI5/O/fNjYgGw2q8lk8i4IT3EOnfw4R277xCF2+I320Kfmk/IgbMCLoIHb4+BV2Uthr+AGIxyk02llMhm7Bk8OsNxwxApxZs0oAPDzEYZCHRsKwQjBkM4A2u22nA7OxLDoJHE1GgHkI9iZhV2ZQIinQ14E4OyDIBCba7c7iM3lcloul/oBp0Ee5FxfZ5YAAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_1.png&apos; title=&apos;&apos; src=&apos;/static/6e275cab280b992148a92b7002ec6959/a9205/img_1.png&apos; srcset=&apos;/static/6e275cab280b992148a92b7002ec6959/a9205/img_1.png 150w&apos; sizes=&apos;(max-width: 150px) 100vw, 150px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
-  &lt;/a&gt;
-    &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_1.png&lt;/figcaption&gt;
-  &lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;위 그림을 보면 &lt;code class=&quot;language-text&quot;&gt;application 영역&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;커널 영역&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;하드웨어 영역&lt;/code&gt; 을 계층화 하여 추상화로 나타낸 그림이다. &lt;br/&gt;
-여기서 동시간에 하나의 명령어를 처리할 수 있는 CPU core 가 한개 있다고 가정해보자 &lt;br/&gt;&lt;/p&gt;
-&lt;p&gt;application 은 실행되는 프로세스라고 보면 된다. &lt;br/&gt;
-이때 물리적인 cpu core 에 명령을 내린다고 가정해보자 &lt;br/&gt;&lt;/p&gt;
-&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 150px; &apos;&gt;
-      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/b089bdc2e345bcf57199cf4921387633/a9205/img_2.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 70%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAOCAYAAAAvxDzwAAAACXBIWXMAAAsTAAALEwEAmpwYAAACJ0lEQVR42o1TXY+aUBDl9/cXtG9NX5pNs6nbXbE+kW1SV1hxo4m6Kn6hggqoIAKKeJoZRakPTSc5zOTeucPcc+YKSZIgiiLsdruLD8MQq9UKnudhvV7DdV1st1vGfr/nvNsz5GlPAIDj8XgBGW32+31MJhMYhoF2uw1N03iPGsjm34IL3loQBFgulzCmU3Q6Hcznc9RqtUvBf5mQdpU16lBVVbyqKmRZhiRJqFar/1eQ+CKuqCvf9xkUTycTjLsdvvZwOGQuaS/lMs1LfbompFfcbDYX+EGAYOlgK4kI4wPisxD089vcyxnf5+4F+hBPxJnjOHBsG47rwtI6mBcfYHseBv0+RqMRCzMej095Z9i2zQXr9TparRaEw+GAwWCAVG2cOU2WFmLlF8c9TYOu61yw2WxeczO+1+txUb4yKVgqlVAul09QFMjPEt6+fka5+gb55QWKojD+ymPIeK1UUCwWYZrmdQ6pU0Yc40BKqyX4nz5g77mIDwkPLeGSR0iOiLc+I8nOIXGxWCyYD9u2sNr4mMi/8f7lI2aGAde9vhjylmWdYNuYmyYWsxl3R6IJcRyj2+1iv49RqVSQy+VQEEVU63UEAMJoxy+Fcog/8lFEzzNiBGHIHDabrasoNGdk9DIopk7Hun4e5CN0fYTZzGTxSOWsZUVpNBoQplMTkvSM+/vvyOcLEMWfeHwSOc7lfjAofsoXkBdPPl1P8fDwiLu7b2g03vEHB0YUlvIIcJEAAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_2.png&apos; title=&apos;&apos; src=&apos;/static/b089bdc2e345bcf57199cf4921387633/a9205/img_2.png&apos; srcset=&apos;/static/b089bdc2e345bcf57199cf4921387633/a9205/img_2.png 150w&apos; sizes=&apos;(max-width: 150px) 100vw, 150px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
-  &lt;/a&gt;
-    &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_2.png&lt;/figcaption&gt;
-  &lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;그리고 어플리케이션이 N 개가 더 추가되어 단일 CPU 코어 1 에 각각의 작업을 동작시켰다고 가정해보자. &lt;br/&gt;&lt;/p&gt;
-&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 152px; &apos;&gt;
-      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/b0cbc64ed9ade5e77d212f4214a0642f/6ccad/img_3.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 68.42105263157895%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAOCAYAAAAvxDzwAAAACXBIWXMAAAsTAAALEwEAmpwYAAACuElEQVR42nWTyW/bRhTG9Qfn1FMvubRArznkkFPQnhqgAYImQFw3riOltbVYgiRbC2lS4iJK4iaYEmWtpPwr3sgxihYd4IHzlvnm8X3fFLIsY7VaKVsul6Rpyna7Vf79/b2KiUlM/K+1st9sNion+69+QZKO4+B5HlEU4fs+mqYxGo2YTCYqJjnTNMnz/Mn2+706N51MiKMI13UZDocUBHUwGLBer+n1eiR3d1SrVQWyWCzodDqq63q9rkCSJHnqWi4LghDdHDBPEmq12hFQ13XCMKSv3zLxfYrForotCAJ1iXRdLpc5HA7qYvl9+dqOw9h1MUpnuN6Y8uUlBUmahsFFpUL97JTL0xPqzRZav8df1SrNj++5ePszN5rGfrdTc5Iz282GVrdH5de3dH56RalaU2cKDw8PZPs9ObC+qbO7rpEB29XqGOu1WXcaKrZM0ycSlovFsa5SJNW7HIA8yygAal7TMGKi95m+f0OYzAmnU4K7BL/yhemXTwTJHF8IiGM1O7EwCJj88iP+2MMbj7m9vT0CyrwOufQD+9JHWC54WpaO+/sHBt4Y17Fpt9vqd2U9+B778h9qL7Hz8/MjoCDLHF0/QD87YXzyDmd2hz0a4V6UME8/oA0tBqZJq9ViYBg4YYT3+TfM4ifcIETTdC6FFAGUuYjOpNPh0MJ68R3G65cYlo3+w7dYz59h9rpYtoNjW1i2rfzh998waFxhjUYYN20lKQUochAGM5HFLMJ785q4+qciJeq2CR73h0dRZ3nOJk0JmjU2y1T522WqcBSgbdtKazLwMI7w5wtFTBQEzOYLxlGMNRxiWZaqFX1G8Yx4sSSKY2ZxrEhpNptHQCnMH0n55xJJyRq5rnpNUnd9fc1ut/tPrWizVCodAQ3DUOzJq+h2u/9rkpen+O94v9+n0WhwdXXF3yYHAyBDAeS4AAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_3.png&apos; title=&apos;&apos; src=&apos;/static/b0cbc64ed9ade5e77d212f4214a0642f/6ccad/img_3.png&apos; srcset=&apos;/static/b0cbc64ed9ade5e77d212f4214a0642f/6ccad/img_3.png 152w&apos; sizes=&apos;(max-width: 152px) 100vw, 152px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
-  &lt;/a&gt;
-    &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_3.png&lt;/figcaption&gt;
-  &lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;이떄 CPU 코어에서는 동시에 실행한 것처럼 보일수 있다 &lt;br/&gt;&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;그럼 동시에 &lt;code class=&quot;language-text&quot;&gt;병렬&lt;/code&gt; 로 처리한걸까 ? &lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 236px; &apos;&gt;
-      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/612d41b26b474498aeae0c636d5de8cd/f6a20/img_4.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 66.47058823529413%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAANCAYAAACpUE5eAAAACXBIWXMAAAsTAAALEwEAmpwYAAADo0lEQVR42gXBa09TBwCA4TNvlHJglFIo0Pa0QGkLpaWUFiiBUkABuRTEgREQmCWKE9gUhwiRIRXNmIRFGFhcQB2Zi9HAsiU4iPrBhYw4lyUDk01YnCTLlv2Hd88jRBjqkUt1hOuqCdPVIddVE65yEx6XR4TkR+74iD3uYfba+gg31COT6jhg6kTl6EHKDqCzHSfJ2oTafBRRfwRBHu1EVLpQad3oLaUoDaWICT7kqnzkKg+ippyimnPkV3+ImNyATFuL1hnAV36CHHsupmQLGSkWXBlOrPYKBLntFNHJpdT6yvhx9jpnGo8To3ETGZ3BflkKvoISvg1N8PW1QczpPg6ktpPl8mM2ZqBUaDFr0khUaYhVarAa7QhRRUMYUuzMnu3gv3vjrIz0YbPYiTRUEi0VE6gs5saZZoYaK2nwFqFI8mJNLyQ2Jp6O6iqejF9hprcTa4oRdZweQWZpw2rO4WHvSSYb61i9cJoaj5d96e+TkH+a4ZYaRk620H6omGZvPonGMpKlbGKjE1gevcSv00H+mA7SdciHGKVGkJUESXVU0+5yMtHg57zXS2ZaHvtMAey+biqcDirdDnz5brLS0jDkdhGr9WKRjPTUHuH+QDe3zwY4aHWgVWoQoka3kJ9bIzndQ7XJQK7JRrj/BnuPLaOsmceW6kavVKKLU2HUmpGlBzhgbEcteXCYHbgkE1l6C/FqHZLkQhACLzD0PqXM4yNfJ9GWY6NtYIaEi5t83j1Gg9lCokJFkiKGgjgtk+4qTMUXSTJ20FPaRJO3gmMl9XTkVKHI7ERovDDB9x8UMlOcQJNRzxfFelY7XKw1VfBvgY5FtRKnOhGVSs2Vd2PYSYjheflBFjNsLJ76hN7BWYJj86z56rkZkYLQN1HAE7+aryqtTNvjeZiVxE6ehm2DnOeyMH4R5dwWRS7JRTYUEWyEi2xGvMPPGpGn/veYnLrP1MJjvssr5ac9AoLUk8qDinimnQY+yzbwej7Eiyw7260tbHvy+Dt0izfDQ2yVFPI2OMrboQF+b29n69pV1j8+z9zoLBN3XzJl8/AgbD9CrD+RhVI1QV0kXdZ0dtfXeXXvLn+F5tgNhXjV3MTOyGV250L8s7zEmzsLvA6F+POHVZ5dHmSqqJK2nlv06zOYCBMRIkriyXTFEZUZSUtRNo/7+/my8Sibjx7xzeEKfruzwMan46y0nuDZ1SA3lUrmHTm8XFpiZWyUaXsWVc7DtMZJtMkV/A9xWPjIdNstSwAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_4.png&apos; title=&apos;&apos; src=&apos;/static/612d41b26b474498aeae0c636d5de8cd/f6a20/img_4.png&apos; srcset=&apos;/static/612d41b26b474498aeae0c636d5de8cd/e7570/img_4.png 170w,
-/static/612d41b26b474498aeae0c636d5de8cd/f6a20/img_4.png 236w&apos; sizes=&apos;(max-width: 236px) 100vw, 236px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
-  &lt;/a&gt;
-    &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_4.png&lt;/figcaption&gt;
-  &lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;그렇지 않다. 동시간대 하나의 명령만 처리 할 수 있기 때문에, 타임 슬라이스를 아주 잘게 나눠서 잘라보면 &lt;br/&gt;
-실제로 어플리케이션 1 번과 2 ... N 번이 번갈아 가면서 실행하게 된다. &lt;br/&gt;&lt;/p&gt;
-&lt;p&gt;이렇게 번갈아 가면서 실행하는 과정을 OS 에서는 Context Switching 이라고 한다.&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;실행관점에서 문맥을 바꾸었다. 라는 의미다.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;이러한 컨텍스트 스위칭 (ContextSwitching) 작업들은 CPU Bound 어플리케이션 에서 성능 저하를 가져오게 되는데 &lt;br/&gt;&lt;/p&gt;
-&lt;p&gt;그림으로 보면 아래와 같다.&lt;/p&gt;
-&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 444px; &apos;&gt;
-      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/57544796c1d07c17bb2a7706bb80b229/39d25/img_5.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 59.411764705882355%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAAAsTAAALEwEAmpwYAAACVUlEQVR42jWT2Y6jMBRE+f9/GM3S6ihJd0LYN2NjAoawBcjay3xLjXzRPFzBg3VcVbdsOKKCI2o4skGkzojUiLiaEFUjvLyFLxu4WQ2LK1hpCZcr2GmJQ3LEmy+wsiK87F383tr4sXqDYcZHHJjCISlxiEvE9Qze3ZHUM8Kip3FFDTMpsHVTmFFOlzipwj6SWDsMKyvAy97Dr80Bhs0XhRq8D3PE1QgxPMGaC8JygH/s4coGdqronC0qAnq8gqVVeinWToyVFeLPzoFBNqsRaXuF6O+Q0yfy6ROifywqywEhRXFGXE9ImguCckCQN/BERSrfA4Gtx/B6CGAk9QR20jZvyIYHwY7TJ+T4geQ002UapLMNioEu0N+g1FFUePc5wRaVAYyoGOBnDYJjT5P1d5TXv+D/FZKDCRavCa7HyRokp4liejUDbF2Gtb3YNtzshF2Qw+U1EjWC1TMp1JvW/57s4OcdLc2MCzhpRf+8u2If5di4DG8eJ+DajmB4WUPB8+YKqTMcHigv3yjmLxTa+vCkOLTltLmANxckOvPTDIvpZuQwI4ldILBxEr2UkQ4n1Yy0uUJ0dxTTF8r5i5TqXMXwADtdINorZHeH7G9I1ICA6rNA9exCAUOX12K6Cj28rCN41j9JZT5+0LYzrbK5gNUTQVk9wpcnuLyCzQoqud72xk1guLJFSHZuiNWMWE0EKOZv5OfnorC/g+ltqzPZjtVSmwWqlj766VKbsDiTVf06eHuHPGubH5D9k5Ty9kYQps5LvTRc10i/orwlldrq68HHz42Jf4ogDrEYsPbYAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_5.png&apos; title=&apos;&apos; src=&apos;/static/57544796c1d07c17bb2a7706bb80b229/39d25/img_5.png&apos; srcset=&apos;/static/57544796c1d07c17bb2a7706bb80b229/e7570/img_5.png 170w,
-/static/57544796c1d07c17bb2a7706bb80b229/f46e7/img_5.png 340w,
-/static/57544796c1d07c17bb2a7706bb80b229/39d25/img_5.png 444w&apos; sizes=&apos;(max-width: 444px) 100vw, 444px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
-  &lt;/a&gt;
-    &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_5.png&lt;/figcaption&gt;
-  &lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;어플리케이션이 실행되어 메모리에 로드되고 프로세스로 동작하게 될텐데. &lt;br/&gt;
-CPU 로 스케줄링 되어 실행될때, 기계어 실행을 위해 필요한 데이터들을 cpu Register 로 미리 가져오게 된다. &lt;br/&gt;&lt;/p&gt;
-&lt;p&gt;그리고 ALU 를 통해 실제 계산을 진행하게 되는데 Register 에는 기존에 어떤 명령까지 진행했는지를 함께 저장 해 놓고 &lt;br/&gt;
-필요에 의해 캐시를 해놓기 때문에, 동일한 프로세스의 일을 꾸준히 하면 할 수록 성능적으로 더 효과 적이다.&lt;/p&gt;
-&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 421px; &apos;&gt;
-      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/7e52dfe9254b25ffb32a0ed696f69531/edfbf/img_6.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 61.76470588235294%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAAAsTAAALEwEAmpwYAAACfUlEQVR42kWTx3LjRhRF8fveeOWyyzWSRiLFAIIAARA5JyIQjBLHoqtk/8qZ6tZiFnfZB+8GKE5SIxTkLXl3IhPqz2TDhaQ9krYnkuaAl7c4WcM2qTDDHCNIWDker7rFy0rnca7y98sEZbHxWDsxhpux8TIJKcd3yv0b+XCRCsoe3U2Z6Q6qFeBmO6wwZ+2GLExHQr8vNb5NX1FU00ezI+a6y6u2JSwHdscfUsVwpdhfieuRbVxhRyV2WOCkNVZUsPETVNtlYW6ZaAaP8yWKlzZEZU+2O1DuLxLUXT7oLneaw4368C6heXeWkeTtScbjpg1WVMorVdtjZtjySsXPWuJ6T9GfJehw+5Qab580x1/AZHcgKHr8vEW8CfIO089YmC4zw+JFM3hWdRTdS1lsfFZWiJs0DNc7p3/+pz1/yPyK/kJUj9JuVA546U5mLVzNDYfHmcZEM3larHmar1D+eJjy2+9/8efDjMepRlQNdOcPnLjGDUu8rMXyclZmiGbHqGYgPx6WPZOVyYtq8H2p8zTXeJipKM/LDUKimI2XyiuOt0/6y11KZGbZEUHeE1UjYdFLJ362Y7FxpWXRsrD7tNBQDC/FDAqcpKHav7F/+5fDj//ornfSaiCpR9l2tjtKeNaeiKs926hCdyOWliMLmWibr1LEXCaqjZPssIKKpD58PawG0nok768yx6QZSaqRtBkRy9DdmJXjs7Rd5uaW6VrkqAqghxUUeFmHn3eyzbI/S7tfoIO8UsxE2AyLDjPI0L3oazJbTwLF3/IwW6BodihBwm4jB32jPd+p9u/EzUhYDfhFKyMRVgVcXGjHBYYfo2595pstz+qab9MZPwEIwPwPoFDKegAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_6.png&apos; title=&apos;&apos; src=&apos;/static/7e52dfe9254b25ffb32a0ed696f69531/edfbf/img_6.png&apos; srcset=&apos;/static/7e52dfe9254b25ffb32a0ed696f69531/e7570/img_6.png 170w,
-/static/7e52dfe9254b25ffb32a0ed696f69531/f46e7/img_6.png 340w,
-/static/7e52dfe9254b25ffb32a0ed696f69531/edfbf/img_6.png 421w&apos; sizes=&apos;(max-width: 421px) 100vw, 421px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
-  &lt;/a&gt;
-    &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_6.png&lt;/figcaption&gt;
-  &lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;컨텍스트 스위칭은 위 그림과 같이 어플리케이션 2번을 실행시키기 위해 Register 정보를 초기화 하는 과정부터 시작한다. &lt;br/&gt;
-정확히는 어플리케이션 1 번이 실행했던 기존 실행 정보들을 메모리에 별도 저장 해 놓고, 2 번 어플리케이션 데이터 정보를 가져와서 다시 Register 적재를 한 뒤 명령어들을 실행하게 된다. &lt;br/&gt;
-하나의 CPU 에서 다수의 프로세스들이 번갈아 가면서 cpu 작업들을 진행해야 하기 때문에 성능상 오버헤드가 발생한다고 할 수 있다. &lt;br/&gt;&lt;/p&gt;
-&lt;h3&gt;그럼 여기서 문제...&lt;/h3&gt;
-&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 149px; &apos;&gt;
-      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/b45da70385f86e272b7739008009064f/4d6d4/img_7.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 67.78523489932886%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAOCAYAAAAvxDzwAAAACXBIWXMAAAsTAAALEwEAmpwYAAACsklEQVR42l2T207bQBCG85R9h0p9Ax6hV72pKnEDqqoKJLig9CAqaNS0OZGzE68dB8d2wIf4kMROnAOEv5oJCRUrWbM73n88/r/dTBRFcF0XjuPsYhzHu/U2lyQJ5yeTCabTKUd653kebNvmOeUyt7e30HUdvu8jDEMYhoFKpbIrFoUh+v0+er0eaKzXa47j8RiDwYALUlO0R1EUZCg5HA65EIlons1msVgsIISAYVksqtfrnKMPj0Yj3kcd9/QbdDWN17QnQ4XK5TI6nQ7askCpVMLV1RWvW60W1GYdxWIRkiRxZ6vVimMYBqi2JHRzv6BenCNfqaBWrSITBAEUTYOoXEM5P4WsqAh8H6qioCME1I/7aEsS+zOfzzGbzbjTJJ5AGBa6RwcQP79B3OgYeh4y5MliucQ0jpF8+cwiAkBxTsIfJ0hnMwaxhUL+0UO6yddjxGGA5WrF/mbI0BtNwzhdwD47QqAJRHGMMAgQRhG8k0NYpsmkLctirwhUlEwRCgnO2RFG8wUMXWdb+Jddx2Ff7nUV6+vfPH9cP3BMzo8h5A5c14Msy1BVFduxrv3FfU/eUI8ihskdFgoFKEKgLkmQ99+h22pA6sjoNBvQDt6jVasyJOqgVquxp21NQ/fwA5rlEoSqolAsodFobDykY+HYd3CCEPbld5h7r3HXVWDkLmG9eQXj+BC2H8CxbXiOAycaYZC9wODtHhxvyHbYvS6Wy+WmIJFL0xRpOoeTu4R++onBJLMUZvEPRkMPq4cHFmxgLRHZd7AV+UmXIhmPnqFomsb0yM8gTuDPUr41URjBH8cwTAt9XeeDTxeBgY3GiOKENUS8bxhoNptPUFx3A+LxcWc4nubzNOUrRYTpoJumif/HVkO3J5fLPUNpt9v8BRK9fAgGQdmCefme8vl8no/NP9jl/VU7mOUWAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_7.png&apos; title=&apos;&apos; src=&apos;/static/b45da70385f86e272b7739008009064f/4d6d4/img_7.png&apos; srcset=&apos;/static/b45da70385f86e272b7739008009064f/4d6d4/img_7.png 149w&apos; sizes=&apos;(max-width: 149px) 100vw, 149px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
-  &lt;/a&gt;
-    &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_7.png&lt;/figcaption&gt;
-  &lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;위 어플리케이션 들을 어떻게 실행시키는게 가장 빠를까 &lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;하나씩 순차적으로 실행하는게 가장 빠르다 ( 너무 당연한가 ? ) &lt;br/&gt;
-컨텍스트 스위칭 이라는 오버헤드가 있기 때문 &lt;br/&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h3&gt;어떻게 하면 CPU Bound 상황을 효과적으로 만질 수 있을까 ?&lt;/h3&gt;
-&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 459px; &apos;&gt;
-      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/acedc744de8087b941c062aa1cf2222a/e38a7/img_8.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 54.70588235294118%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAALCAYAAAB/Ca1DAAAACXBIWXMAAAsTAAALEwEAmpwYAAACYElEQVR42jWTyXbaQBRE+f5s4iw8JB4gNgZim1ECJBCahWYkMWOISb7k5qiTLN7pVd+uqldd8bIt8eYkJtmcyA9n4s2RZHPEz3eEywPx+ogZ5WhegmL5jM05I8PmRR7z1O7x0PrB7VOd64cqFTfdUEKj1VFcTLc/seMVZpihzxdYUU6yPTE0PCTNYjAxkWcOY9PlbajQ7MvUO12qrRY31RoVaerwKk1RrQDDz1jsPvAWa5y4wApz5tkav9gycUImbsjUi1Btn6Fh8zpUeB2OafYHVJstbkqFdrIS1rL9B8vjb4r3M+n2RLo7Ea4OJNt3wtUGv1hjJzm6H6MHMSPTpj2e8CqPeGq3heWru3sqfrEX+eWHX2SHs8gw25/x8z3B8kC0Ks8N83yNFefM/AjNC0SG7bFCo9en9uOF28cnLm/vqMzmKaoVYkUF6e5DZFk+4i42IksvW+GmBU6aYwQJUy9EtT1k3RR2nztdvpfA/wqtKMMMFyK3cPUuQE66FqN5MXZSYISpUCZrFl1lhjyz6Kma2HKzN/gLfKxzXQKD5Ra/2AlYsNwLVXqQoToRY9NHD1KseIEZpYwNV8AkzRQbbvUl6u0OV/c1Lu/u+Xx5VVqOKW1LmsvUjUTX5Jkntj5xIka6h7tYYscZfVWnp2jIM5NGZ0CzJ9Ho9gX0odHka1kbw48ZzlzRL8WaC0hZ3IkboDo+qhNghAuMIEWamnQVTUDfZIVmt7T7Rq31Ijp4cfVPYalsIi779FSLkTHH8MvcElQ7QBE/wxWWBxNdwNojlRdpSKPT467+zJebb3y6uOAPVBDGQpDy4U8AAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_8.png&apos; title=&apos;&apos; src=&apos;/static/acedc744de8087b941c062aa1cf2222a/e38a7/img_8.png&apos; srcset=&apos;/static/acedc744de8087b941c062aa1cf2222a/e7570/img_8.png 170w,
-/static/acedc744de8087b941c062aa1cf2222a/f46e7/img_8.png 340w,
-/static/acedc744de8087b941c062aa1cf2222a/e38a7/img_8.png 459w&apos; sizes=&apos;(max-width: 459px) 100vw, 459px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
-  &lt;/a&gt;
-    &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_8.png&lt;/figcaption&gt;
-  &lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;흔히 말할 수 있는 정략은 위와 같이 병렬 처리 되어야 효과적이다. &lt;br/&gt;
-동 시간대 각각의 명령어를 동 시간대에 처리할 수 있기 때문이다. &lt;br/&gt;&lt;/p&gt;
-&lt;h2&gt;I/O Bound 란&lt;/h2&gt;
-&lt;p&gt;입출력 장치의 중점적인 작업들을 말한다. &lt;br/&gt;
-대표적인 작업들은 키보드와 같은 사용자 입력, 디스크 파일 복사, 네트워크를 통한 데이터를 주고받는 행위들을 모두 I/O 작업이라고 한다.
-&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 486px; &apos;&gt;
-      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/7497709726e6ffd838d7bac55b9c7970/c42ee/img_9.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 37.05882352941176%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAHCAYAAAAIy204AAAACXBIWXMAAAsTAAALEwEAmpwYAAABjUlEQVR42i3Q25KaUBCFYd7/CVKpisk4ZjQiqHhAwL1B3JyPwmhiknf5UzC56Kq++nr10l6nnzDMKbat47prhLCQck8UeaSpIM99qioky3y6LuF2i+n7hMcj435Pee8TilwixQZjNUGbzT6zXH7FcUzEeYuUO8LQHrEBquvrOGkq6buE57Pkfv+PvSeUhU8ae1zDI66jo83nXxjG2i7w5R7X3RAER/I8GNOoq4u6eniuRaQ8mjoiVmey4UCf0PcxZRkQRyekWKMt5hNM45XdboEQO5RyuQQ2aSLJs4A08VGhiy8OxNGZtorpbglNrWgbRZqcUaGNFFuck45m6C8Y+hRDnzH/PsGXB9JYUmQBTaN43PMRT2Mx7n//tPx+VvS3mLZWFJlPEjn4wsKxdTRTf2G7fuN0XLGzFti2Mb5WVx/dVUXI2bUQnjV2OKQb4K6NqKuQpr5QlT6RsvFcA81cfWNjzrAPSw7WD7bmG1LsR7C/JbRNNKa4+AeaMuT5sxwTPn8V9N2ABpS5/AA9nX97I8cL4f9B+wAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_9.png&apos; title=&apos;&apos; src=&apos;/static/7497709726e6ffd838d7bac55b9c7970/c42ee/img_9.png&apos; srcset=&apos;/static/7497709726e6ffd838d7bac55b9c7970/e7570/img_9.png 170w,
-/static/7497709726e6ffd838d7bac55b9c7970/f46e7/img_9.png 340w,
-/static/7497709726e6ffd838d7bac55b9c7970/c42ee/img_9.png 486w&apos; sizes=&apos;(max-width: 486px) 100vw, 486px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
-  &lt;/a&gt;
-    &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_9.png&lt;/figcaption&gt;
-  &lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;위 그림과 같이 client 와 server 는 연결이 되어있는 상태이고, Hello 라는 문자열을 네트워크를 통해 전송한다고 가정해보자. &lt;br/&gt;&lt;/p&gt;
-&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 490px; &apos;&gt;
-      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/8af848b5bb126f9f142974ff9db36627/ce5c5/img_10.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 72.35294117647058%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAOCAYAAAAvxDzwAAAACXBIWXMAAAsTAAALEwEAmpwYAAAC/UlEQVR42j2T6XLaSBRG9ch5gKm8xNRMVWzH44XFgEEIhBYESGhHiEWyBCTg2BPPe5yp7krlR1d1949T5977XaXff0DXuziOJo/rTghCmyh28JYGfmARJw5x7JCkc5JkTprO5TuV/zbbjUex91h6AxRVbWCafWaz8W9YnMzIMpcwnBLHM1aZS7b2SJKZhKXpjCiy5VsAV6nDS+lTVz6KYfRwnCGuZ7BcmqxWC7LMY7cLCQNhIcAOm01AfcjZFzHbrS8NxQkCgyg02W5cjocQZai2aTX/YTTsYFtD1muP/T6iKBLWmc8mD8nXvgRWVca3b1uOp5zNZiltg8AkWOpkqxlVFaCYRh/DeGbmjKWhsCvLlKpacTjklGXGfp9S12tOpy2XS8nbW835XFC9pEShhb/UiSOLsliiTCZd5vMxnmcSRY7s2W4XSZvLueTHay3vx+OG10vJ+/uR/z6+8/HxnZ8/TxRFROBPWCVTDnWAMhq1peFioRMEtgSLSeb5Ulr++37k9fJCXa841Gtpdj7vOJ/3XF5LDvVK2iWRRS1KVtUmmtbGtlW8X4MRQNc1mdoj8tyXpgJUFrEsU1i9lDGH45qyiIhDU0KLwkPpdu5oPt4wHndkbOSkUxdvYeD7FpGITuRwOua8/ai4nPdU1S/oS8Ju58sph8GE/X6B0u3eMVSbiF5ObVX2U5QuepmmCxkN8b/O3N8ln04bqiqh2Idst0uS2GbpDckyC+WpdUO/d486eJRQ2xrIjRFgARWBH2lPLGZikjOOx1yWLkrNswVJIsJv4bkqUaihdFs3tB6+0Hj4gtp/ZKJ3sMw+ljXANgdM9B7a8AnLVOVm7HYBgW/jia3yTRkZz9WYTnvMnS5Ku3nN/e3f3F7/Se/pK2OthWU+YxnPjLWOPP3eA7alskoXRKEjgYEv8mdgG32m1jNq/47e0xVKp31Nv3dLp3lFp3GF+nyPPmqjqQ20YYuJ3mU4aDDSWoRiKzwTb6Ezmw4x9B5Te0Dg6zQe/uLzH5/4H2TFjQzOBD4GAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_10.png&apos; title=&apos;&apos; src=&apos;/static/8af848b5bb126f9f142974ff9db36627/ce5c5/img_10.png&apos; srcset=&apos;/static/8af848b5bb126f9f142974ff9db36627/e7570/img_10.png 170w,
-/static/8af848b5bb126f9f142974ff9db36627/f46e7/img_10.png 340w,
-/static/8af848b5bb126f9f142974ff9db36627/ce5c5/img_10.png 490w&apos; sizes=&apos;(max-width: 490px) 100vw, 490px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
-  &lt;/a&gt;
-    &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_10.png&lt;/figcaption&gt;
-  &lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;NIC ( Network Interface Card ) 장치 는 네트워크 패킷을 주고 받는 역할을 맡고 있다. &lt;br/&gt;
-Client 가 전달한 Hello 패킷을 Nic 장치를 통해 전달받고, 커널에서 네트워크 프로토콜을 진행하게 되는데 &lt;br/&gt;
-서버 application 입장에선, Kerner 에서 패킷을 전달받기 전까지 &lt;code class=&quot;language-text&quot;&gt;대기&lt;/code&gt; 를 하게 된다. &lt;br/&gt;
-Nic 장치 로 부터 패킷을 받고 커널 까지의 과정 또한 CPU 사용이 필요한 영역이긴 한데, &lt;br/&gt;
-application 관점에서는 패킷을 수신 완료까지 를 대기하기 때문에, CPU 를 중점적으로 사용하지 않는 상태라고 볼 수 있다. &lt;br/&gt;
-만약 패킷이 오지 않았다 라고 가정한다면, 해당 서버의 프로세스는 계속해서 대기를 하게 되는것이다. &lt;br/&gt;&lt;/p&gt;
-&lt;h2&gt;Web Application 서버 관점에서 어떠한 I/O 들이 있을까&lt;/h2&gt;
-&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
-      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/d0904df234446f503d521c51cd16e459/58299/img_11.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 23.52941176470588%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAFCAYAAABFA8wzAAAACXBIWXMAAAsTAAALEwEAmpwYAAABMElEQVR42h3P3VKCQABAYd5/uqmbZuzCn3IsSdPVBFEWWJCFBSHEbLLe5TTxAt+cYw1HPZ5fhkztR8TKRikPFe9Qasch9dFZgCljyjLheDxw+ar4/m5Ikj1FqYiTLa47Y7kYIxZPWKPHB+zXJ5ZiihB2h4XBlvVqTqoDsjxE64Cq1pg8pmkMPz9nYrWnrlN06uM6c14mfcaje6y72xsGgx6L5RSxmuH7G/a7Dd52jZQucbwnSXzyPKJtC67Xht/fM5dLSXvOaU4aY0I276+I5RhrOOwxmQx4WzzjOG/dSiCdDo1CjyyLOuwfro4pdZV1paF0KIzC2wqkv0ap/wgbq9+/78D5fML6fUYYupgiJjeKjw/N5+XIqTUdemqLrrKuNOlB0jSaLJNE0QYpBZ5n8wf/XEGY5ElECwAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_11.png&apos; title=&apos;&apos; src=&apos;/static/d0904df234446f503d521c51cd16e459/ca1dc/img_11.png&apos; srcset=&apos;/static/d0904df234446f503d521c51cd16e459/e7570/img_11.png 170w,
-/static/d0904df234446f503d521c51cd16e459/f46e7/img_11.png 340w,
-/static/d0904df234446f503d521c51cd16e459/ca1dc/img_11.png 680w,
-/static/d0904df234446f503d521c51cd16e459/02d09/img_11.png 1020w,
-/static/d0904df234446f503d521c51cd16e459/9d567/img_11.png 1360w,
-/static/d0904df234446f503d521c51cd16e459/58299/img_11.png 2902w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
-  &lt;/a&gt;
-    &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_11.png&lt;/figcaption&gt;
-  &lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;그림으로 보면 클라이언트로 부터 전달 받는 http 프로토콜을 처리하는것도 web Application 에서는 network I/O 이고, &lt;br/&gt;
-Web Application 에서 비즈니스 로직 이후 DB 에 쿼리하는 영역도 I/O 이다. &lt;br/&gt;
-또한 DB 시스템에서 데이터를 조회하고, 삭제하고, 저장하는것도 I/O 라고 볼 수 있고, &lt;br/&gt;
-Web Application 에서 외부 API 서버 요청 에 대한 것도 네트워크 I/O 가 발생하게 된다 &lt;br/&gt;&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;하나의 웹 서비스 에서도 I/O 작업이 여기저기 산재되어 있는데, 반드시 인지하고 있어야 할 개념이다.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h2&gt;만약 클라이언트로 부터 많은 요청이 들어오게 된다면, 어떻게 해야할까&lt;/h2&gt;
-&lt;p&gt;전통적인 해결 방법은 webApplication Thread 갯수를 늘리는 것이다.
-&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 469px; &apos;&gt;
-      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/5c85b754c54944360bd1d70a07725bdf/44038/img_13.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 58.235294117647065%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAAAsTAAALEwEAmpwYAAACpElEQVR42i2S2XLiRhRA9a15ma/IS/KSpJJ4mNhmMQIECK1oF1rQgiQE2MbxjJOqVL7mpOjKU1ffe/v0uX1bWqtTNvoMz9dIM5csDyiqiP5c0p8rLs8Np0sl9qdzRdvteb12/PPvO3/9/cLXjxPvHyf6c0HTJUiaPkMz5gSRSRBabDYKfmCxLyLaLufYl/Sniv5U0vclhybl0GZc344C+O3jzPu3E39+7QVUMm0Fy1aIYosk9VguZZ6eHlHVOVkecmgy8jwk34fC/ngqhG3dpAJSHWJ++PF7Pn36juHwDkmePXL/cMdCmRDFWwxjjWmuiWKHoox5fetIUh/H1UX+ZtefCurDjstzzfO1oawjNH1OFNs34JDhcICynJDtfdFa02YUZSSszpcDXV+IWLYPKOsd3bGgrGK6457TpeTl2nB9a2nbFGk6fWA0+sJUfiROHOKdK0zinSOA9SFF0xQ26gJNW1BWEd0xZ18ElGVE1+e0XUbTJFSHCGkmD7m1rShjoVwfEvHwVZ2QZT7nS83La0t7zCnrmGzv0TSZyKWpS1XFFGVIUQVkexfp4f6O33/7idFogL1VCQObMNzieoYwvME9z2Q+HyPLQ/zA4NAkpKknBNLMI9qZJKnNbmchrVYTdH2BZS2x7RVZ5lHXCVW9E8VhZIvpu56O46qEkSFgQWASJzZBaOB6Kp6v4gUa0mz2yHo9RdfnGKYiDu0Sh7wISFIX3zfFn7zZON4Ga7vCdtYEoYkf6GiajKIMWa3HmOYCaTS64wZVVZnNZoZhLv43sQQ4zT2x3g67rirqRuMBm43M58+/MB4PuP/jV8ajAev1BOnL4GcRXC4nrFZPAmqaCq6zIQwNkvQ2eQvHUTEtRTzNajkRF2+3K0xrga7LLJcj5vN7/gOI9OBvE9D83QAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_13.png&apos; title=&apos;&apos; src=&apos;/static/5c85b754c54944360bd1d70a07725bdf/44038/img_13.png&apos; srcset=&apos;/static/5c85b754c54944360bd1d70a07725bdf/e7570/img_13.png 170w,
-/static/5c85b754c54944360bd1d70a07725bdf/f46e7/img_13.png 340w,
-/static/5c85b754c54944360bd1d70a07725bdf/44038/img_13.png 469w&apos; sizes=&apos;(max-width: 469px) 100vw, 469px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
-  &lt;/a&gt;
-    &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_13.png&lt;/figcaption&gt;
-  &lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;Thread Per Request 혹은 Thread for Connection 이러고도 하는데, 이는 &lt;br/&gt;
-하나의 요청에 하나의 Thread 가 필요하다는 의미이다. &lt;br/&gt;&lt;/p&gt;
-&lt;p&gt;예를들어 굉장히 많은 Thread 가 실행된다고 가정한다면, &lt;br/&gt;
-성능 관점에서 CPU 컨텍스트 스위칭을 고려해야 하는데, 이런 컨텍스트 스위칭 오버헤드를 감수하더라도 I/O 요청을 최대한 처리할 수 있도록 하는 전략이라고 볼 수 있다. &lt;br/&gt;&lt;/p&gt;
-&lt;p&gt;만약에 하나에 Thread 가 하나의 연결을 처리하고 있는 순간 다른 추가 요청이 있게 되면, &lt;br/&gt;
-대기를 하는게 아니라 또다른 Thread 를 처리하게 된다. &lt;br/&gt;&lt;/p&gt;
-&lt;p&gt;만약 대량의 요청을 처리하기 위해 요청 수 만큼 Thread 갯수를 늘리게 되면 결국 OOM 이 나버리게 된다.&lt;br/&gt;
-만약 10만의 요청을 동시처리하고 싶다고 가정한다면, &lt;code class=&quot;language-text&quot;&gt;(10 만 * 스레드 크기 )&lt;/code&gt; == &lt;code class=&quot;language-text&quot;&gt;메모리 용량&lt;/code&gt; 이 되버린다.&lt;br/&gt;
-거기에 하드웨어 최대 메모리까지 사용하게 되면 시스템이 아예 동작하지 못할수도 있다.&lt;br/&gt;&lt;/p&gt;
-&lt;p&gt;커널에는 OOM 이라는 안전장치가 존재한다. ( 주요 프로세스를 Kill 해서 시스템 다운을 예방하는 역할 )&lt;br/&gt;&lt;/p&gt;
-&lt;p&gt;반면 사용이 완료된 Thread 를 삭제하는것도 문제다. &lt;br/&gt;
-새로 들어오는 요청에 의해 다시 만들어야 되니까 ..&lt;br/&gt;
-결국 쓰레드를 관리해야 하는것이 성능 관점에서 손해이다. &lt;br/&gt;&lt;/p&gt;
-&lt;p&gt;이떄문에 Thread Pool 이 해결 방안으로 볼 수 있겠다. &lt;br/&gt;&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;가용 가능한 다수의 쓰레드를 미리 만들어 놓고, &lt;br/&gt;
-요청이 들어오면 미리 만들어 놓은 쓰레드를 활용하고 사용이 다 했으면 해당 쓰레드를 다시 쓰레드 풀 에 반납하는 전략을 말한다. &lt;br/&gt;&lt;/p&gt;
-&lt;/blockquote&gt;</content:encoded></item><item><title><![CDATA[코틀린의 현재와 미래]]></title><description><![CDATA[코들린의 현재와 미래 코틀린을 배워야하는 이유 코틀린은 IntelliJ로 유명한 젯브레인사에서 만든 언어이기 때문에 IntelliJ에서 자동완성, 자 바-코틀린 변환, 코루틴 등 코틀린 관련 편의 기능을 완벽하게 지원 자바는 발표된지 2…]]></description><link>https://hyungkishin.github.io/kotlin/</link><guid isPermaLink="false">https://hyungkishin.github.io/kotlin/</guid><pubDate>Fri, 12 Jan 2024 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;코들린의 현재와 미래&lt;/h1&gt;
+&lt;hr&gt;</content:encoded></item><item><title><![CDATA[Redis]]></title><description><![CDATA[Redis 를 활용한 분산 lock]]></description><link>https://hyungkishin.github.io/basic/</link><guid isPermaLink="false">https://hyungkishin.github.io/basic/</guid><pubDate>Tue, 02 Apr 2024 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;Redis 를 활용한 분산 lock&lt;/h2&gt;</content:encoded></item><item><title><![CDATA[코틀린의 현재와 미래]]></title><description><![CDATA[코들린의 현재와 미래 코틀린을 배워야하는 이유 코틀린은 IntelliJ로 유명한 젯브레인사에서 만든 언어이기 때문에 IntelliJ에서 자동완성, 자 바-코틀린 변환, 코루틴 등 코틀린 관련 편의 기능을 완벽하게 지원 자바는 발표된지 2…]]></description><link>https://hyungkishin.github.io/kotlin/</link><guid isPermaLink="false">https://hyungkishin.github.io/kotlin/</guid><pubDate>Fri, 12 Jan 2024 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;코들린의 현재와 미래&lt;/h1&gt;
 &lt;h3&gt;코틀린을 배워야하는 이유&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;코틀린은 IntelliJ로 유명한 젯브레인사에서 만든 언어이기 때문에 IntelliJ에서 자동완성, 자 바-코틀린 변환, 코루틴 등 코틀린 관련 편의 기능을 완벽하게 지원&lt;/li&gt;
@@ -686,4 +490,222 @@ main(args: Array&amp;lt;String&gt;) {
 &lt;ul&gt;
 &lt;li&gt;기본 제공되는 Junit5 기반의 테스트를 특별한 설정 없이 그대로 사용이 가능하다&lt;/li&gt;
 &lt;li&gt;모의 객체를 만들어 테스트하려면 Mockito 대신 MockK를 사용할 수 있다&lt;/li&gt;
-&lt;/ul&gt;</content:encoded></item><item><title><![CDATA[배포전략]]></title><description><![CDATA[배포 전략]]></description><link>https://hyungkishin.github.io/deploy-strategy/</link><guid isPermaLink="false">https://hyungkishin.github.io/deploy-strategy/</guid><pubDate>Fri, 18 Nov 2022 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;배포 전략&lt;/h1&gt;</content:encoded></item></channel></rss>
+&lt;/ul&gt;</content:encoded></item><item><title><![CDATA[CPU Bound 와 IO Bound]]></title><description><![CDATA[문득 java 21 이 등장하면서 virtual Thread 가 hot 한 지금..  한물 간다는 webFlux 를 공부하는게 맞을까 ...? 아니다... 왜 사라지는지 확실하게 짚고 넘어가는 게 맞다... cpu Bound 와 IO Bound…]]></description><link>https://hyungkishin.github.io/cpu-bound-vs-io-bound/</link><guid isPermaLink="false">https://hyungkishin.github.io/cpu-bound-vs-io-bound/</guid><pubDate>Fri, 12 Jan 2024 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;문득 java 21 이 등장하면서 virtual Thread 가 hot 한 지금..&lt;/h1&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/ef44c1322d4232b1a1538b78df1955f2/4a1c5/img.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 40%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAICAYAAAD5nd/tAAAACXBIWXMAAAsTAAALEwEAmpwYAAABq0lEQVR42p2SzW8SURTF57910ZUfG9dGg9ou3JSycjPVmhCIBNhoqhUHBKkxfGioBGuhfBQY7Lw3TJl57/0MQxd248Jzc3Lv4uaem3uuBQZjNHG+DmL+HyytFcYYlFFoozBao3S0GW02XON3MGfo/WIqh4zFGRdiwEQMGHtnTLwB/VmPMFphzYMB/WWb8bJL16vHdf+qSaBkPGgtskahvc+Dt7d49vE+Dw+3ePz+NttHd3l0uMXO0T2evrvDTI6xhPDonLa4FAs8f0Gn+43alyrT6QVCCKSUjIYjZOAxExMm7jljt89kMaA/+cnpqMtcTnH9GUorrGazyfaTHWx7n4ODV5Q+lNhL7lHI59lN7pJIJMhkMvGWKrxiVX9J9Nkmqr8gqjwn+v4G/fcNG40GyWSSarVKrVaj1WqRTqfp9XpEUYTv+ygVxc1huKLjFPjh5OmWi5yUXnPert6w0HJdl2KxSC6XI5vNYts2qVSK4+Pj6xtu9CMTsgyWOJUaZaeM41QoOZ/42mihlIq5NtD61wvcdHmG9AVKG7Q/Z3npEoYhUnhI6RMEAVpr/gAz8EmYTNRKeQAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img.png&apos; title=&apos;&apos; src=&apos;/static/ef44c1322d4232b1a1538b78df1955f2/ca1dc/img.png&apos; srcset=&apos;/static/ef44c1322d4232b1a1538b78df1955f2/e7570/img.png 170w,
+/static/ef44c1322d4232b1a1538b78df1955f2/f46e7/img.png 340w,
+/static/ef44c1322d4232b1a1538b78df1955f2/ca1dc/img.png 680w,
+/static/ef44c1322d4232b1a1538b78df1955f2/4a1c5/img.png 808w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;h3&gt;한물 간다는 webFlux 를 공부하는게 맞을까 ...?&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;아니다... 왜 사라지는지 확실하게 짚고 넘어가는 게 맞다...&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3&gt;cpu Bound 와 IO Bound 에 대해서 알아보자&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;단순 cpu 를 쓴다 라고 끝나는게 아니라, 다수의 데이터에 대한 집계 혹은 암호화 등 cpu 계산 능력에 따라 성능이 좌지우지 되는 능력을 말한다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;아래 그림을 보자&lt;/h3&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 150px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/6e275cab280b992148a92b7002ec6959/a9205/img_1.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 70%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAOCAYAAAAvxDzwAAAACXBIWXMAAAsTAAALEwEAmpwYAAABl0lEQVR42o2TyYoCUQxF/f/PceHCnSvBWdByFlQQnMp5Hm5zIimqq0U6cM0zU+Xd5KWez6cul4uu12ukz+ezNpuNttutwjC08/F4NNxuN4tL5qDxpSTp9XpFQHCMRiNNp1OtVisNBgP7j9BAPD4JK5iU0+lknVGw1+tpNpupXq9HBb/Jx4JcOQgCQ7VaValUMv2vgiTvdjvr6nA4GOCq0+mo0Wio1WqpVqtZl84jMfv93nJce651CKkE4nDc73c9Hg/TcOPDoIF4nAO7cchPv9/XfD7XYrEwcKYjBwMZj8fRoDwWDdbrtd0Gf4ouhsOhfNpJ8Q9SsNvtqtls/vEjbEKlUnlfGY6KxaLK5fJHFAoFGwzI5/O/fNjYgGw2q8lk8i4IT3EOnfw4R277xCF2+I320Kfmk/IgbMCLoIHb4+BV2Uthr+AGIxyk02llMhm7Bk8OsNxwxApxZs0oAPDzEYZCHRsKwQjBkM4A2u22nA7OxLDoJHE1GgHkI9iZhV2ZQIinQ14E4OyDIBCba7c7iM3lcloul/oBp0Ee5FxfZ5YAAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_1.png&apos; title=&apos;&apos; src=&apos;/static/6e275cab280b992148a92b7002ec6959/a9205/img_1.png&apos; srcset=&apos;/static/6e275cab280b992148a92b7002ec6959/a9205/img_1.png 150w&apos; sizes=&apos;(max-width: 150px) 100vw, 150px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_1.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;위 그림을 보면 &lt;code class=&quot;language-text&quot;&gt;application 영역&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;커널 영역&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;하드웨어 영역&lt;/code&gt; 을 계층화 하여 추상화로 나타낸 그림이다. &lt;br/&gt;
+여기서 동시간에 하나의 명령어를 처리할 수 있는 CPU core 가 한개 있다고 가정해보자 &lt;br/&gt;&lt;/p&gt;
+&lt;p&gt;application 은 실행되는 프로세스라고 보면 된다. &lt;br/&gt;
+이때 물리적인 cpu core 에 명령을 내린다고 가정해보자 &lt;br/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 150px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/b089bdc2e345bcf57199cf4921387633/a9205/img_2.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 70%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAOCAYAAAAvxDzwAAAACXBIWXMAAAsTAAALEwEAmpwYAAACJ0lEQVR42o1TXY+aUBDl9/cXtG9NX5pNs6nbXbE+kW1SV1hxo4m6Kn6hggqoIAKKeJoZRakPTSc5zOTeucPcc+YKSZIgiiLsdruLD8MQq9UKnudhvV7DdV1st1vGfr/nvNsz5GlPAIDj8XgBGW32+31MJhMYhoF2uw1N03iPGsjm34IL3loQBFgulzCmU3Q6Hcznc9RqtUvBf5mQdpU16lBVVbyqKmRZhiRJqFar/1eQ+CKuqCvf9xkUTycTjLsdvvZwOGQuaS/lMs1LfbompFfcbDYX+EGAYOlgK4kI4wPisxD089vcyxnf5+4F+hBPxJnjOHBsG47rwtI6mBcfYHseBv0+RqMRCzMej095Z9i2zQXr9TparRaEw+GAwWCAVG2cOU2WFmLlF8c9TYOu61yw2WxeczO+1+txUb4yKVgqlVAul09QFMjPEt6+fka5+gb55QWKojD+ymPIeK1UUCwWYZrmdQ6pU0Yc40BKqyX4nz5g77mIDwkPLeGSR0iOiLc+I8nOIXGxWCyYD9u2sNr4mMi/8f7lI2aGAde9vhjylmWdYNuYmyYWsxl3R6IJcRyj2+1iv49RqVSQy+VQEEVU63UEAMJoxy+Fcog/8lFEzzNiBGHIHDabrasoNGdk9DIopk7Hun4e5CN0fYTZzGTxSOWsZUVpNBoQplMTkvSM+/vvyOcLEMWfeHwSOc7lfjAofsoXkBdPPl1P8fDwiLu7b2g03vEHB0YUlvIIcJEAAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_2.png&apos; title=&apos;&apos; src=&apos;/static/b089bdc2e345bcf57199cf4921387633/a9205/img_2.png&apos; srcset=&apos;/static/b089bdc2e345bcf57199cf4921387633/a9205/img_2.png 150w&apos; sizes=&apos;(max-width: 150px) 100vw, 150px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_2.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;그리고 어플리케이션이 N 개가 더 추가되어 단일 CPU 코어 1 에 각각의 작업을 동작시켰다고 가정해보자. &lt;br/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 152px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/b0cbc64ed9ade5e77d212f4214a0642f/6ccad/img_3.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 68.42105263157895%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAOCAYAAAAvxDzwAAAACXBIWXMAAAsTAAALEwEAmpwYAAACuElEQVR42nWTyW/bRhTG9Qfn1FMvubRArznkkFPQnhqgAYImQFw3riOltbVYgiRbC2lS4iJK4iaYEmWtpPwr3sgxihYd4IHzlvnm8X3fFLIsY7VaKVsul6Rpyna7Vf79/b2KiUlM/K+1st9sNion+69+QZKO4+B5HlEU4fs+mqYxGo2YTCYqJjnTNMnz/Mn2+706N51MiKMI13UZDocUBHUwGLBer+n1eiR3d1SrVQWyWCzodDqq63q9rkCSJHnqWi4LghDdHDBPEmq12hFQ13XCMKSv3zLxfYrForotCAJ1iXRdLpc5HA7qYvl9+dqOw9h1MUpnuN6Y8uUlBUmahsFFpUL97JTL0xPqzRZav8df1SrNj++5ePszN5rGfrdTc5Iz282GVrdH5de3dH56RalaU2cKDw8PZPs9ObC+qbO7rpEB29XqGOu1WXcaKrZM0ycSlovFsa5SJNW7HIA8yygAal7TMGKi95m+f0OYzAmnU4K7BL/yhemXTwTJHF8IiGM1O7EwCJj88iP+2MMbj7m9vT0CyrwOufQD+9JHWC54WpaO+/sHBt4Y17Fpt9vqd2U9+B778h9qL7Hz8/MjoCDLHF0/QD87YXzyDmd2hz0a4V6UME8/oA0tBqZJq9ViYBg4YYT3+TfM4ifcIETTdC6FFAGUuYjOpNPh0MJ68R3G65cYlo3+w7dYz59h9rpYtoNjW1i2rfzh998waFxhjUYYN20lKQUochAGM5HFLMJ785q4+qciJeq2CR73h0dRZ3nOJk0JmjU2y1T522WqcBSgbdtKazLwMI7w5wtFTBQEzOYLxlGMNRxiWZaqFX1G8Yx4sSSKY2ZxrEhpNptHQCnMH0n55xJJyRq5rnpNUnd9fc1ut/tPrWizVCodAQ3DUOzJq+h2u/9rkpen+O94v9+n0WhwdXXF3yYHAyBDAeS4AAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_3.png&apos; title=&apos;&apos; src=&apos;/static/b0cbc64ed9ade5e77d212f4214a0642f/6ccad/img_3.png&apos; srcset=&apos;/static/b0cbc64ed9ade5e77d212f4214a0642f/6ccad/img_3.png 152w&apos; sizes=&apos;(max-width: 152px) 100vw, 152px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_3.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;이떄 CPU 코어에서는 동시에 실행한 것처럼 보일수 있다 &lt;br/&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;그럼 동시에 &lt;code class=&quot;language-text&quot;&gt;병렬&lt;/code&gt; 로 처리한걸까 ? &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 236px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/612d41b26b474498aeae0c636d5de8cd/f6a20/img_4.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 66.47058823529413%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAANCAYAAACpUE5eAAAACXBIWXMAAAsTAAALEwEAmpwYAAADo0lEQVR42gXBa09TBwCA4TNvlHJglFIo0Pa0QGkLpaWUFiiBUkABuRTEgREQmCWKE9gUhwiRIRXNmIRFGFhcQB2Zi9HAsiU4iPrBhYw4lyUDk01YnCTLlv2Hd88jRBjqkUt1hOuqCdPVIddVE65yEx6XR4TkR+74iD3uYfba+gg31COT6jhg6kTl6EHKDqCzHSfJ2oTafBRRfwRBHu1EVLpQad3oLaUoDaWICT7kqnzkKg+ippyimnPkV3+ImNyATFuL1hnAV36CHHsupmQLGSkWXBlOrPYKBLntFNHJpdT6yvhx9jpnGo8To3ETGZ3BflkKvoISvg1N8PW1QczpPg6ktpPl8mM2ZqBUaDFr0khUaYhVarAa7QhRRUMYUuzMnu3gv3vjrIz0YbPYiTRUEi0VE6gs5saZZoYaK2nwFqFI8mJNLyQ2Jp6O6iqejF9hprcTa4oRdZweQWZpw2rO4WHvSSYb61i9cJoaj5d96e+TkH+a4ZYaRk620H6omGZvPonGMpKlbGKjE1gevcSv00H+mA7SdciHGKVGkJUESXVU0+5yMtHg57zXS2ZaHvtMAey+biqcDirdDnz5brLS0jDkdhGr9WKRjPTUHuH+QDe3zwY4aHWgVWoQoka3kJ9bIzndQ7XJQK7JRrj/BnuPLaOsmceW6kavVKKLU2HUmpGlBzhgbEcteXCYHbgkE1l6C/FqHZLkQhACLzD0PqXM4yNfJ9GWY6NtYIaEi5t83j1Gg9lCokJFkiKGgjgtk+4qTMUXSTJ20FPaRJO3gmMl9XTkVKHI7ERovDDB9x8UMlOcQJNRzxfFelY7XKw1VfBvgY5FtRKnOhGVSs2Vd2PYSYjheflBFjNsLJ76hN7BWYJj86z56rkZkYLQN1HAE7+aryqtTNvjeZiVxE6ehm2DnOeyMH4R5dwWRS7JRTYUEWyEi2xGvMPPGpGn/veYnLrP1MJjvssr5ac9AoLUk8qDinimnQY+yzbwej7Eiyw7260tbHvy+Dt0izfDQ2yVFPI2OMrboQF+b29n69pV1j8+z9zoLBN3XzJl8/AgbD9CrD+RhVI1QV0kXdZ0dtfXeXXvLn+F5tgNhXjV3MTOyGV250L8s7zEmzsLvA6F+POHVZ5dHmSqqJK2nlv06zOYCBMRIkriyXTFEZUZSUtRNo/7+/my8Sibjx7xzeEKfruzwMan46y0nuDZ1SA3lUrmHTm8XFpiZWyUaXsWVc7DtMZJtMkV/A9xWPjIdNstSwAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_4.png&apos; title=&apos;&apos; src=&apos;/static/612d41b26b474498aeae0c636d5de8cd/f6a20/img_4.png&apos; srcset=&apos;/static/612d41b26b474498aeae0c636d5de8cd/e7570/img_4.png 170w,
+/static/612d41b26b474498aeae0c636d5de8cd/f6a20/img_4.png 236w&apos; sizes=&apos;(max-width: 236px) 100vw, 236px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_4.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;그렇지 않다. 동시간대 하나의 명령만 처리 할 수 있기 때문에, 타임 슬라이스를 아주 잘게 나눠서 잘라보면 &lt;br/&gt;
+실제로 어플리케이션 1 번과 2 ... N 번이 번갈아 가면서 실행하게 된다. &lt;br/&gt;&lt;/p&gt;
+&lt;p&gt;이렇게 번갈아 가면서 실행하는 과정을 OS 에서는 Context Switching 이라고 한다.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;실행관점에서 문맥을 바꾸었다. 라는 의미다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;이러한 컨텍스트 스위칭 (ContextSwitching) 작업들은 CPU Bound 어플리케이션 에서 성능 저하를 가져오게 되는데 &lt;br/&gt;&lt;/p&gt;
+&lt;p&gt;그림으로 보면 아래와 같다.&lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 444px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/57544796c1d07c17bb2a7706bb80b229/39d25/img_5.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 59.411764705882355%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAAAsTAAALEwEAmpwYAAACVUlEQVR42jWT2Y6jMBRE+f9/GM3S6ihJd0LYN2NjAoawBcjay3xLjXzRPFzBg3VcVbdsOKKCI2o4skGkzojUiLiaEFUjvLyFLxu4WQ2LK1hpCZcr2GmJQ3LEmy+wsiK87F383tr4sXqDYcZHHJjCISlxiEvE9Qze3ZHUM8Kip3FFDTMpsHVTmFFOlzipwj6SWDsMKyvAy97Dr80Bhs0XhRq8D3PE1QgxPMGaC8JygH/s4coGdqronC0qAnq8gqVVeinWToyVFeLPzoFBNqsRaXuF6O+Q0yfy6ROifywqywEhRXFGXE9ImguCckCQN/BERSrfA4Gtx/B6CGAk9QR20jZvyIYHwY7TJ+T4geQ002UapLMNioEu0N+g1FFUePc5wRaVAYyoGOBnDYJjT5P1d5TXv+D/FZKDCRavCa7HyRokp4liejUDbF2Gtb3YNtzshF2Qw+U1EjWC1TMp1JvW/57s4OcdLc2MCzhpRf+8u2If5di4DG8eJ+DajmB4WUPB8+YKqTMcHigv3yjmLxTa+vCkOLTltLmANxckOvPTDIvpZuQwI4ldILBxEr2UkQ4n1Yy0uUJ0dxTTF8r5i5TqXMXwADtdINorZHeH7G9I1ICA6rNA9exCAUOX12K6Cj28rCN41j9JZT5+0LYzrbK5gNUTQVk9wpcnuLyCzQoqud72xk1guLJFSHZuiNWMWE0EKOZv5OfnorC/g+ltqzPZjtVSmwWqlj766VKbsDiTVf06eHuHPGubH5D9k5Ty9kYQps5LvTRc10i/orwlldrq68HHz42Jf4ogDrEYsPbYAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_5.png&apos; title=&apos;&apos; src=&apos;/static/57544796c1d07c17bb2a7706bb80b229/39d25/img_5.png&apos; srcset=&apos;/static/57544796c1d07c17bb2a7706bb80b229/e7570/img_5.png 170w,
+/static/57544796c1d07c17bb2a7706bb80b229/f46e7/img_5.png 340w,
+/static/57544796c1d07c17bb2a7706bb80b229/39d25/img_5.png 444w&apos; sizes=&apos;(max-width: 444px) 100vw, 444px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_5.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;어플리케이션이 실행되어 메모리에 로드되고 프로세스로 동작하게 될텐데. &lt;br/&gt;
+CPU 로 스케줄링 되어 실행될때, 기계어 실행을 위해 필요한 데이터들을 cpu Register 로 미리 가져오게 된다. &lt;br/&gt;&lt;/p&gt;
+&lt;p&gt;그리고 ALU 를 통해 실제 계산을 진행하게 되는데 Register 에는 기존에 어떤 명령까지 진행했는지를 함께 저장 해 놓고 &lt;br/&gt;
+필요에 의해 캐시를 해놓기 때문에, 동일한 프로세스의 일을 꾸준히 하면 할 수록 성능적으로 더 효과 적이다.&lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 421px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/7e52dfe9254b25ffb32a0ed696f69531/edfbf/img_6.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 61.76470588235294%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAAAsTAAALEwEAmpwYAAACfUlEQVR42kWTx3LjRhRF8fveeOWyyzWSRiLFAIIAARA5JyIQjBLHoqtk/8qZ6tZiFnfZB+8GKE5SIxTkLXl3IhPqz2TDhaQ9krYnkuaAl7c4WcM2qTDDHCNIWDker7rFy0rnca7y98sEZbHxWDsxhpux8TIJKcd3yv0b+XCRCsoe3U2Z6Q6qFeBmO6wwZ+2GLExHQr8vNb5NX1FU00ezI+a6y6u2JSwHdscfUsVwpdhfieuRbVxhRyV2WOCkNVZUsPETVNtlYW6ZaAaP8yWKlzZEZU+2O1DuLxLUXT7oLneaw4368C6heXeWkeTtScbjpg1WVMorVdtjZtjySsXPWuJ6T9GfJehw+5Qab580x1/AZHcgKHr8vEW8CfIO089YmC4zw+JFM3hWdRTdS1lsfFZWiJs0DNc7p3/+pz1/yPyK/kJUj9JuVA546U5mLVzNDYfHmcZEM3larHmar1D+eJjy2+9/8efDjMepRlQNdOcPnLjGDUu8rMXyclZmiGbHqGYgPx6WPZOVyYtq8H2p8zTXeJipKM/LDUKimI2XyiuOt0/6y11KZGbZEUHeE1UjYdFLJ362Y7FxpWXRsrD7tNBQDC/FDAqcpKHav7F/+5fDj//ornfSaiCpR9l2tjtKeNaeiKs926hCdyOWliMLmWibr1LEXCaqjZPssIKKpD58PawG0nok768yx6QZSaqRtBkRy9DdmJXjs7Rd5uaW6VrkqAqghxUUeFmHn3eyzbI/S7tfoIO8UsxE2AyLDjPI0L3oazJbTwLF3/IwW6BodihBwm4jB32jPd+p9u/EzUhYDfhFKyMRVgVcXGjHBYYfo2595pstz+qab9MZPwEIwPwPoFDKegAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_6.png&apos; title=&apos;&apos; src=&apos;/static/7e52dfe9254b25ffb32a0ed696f69531/edfbf/img_6.png&apos; srcset=&apos;/static/7e52dfe9254b25ffb32a0ed696f69531/e7570/img_6.png 170w,
+/static/7e52dfe9254b25ffb32a0ed696f69531/f46e7/img_6.png 340w,
+/static/7e52dfe9254b25ffb32a0ed696f69531/edfbf/img_6.png 421w&apos; sizes=&apos;(max-width: 421px) 100vw, 421px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_6.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;컨텍스트 스위칭은 위 그림과 같이 어플리케이션 2번을 실행시키기 위해 Register 정보를 초기화 하는 과정부터 시작한다. &lt;br/&gt;
+정확히는 어플리케이션 1 번이 실행했던 기존 실행 정보들을 메모리에 별도 저장 해 놓고, 2 번 어플리케이션 데이터 정보를 가져와서 다시 Register 적재를 한 뒤 명령어들을 실행하게 된다. &lt;br/&gt;
+하나의 CPU 에서 다수의 프로세스들이 번갈아 가면서 cpu 작업들을 진행해야 하기 때문에 성능상 오버헤드가 발생한다고 할 수 있다. &lt;br/&gt;&lt;/p&gt;
+&lt;h3&gt;그럼 여기서 문제...&lt;/h3&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 149px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/b45da70385f86e272b7739008009064f/4d6d4/img_7.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 67.78523489932886%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAOCAYAAAAvxDzwAAAACXBIWXMAAAsTAAALEwEAmpwYAAACsklEQVR42l2T207bQBCG85R9h0p9Ax6hV72pKnEDqqoKJLig9CAqaNS0OZGzE68dB8d2wIf4kMROnAOEv5oJCRUrWbM73n88/r/dTBRFcF0XjuPsYhzHu/U2lyQJ5yeTCabTKUd653kebNvmOeUyt7e30HUdvu8jDEMYhoFKpbIrFoUh+v0+er0eaKzXa47j8RiDwYALUlO0R1EUZCg5HA65EIlons1msVgsIISAYVksqtfrnKMPj0Yj3kcd9/QbdDWN17QnQ4XK5TI6nQ7askCpVMLV1RWvW60W1GYdxWIRkiRxZ6vVimMYBqi2JHRzv6BenCNfqaBWrSITBAEUTYOoXEM5P4WsqAh8H6qioCME1I/7aEsS+zOfzzGbzbjTJJ5AGBa6RwcQP79B3OgYeh4y5MliucQ0jpF8+cwiAkBxTsIfJ0hnMwaxhUL+0UO6yddjxGGA5WrF/mbI0BtNwzhdwD47QqAJRHGMMAgQRhG8k0NYpsmkLctirwhUlEwRCgnO2RFG8wUMXWdb+Jddx2Ff7nUV6+vfPH9cP3BMzo8h5A5c14Msy1BVFduxrv3FfU/eUI8ihskdFgoFKEKgLkmQ99+h22pA6sjoNBvQDt6jVasyJOqgVquxp21NQ/fwA5rlEoSqolAsodFobDykY+HYd3CCEPbld5h7r3HXVWDkLmG9eQXj+BC2H8CxbXiOAycaYZC9wODtHhxvyHbYvS6Wy+WmIJFL0xRpOoeTu4R++onBJLMUZvEPRkMPq4cHFmxgLRHZd7AV+UmXIhmPnqFomsb0yM8gTuDPUr41URjBH8cwTAt9XeeDTxeBgY3GiOKENUS8bxhoNptPUFx3A+LxcWc4nubzNOUrRYTpoJumif/HVkO3J5fLPUNpt9v8BRK9fAgGQdmCefme8vl8no/NP9jl/VU7mOUWAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_7.png&apos; title=&apos;&apos; src=&apos;/static/b45da70385f86e272b7739008009064f/4d6d4/img_7.png&apos; srcset=&apos;/static/b45da70385f86e272b7739008009064f/4d6d4/img_7.png 149w&apos; sizes=&apos;(max-width: 149px) 100vw, 149px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_7.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;위 어플리케이션 들을 어떻게 실행시키는게 가장 빠를까 &lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;하나씩 순차적으로 실행하는게 가장 빠르다 ( 너무 당연한가 ? ) &lt;br/&gt;
+컨텍스트 스위칭 이라는 오버헤드가 있기 때문 &lt;br/&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3&gt;어떻게 하면 CPU Bound 상황을 효과적으로 만질 수 있을까 ?&lt;/h3&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 459px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/acedc744de8087b941c062aa1cf2222a/e38a7/img_8.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 54.70588235294118%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAALCAYAAAB/Ca1DAAAACXBIWXMAAAsTAAALEwEAmpwYAAACYElEQVR42jWTyXbaQBRE+f5s4iw8JB4gNgZim1ECJBCahWYkMWOISb7k5qiTLN7pVd+uqldd8bIt8eYkJtmcyA9n4s2RZHPEz3eEywPx+ogZ5WhegmL5jM05I8PmRR7z1O7x0PrB7VOd64cqFTfdUEKj1VFcTLc/seMVZpihzxdYUU6yPTE0PCTNYjAxkWcOY9PlbajQ7MvUO12qrRY31RoVaerwKk1RrQDDz1jsPvAWa5y4wApz5tkav9gycUImbsjUi1Btn6Fh8zpUeB2OafYHVJstbkqFdrIS1rL9B8vjb4r3M+n2RLo7Ea4OJNt3wtUGv1hjJzm6H6MHMSPTpj2e8CqPeGq3heWru3sqfrEX+eWHX2SHs8gw25/x8z3B8kC0Ks8N83yNFefM/AjNC0SG7bFCo9en9uOF28cnLm/vqMzmKaoVYkUF6e5DZFk+4i42IksvW+GmBU6aYwQJUy9EtT1k3RR2nztdvpfA/wqtKMMMFyK3cPUuQE66FqN5MXZSYISpUCZrFl1lhjyz6Kma2HKzN/gLfKxzXQKD5Ra/2AlYsNwLVXqQoToRY9NHD1KseIEZpYwNV8AkzRQbbvUl6u0OV/c1Lu/u+Xx5VVqOKW1LmsvUjUTX5Jkntj5xIka6h7tYYscZfVWnp2jIM5NGZ0CzJ9Ho9gX0odHka1kbw48ZzlzRL8WaC0hZ3IkboDo+qhNghAuMIEWamnQVTUDfZIVmt7T7Rq31Ijp4cfVPYalsIi779FSLkTHH8MvcElQ7QBE/wxWWBxNdwNojlRdpSKPT467+zJebb3y6uOAPVBDGQpDy4U8AAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_8.png&apos; title=&apos;&apos; src=&apos;/static/acedc744de8087b941c062aa1cf2222a/e38a7/img_8.png&apos; srcset=&apos;/static/acedc744de8087b941c062aa1cf2222a/e7570/img_8.png 170w,
+/static/acedc744de8087b941c062aa1cf2222a/f46e7/img_8.png 340w,
+/static/acedc744de8087b941c062aa1cf2222a/e38a7/img_8.png 459w&apos; sizes=&apos;(max-width: 459px) 100vw, 459px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_8.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;흔히 말할 수 있는 정략은 위와 같이 병렬 처리 되어야 효과적이다. &lt;br/&gt;
+동 시간대 각각의 명령어를 동 시간대에 처리할 수 있기 때문이다. &lt;br/&gt;&lt;/p&gt;
+&lt;h2&gt;I/O Bound 란&lt;/h2&gt;
+&lt;p&gt;입출력 장치의 중점적인 작업들을 말한다. &lt;br/&gt;
+대표적인 작업들은 키보드와 같은 사용자 입력, 디스크 파일 복사, 네트워크를 통한 데이터를 주고받는 행위들을 모두 I/O 작업이라고 한다.
+&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 486px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/7497709726e6ffd838d7bac55b9c7970/c42ee/img_9.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 37.05882352941176%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAHCAYAAAAIy204AAAACXBIWXMAAAsTAAALEwEAmpwYAAABjUlEQVR42i3Q25KaUBCFYd7/CVKpisk4ZjQiqHhAwL1B3JyPwmhiknf5UzC56Kq++nr10l6nnzDMKbat47prhLCQck8UeaSpIM99qioky3y6LuF2i+n7hMcj435Pee8TilwixQZjNUGbzT6zXH7FcUzEeYuUO8LQHrEBquvrOGkq6buE57Pkfv+PvSeUhU8ae1zDI66jo83nXxjG2i7w5R7X3RAER/I8GNOoq4u6eniuRaQ8mjoiVmey4UCf0PcxZRkQRyekWKMt5hNM45XdboEQO5RyuQQ2aSLJs4A08VGhiy8OxNGZtorpbglNrWgbRZqcUaGNFFuck45m6C8Y+hRDnzH/PsGXB9JYUmQBTaN43PMRT2Mx7n//tPx+VvS3mLZWFJlPEjn4wsKxdTRTf2G7fuN0XLGzFti2Mb5WVx/dVUXI2bUQnjV2OKQb4K6NqKuQpr5QlT6RsvFcA81cfWNjzrAPSw7WD7bmG1LsR7C/JbRNNKa4+AeaMuT5sxwTPn8V9N2ABpS5/AA9nX97I8cL4f9B+wAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_9.png&apos; title=&apos;&apos; src=&apos;/static/7497709726e6ffd838d7bac55b9c7970/c42ee/img_9.png&apos; srcset=&apos;/static/7497709726e6ffd838d7bac55b9c7970/e7570/img_9.png 170w,
+/static/7497709726e6ffd838d7bac55b9c7970/f46e7/img_9.png 340w,
+/static/7497709726e6ffd838d7bac55b9c7970/c42ee/img_9.png 486w&apos; sizes=&apos;(max-width: 486px) 100vw, 486px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_9.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;위 그림과 같이 client 와 server 는 연결이 되어있는 상태이고, Hello 라는 문자열을 네트워크를 통해 전송한다고 가정해보자. &lt;br/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 490px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/8af848b5bb126f9f142974ff9db36627/ce5c5/img_10.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 72.35294117647058%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAOCAYAAAAvxDzwAAAACXBIWXMAAAsTAAALEwEAmpwYAAAC/UlEQVR42j2T6XLaSBRG9ch5gKm8xNRMVWzH44XFgEEIhBYESGhHiEWyBCTg2BPPe5yp7krlR1d1949T5977XaXff0DXuziOJo/rTghCmyh28JYGfmARJw5x7JCkc5JkTprO5TuV/zbbjUex91h6AxRVbWCafWaz8W9YnMzIMpcwnBLHM1aZS7b2SJKZhKXpjCiy5VsAV6nDS+lTVz6KYfRwnCGuZ7BcmqxWC7LMY7cLCQNhIcAOm01AfcjZFzHbrS8NxQkCgyg02W5cjocQZai2aTX/YTTsYFtD1muP/T6iKBLWmc8mD8nXvgRWVca3b1uOp5zNZiltg8AkWOpkqxlVFaCYRh/DeGbmjKWhsCvLlKpacTjklGXGfp9S12tOpy2XS8nbW835XFC9pEShhb/UiSOLsliiTCZd5vMxnmcSRY7s2W4XSZvLueTHay3vx+OG10vJ+/uR/z6+8/HxnZ8/TxRFROBPWCVTDnWAMhq1peFioRMEtgSLSeb5Ulr++37k9fJCXa841Gtpdj7vOJ/3XF5LDvVK2iWRRS1KVtUmmtbGtlW8X4MRQNc1mdoj8tyXpgJUFrEsU1i9lDGH45qyiIhDU0KLwkPpdu5oPt4wHndkbOSkUxdvYeD7FpGITuRwOua8/ai4nPdU1S/oS8Ju58sph8GE/X6B0u3eMVSbiF5ObVX2U5QuepmmCxkN8b/O3N8ln04bqiqh2Idst0uS2GbpDckyC+WpdUO/d486eJRQ2xrIjRFgARWBH2lPLGZikjOOx1yWLkrNswVJIsJv4bkqUaihdFs3tB6+0Hj4gtp/ZKJ3sMw+ljXANgdM9B7a8AnLVOVm7HYBgW/jia3yTRkZz9WYTnvMnS5Ku3nN/e3f3F7/Se/pK2OthWU+YxnPjLWOPP3eA7alskoXRKEjgYEv8mdgG32m1jNq/47e0xVKp31Nv3dLp3lFp3GF+nyPPmqjqQ20YYuJ3mU4aDDSWoRiKzwTb6Ezmw4x9B5Te0Dg6zQe/uLzH5/4H2TFjQzOBD4GAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_10.png&apos; title=&apos;&apos; src=&apos;/static/8af848b5bb126f9f142974ff9db36627/ce5c5/img_10.png&apos; srcset=&apos;/static/8af848b5bb126f9f142974ff9db36627/e7570/img_10.png 170w,
+/static/8af848b5bb126f9f142974ff9db36627/f46e7/img_10.png 340w,
+/static/8af848b5bb126f9f142974ff9db36627/ce5c5/img_10.png 490w&apos; sizes=&apos;(max-width: 490px) 100vw, 490px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_10.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;NIC ( Network Interface Card ) 장치 는 네트워크 패킷을 주고 받는 역할을 맡고 있다. &lt;br/&gt;
+Client 가 전달한 Hello 패킷을 Nic 장치를 통해 전달받고, 커널에서 네트워크 프로토콜을 진행하게 되는데 &lt;br/&gt;
+서버 application 입장에선, Kerner 에서 패킷을 전달받기 전까지 &lt;code class=&quot;language-text&quot;&gt;대기&lt;/code&gt; 를 하게 된다. &lt;br/&gt;
+Nic 장치 로 부터 패킷을 받고 커널 까지의 과정 또한 CPU 사용이 필요한 영역이긴 한데, &lt;br/&gt;
+application 관점에서는 패킷을 수신 완료까지 를 대기하기 때문에, CPU 를 중점적으로 사용하지 않는 상태라고 볼 수 있다. &lt;br/&gt;
+만약 패킷이 오지 않았다 라고 가정한다면, 해당 서버의 프로세스는 계속해서 대기를 하게 되는것이다. &lt;br/&gt;&lt;/p&gt;
+&lt;h2&gt;Web Application 서버 관점에서 어떠한 I/O 들이 있을까&lt;/h2&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/d0904df234446f503d521c51cd16e459/58299/img_11.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 23.52941176470588%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAFCAYAAABFA8wzAAAACXBIWXMAAAsTAAALEwEAmpwYAAABMElEQVR42h3P3VKCQABAYd5/uqmbZuzCn3IsSdPVBFEWWJCFBSHEbLLe5TTxAt+cYw1HPZ5fhkztR8TKRikPFe9Qasch9dFZgCljyjLheDxw+ar4/m5Ikj1FqYiTLa47Y7kYIxZPWKPHB+zXJ5ZiihB2h4XBlvVqTqoDsjxE64Cq1pg8pmkMPz9nYrWnrlN06uM6c14mfcaje6y72xsGgx6L5RSxmuH7G/a7Dd52jZQucbwnSXzyPKJtC67Xht/fM5dLSXvOaU4aY0I276+I5RhrOOwxmQx4WzzjOG/dSiCdDo1CjyyLOuwfro4pdZV1paF0KIzC2wqkv0ap/wgbq9+/78D5fML6fUYYupgiJjeKjw/N5+XIqTUdemqLrrKuNOlB0jSaLJNE0QYpBZ5n8wf/XEGY5ElECwAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_11.png&apos; title=&apos;&apos; src=&apos;/static/d0904df234446f503d521c51cd16e459/ca1dc/img_11.png&apos; srcset=&apos;/static/d0904df234446f503d521c51cd16e459/e7570/img_11.png 170w,
+/static/d0904df234446f503d521c51cd16e459/f46e7/img_11.png 340w,
+/static/d0904df234446f503d521c51cd16e459/ca1dc/img_11.png 680w,
+/static/d0904df234446f503d521c51cd16e459/02d09/img_11.png 1020w,
+/static/d0904df234446f503d521c51cd16e459/9d567/img_11.png 1360w,
+/static/d0904df234446f503d521c51cd16e459/58299/img_11.png 2902w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_11.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;그림으로 보면 클라이언트로 부터 전달 받는 http 프로토콜을 처리하는것도 web Application 에서는 network I/O 이고, &lt;br/&gt;
+Web Application 에서 비즈니스 로직 이후 DB 에 쿼리하는 영역도 I/O 이다. &lt;br/&gt;
+또한 DB 시스템에서 데이터를 조회하고, 삭제하고, 저장하는것도 I/O 라고 볼 수 있고, &lt;br/&gt;
+Web Application 에서 외부 API 서버 요청 에 대한 것도 네트워크 I/O 가 발생하게 된다 &lt;br/&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;하나의 웹 서비스 에서도 I/O 작업이 여기저기 산재되어 있는데, 반드시 인지하고 있어야 할 개념이다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;만약 클라이언트로 부터 많은 요청이 들어오게 된다면, 어떻게 해야할까&lt;/h2&gt;
+&lt;p&gt;전통적인 해결 방법은 webApplication Thread 갯수를 늘리는 것이다.
+&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 469px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/5c85b754c54944360bd1d70a07725bdf/44038/img_13.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 58.235294117647065%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAAAsTAAALEwEAmpwYAAACpElEQVR42i2S2XLiRhRA9a15ma/IS/KSpJJ4mNhmMQIECK1oF1rQgiQE2MbxjJOqVL7mpOjKU1ffe/v0uX1bWqtTNvoMz9dIM5csDyiqiP5c0p8rLs8Np0sl9qdzRdvteb12/PPvO3/9/cLXjxPvHyf6c0HTJUiaPkMz5gSRSRBabDYKfmCxLyLaLufYl/Sniv5U0vclhybl0GZc344C+O3jzPu3E39+7QVUMm0Fy1aIYosk9VguZZ6eHlHVOVkecmgy8jwk34fC/ngqhG3dpAJSHWJ++PF7Pn36juHwDkmePXL/cMdCmRDFWwxjjWmuiWKHoox5fetIUh/H1UX+ZtefCurDjstzzfO1oawjNH1OFNs34JDhcICynJDtfdFa02YUZSSszpcDXV+IWLYPKOsd3bGgrGK6457TpeTl2nB9a2nbFGk6fWA0+sJUfiROHOKdK0zinSOA9SFF0xQ26gJNW1BWEd0xZ18ElGVE1+e0XUbTJFSHCGkmD7m1rShjoVwfEvHwVZ2QZT7nS83La0t7zCnrmGzv0TSZyKWpS1XFFGVIUQVkexfp4f6O33/7idFogL1VCQObMNzieoYwvME9z2Q+HyPLQ/zA4NAkpKknBNLMI9qZJKnNbmchrVYTdH2BZS2x7RVZ5lHXCVW9E8VhZIvpu56O46qEkSFgQWASJzZBaOB6Kp6v4gUa0mz2yHo9RdfnGKYiDu0Sh7wISFIX3zfFn7zZON4Ga7vCdtYEoYkf6GiajKIMWa3HmOYCaTS64wZVVZnNZoZhLv43sQQ4zT2x3g67rirqRuMBm43M58+/MB4PuP/jV8ajAev1BOnL4GcRXC4nrFZPAmqaCq6zIQwNkvQ2eQvHUTEtRTzNajkRF2+3K0xrga7LLJcj5vN7/gOI9OBvE9D83QAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_13.png&apos; title=&apos;&apos; src=&apos;/static/5c85b754c54944360bd1d70a07725bdf/44038/img_13.png&apos; srcset=&apos;/static/5c85b754c54944360bd1d70a07725bdf/e7570/img_13.png 170w,
+/static/5c85b754c54944360bd1d70a07725bdf/f46e7/img_13.png 340w,
+/static/5c85b754c54944360bd1d70a07725bdf/44038/img_13.png 469w&apos; sizes=&apos;(max-width: 469px) 100vw, 469px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_13.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;Thread Per Request 혹은 Thread for Connection 이러고도 하는데, 이는 &lt;br/&gt;
+하나의 요청에 하나의 Thread 가 필요하다는 의미이다. &lt;br/&gt;&lt;/p&gt;
+&lt;p&gt;예를들어 굉장히 많은 Thread 가 실행된다고 가정한다면, &lt;br/&gt;
+성능 관점에서 CPU 컨텍스트 스위칭을 고려해야 하는데, 이런 컨텍스트 스위칭 오버헤드를 감수하더라도 I/O 요청을 최대한 처리할 수 있도록 하는 전략이라고 볼 수 있다. &lt;br/&gt;&lt;/p&gt;
+&lt;p&gt;만약에 하나에 Thread 가 하나의 연결을 처리하고 있는 순간 다른 추가 요청이 있게 되면, &lt;br/&gt;
+대기를 하는게 아니라 또다른 Thread 를 처리하게 된다. &lt;br/&gt;&lt;/p&gt;
+&lt;p&gt;만약 대량의 요청을 처리하기 위해 요청 수 만큼 Thread 갯수를 늘리게 되면 결국 OOM 이 나버리게 된다.&lt;br/&gt;
+만약 10만의 요청을 동시처리하고 싶다고 가정한다면, &lt;code class=&quot;language-text&quot;&gt;(10 만 * 스레드 크기 )&lt;/code&gt; == &lt;code class=&quot;language-text&quot;&gt;메모리 용량&lt;/code&gt; 이 되버린다.&lt;br/&gt;
+거기에 하드웨어 최대 메모리까지 사용하게 되면 시스템이 아예 동작하지 못할수도 있다.&lt;br/&gt;&lt;/p&gt;
+&lt;p&gt;커널에는 OOM 이라는 안전장치가 존재한다. ( 주요 프로세스를 Kill 해서 시스템 다운을 예방하는 역할 )&lt;br/&gt;&lt;/p&gt;
+&lt;p&gt;반면 사용이 완료된 Thread 를 삭제하는것도 문제다. &lt;br/&gt;
+새로 들어오는 요청에 의해 다시 만들어야 되니까 ..&lt;br/&gt;
+결국 쓰레드를 관리해야 하는것이 성능 관점에서 손해이다. &lt;br/&gt;&lt;/p&gt;
+&lt;p&gt;이떄문에 Thread Pool 이 해결 방안으로 볼 수 있겠다. &lt;br/&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;가용 가능한 다수의 쓰레드를 미리 만들어 놓고, &lt;br/&gt;
+요청이 들어오면 미리 만들어 놓은 쓰레드를 활용하고 사용이 다 했으면 해당 쓰레드를 다시 쓰레드 풀 에 반납하는 전략을 말한다. &lt;br/&gt;&lt;/p&gt;
+&lt;/blockquote&gt;</content:encoded></item><item><title><![CDATA[배포전략]]></title><description><![CDATA[배포 전략]]></description><link>https://hyungkishin.github.io/deploy-strategy/</link><guid isPermaLink="false">https://hyungkishin.github.io/deploy-strategy/</guid><pubDate>Fri, 18 Nov 2022 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;배포 전략&lt;/h1&gt;</content:encoded></item></channel></rss>
