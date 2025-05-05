@@ -1,4 +1,400 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Thu, 17 Apr 2025 04:16:29 GMT</lastBuildDate><item><title><![CDATA[Rag]]></title><description><![CDATA[Rag (Retrieval Augmented Generation) 의 탄생 배경 RAG 은 대규모 언어 모델(LLM…]]></description><link>https://hyungkishin.github.io/rag/</link><guid isPermaLink="false">https://hyungkishin.github.io/rag/</guid><pubDate>Sat, 29 Mar 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;Rag (Retrieval Augmented Generation) 의 탄생 배경&lt;/h2&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Mon, 05 May 2025 12:31:03 GMT</lastBuildDate><item><title><![CDATA[AMP]]></title><description><![CDATA[📝 Next.js + Docker + ECR + CloudFront 실전 배포 자동화 배경 회사는 언론사(미디어)라 AMP 지원 필수 였다. 검색엔진 최적화(SEO)와 트래픽 최적화가 필요하게 되어서 배포 진행중 갑자기 문제가 발생했다. App…]]></description><link>https://hyungkishin.github.io/docker-deploy/</link><guid isPermaLink="false">https://hyungkishin.github.io/docker-deploy/</guid><pubDate>Thu, 17 Apr 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;📝 Next.js + Docker + ECR + CloudFront 실전 배포 자동화&lt;/h1&gt;
+&lt;h2&gt;배경&lt;/h2&gt;
+&lt;p&gt;회사는 언론사(미디어)라 AMP 지원 필수 였다.&lt;/p&gt;
+&lt;p&gt;검색엔진 최적화(SEO)와 트래픽 최적화가 필요하게 되어서 배포 진행중 갑자기 문제가 발생했다.&lt;/p&gt;
+&lt;p&gt;App Router + Pages Router 혼용 프로젝트&lt;/p&gt;
+&lt;p&gt;Docker + ECR + EC2 서버기반 서비스 운영&lt;/p&gt;
+&lt;p&gt;CDN은 AWS CloudFront 사용 중&lt;/p&gt;
+&lt;h2&gt;문제 상황 발생&lt;/h2&gt;
+&lt;p&gt;기존 수동 Docker Build + Push + 서버 재배포 과정 복잡&lt;/p&gt;
+&lt;p&gt;서버 Docker OverlayFS 스토리지 드라이버 과부하로 터짐&lt;/p&gt;
+&lt;p&gt;에러: &quot;error creating overlay mount... no such file or directory&quot;&lt;/p&gt;
+&lt;p&gt;디스크 I/O 병목 발생 → 캐시 레이어 비정상화&lt;/p&gt;
+&lt;p&gt;빌드 중 중간 레이어가 깨져서 docker-compose up 실패&lt;/p&gt;
+&lt;p&gt;CDN 캐시 퍼지(purge)도 수동이라&lt;/p&gt;
+&lt;p&gt;구버전 CSS + 신버전 HTML 섞여 로딩 → 스타일 깨짐 &quot;&quot;&quot;&lt;/p&gt;
+&lt;ol start=&quot;3&quot;&gt;
+&lt;li&gt;해결 목표
+&quot;&quot;&quot;text&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Dockerfile 구조 최적화 (멀티 스테이지 + 퍼미션 오류 제거)&lt;/p&gt;
+&lt;p&gt;배포 자동화 스크립트 작성 (Build → Push → 서버 업데이트)&lt;/p&gt;
+&lt;p&gt;CloudFront 캐시 퍼지 스크립트 작성&lt;/p&gt;
+&lt;p&gt;Slack 배포 결과 알림&lt;/p&gt;
+&lt;p&gt;Docker OverlayFS 장애 대비 (항상 clean build) &quot;&quot;&quot;&lt;/p&gt;
+&lt;h2&gt;Dockerfile&lt;/h2&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;text&quot;&gt;&lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;1. 기본 베이스 이미지
+FROM node:20.19.0-alpine AS base
+
+ARG NEXT_PUBLIC_ENV ARG NODE_ENV
+
+RUN apk --no-cache add tzdata &amp;amp;&amp;amp;
+cp /usr/share/zoneinfo/Asia/Seoul /etc/localtime &amp;amp;&amp;amp;
+echo &quot;Asia/Seoul&quot; &gt; /etc/timezone
+
+2. 의존성 설치
+FROM base AS deps WORKDIR /app COPY package.json pnpm-lock.yaml ./ RUN corepack enable &amp;amp;&amp;amp; corepack prepare pnpm@10.9.0 --activate &amp;amp;&amp;amp; pnpm install --frozen-lockfile
+
+3. 앱 빌드
+FROM base AS builder WORKDIR /app COPY --from=deps /app/node_modules ./node_modules COPY . . RUN corepack enable &amp;amp;&amp;amp; corepack prepare pnpm@10.9.0 --activate
+
+ENV NODE_ENV=production ENV NEXT_TELEMETRY_DISABLED=1 ENV CSS_MODULES_HASH_PREFIX=stable_ ENV OUTPUT=standalone
+
+ARG NEXT_PUBLIC_ENV RUN if [ &quot;$NEXT_PUBLIC_ENV&quot; = &quot;production&quot; ]; then
+cp ./env/.env.production .env.production;
+elif [ &quot;$NEXT_PUBLIC_ENV&quot; = &quot;staging&quot; ]; then
+cp ./env/.env.staging .env.production;
+elif [ &quot;$NEXT_PUBLIC_ENV&quot; = &quot;development&quot; ]; then
+cp ./env/.env.development .env.production;
+else
+cp ./env/.env.test .env.production;
+fi
+
+RUN pnpm run build&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h2&gt;런타임&lt;/h2&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;text&quot;&gt;&lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;FROM base AS runner WORKDIR /app
+
+RUN npm install -g pm2 RUN addgroup --system --gid 1001 nodejs &amp;amp;&amp;amp; adduser --system --uid 1001 nextjs
+
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static COPY --from=builder --chown=nextjs:nodejs /app/public ./public COPY --from=builder --chown=nextjs:nodejs /app/public/fonts ./public/fonts COPY --from=builder --chown=nextjs:nodejs /app/.next/server/pages/amp ./.next/server/pages/amp
+
+RUN mkdir -p .next/static/media &amp;amp;&amp;amp; chown -R nextjs:nodejs .next
+
+USER nextjs
+
+EXPOSE 3000 ENV PORT=3000 ENV HOSTNAME=&quot;0.0.0.0&quot;
+
+CMD [&quot;pm2-runtime&quot;, &quot;start&quot;, &quot;server.js&quot;, &quot;-i&quot;, &quot;2&quot;, &quot;--max-memory-restart&quot;, &quot;1536M&quot;] &quot;&quot;&quot;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h2&gt;배포 자동화 스크립트 (deploy.sh)&lt;/h2&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;text&quot;&gt;&lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;#!/bin/bash
+
+set -e
+
+AWS_PROFILE=default AWS_REGION=ap-northeast-2 AWS_ECR_REPOSITORY=537124952818.dkr.ecr.ap-northeast-2.amazonaws.com/kthome-prd-frontend-ecr CLOUDFRONT_DISTRIBUTION_ID=YOUR_CLOUDFRONT_ID SLACK_WEBHOOK_URL=YOUR_SLACK_WEBHOOK_URL NEXT_PUBLIC_ENV=production SERVER_IP=YOUR_SERVER_IP DOCKER_COMPOSE_DIR=/home/ubuntu/deploy-folder
+
+GIT_COMMIT_HASH=$(git rev-parse --short HEAD) IMAGE_TAG=$GIT_COMMIT_HASH
+
+echo &quot;🚀 배포 시작 (태그: $IMAGE_TAG)&quot;
+
+docker build --build-arg NEXT_PUBLIC_ENV=$NEXT_PUBLIC_ENV -t $AWS_ECR_REPOSITORY:$IMAGE_TAG . aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY docker push $AWS_ECR_REPOSITORY:$IMAGE_TAG
+
+ssh ubuntu@$SERVER_IP &amp;lt;&amp;lt; EOF cd $DOCKER_COMPOSE_DIR sed -i &quot;s|image: .*|image: $AWS_ECR_REPOSITORY:$IMAGE_TAG|&quot; docker-compose.yml docker-compose pull docker-compose up -d --remove-orphans EOF
+
+aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths
+&quot;/_next/data/&quot; &quot;/_next/static/&quot; &quot;/favicon.ico&quot; &quot;/robots.txt&quot; &quot;/sitemap.xml&quot; &quot;/index.html&quot;
+
+curl -X POST -H &apos;Content-type: application/json&apos; --data &quot;{ &quot;text&quot;: &quot;✅ 배포 완료: $IMAGE_TAG&quot;, &quot;attachments&quot;: [ { &quot;color&quot;: &quot;#36a64f&quot;, &quot;fields&quot;: [ { &quot;title&quot;: &quot;배포 서버&quot;, &quot;value&quot;: &quot;$SERVER_IP&quot;, &quot;short&quot;: true }, { &quot;title&quot;: &quot;태그&quot;, &quot;value&quot;: &quot;$IMAGE_TAG&quot;, &quot;short&quot;: true } ] } ] }&quot; $SLACK_WEBHOOK_URL
+
+echo &quot;✅ 전체 배포 완료!&quot;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h2&gt;Docker OverlayFS 이슈 대응 방법&lt;/h2&gt;
+&lt;p&gt;Docker Build 시 --no-cache 옵션 사용 습관화&lt;/p&gt;
+&lt;p&gt;오래된 dangling 이미지 주기적 제거 (ex: docker system prune -af)&lt;/p&gt;
+&lt;p&gt;디스크 공간 부족 대비 → EBS 확장 정책 준비&lt;/p&gt;
+&lt;p&gt;대규모 프로젝트 빌드 시 layer 수 줄이기 &quot;&quot;&quot;&lt;/p&gt;
+&lt;h2&gt;최종 정리&lt;/h2&gt;
+&lt;p&gt;배포 자동화 성공&lt;/p&gt;
+&lt;p&gt;서버 깨짐(overlay2 디스크 에러) 복구&lt;/p&gt;
+&lt;p&gt;AMP SEO + 일반 SEO 대응 완비&lt;/p&gt;
+&lt;p&gt;Slack 실시간 배포 알림 연동&lt;/p&gt;
+&lt;p&gt;ECR + EC2 + CloudFront 캐시 퍼지 자동화 완료&lt;/p&gt;</content:encoded></item><item><title><![CDATA[뉴스 웹사이트, 퍼포먼스로 살아남기]]></title><description><![CDATA[…]]></description><link>https://hyungkishin.github.io/performance/</link><guid isPermaLink="false">https://hyungkishin.github.io/performance/</guid><pubDate>Thu, 17 Apr 2025 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 609px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/867c15d6bfc3e5df719c65d8a322adb5/71467/img.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 61.1764705882353%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAAAsTAAALEwEAmpwYAAADaklEQVR42h3KWUwbBACA4b6iPhjN3MPIcEPxgmmYbBLbQbnHsZajQFtaSi9KLwqUcS2Mw3GWURcrRBjHGKVAC0qHAzaOhJktOl006HAQfHGJusWBy4xm0d/E7/kTZCcryU1VUZippyDTgDRFS7pYTbpYgzStFKuhlbazbkaHLrG1vcXu3u/c/3mHx3/8xr//POHp08f8/dcufz55yN7uLwiyE3KRpRSSn6qkWKrHUuSgpqyBMpUTS3EtZarTlBZXo1Nb6Pd8wqNHv7Lz0z1841Osry5z5843bG3/yIOH99nde4DAKNdjKDRgkBtQSoqRJOZjKDAhTZQjz9BSb2tEL7di0Vr4qNfN7ds32d7ZZNYfYH3tOitLV7l2dZ5bt27ww+YGAqepkqaqOmrM1dTZa2lw1FNRVo1BZcWisdHa0EJRnp6jb75PT0cbN2+sMD3pZWHez1JwmoB3FL/vEsG5AItLCwjU0gIsCiW6HDk2lQ5HiYkqo4UzFdX0tndwweXiXFMrCmkB/b09jA0NMNDnYWL0IsP9HlwfNFNpNlNld1BfdwaBuUiNRipDLyvEKFdgLipCm5vPkcOROMsr+PhCL+7uTtqbzuK0OzDpDHyxvsyVT/10NjXiMBqxGU2UW8r5sNeNQCfNIVeUhDFPRq1Rj0OjITvpJAf3h3MwNJISZQmnrTbcrm7amhqptVsxKhSkxIrIEJ6gUqfG09XCcJ+bAc95BIdeCiXs+f3UV1RxfWmR2ZkAweAcswE/k5M+fBNefN5x1laXubb4OQH/FOOXx5iZmfn/zAc/4/JgHxc95xnscyN4bd8+DoQ8g8VkprTMjMVq48uvv8JqtzPln+b7ze9oam6my9XD3Xt3GZ/wsry2wrcbGxQq1HgnJzGVaImPPkqaUIgg9lAYB0JCcBgNnOvooK29nbkrQVqamxkZGWF1bZnO7m4Gh4ZYWVvFNz3N/MICgdlZurpdDI+OkRMXR9hzz5IVE4Xg8AsvcuLlUHLffRtDZgr54jgUCXHUKHPQpCYjT05CK5FQIslGk3WKSnk+hswMsoUidOknKRCLSY2MQiWKJSsmGoEsKgLZkVcpPvYWWW+EkxUZgVF8nJTXI4gPfwVp9DvkHYtBFSdCkxCP81QqjvQEVML30AiPUy9NojJTjDlRhFOSxn99/0dTlQelNQAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;performance.png&apos; title=&apos;&apos; src=&apos;/static/867c15d6bfc3e5df719c65d8a322adb5/71467/img.png&apos; srcset=&apos;/static/867c15d6bfc3e5df719c65d8a322adb5/e7570/img.png 170w,
+/static/867c15d6bfc3e5df719c65d8a322adb5/f46e7/img.png 340w,
+/static/867c15d6bfc3e5df719c65d8a322adb5/71467/img.png 609w&apos; sizes=&apos;(max-width: 609px) 100vw, 609px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;performance.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;h2&gt;🗞️ 한 달간의 뉴스 사이트 프론트 성능 최적화✨&lt;/h2&gt;
+&lt;p&gt;현재 한 언론사에서 뉴스 웹사이트 운영과 성능 최적화를 진행하고 있다.&lt;br&gt;
+뉴스 기사의 &lt;strong&gt;검색 노출 최적화&lt;/strong&gt;는 단순한 트래픽을 넘어 &lt;strong&gt;광고 수익&lt;/strong&gt;과 직결되는 핵심 과제다.&lt;/p&gt;
+&lt;p&gt;어찌 보면 당연한 이야기처럼 들릴 수 있다.&lt;br&gt;
+기사를 작성해 발행하면 포털이나 구글 검색에 &lt;em&gt;잘 뜨는 것 이 기본이니까&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 346px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/bda05f16dbcbd714d673518c3d4e6228/44e6f/img_1.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 45.88235294117647%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAAAsTAAALEwEAmpwYAAABS0lEQVR42qWSS4+CMBSF/fUujC/UCTAMUMpjeluKCAEniuLG33UmNMSMi3EWszg57W375T46kVLilYgIWZYZ/XV30OTVoRACdV2j73t0XWfg/wa2xyNutxvu9/sjYyIJGtdDTCn1DFRET5KjSAgcyhJ9f0VVHeA4DpI4RhD4iBgD5xy+/4EkSZ6Bn7l+SOQaNLpQOfKixNepQ0YSb7aDIIwQhAyMcUQ8BucJhBiyzCElYTI8cpoznOYEuznBa86I2gtYe0HUXpHWZ/hUwaMDvCRHShWoaI3zzz2oOKJsrtD7CkRi7OGPMpWSKLSG1hr7QiPm3JQ4aLvdIgwDxHGM9XqNxWJhYu+uizRNTS8nv30VKRUYY7AsC6vVygCWy6XZbzYb4/P53EBt23708eWUgyAwUNd1sdvtYI2gATCbzTCdTs2gPM9DFEUG+A06YhLXCFJlSQAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_1.png&apos; title=&apos;&apos; src=&apos;/static/bda05f16dbcbd714d673518c3d4e6228/44e6f/img_1.png&apos; srcset=&apos;/static/bda05f16dbcbd714d673518c3d4e6228/e7570/img_1.png 170w,
+/static/bda05f16dbcbd714d673518c3d4e6228/f46e7/img_1.png 340w,
+/static/bda05f16dbcbd714d673518c3d4e6228/44e6f/img_1.png 346w&apos; sizes=&apos;(max-width: 346px) 100vw, 346px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_1.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt; 아 물론, 내가 기본이라고 말했던 오만함의 &lt;strong&gt;잘&lt;/strong&gt; 의 조건은 다음과 같다.&lt;/p&gt;
+&lt;h2&gt;🔧 검색 노출을 위한 기술 요소 정리표&lt;/h2&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;항목&lt;/th&gt;
+&lt;th&gt;설명&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Core Web Vitals&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;구글이 정한 &apos;웹사이트 건강검진 3종 세트 (LCP, CLS, INP)&apos;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;AMP 지원&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;모바일 최적화를 위한 프레임워크. 초고속 로딩으로 이탈률을 낮춰준다&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;구조화 메타태그&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;SNS 공유 시 미리보기 제공 + 검색 결과에 부가 정보 표시 가능&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;반응형 이미지 최적화&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;각 디바이스별로 가장 적절한 해상도의 이미지를 제공&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;코드 스플릿팅&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;페이지별로 필요한 코드만 로딩 → 초기 랜딩 속도 개선&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;경량 이미지&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;CDN &lt;code class=&quot;language-text&quot;&gt;w=&lt;/code&gt; 파라미터 조절로 화질은 유지하며 용량은 줄임&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Lazy Load&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;화면에 들어오기 전까지 이미지/광고 스크립트를 로딩하지 않음&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;ul&gt;
+&lt;li&gt;등등 ..&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;개선해 나아간 부분들이 정말 다행스럽다. 프론트엔드 고수분들을 진심으로 존경하고 존경한다.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;불안하다 했다.&lt;/h2&gt;
+&lt;p&gt;퇴사후 한달간의 리프레쉬 기간을 갖고, 어찌저찌 현 회사에 투입이 되었다.&lt;/p&gt;
+&lt;p&gt;구축 외주 인력 분들이 철수하게 되어, 운영에 필요한 인수인계를 받으면 되었다.   &lt;/p&gt;
+&lt;p&gt;가벼운 마음으로 모닝 커피 마시면서 한분 한분 인사를 드렸다.&lt;br&gt;
+( 휴식후 너무 오랜만에 사람을 만나서 반가웠고 많이 웃었다.)&lt;/p&gt;
+&lt;p&gt;그리고 곧 철수하는 분들에게 부럽다는 표정을 숨기고, 잔여 이슈에 대해서 설명하는 시간을 가지기로 하며,
+순조롭게 인수인계를 받을 준비를 하며 노트북을 키는 순간이였다. &lt;/p&gt;
+&lt;p&gt;( 왜이렇게 순조롭지 라는 생각이 들때쯤. 상사 분의 스윗 + 다급한 목소리 )&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;&quot;형기 씨 ... 정말 미안한데, 급해.&quot;&lt;/strong&gt;&lt;/p&gt;
+&lt;h2&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/a1be38bdccc73868e0f430c0fe2e8a73/2cbcd/img_2.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 56.470588235294116%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAALCAYAAAB/Ca1DAAAACXBIWXMAAAsTAAALEwEAmpwYAAAC5UlEQVR42k3R3U9bBRjH8ROh7Xk/Pedwzgmc9tCWIqXtoO0oMAQc68bmWEUWsjHY5EWFCshwI7LIXhrdpkvc4pZlQaNEF000Jnq1aKJe6oU3euWVV/4jX0Nnohef5MmT33PxyyO0BTGCZ9MMjh5i/MRhvrjxCnsXT3BvcYibM4e4Nz/Ei+UUjm2Q9FuYPpzjrTNFzowk8Uyd/kxAJuEiahqqpiH4qYDWZIz27hRTEyP88midL69UuXwqS9I1GC+0s/1SH8UOh1q1wIP1MW4tldmYypALLMZLHbR6JqKqIooiQlsihhPzCOkyp4+V+WPvMj/enuWNFzKYukomZlOfLnF9tsTVuQKb0wVq1Sy1U52M9focPZhE1RW0qIEsywhuq4vpmghNz/Dm3Dh/fb3DDzfP8dHq87x+vJs7Lw+ytzrMu/NFFo6muHCsi62ZPrbO5hjracVvMZBUBcMy0E0DwXZtFENrLB/fWOTPx1v89P48n21W2NsY5fNLFb6rT/LxpRF2Lw6xuzHM/Vof9fN5elMWTaEIqqag21EspwXB9T0isoTrOXz/4Rq/f7rOzx8s8uSds3yycYSHa6P8/e3bfLVT4f5Kid31Qe6+VmJzKk13EKU5EkFSRFRDxXRMBMu10Syd/W9fODnMk/fm+e3hMt9cqVKf6eHWQj+/PlrmQW2A63N5dma72Z7pYul4HN9RCUsisiqhaDKyJiNE7ShezCOdzeDG4vTnOpgd62VyIM2dpTLXzpe5W6twba7M6mSOVyc62D6XoVJ0kBUJSZUbZP0pwXJMPN8j0ZnGT8QJ0gkK5V4O9uW4ujTK6mSWtdMD1BeOsHwyz0q1i5WJdmKuQkSTUfSnVENpEEw7iu1ZRB2LaItJqjMgm081HDiQptiTJN/lM5yP81wuYCDbRiZuNI73K0qq9F9lVUaQZQlRERFlEUkWCYthmkLNDc3hEKFIBHE/I4mExAghUSQsSUjKv9T/zYrEP6LRZmCFxb3PAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_2.png&apos; title=&apos;&apos; src=&apos;/static/a1be38bdccc73868e0f430c0fe2e8a73/ca1dc/img_2.png&apos; srcset=&apos;/static/a1be38bdccc73868e0f430c0fe2e8a73/e7570/img_2.png 170w,
+/static/a1be38bdccc73868e0f430c0fe2e8a73/f46e7/img_2.png 340w,
+/static/a1be38bdccc73868e0f430c0fe2e8a73/ca1dc/img_2.png 680w,
+/static/a1be38bdccc73868e0f430c0fe2e8a73/2cbcd/img_2.png 764w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_2.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/h2&gt;
+&lt;h2&gt;AMP 뭔데요?&lt;/h2&gt;
+&lt;p&gt;부장님께서 호출하신 이유는 AMP 페이지가 정상적으로 동작하지 않는 심각한 이슈가 있어, 이를 분석후 걷어내야 할지 개선해서 사용할지를 검토를 해달라고 하셨다.  &lt;/p&gt;
+&lt;p&gt;AMP 가 뭔지도 모르는 나는 잠깐의 히스토리 설명을 듣고 반나절 정도 분석후 검토할 시간을 달라고 말씀드렸다.&lt;br&gt;
+( 쪼금만 기다려주세요 입사 첫날이라서요.. )&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;📦 AMP 란?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;AMP는 Accelerated Mobile Pages의 줄임말로, 모바일 웹 페이지를 더 빠르게 로딩하기 위한 오픈소스 프레임워크 이다.&lt;/li&gt;
+&lt;li&gt;구글이 주도해서 만들었고, 현재는 다양한 회사와 커뮤니티가 함께 관리되고 있다.  &lt;/li&gt;
+&lt;li&gt;빠른 로딩 속도 + 안정적인 사용자 경험으로, 특히 뉴스/블로그/미디어 사이트에 매우 강력한 효과를 준다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;🔐 AMP 는 운영중 제약이 많아 요즘엔 &lt;strong&gt;Core Web Vitals 을 통해 대체하는 추세&lt;/strong&gt; 이다.  &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;현재 도메인 특성에 맞는 기술인지 판단하고, 개선하면 되는 것을 잘 알기에 조금만 더 digging 을 해보았다.
+( &lt;strike&gt; 구글이 만든 기술이니 구글에 맞는 스킬이겠지. &lt;/strike&gt; )&lt;/p&gt;
+&lt;p&gt;📉 AMP 단점 요약&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;구분&lt;/th&gt;
+&lt;th&gt;단점 내용&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;🧩 기능&lt;/td&gt;
+&lt;td&gt;JS 사용 제한, 커스텀 기능 구현 어려움&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;🎨 디자인&lt;/td&gt;
+&lt;td&gt;CSS 용량 제한, 커스터마이징 불편&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;🧪 개발 경험&lt;/td&gt;
+&lt;td&gt;디버깅 어려움, validator 의존&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;💼 운영 부담&lt;/td&gt;
+&lt;td&gt;AMP 따로 만들고 유지 → 리소스 증가&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;🛰️ 종속성&lt;/td&gt;
+&lt;td&gt;구글 캐시 도메인 문제, 유입 분석 어려움&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;blockquote&gt;
+&lt;p&gt;제약이 있다는 말은 사용하지 못한다는 것이 아니라, amp 규칙에 맞는 문법으로 대체 해야 한다는 뜻이다. ( 그들만의 로마법 을 따라야 함이 불.편. )&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;예를 들어, js 를 사용하고 싶다면, 아래와 같이 사용해야 한다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;html&quot;&gt;&lt;pre class=&quot;language-html&quot;&gt;&lt;code class=&quot;language-html&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;&lt;/span&gt;amp-script&lt;/span&gt; &lt;span class=&quot;token attr-name&quot;&gt;layout&lt;/span&gt;&lt;span class=&quot;token attr-value&quot;&gt;&lt;span class=&quot;token punctuation attr-equals&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&quot;&lt;/span&gt;container&lt;span class=&quot;token punctuation&quot;&gt;&quot;&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;token attr-name&quot;&gt;src&lt;/span&gt;&lt;span class=&quot;token attr-value&quot;&gt;&lt;span class=&quot;token punctuation attr-equals&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&quot;&lt;/span&gt;https://당신의-회사-cdn-주소-혹은-프로젝트-내에-별도-스크립트-파일이-필요합니다-젠장/script.js&lt;span class=&quot;token punctuation&quot;&gt;&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;
+  &lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;&lt;/span&gt;p&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;이곳에 스크립트가 삽입됨.&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;/&lt;/span&gt;p&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;/&lt;/span&gt;amp-script&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;⚡ AMP 장점 요약   &lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;구분&lt;/th&gt;
+&lt;th&gt;장점 내용&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;🚀 속도&lt;/td&gt;
+&lt;td&gt;AMP는 로딩 속도가 &lt;strong&gt;압도적으로 빠름&lt;/strong&gt; (HTML + 제한된 JS/CSS만 허용)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;📱 사용자 경험&lt;/td&gt;
+&lt;td&gt;기본적으로 Lazy Load + Viewport 우선 렌더링 → &lt;strong&gt;UX 최적화&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;🔍 검색 최적화&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;구글 AMP 캐시&lt;/strong&gt;에 의해 빠른 응답 + 검색 상단 노출 가능성 증가&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;💎 Core Web Vitals&lt;/td&gt;
+&lt;td&gt;LCP, CLS, INP 등 &lt;strong&gt;성능 지표 자동 개선 효과&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;📈 SEO/트래픽&lt;/td&gt;
+&lt;td&gt;빠른 로딩 + UX 개선 → &lt;strong&gt;이탈률 감소 + 유입 증가&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;🧰 내장 컴포넌트&lt;/td&gt;
+&lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;amp-img&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;amp-carousel&lt;/code&gt; 등으로 &lt;strong&gt;인터랙션을 JS 없이 구현 가능&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;🧵 일관성&lt;/td&gt;
+&lt;td&gt;AMP validator 통과 필수 → &lt;strong&gt;표준화된 코드와 구조 강제&lt;/strong&gt;로 QA 부담 감소&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;🤔 현재 도메인에 AMP 적합성 요약  &lt;/p&gt;
+&lt;p&gt;현재 운영 중인 웹사이트는 기사 본문 중심의 뉴스 사이트다. 즉, 동적인 UI보다는 텍스트 콘텐츠 위주로 구성되어 있다.  &lt;/p&gt;
+&lt;p&gt;사용자가 본문을 한 번 로드한 이후에는 인터랙션이 거의 없는 만큼 사용자 경험이 단순하고, 정적 콘텐츠 중심인 구조다.  &lt;/p&gt;
+&lt;p&gt;이런 특성의 사이트는 AMP의 제약과 잘 맞는다.
+복잡한 JS 상호작용이 거의 없고 페이지의 빠른 로딩과 안정적인 레이아웃이 더 중요하기 때문이다.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;유형&lt;/th&gt;
+&lt;th&gt;AMP 적합도&lt;/th&gt;
+&lt;th&gt;이유&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;📰 뉴스, 미디어, 퍼블리싱 플랫폼&lt;/td&gt;
+&lt;td&gt;✅ 매우 적합&lt;/td&gt;
+&lt;td&gt;정적 콘텐츠 중심 + 검색 유입이 중요&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;🛍️ 쇼핑몰, 커뮤니티, SaaS&lt;/td&gt;
+&lt;td&gt;⚠️ 부적합&lt;/td&gt;
+&lt;td&gt;동적 UI, 사용자 상호작용 많음&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;📅 2024 이후&lt;/td&gt;
+&lt;td&gt;선택적 적용&lt;/td&gt;
+&lt;td&gt;구글이 AMP 강제 ↓, 다만 여전히 Top Stories 노출은 유리함&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;🥰 국내 뉴스 유입이 포털 중심에서 검색 중심으로 넘어오고 있다는 사실.&lt;/p&gt;
+&lt;p&gt;물론 한국은 네이버·다음 같은 &lt;strong&gt;포털 중심의 뉴스 소비 성향&lt;/strong&gt;이 강하다.&lt;br&gt;
+하지만 최근에는 &lt;strong&gt;구글 검색 + 유튜브 검색을 통한 뉴스 소비도 꾸준히 증가 중&lt;/strong&gt;이다.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;특히 검색 기반 유입은 ‘롱테일 콘텐츠’ 확보에 핵심.&lt;br&gt;
+반면, 포털 메인은 &lt;em&gt;경쟁도 심하고, 노출 타이밍도 예측이 불가능&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;p&gt;오케이 🙆 도메인 적합성 + amp 배경지식 습득 완료 . 그럼 이제 트러블 슈팅 을 해보자.&lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/1cdd30399708a00621492881038a5dcd/68327/img_4.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 64.11764705882354%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAANCAYAAACpUE5eAAAACXBIWXMAAAsTAAALEwEAmpwYAAABmklEQVR42n2T226jQBBE+f/vWykP2cfIwAYMw9wvUFE1tOMoKyOVRozHp6u7hi78fYd/+4NxWTD0PaZpwjiOomEYEGPEvu84jgOvnlYrUq7oirVom4HzAdZaOOd+rCEEpJReAM99/p5LQ5frjgOvq+tDp945lFLknasWaq2dDmNM4kRFZ9S2beJOQXw269API0rO8l5TRA1e7Hjv4WNCF1PGuq5YlkVEEFfd40F1sW4bPm79w2GLES2eRVOMJzDEBGNWGGMEdr/fkXMWV7VWaUWBxjrc+uEbmKLoAQyXQ3+1SOWrnR9jfwL24yiFZBS1is55ZoSY0aVc4KwV2PMMVdzj1ZEZOofPaZb9/Tiw52+HrfHaFAKztKvi7FQ6U23RWItpvmMzRlzuOQnwuFKOqZwO6YIwDYYwzpLSpBX4Oc9SpNb2H2A+QyFAgWyHLTJdrjovBf6bZjn/22FFINCHiHmaBEZHCuTXwYDokGLqi9lwG0c5VwhM57V5ABmKdV6uDSH8o70CIpguNSg6Yku83PEqcDSmXJ4+vYoviBn0Di0w6JEAAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_4.png&apos; title=&apos;&apos; src=&apos;/static/1cdd30399708a00621492881038a5dcd/ca1dc/img_4.png&apos; srcset=&apos;/static/1cdd30399708a00621492881038a5dcd/e7570/img_4.png 170w,
+/static/1cdd30399708a00621492881038a5dcd/f46e7/img_4.png 340w,
+/static/1cdd30399708a00621492881038a5dcd/ca1dc/img_4.png 680w,
+/static/1cdd30399708a00621492881038a5dcd/68327/img_4.png 950w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_4.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;앞서 말했듯이 &lt;strong&gt;AMP는 정적 검증기 인 AMP Validator 를 통과해야만 페이지가 동작 가능&lt;/strong&gt; 한데, 본문에 허용하지 않는 Tag 가 선언되어 있거나,&lt;br&gt;
+./next/static 하위 js 번들이 포함되어 있으면 AMP 페이지가 정상적으로 동작하지 않는다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#amp&quot;&gt;Next.js AMP 공식 문서&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;그러나, 문제의 &lt;em&gt;태그&lt;/em&gt; 를 해결해도 왜 next 번들 파일이 guide 규칙에 걸리는지 의문을 품던 도중   &lt;/p&gt;
+&lt;p&gt;❗ AMP는 Next.js의 pages 라우터 기반에서만 정식 지원하고, app router 기반에서는 공식적으로 AMP 지원이 되지 않는다는 사실을 알았다.    &lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 462px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/1d366f6476bbeb95da8a777daf074d37/a9e02/img_5.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 68.23529411764706%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAOCAYAAAAvxDzwAAAACXBIWXMAAAsTAAALEwEAmpwYAAACl0lEQVR42pWSa2sbRxSGZ1e+qZJXliXt7syud1fam1Y3y9XNlzhyG0l2LpBCaxpKPqQJpqVQSiBQ6Of876es5LiFltJ8eHjfOefwzjAzIpgeI2opW1abHdVhz+2xbWfotRZ6PfxsxPD7O4Kzbwjn33IwWFId3nAwWFDO5pSzq/9k/4HNbCmbI9o/vGf28g3Z9WtK/SWl3oJiZ4ExWFHO6a/Y/+T/pVYcXFPsrzg4XnF4co2YXH5JFHYw6gHlRsgXTky9lVJoxOyaEbtmzE4jomSG7DUiyvc+79XNFk0rwDabbNkphtdBvOrOWExnDLp9/JqH8hM+/j7mxSTivazzh99grjy+cxU/HVn8fGTzwTMZqoAL5fPalTxzHITMKHtdxN3tiOHkkmx4hdsaotdi9mRKRSUksklXBhzaMYYdI2VEw46QdkjRSqjYCftrYnQrpWCliO7ogtZwRnA8oyCz9dHzhm6maFYbYbUfhrV7r1n5r7ify9dmyp7KMPweYvb0nHD8mErQRzMTRDVBy7HaaGZ7E7rWTVDu9Yfa3/vt9SbizfMp09EZnbhH3U44Oe1zcjZAmSGJCglVSEe18GWEkhGhDIllyNQJcGVEolosHI+F61NyO4hfxjOWkwkvHs0IzCarr1Le3Wb8aNb41a3x8ajKb84ht8rkka24c+q8VXU+OFVupI1v+ixtyUtHUnUSxHywIhte0uyfou0rRNFBLyp2qw6a4VKtKnTDXXutskGvuAjjL5+rqDjohoPQTl9x2HlMML3GG6/wRk9odC8oWG227c195Zqzdc+2/c9aTsFuI7ayEQfhmFp2jtW7pJrMqGfnGK0RWiN+eM3/i9jpXuGdfI0/vcEbLTkaLalEE7Zl9llBnwL/BGMtgwdv97oqAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_5.png&apos; title=&apos;&apos; src=&apos;/static/1d366f6476bbeb95da8a777daf074d37/a9e02/img_5.png&apos; srcset=&apos;/static/1d366f6476bbeb95da8a777daf074d37/e7570/img_5.png 170w,
+/static/1d366f6476bbeb95da8a777daf074d37/f46e7/img_5.png 340w,
+/static/1d366f6476bbeb95da8a777daf074d37/a9e02/img_5.png 462w&apos; sizes=&apos;(max-width: 462px) 100vw, 462px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_5.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;이런 ;; 마치 샌드위치 속 재료는 다 바꿨는데, 포장지가 비닐이 아니라 종이여야 했던 걸 몰랐던 상황처럼.&lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 395px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/9a600cf21b38f8317e9534ec5746f610/50f4b/img_3.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 55.294117647058826%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAALCAYAAAB/Ca1DAAAACXBIWXMAAAsTAAALEwEAmpwYAAADLElEQVR42h3N6U+TBwDA4ffjsisxAYXFQJa5LduSmehcNuMxQBCEVQFBqBxpKUJBKcyirjbgxREIxoIoBURaKadyFLkKg4W3VGQUAUtpaeswrTiWJX7a59+SPf/AI3Qoo+lVxfL4UjymK8cwVWcxVFtMf5WKJ1Uq+qtVyOMPsSc0iPDgHYTu+Jg8SQQ9N/Jo16Rh1uUwdv8CXRWZPKqWIXTkR9FXFEObNoW7mmQeXkyn96YKU7mSx7fOcz07geCPPmT3ziDCQ3YSHrqLT0NC0RVJWLGcxO9LY9Uiw3wng8GGiwiP8n6iu+g45itxtCiO0nk1A3NdLqaycwxUq1AkHOGD994nJDiIb3Z/wp5docijDjNcl4GtIQlbmxzxnpwZvYJ+nRrBqDhMV2Ek5l9imayOxLOYyKZDikWfjbmmCLU0jugvP0dxcD/qqO8Z/TUPe2UJ4zVpOMXjuMUkPPMnmHqg4JpMgvAgP4aHhSfovHSK6dsnsTalYDPImWlMw1R2ls6KElJ/3Eflz5E0Z8UzrS1gWKNmRKemozydvqpEBmrkdFcouZDwA0LrZTntV3MxapXM9aTiFiW4ZiW8tGRh62nBuzCP4VY52sjvqE2NofFsPJaqCrYDWwQ2Npho0dFZnkdTaSbK2AMIzeps2jW5GDTn6L6R9f/69G4+9uF+3rrcbLk8rNv+YLCiDENhNt2VZUwYTWz7A7x79y+D9bXoi6VU5UiQRXyLUF8i5V5JJuMtqThsycx0pjHRXM/zkUnGunpYfbaA3+nDs+TAZ19h2+fnL+9r/n69xZ/uWZZFJdYnSegvp1CafBShVnma+6VnEPWJrJll2FozeT5wk8XJKV7OzjFtHsVlX+HtxisC61786x7euHyIlil+ay/AMZDCYk82vdfi0EiPIdwpktJUms60KQFrbwK+uVOIAzLmR4147C/wLi3z4ncrAacHv8PFmzU3vqU1hrracIoFrI2dwTeTglG7l6ivwhBOH9lPxL4vOLg3jPrr0VgHZRjq4pjsK8a7ZGV9wY44Ms7mqpOA080r+zLPpix4Vlv5Z7MR61A+Dec/43bO1yQfCOM/ReFCskNqajcAAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_3.png&apos; title=&apos;&apos; src=&apos;/static/9a600cf21b38f8317e9534ec5746f610/50f4b/img_3.png&apos; srcset=&apos;/static/9a600cf21b38f8317e9534ec5746f610/e7570/img_3.png 170w,
+/static/9a600cf21b38f8317e9534ec5746f610/f46e7/img_3.png 340w,
+/static/9a600cf21b38f8317e9534ec5746f610/50f4b/img_3.png 395w&apos; sizes=&apos;(max-width: 395px) 100vw, 395px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_3.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;그런줄도 모르고 되게 얄미워했네. 열받게.&lt;/p&gt;
+&lt;p&gt;천만 다행으로, Next.js 13 버전 부터 app router 가 도입되었고, 현재는 app router 가 기본으로 사용되고 있으나 점진적 전환을 위해 pages 를 열어둔게 극적...&lt;/p&gt;
+&lt;p&gt;결론은. 할 수 있다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[AMP]]></title><description><![CDATA[amp AMP(Accelerated Mobile Pages)는 빠른 로딩을 위해 엄격한 제약을 두는 프레임워크입니다. Next.js에서 AMP를 적용할 때도 이러한 제한이 그대로 적용됩니다. useHook (React Hook) 사용 제한 AMP…]]></description><link>https://hyungkishin.github.io/amp/</link><guid isPermaLink="false">https://hyungkishin.github.io/amp/</guid><pubDate>Thu, 17 Apr 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h3&gt;amp&lt;/h3&gt;
+&lt;p&gt;AMP(Accelerated Mobile Pages)는 빠른 로딩을 위해 엄격한 제약을 두는 프레임워크입니다. Next.js에서 AMP를 적용할 때도 이러한 제한이 그대로 적용됩니다.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;useHook (React Hook) 사용 제한&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;AMP 자체는 React의 훅 사용을 직접적으로 제한하지 않습니다.&lt;/p&gt;
+&lt;p&gt;하지만, AMP 페이지는 클라이언트 측에서 실행되는 JavaScript(특히 커스텀 JS)를 거의 허용하지 않으므로,
+React Hook을 이용해 동적으로 상태를 변경하거나, 효과를 실행하는 로직이 AMP 페이지에서 동작하지 않습니다.&lt;/p&gt;
+&lt;p&gt;AMP 페이지는 기본적으로 정적이어야 하며, 동적 인터랙션은 AMP에서 제공하는 컴포넌트(예: amp-bind, amp-form 등)로만 구현할 수 있습니다.&lt;/p&gt;
+&lt;ol start=&quot;2&quot;&gt;
+&lt;li&gt;Sass 방식의 스타일링 제한&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Next.js는 Sass(.scss, .sass) 및 CSS Modules를 지원하지만,
+AMP 페이지에서는 CSS-in-JS만 지원됩니다.&lt;/p&gt;
+&lt;p&gt;Sass, CSS Modules, 글로벌 CSS 등은 AMP 페이지에서 사용할 수 없습니다.&lt;/p&gt;
+&lt;p&gt;AMP에서는 &lt;style amp-custom&gt; 태그를 통해 75KB 이내의 인라인 CSS만 허용하며,
+Next.js의 AMP 페이지에서는 styled-components, emotion과 같은 CSS-in-JS 방식만 정상적으로 동작합니다.&lt;/p&gt;
+&lt;p&gt;Sass로 작성한 스타일을 AMP 페이지에 적용하려면, CSS-in-JS로 변환하거나,&lt;/p&gt;
+&lt;style amp-custom&gt;을 직접 &lt;Head&gt;에 넣는 식으로만 제한적으로 사용할 수 있습니다.
+
+3. &lt;script&gt; 태그 사용 제한
+
+AMP는 커스텀 JavaScript를 절대적으로 금지합니다.
+
+&lt;script&gt; 태그는 오직 AMP에서 공식적으로 제공하는 컴포넌트 로딩(예: &lt;script async custom-element=&quot;amp-img&quot; ...&gt;) 용도로만 허용됩니다.
+
+개발자가 직접 작성한 JavaScript를 AMP 페이지에 삽입하면 AMP 검증에서 실패합니다.
+
+Next.js AMP 페이지에서도 &lt;script&gt;를 자유롭게 쓸 수 없으며,
+필요한 경우 next/head를 통해 공식 AMP 컴포넌트만 추가할 수 있습니다.</content:encoded></item><item><title><![CDATA[Rag]]></title><description><![CDATA[Rag (Retrieval Augmented Generation) 의 탄생 배경 RAG 은 대규모 언어 모델(LLM…]]></description><link>https://hyungkishin.github.io/rag/</link><guid isPermaLink="false">https://hyungkishin.github.io/rag/</guid><pubDate>Sat, 29 Mar 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;Rag (Retrieval Augmented Generation) 의 탄생 배경&lt;/h2&gt;
 &lt;p&gt;&lt;strong&gt;RAG&lt;/strong&gt; 은 대규모 언어 모델(LLM)의 한계를 극복하기 위해 개발된 기술로, 검색과 생성의 결합을 통해, 작업에서 정확하고 맥락에 맞는 답변을 생성하거나. 최신 정보와 특정 도메인 데이터를 동적으로 활용할 수 있도록 설계된 기술이다.&lt;/p&gt;
 &lt;h2&gt;LLM 은 어떤 한계를 가졌을까 ?&lt;/h2&gt;
 &lt;p&gt;LLM 의 한계는 학습 데이터를 기반으로 응답을 생성하다 보니, 새로운 정보나 특정 도메인 지식에 대한 질문에 대한 질의 응답을 할수가 없었다. 만약 한다 하더라도 AI 헛소리 라고 불리우는 &lt;strong&gt;할루시네이션&lt;/strong&gt; 문제가 발생하였다. 즉, &lt;strong&gt;거짓말&lt;/strong&gt; 이다.&lt;/p&gt;
