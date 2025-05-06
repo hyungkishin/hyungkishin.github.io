@@ -152,7 +152,6 @@ pages 만 UI 뼈대를 만든 후 공통화 컴포넌트화 시키면 되겠다.
 
 ## AMP 규칙에 맞는 Style 
 
-![음...](img_9.png)
 Amp 용으로 style 잡는게 좀 까다로웠다 ( sass 방식이 왜 안돼 ... 하나하나 분석하다가 이건 도저히 아니다 싶었다. )
 
 AMP는 `<style amp-custom>` 단 하나만 허용
@@ -161,10 +160,12 @@ AMP는 `<style amp-custom>` 단 하나만 허용
 - 총 CSS 용량은 75KB 이하
 - CSS 속성은 inline 스타일로 작성해야 함. ( CSS-in-JS 방식은 사용 불가 )
   - `<style amp-custom>` 내부 전체 CSS 크기 합이 75KB (75,000 bytes)를 넘으면 안 됨.
-  - 초과 시 AMP validation 실패 → 페이지 노출 불가.
+- 초과 시 AMP validation 실패 → 페이지 노출 불가.
+
+![...](img_9.png)
 
 
-![하아...](img_10.png)
+
 미지원 CSS 속성/기능
 - @import 사용 불가 ❌ 
 - !important 사용 불가 ❌
@@ -172,11 +173,14 @@ AMP는 `<style amp-custom>` 단 하나만 허용
 - animation, keyframes는 제한적으로만 허용됨 
 - filter, backdrop-filter, mix-blend-mode 등 일부 CSS 속성 사용 불가.
 
-![.....](img_11.png)
+![...!](img_10.png)
+
 
 AMP 구성요소의 스타일링
 - `<amp-img>`,`<amp-carousel>`, `<amp-sidebar>` 등 AMP 컴포넌트는 반드시 지정된 방식으로 스타일링해야 함.
 - 특히 layout="responsive" 등 AMP layout 시스템에 맞는 설정 필수.
+
+![.....](img_11.png)
 
 .    
 .  
@@ -190,7 +194,7 @@ AMP 구성요소의 스타일링
 
 ---
 
-## 대망의 1차 배포 이후
+## G 선생의 Style 도움으로 대망의 1차 배포 성공 🏰
 검색 색인과 AMP 페이지 1차 반영 이후 구글 유입이 조금씩이나만 바로 잡혀가는 모습이 너무 보기 좋다.
 
 ![어서오세요 :)](img_4.png)
