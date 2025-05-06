@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Tue, 06 May 2025 09:09:40 GMT</lastBuildDate><item><title><![CDATA[퍼포먼스 최적화 를 향해 - 2부]]></title><description><![CDATA[들어가며.. 진짜 많이 온것 같으면서도 미미한것 같기도하다.
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Tue, 06 May 2025 09:14:48 GMT</lastBuildDate><item><title><![CDATA[퍼포먼스 최적화 를 향해 - 2부]]></title><description><![CDATA[들어가며.. 진짜 많이 온것 같으면서도 미미한것 같기도하다.
 PC / MO 의 성능 최적화가 얼마 남지 않았다. CLS 와 TBT , 그리고 FCP…]]></description><link>https://hyungkishin.github.io/phase4/</link><guid isPermaLink="false">https://hyungkishin.github.io/phase4/</guid><pubDate>Sat, 03 May 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;들어가며..&lt;/h2&gt;
 &lt;p&gt;진짜 많이 온것 같으면서도 미미한것 같기도하다.
 PC / MO 의 성능 최적화가 얼마 남지 않았다.&lt;/p&gt;
@@ -385,20 +385,7 @@ pages 만 UI 뼈대를 만든 후 공통화 컴포넌트화 시키면 되겠다.
 &lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;/&lt;/span&gt;html&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;hr&gt;
 &lt;h2&gt;AMP 규칙에 맞는 Style&lt;/h2&gt;
-&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
-      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/08c8c3426264e11057fe959c06c79ed3/89e0a/img_9.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 58.82352941176471%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAAAsTAAALEwEAmpwYAAADPElEQVR42i3SW0+bBQDG8fdC2vfc921LoaWlK7TQUkqPtAHWwlaBwhhlEAgDOWyBQjlsbN3BZQxHzJybhgUPSzRuMWoMJnqnNyaakBjjjZcaL/RiX8ELb/9mZF/glyfP8wj//fsnL14c88dfP3D82xG//v4Nx8fPeffgLS5VKywuzDEzPcWZoRKZvn7CyRzJXI7iUD+dqRThWCfhaIRoLEJHNIzwz98/c/zLET/+9AWHTx/y9uM9Nm/usHNzk71ahdWLM2TzA7SnsrTEknhCHfjbIqRzGQLhNvzBVgLBFoKhAG1tLQhH33/Js28/46PPD6neusbegxvcf7DDJ0/v8eneOpXpcfoLeRKpNKfao/iCIbynAjSHIzT4fdQ3eXD7PDT53Pj8XoTnX3/Is6+ecPDBPWp3quy/s82t3QqHu6s83JplbeYc1+bHuTyWJxuPEGwN0B0OYLg9mI0uDKeJ4TSw2XVMh4Gwv7fFnbvr3N1d52ptmaWNebY35vjuUZX91Umqk4PcmBulOlFgYThNot1PNuRF1G1IDgeypqFoCqIsUWcVEXZrl9jcmOfi8jR9g2eJZHu4MD7Ck9ocE6U8K+UCBxvn+fjqBJvlDH3RZpoaHCgOg5Zkgkyhl87uNK5wF76uBMLu9QVqV+a4MFUi1p0jnM7QFo9TfL2PdDZOqdjD/eUhHlVKbI+n6O3wIaoamqnS3OKlWOqjt5AmGm+ncDqOsLZ4nsXZYcZGB+jMpGkIteMOthJNRPAH/eieRoq5GG/OFFgZ7sLlMJBs6klnVtGKokhouoyiiZimhlB5Y5Tl2RJXFscIdsXIn84SigQxvR6cPjd6g536JhcT/TFSYR91ooxiaMi6iqzIqLqMYSrYHSqqTUGYmhzk+vIYt5dGGDubpVzsYaQ3hsXhQG90orlMREPHamrIhg2rJGGVZSRFQlEVdEPFNBXq7Qoul4aQSHawUM7z3naZ97fOcXuhyPZ4BtOuYTUNJF3D8gqxyBIW0YrFYj1ZVdaUk4ROp4q3UcfdoCFMlPuZmTzD2tIIl2fPsDI7wNJokkCzE8tLTJR4zSKeXKLuJSiJ1L0CJVXGZqq4G234fXaafQ7+B871mHfcnTfsAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;음...&apos; title=&apos;&apos; src=&apos;/static/08c8c3426264e11057fe959c06c79ed3/ca1dc/img_9.png&apos; srcset=&apos;/static/08c8c3426264e11057fe959c06c79ed3/e7570/img_9.png 170w,
-/static/08c8c3426264e11057fe959c06c79ed3/f46e7/img_9.png 340w,
-/static/08c8c3426264e11057fe959c06c79ed3/ca1dc/img_9.png 680w,
-/static/08c8c3426264e11057fe959c06c79ed3/02d09/img_9.png 1020w,
-/static/08c8c3426264e11057fe959c06c79ed3/89e0a/img_9.png 1355w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
-  &lt;/a&gt;
-    &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;음...&lt;/figcaption&gt;
-  &lt;/figure&gt;
-Amp 용으로 style 잡는게 좀 까다로웠다 ( sass 방식이 왜 안돼 ... 하나하나 분석하다가 이건 도저히 아니다 싶었다. )&lt;/p&gt;
+&lt;p&gt;Amp 용으로 style 잡는게 좀 까다로웠다 ( sass 방식이 왜 안돼 ... 하나하나 분석하다가 이건 도저히 아니다 싶었다. )&lt;/p&gt;
 &lt;p&gt;AMP는 &lt;code class=&quot;language-text&quot;&gt;&amp;lt;style amp-custom&gt;&lt;/code&gt; 단 하나만 허용&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;모든 사용자 정의 스타일은 &lt;code class=&quot;language-text&quot;&gt;&amp;lt;head&gt;&lt;/code&gt; 안의 &lt;code class=&quot;language-text&quot;&gt;&amp;lt;style amp-custom&gt;&lt;/code&gt; 안에 작성해야 함.&lt;/li&gt;
@@ -408,30 +395,48 @@ Amp 용으로 style 잡는게 좀 까다로웠다 ( sass 방식이 왜 안돼 ..
 &lt;p&gt;CSS 속성은 inline 스타일로 작성해야 함. ( CSS-in-JS 방식은 사용 불가 )&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;code class=&quot;language-text&quot;&gt;&amp;lt;style amp-custom&gt;&lt;/code&gt; 내부 전체 CSS 크기 합이 75KB (75,000 bytes)를 넘으면 안 됨.&lt;/li&gt;
-&lt;li&gt;초과 시 AMP validation 실패 → 페이지 노출 불가.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
+&lt;li&gt;초과 시 AMP validation 실패 → 페이지 노출 불가.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
-      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/c306e2d8e1c77733995140f1c19e162e/11e78/img_10.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 59.411764705882355%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAAAsTAAALEwEAmpwYAAADFUlEQVR42l2Qy04bBwBFR1Fie8bYBr9mDGN77BnbzMQPwOBAHTABG2xqO5hXDIkNoUQJTaAq0BKCIppm0ypSJXZRFlVVdRcpVdVNpaqbbLrLD7T9llM1jVKpi6OzumdxheLEFQw1hNfpJBpSMONR9H4/RlghEpIxVT/disUnS1l25hMsjofpc/dQSIYoZqKEIjFULcVcKUvG1BEqtQqqHKRHFFEDfsxoiFTYT8jno5SJcHgjz2c3C2zVTNrTcdolDTXgppqPciUdRlajhHWT0/szNMs5hPL8LGEliP3iJYIeF3HFizHgozwU5mA1x1bV5PpkgoUJg+WrGpsVnaGYj/XpFMm4jE/pJ6YnESUXTpcHobZYR4tFqGU11osWBaOf6kiE7ZkoB8sWd2oJrmX6qY3F2W1a7LVM5kdUFj/QCQR78csymm5gs9kQHSLCYM7E4+3j/KMKvz/b5LQ1ysp4hPPdOX44/pCHG1n2l7LstzI83ixwtJZhOjdAyO9BlEQCikwqncHj6cXV40JQIxEu2EX26uP88e0DXj2q82Jvmj+/P+b1NzscrVk83R7jbKvA6a0RPl22GB2UuXDRhiQ58PR6iOhxYskEyoCKUJwqEk+lsDSFX5+u8cuXS/z0+Dp/fXfIm+d7HLfTnLTTfNHN83A9y24zQTEdwm534HSKiKKDgBLAGs4Q1XWEpKWTnygg9Xn5+naZN+e3+PHRAq+/6vLyZJkHDYvPb2Q56wxxuHaZew2DCSvIpfdBEbfbTXY0RyyhIximwUxxhNmcylHD5MVuiZ/Plvjt2Q7P9xvstTLcaZjcbw3ycWuQTkUjLLuxO0ScTgeS9G9US2r45QDC5HCM46UhnrSzHDYT3J0zeLKR56Rd4KiZozMZpTassDoVZrsWp3jZ+zbwz3//IeJ0SYhOCWFtsp/urMZONcG9usnd+iC3qwluzsTplHW6ZZ2Vosrq1AC1MT+yV8LmcPwv6EB8Z2G7nuZgJf92uF426JQNNkoaC3mFYa2P8aSXaxk/q1ejdGeTuF0SdrsNUbS/x/HOdtHO34hAhLjkl0Y9AAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;하아...&apos; title=&apos;&apos; src=&apos;/static/c306e2d8e1c77733995140f1c19e162e/ca1dc/img_10.png&apos; srcset=&apos;/static/c306e2d8e1c77733995140f1c19e162e/e7570/img_10.png 170w,
-/static/c306e2d8e1c77733995140f1c19e162e/f46e7/img_10.png 340w,
-/static/c306e2d8e1c77733995140f1c19e162e/ca1dc/img_10.png 680w,
-/static/c306e2d8e1c77733995140f1c19e162e/02d09/img_10.png 1020w,
-/static/c306e2d8e1c77733995140f1c19e162e/11e78/img_10.png 1027w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/08c8c3426264e11057fe959c06c79ed3/89e0a/img_9.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 58.82352941176471%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAAAsTAAALEwEAmpwYAAADPElEQVR42i3SW0+bBQDG8fdC2vfc921LoaWlK7TQUkqPtAHWwlaBwhhlEAgDOWyBQjlsbN3BZQxHzJybhgUPSzRuMWoMJnqnNyaakBjjjZcaL/RiX8ELb/9mZF/glyfP8wj//fsnL14c88dfP3D82xG//v4Nx8fPeffgLS5VKywuzDEzPcWZoRKZvn7CyRzJXI7iUD+dqRThWCfhaIRoLEJHNIzwz98/c/zLET/+9AWHTx/y9uM9Nm/usHNzk71ahdWLM2TzA7SnsrTEknhCHfjbIqRzGQLhNvzBVgLBFoKhAG1tLQhH33/Js28/46PPD6neusbegxvcf7DDJ0/v8eneOpXpcfoLeRKpNKfao/iCIbynAjSHIzT4fdQ3eXD7PDT53Pj8XoTnX3/Is6+ecPDBPWp3quy/s82t3QqHu6s83JplbeYc1+bHuTyWJxuPEGwN0B0OYLg9mI0uDKeJ4TSw2XVMh4Gwv7fFnbvr3N1d52ptmaWNebY35vjuUZX91Umqk4PcmBulOlFgYThNot1PNuRF1G1IDgeypqFoCqIsUWcVEXZrl9jcmOfi8jR9g2eJZHu4MD7Ck9ocE6U8K+UCBxvn+fjqBJvlDH3RZpoaHCgOg5Zkgkyhl87uNK5wF76uBMLu9QVqV+a4MFUi1p0jnM7QFo9TfL2PdDZOqdjD/eUhHlVKbI+n6O3wIaoamqnS3OKlWOqjt5AmGm+ncDqOsLZ4nsXZYcZGB+jMpGkIteMOthJNRPAH/eieRoq5GG/OFFgZ7sLlMJBs6klnVtGKokhouoyiiZimhlB5Y5Tl2RJXFscIdsXIn84SigQxvR6cPjd6g536JhcT/TFSYR91ooxiaMi6iqzIqLqMYSrYHSqqTUGYmhzk+vIYt5dGGDubpVzsYaQ3hsXhQG90orlMREPHamrIhg2rJGGVZSRFQlEVdEPFNBXq7Qoul4aQSHawUM7z3naZ97fOcXuhyPZ4BtOuYTUNJF3D8gqxyBIW0YrFYj1ZVdaUk4ROp4q3UcfdoCFMlPuZmTzD2tIIl2fPsDI7wNJokkCzE8tLTJR4zSKeXKLuJSiJ1L0CJVXGZqq4G234fXaafQ7+B871mHfcnTfsAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;...&apos; title=&apos;&apos; src=&apos;/static/08c8c3426264e11057fe959c06c79ed3/ca1dc/img_9.png&apos; srcset=&apos;/static/08c8c3426264e11057fe959c06c79ed3/e7570/img_9.png 170w,
+/static/08c8c3426264e11057fe959c06c79ed3/f46e7/img_9.png 340w,
+/static/08c8c3426264e11057fe959c06c79ed3/ca1dc/img_9.png 680w,
+/static/08c8c3426264e11057fe959c06c79ed3/02d09/img_9.png 1020w,
+/static/08c8c3426264e11057fe959c06c79ed3/89e0a/img_9.png 1355w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
   &lt;/a&gt;
     &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;하아...&lt;/figcaption&gt;
-  &lt;/figure&gt;
-미지원 CSS 속성/기능&lt;/p&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;...&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;미지원 CSS 속성/기능&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;@import 사용 불가 ❌ &lt;/li&gt;
 &lt;li&gt;!important 사용 불가 ❌&lt;/li&gt;
 &lt;li&gt;position: fixed는 예외적으로 일부 AMP 컴포넌트에서만 허용 (ex. &lt;amp-sidebar&gt;)&lt;/li&gt;
 &lt;li&gt;animation, keyframes는 제한적으로만 허용됨 &lt;/li&gt;
 &lt;li&gt;filter, backdrop-filter, mix-blend-mode 등 일부 CSS 속성 사용 불가.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/c306e2d8e1c77733995140f1c19e162e/11e78/img_10.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 59.411764705882355%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAAAsTAAALEwEAmpwYAAADFUlEQVR42l2Qy04bBwBFR1Fie8bYBr9mDGN77BnbzMQPwOBAHTABG2xqO5hXDIkNoUQJTaAq0BKCIppm0ypSJXZRFlVVdRcpVdVNpaqbbLrLD7T9llM1jVKpi6OzumdxheLEFQw1hNfpJBpSMONR9H4/RlghEpIxVT/disUnS1l25hMsjofpc/dQSIYoZqKEIjFULcVcKUvG1BEqtQqqHKRHFFEDfsxoiFTYT8jno5SJcHgjz2c3C2zVTNrTcdolDTXgppqPciUdRlajhHWT0/szNMs5hPL8LGEliP3iJYIeF3HFizHgozwU5mA1x1bV5PpkgoUJg+WrGpsVnaGYj/XpFMm4jE/pJ6YnESUXTpcHobZYR4tFqGU11osWBaOf6kiE7ZkoB8sWd2oJrmX6qY3F2W1a7LVM5kdUFj/QCQR78csymm5gs9kQHSLCYM7E4+3j/KMKvz/b5LQ1ysp4hPPdOX44/pCHG1n2l7LstzI83ixwtJZhOjdAyO9BlEQCikwqncHj6cXV40JQIxEu2EX26uP88e0DXj2q82Jvmj+/P+b1NzscrVk83R7jbKvA6a0RPl22GB2UuXDRhiQ58PR6iOhxYskEyoCKUJwqEk+lsDSFX5+u8cuXS/z0+Dp/fXfIm+d7HLfTnLTTfNHN83A9y24zQTEdwm534HSKiKKDgBLAGs4Q1XWEpKWTnygg9Xn5+naZN+e3+PHRAq+/6vLyZJkHDYvPb2Q56wxxuHaZew2DCSvIpfdBEbfbTXY0RyyhIximwUxxhNmcylHD5MVuiZ/Plvjt2Q7P9xvstTLcaZjcbw3ycWuQTkUjLLuxO0ScTgeS9G9US2r45QDC5HCM46UhnrSzHDYT3J0zeLKR56Rd4KiZozMZpTassDoVZrsWp3jZ+zbwz3//IeJ0SYhOCWFtsp/urMZONcG9usnd+iC3qwluzsTplHW6ZZ2Vosrq1AC1MT+yV8LmcPwv6EB8Z2G7nuZgJf92uF426JQNNkoaC3mFYa2P8aSXaxk/q1ejdGeTuF0SdrsNUbS/x/HOdtHO34hAhLjkl0Y9AAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;...!&apos; title=&apos;&apos; src=&apos;/static/c306e2d8e1c77733995140f1c19e162e/ca1dc/img_10.png&apos; srcset=&apos;/static/c306e2d8e1c77733995140f1c19e162e/e7570/img_10.png 170w,
+/static/c306e2d8e1c77733995140f1c19e162e/f46e7/img_10.png 340w,
+/static/c306e2d8e1c77733995140f1c19e162e/ca1dc/img_10.png 680w,
+/static/c306e2d8e1c77733995140f1c19e162e/02d09/img_10.png 1020w,
+/static/c306e2d8e1c77733995140f1c19e162e/11e78/img_10.png 1027w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;...!&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;AMP 구성요소의 스타일링&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code class=&quot;language-text&quot;&gt;&amp;lt;amp-img&gt;&lt;/code&gt;,&lt;code class=&quot;language-text&quot;&gt;&amp;lt;amp-carousel&gt;&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;&amp;lt;amp-sidebar&gt;&lt;/code&gt; 등 AMP 컴포넌트는 반드시 지정된 방식으로 스타일링해야 함.&lt;/li&gt;
+&lt;li&gt;특히 layout=&quot;responsive&quot; 등 AMP layout 시스템에 맞는 설정 필수.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
@@ -445,11 +450,6 @@ Amp 용으로 style 잡는게 좀 까다로웠다 ( sass 방식이 왜 안돼 ..
     &lt;/span&gt;
     &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;.....&lt;/figcaption&gt;
   &lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;AMP 구성요소의 스타일링&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;code class=&quot;language-text&quot;&gt;&amp;lt;amp-img&gt;&lt;/code&gt;,&lt;code class=&quot;language-text&quot;&gt;&amp;lt;amp-carousel&gt;&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;&amp;lt;amp-sidebar&gt;&lt;/code&gt; 등 AMP 컴포넌트는 반드시 지정된 방식으로 스타일링해야 함.&lt;/li&gt;
-&lt;li&gt;특히 layout=&quot;responsive&quot; 등 AMP layout 시스템에 맞는 설정 필수.&lt;/li&gt;
-&lt;/ul&gt;
 &lt;p&gt;.&lt;br&gt;
 .&lt;br&gt;
 .&lt;br&gt;
@@ -469,7 +469,7 @@ Amp 용으로 style 잡는게 좀 까다로웠다 ( sass 방식이 왜 안돼 ..
     &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;이게 맞아.&lt;/figcaption&gt;
   &lt;/figure&gt;&lt;/p&gt;
 &lt;hr&gt;
-&lt;h2&gt;대망의 1차 배포 이후&lt;/h2&gt;
+&lt;h2&gt;G 선생의 Style 도움으로 대망의 1차 배포 성공 🏰&lt;/h2&gt;
 &lt;p&gt;검색 색인과 AMP 페이지 1차 반영 이후 구글 유입이 조금씩이나만 바로 잡혀가는 모습이 너무 보기 좋다.&lt;/p&gt;
 &lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
