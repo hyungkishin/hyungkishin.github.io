@@ -5,25 +5,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c0bd35de-7468-49e2-b548-8c68a7e74b28" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase1/img_6.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase1/img_7.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase1/img_8.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase2/img_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase2/img_3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase2/img_4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase2/img_5.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase2/img_6.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase2/img_7.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase3/img_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase3/img_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase3/img_3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase3/index.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase4/img.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase4/index.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase1/img_9.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase2/img_10.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase2/img_11.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase2/img_8.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase2/img_9.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase3/img.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contents/posts/frontend/performance/phase1/img_3.png" beforeDir="false" afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase1/img_3.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contents/posts/frontend/performance/phase1/img_2.png" beforeDir="false" afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase1/img_2.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/contents/posts/frontend/performance/phase1/index.md" beforeDir="false" afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase1/index.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/contents/posts/frontend/performance/phase2/index.md" beforeDir="false" afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase2/index.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contents/posts/frontend/performance/phase3/index.md" beforeDir="false" afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase3/index.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contents/posts/frontend/performance/phase4/index.md" beforeDir="false" afterPath="$PROJECT_DIR$/contents/posts/frontend/performance/phase4/index.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -139,7 +132,7 @@
       <option name="presentableId" value="Default" />
       <updated>1711889962457</updated>
       <workItem from="1711889963533" duration="9050000" />
-      <workItem from="1746424834396" duration="51726000" />
+      <workItem from="1746424834396" duration="57348000" />
     </task>
     <servers />
   </component>

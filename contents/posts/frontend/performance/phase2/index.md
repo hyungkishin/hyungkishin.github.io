@@ -49,6 +49,8 @@ Next.js에서 AMP를 적용할 때도 이러한 제한이 그대로 적용된다
 
 > 전체 AMP 검증은 [AMP Validator](https://validator.ampproject.org/) 를 통해 실시간 확인 가능
 
+---
+
 ## 🗂️ 디렉팅 구조 전략
 pages 디렉토리 를 기반으로 amp 디렉토리를 생성하고, 하위에 slug 페이지를 작성한다.
 
@@ -59,7 +61,7 @@ pages 디렉토리 를 기반으로 amp 디렉토리를 생성하고, 하위에 
 
 middleware.ts 에서 /amp 로 시작하는 URL을 감지하여, 해당 페이지를 AMP 페이지로 리다이렉트 하도록 설정.
 
-![img.png](img.png)
+![디렉토리 뼈대](img.png)
 ```text
  
 📁 src
@@ -83,8 +85,6 @@ pages 만 UI 뼈대를 만든 후 공통화 컴포넌트화 시키면 되겠다.
 
 ![기사 본문 상단 구조](img_1.png)
 
-( 그외 푸터 등등 모두 동일 ) 
-
 > AMP는 제약은 많지만, 뉴스 도메인에선 여전히 유의미하다
 > 
 > React hook이나 script 사용은 어렵지만 기본 콘텐츠 위주 뉴스 페이지엔 큰 무리는 없다
@@ -105,36 +105,44 @@ pages 만 UI 뼈대를 만든 후 공통화 컴포넌트화 시키면 되겠다.
 
 👉 **총 CSS + 인라인 스타일 합산이 75KB를 넘지 않도록** 주의해야 한다 - [ 관련 공식문서 ](https://amp.dev/documentation/guides-and-tutorials/learn/spec/amphtml)
 
-## ⚡️ 대략 적인 AMP 페이지 구조
+---
+
+## ⚡️ 대략 적인 AMP 페이지 구조 ( 보여줄 수 없어서 추상적으로 대체 )
 ```html
 <!DOCTYPE html>
 <html ⚡>
+
+  <!-- 공통 대상 Header -->
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
-    <link rel="canonical" href="https://example.com/amp">
+    <link rel="canonical" href="원본 URL 잘 집어넣어야 합니다.">
     <meta name="amp-google-client-id-api" content="googleanalytics">
     
-    <!--  공통 Style  -->
+    <!--  공통 대상 : Style  -->
     <style amp-custom>
-      /* AMP 전용 CSS */
+      /* AMP 전용 CSS 들어올 자리 ( 용량 50KB 안넘기게 살살 다뤄줘 ) */
     </style>
     
   </head>
+  
   <body>
-    <!--  공통 헤더 check  -->
-    <header>AMP Header seo meta 태그 등 들어갈 자리</header>
     
-    <!--  기사 본문  -->
+    <!--  공통 대상 : 뉴스 기사 Body -->
     <main>
+      <!--  공통 대상 : 예쁘게 컴포넌트 화 -->
       <article>
         기사 본문이 들어갈 자리
       </article>
+      
+      <!--  갖가지 광고 예쁘게 공통으로 말아 -->
       <ad>
         광고 들어갈 자리 Lazy Load 적용 대상
       </ad>
+      
     </main>
     
+    <!--  공통 대상 : footer 야 뭐...  -->
     <footer>푸터 들어갈 자리</footer>
   </body>
 </html>
@@ -142,21 +150,57 @@ pages 만 UI 뼈대를 만든 후 공통화 컴포넌트화 시키면 되겠다.
 
 ---
 
-## 페이즈 1 오픈 결과
-검색 색인과 어제 AMP 페이지 1차 반영 이후 구글 유입이 조금씩이나만 바로 잡혀가는 모습이다.
+## AMP 규칙에 맞는 Style 
 
-![img_4.png](img_4.png)
+![음...](img_9.png)
+Amp 용으로 style 잡는게 좀 까다로웠다 ( sass 방식이 왜 안돼 ... 하나하나 분석하다가 이건 도저히 아니다 싶었다. )
 
-![1차 적용 완료](img_2.png)
+AMP는 `<style amp-custom>` 단 하나만 허용
+- 모든 사용자 정의 스타일은 `<head>` 안의 `<style amp-custom>` 안에 작성해야 함.
+- `<style>` 태그가 두 개 이상 있으면 AMP 유효성 검사에서 실패. ( 별 ... )
+- 총 CSS 용량은 75KB 이하
+- CSS 속성은 inline 스타일로 작성해야 함. ( CSS-in-JS 방식은 사용 불가 )
+  - `<style amp-custom>` 내부 전체 CSS 크기 합이 75KB (75,000 bytes)를 넘으면 안 됨.
+  - 초과 시 AMP validation 실패 → 페이지 노출 불가.
 
 
-구글 서치 콘솔에서 AMP 페이지 색인 상태를 확인할 수 있다. 그런데...  
-저 빨간건 ... amp validator 에서 검증이 안된다는 뜻이다.  
-( 구글 서치 콘솔에서 AMP 페이지 색인 상태를 확인할 수 있다. )
+![하아...](img_10.png)
+미지원 CSS 속성/기능
+- @import 사용 불가 ❌ 
+- !important 사용 불가 ❌
+- position: fixed는 예외적으로 일부 AMP 컴포넌트에서만 허용 (ex. <amp-sidebar>)
+- animation, keyframes는 제한적으로만 허용됨 
+- filter, backdrop-filter, mix-blend-mode 등 일부 CSS 속성 사용 불가.
 
-아니 유효하지 않은 페이지가 17만이라고 ...??? 뭐때문인지 ....
+![.....](img_11.png)
 
-![img_5.png](img_5.png)
+AMP 구성요소의 스타일링
+- `<amp-img>`,`<amp-carousel>`, `<amp-sidebar>` 등 AMP 컴포넌트는 반드시 지정된 방식으로 스타일링해야 함.
+- 특히 layout="responsive" 등 AMP layout 시스템에 맞는 설정 필수.
+
+.    
+.  
+.  
+.  
+.  
+.  
+.  
+
+![이게 맞아.](img_8.png)
+
+---
+
+## 대망의 1차 배포 이후
+검색 색인과 AMP 페이지 1차 반영 이후 구글 유입이 조금씩이나만 바로 잡혀가는 모습이 너무 보기 좋다.
+
+![어서오세요 :)](img_4.png)
+
+![google search console](img_2.png)
+
+구글 Search Console 에서 AMP 메뉴를 확인하니, 저 빨간건 ... amp validator 에서 검증이 안된다는 뜻이다.  
+아니 유효하지 않은 페이지가 17만 이라고 ...??? 뭐때문인지 ....
+
+![안되는 이유가 있지..](img_5.png)
 
 오 이런 ㅠㅠ 누락된 허용하지 않은 태그, 미디어 속성의 태그에 src 가 https 가 아닌 http 가 존재하거나,  
 <기사이름> 이런식의 태그가 아닌데 태그라고 오 인식하는 문제가 있었다.  
@@ -245,8 +289,8 @@ const { width, height } = imageSize(buffer);
 - 이미지 수가 많아질수록 병목 현상 발생
 ---
 
-## 배포는 연휴 끝나고 ...!
-![가보자.](img_7.png)
+## 보정한 amp 디테일 배포는 연휴 끝나고 진행 ㄱㄱ
+![그래 까보자.](img_7.png)
 
 ## 마무리 
 AMP 페이지 는 성능과 사용자 경험을 고려할 때 여전히 유용한 기술이다.  
