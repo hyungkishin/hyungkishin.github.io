@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Tue, 06 May 2025 07:36:02 GMT</lastBuildDate><item><title><![CDATA[퍼포먼스 최적화 를 향해 - 2부]]></title><description><![CDATA[들어가며 진짜 많이 온것 같으면서도 미미한것 같기도하다.
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Tue, 06 May 2025 07:38:19 GMT</lastBuildDate><item><title><![CDATA[퍼포먼스 최적화 를 향해 - 2부]]></title><description><![CDATA[들어가며 진짜 많이 온것 같으면서도 미미한것 같기도하다.
 PC / MO 의 성능 최적화가 얼마 남지 않았다. CLS 와 TBT , 그리고 FCP…]]></description><link>https://hyungkishin.github.io/phase4/</link><guid isPermaLink="false">https://hyungkishin.github.io/phase4/</guid><pubDate>Sat, 03 May 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;들어가며&lt;/h2&gt;
 &lt;p&gt;진짜 많이 온것 같으면서도 미미한것 같기도하다.
 PC / MO 의 성능 최적화가 얼마 남지 않았다.&lt;/p&gt;
@@ -536,105 +536,7 @@ jsdom도 있었지만, 성능과 문법의 직관성에서 cheerio가 더 낫다
 &lt;/li&gt;
 &lt;li&gt;성능과 사용자 경험을 고려할 때 여전히 유용한 기술이다. ( 도메인 특성에 맞게 사용함이 핵심. )&lt;/li&gt;
 &lt;li&gt;제약을 잘 이해하고, 필요한 라이브러리를 적절히 활용해야 한다.&lt;/li&gt;
-&lt;/ul&gt;</content:encoded></item><item><title><![CDATA[AMP]]></title><description><![CDATA[📝 Next.js + Docker + ECR + CloudFront 실전 배포 자동화 배경 회사는 언론사(미디어)라 AMP 지원 필수 였다. 검색엔진 최적화(SEO)와 트래픽 최적화가 필요하게 되어서 배포 진행중 갑자기 문제가 발생했다. App…]]></description><link>https://hyungkishin.github.io/docker-deploy/</link><guid isPermaLink="false">https://hyungkishin.github.io/docker-deploy/</guid><pubDate>Thu, 17 Apr 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;📝 Next.js + Docker + ECR + CloudFront 실전 배포 자동화&lt;/h1&gt;
-&lt;h2&gt;배경&lt;/h2&gt;
-&lt;p&gt;회사는 언론사(미디어)라 AMP 지원 필수 였다.&lt;/p&gt;
-&lt;p&gt;검색엔진 최적화(SEO)와 트래픽 최적화가 필요하게 되어서 배포 진행중 갑자기 문제가 발생했다.&lt;/p&gt;
-&lt;p&gt;App Router + Pages Router 혼용 프로젝트&lt;/p&gt;
-&lt;p&gt;Docker + ECR + EC2 서버기반 서비스 운영&lt;/p&gt;
-&lt;p&gt;CDN은 AWS CloudFront 사용 중&lt;/p&gt;
-&lt;h2&gt;문제 상황 발생&lt;/h2&gt;
-&lt;p&gt;기존 수동 Docker Build + Push + 서버 재배포 과정 복잡&lt;/p&gt;
-&lt;p&gt;서버 Docker OverlayFS 스토리지 드라이버 과부하로 터짐&lt;/p&gt;
-&lt;p&gt;에러: &quot;error creating overlay mount... no such file or directory&quot;&lt;/p&gt;
-&lt;p&gt;디스크 I/O 병목 발생 → 캐시 레이어 비정상화&lt;/p&gt;
-&lt;p&gt;빌드 중 중간 레이어가 깨져서 docker-compose up 실패&lt;/p&gt;
-&lt;p&gt;CDN 캐시 퍼지(purge)도 수동이라&lt;/p&gt;
-&lt;p&gt;구버전 CSS + 신버전 HTML 섞여 로딩 → 스타일 깨짐 &quot;&quot;&quot;&lt;/p&gt;
-&lt;ol start=&quot;3&quot;&gt;
-&lt;li&gt;해결 목표
-&quot;&quot;&quot;text&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;Dockerfile 구조 최적화 (멀티 스테이지 + 퍼미션 오류 제거)&lt;/p&gt;
-&lt;p&gt;배포 자동화 스크립트 작성 (Build → Push → 서버 업데이트)&lt;/p&gt;
-&lt;p&gt;CloudFront 캐시 퍼지 스크립트 작성&lt;/p&gt;
-&lt;p&gt;Slack 배포 결과 알림&lt;/p&gt;
-&lt;p&gt;Docker OverlayFS 장애 대비 (항상 clean build) &quot;&quot;&quot;&lt;/p&gt;
-&lt;h2&gt;Dockerfile&lt;/h2&gt;
-&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;text&quot;&gt;&lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;1. 기본 베이스 이미지
-FROM node:20.19.0-alpine AS base
-
-ARG NEXT_PUBLIC_ENV ARG NODE_ENV
-
-RUN apk --no-cache add tzdata &amp;amp;&amp;amp;
-cp /usr/share/zoneinfo/Asia/Seoul /etc/localtime &amp;amp;&amp;amp;
-echo &quot;Asia/Seoul&quot; &gt; /etc/timezone
-
-2. 의존성 설치
-FROM base AS deps WORKDIR /app COPY package.json pnpm-lock.yaml ./ RUN corepack enable &amp;amp;&amp;amp; corepack prepare pnpm@10.9.0 --activate &amp;amp;&amp;amp; pnpm install --frozen-lockfile
-
-3. 앱 빌드
-FROM base AS builder WORKDIR /app COPY --from=deps /app/node_modules ./node_modules COPY . . RUN corepack enable &amp;amp;&amp;amp; corepack prepare pnpm@10.9.0 --activate
-
-ENV NODE_ENV=production ENV NEXT_TELEMETRY_DISABLED=1 ENV CSS_MODULES_HASH_PREFIX=stable_ ENV OUTPUT=standalone
-
-ARG NEXT_PUBLIC_ENV RUN if [ &quot;$NEXT_PUBLIC_ENV&quot; = &quot;production&quot; ]; then
-cp ./env/.env.production .env.production;
-elif [ &quot;$NEXT_PUBLIC_ENV&quot; = &quot;staging&quot; ]; then
-cp ./env/.env.staging .env.production;
-elif [ &quot;$NEXT_PUBLIC_ENV&quot; = &quot;development&quot; ]; then
-cp ./env/.env.development .env.production;
-else
-cp ./env/.env.test .env.production;
-fi
-
-RUN pnpm run build&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;h2&gt;런타임&lt;/h2&gt;
-&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;text&quot;&gt;&lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;FROM base AS runner WORKDIR /app
-
-RUN npm install -g pm2 RUN addgroup --system --gid 1001 nodejs &amp;amp;&amp;amp; adduser --system --uid 1001 nextjs
-
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static COPY --from=builder --chown=nextjs:nodejs /app/public ./public COPY --from=builder --chown=nextjs:nodejs /app/public/fonts ./public/fonts COPY --from=builder --chown=nextjs:nodejs /app/.next/server/pages/amp ./.next/server/pages/amp
-
-RUN mkdir -p .next/static/media &amp;amp;&amp;amp; chown -R nextjs:nodejs .next
-
-USER nextjs
-
-EXPOSE 3000 ENV PORT=3000 ENV HOSTNAME=&quot;0.0.0.0&quot;
-
-CMD [&quot;pm2-runtime&quot;, &quot;start&quot;, &quot;server.js&quot;, &quot;-i&quot;, &quot;2&quot;, &quot;--max-memory-restart&quot;, &quot;1536M&quot;] &quot;&quot;&quot;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;h2&gt;배포 자동화 스크립트 (deploy.sh)&lt;/h2&gt;
-&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;text&quot;&gt;&lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;#!/bin/bash
-
-set -e
-
-AWS_PROFILE=default AWS_REGION=ap-northeast-2 AWS_ECR_REPOSITORY=537124952818.dkr.ecr.ap-northeast-2.amazonaws.com/kthome-prd-frontend-ecr CLOUDFRONT_DISTRIBUTION_ID=YOUR_CLOUDFRONT_ID SLACK_WEBHOOK_URL=YOUR_SLACK_WEBHOOK_URL NEXT_PUBLIC_ENV=production SERVER_IP=YOUR_SERVER_IP DOCKER_COMPOSE_DIR=/home/ubuntu/deploy-folder
-
-GIT_COMMIT_HASH=$(git rev-parse --short HEAD) IMAGE_TAG=$GIT_COMMIT_HASH
-
-echo &quot;🚀 배포 시작 (태그: $IMAGE_TAG)&quot;
-
-docker build --build-arg NEXT_PUBLIC_ENV=$NEXT_PUBLIC_ENV -t $AWS_ECR_REPOSITORY:$IMAGE_TAG . aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY docker push $AWS_ECR_REPOSITORY:$IMAGE_TAG
-
-ssh ubuntu@$SERVER_IP &amp;lt;&amp;lt; EOF cd $DOCKER_COMPOSE_DIR sed -i &quot;s|image: .*|image: $AWS_ECR_REPOSITORY:$IMAGE_TAG|&quot; docker-compose.yml docker-compose pull docker-compose up -d --remove-orphans EOF
-
-aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths
-&quot;/_next/data/&quot; &quot;/_next/static/&quot; &quot;/favicon.ico&quot; &quot;/robots.txt&quot; &quot;/sitemap.xml&quot; &quot;/index.html&quot;
-
-curl -X POST -H &apos;Content-type: application/json&apos; --data &quot;{ &quot;text&quot;: &quot;✅ 배포 완료: $IMAGE_TAG&quot;, &quot;attachments&quot;: [ { &quot;color&quot;: &quot;#36a64f&quot;, &quot;fields&quot;: [ { &quot;title&quot;: &quot;배포 서버&quot;, &quot;value&quot;: &quot;$SERVER_IP&quot;, &quot;short&quot;: true }, { &quot;title&quot;: &quot;태그&quot;, &quot;value&quot;: &quot;$IMAGE_TAG&quot;, &quot;short&quot;: true } ] } ] }&quot; $SLACK_WEBHOOK_URL
-
-echo &quot;✅ 전체 배포 완료!&quot;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;h2&gt;Docker OverlayFS 이슈 대응 방법&lt;/h2&gt;
-&lt;p&gt;Docker Build 시 --no-cache 옵션 사용 습관화&lt;/p&gt;
-&lt;p&gt;오래된 dangling 이미지 주기적 제거 (ex: docker system prune -af)&lt;/p&gt;
-&lt;p&gt;디스크 공간 부족 대비 → EBS 확장 정책 준비&lt;/p&gt;
-&lt;p&gt;대규모 프로젝트 빌드 시 layer 수 줄이기 &quot;&quot;&quot;&lt;/p&gt;
-&lt;h2&gt;최종 정리&lt;/h2&gt;
-&lt;p&gt;배포 자동화 성공&lt;/p&gt;
-&lt;p&gt;서버 깨짐(overlay2 디스크 에러) 복구&lt;/p&gt;
-&lt;p&gt;AMP SEO + 일반 SEO 대응 완비&lt;/p&gt;
-&lt;p&gt;Slack 실시간 배포 알림 연동&lt;/p&gt;
-&lt;p&gt;ECR + EC2 + CloudFront 캐시 퍼지 자동화 완료&lt;/p&gt;</content:encoded></item><item><title><![CDATA[🗞️ 한 달간의 뉴스 사이트 프론트 성능 최적화✨]]></title><description><![CDATA[들어가며 현재 한 언론사에서 뉴스 웹사이트 운영과 성능 최적화를 진행하고 있다.   뉴스 기사의 검색 노출 최적화는 단순한 트래픽을 넘어 광고 수익과 직결된다. 요즘 대부분의 사용자는 뉴스를 포털보다는 검색을 통해 소비하며,
+&lt;/ul&gt;</content:encoded></item><item><title><![CDATA[🗞️ 한 달간의 뉴스 사이트 프론트 성능 최적화✨]]></title><description><![CDATA[들어가며 현재 한 언론사에서 뉴스 웹사이트 운영과 성능 최적화를 진행하고 있다.   뉴스 기사의 검색 노출 최적화는 단순한 트래픽을 넘어 광고 수익과 직결된다. 요즘 대부분의 사용자는 뉴스를 포털보다는 검색을 통해 소비하며,
 특히 모바일 사용자의 7…]]></description><link>https://hyungkishin.github.io/phase1/</link><guid isPermaLink="false">https://hyungkishin.github.io/phase1/</guid><pubDate>Thu, 17 Apr 2025 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 609px; &apos;&gt;
       &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/867c15d6bfc3e5df719c65d8a322adb5/71467/img.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
