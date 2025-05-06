@@ -1,4 +1,542 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Tue, 06 May 2025 00:28:41 GMT</lastBuildDate><item><title><![CDATA[AMP]]></title><description><![CDATA[📝 Next.js + Docker + ECR + CloudFront 실전 배포 자동화 배경 회사는 언론사(미디어)라 AMP 지원 필수 였다. 검색엔진 최적화(SEO)와 트래픽 최적화가 필요하게 되어서 배포 진행중 갑자기 문제가 발생했다. App…]]></description><link>https://hyungkishin.github.io/docker-deploy/</link><guid isPermaLink="false">https://hyungkishin.github.io/docker-deploy/</guid><pubDate>Thu, 17 Apr 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;📝 Next.js + Docker + ECR + CloudFront 실전 배포 자동화&lt;/h1&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Tue, 06 May 2025 07:36:02 GMT</lastBuildDate><item><title><![CDATA[퍼포먼스 최적화 를 향해 - 2부]]></title><description><![CDATA[들어가며 진짜 많이 온것 같으면서도 미미한것 같기도하다.
+PC / MO 의 성능 최적화가 얼마 남지 않았다. CLS 와 TBT , 그리고 FCP…]]></description><link>https://hyungkishin.github.io/phase4/</link><guid isPermaLink="false">https://hyungkishin.github.io/phase4/</guid><pubDate>Sat, 03 May 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;들어가며&lt;/h2&gt;
+&lt;p&gt;진짜 많이 온것 같으면서도 미미한것 같기도하다.
+PC / MO 의 성능 최적화가 얼마 남지 않았다.&lt;/p&gt;
+&lt;p&gt;CLS 와 TBT , 그리고 FCP 를 만점 채운 이 기분은 정말 이루 말할 수 없구먼 ㅠ&lt;br&gt;
+( 고수들이 보기엔 작은거라고 생각 할 수도 ㅎㅎ )&lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/cdc73851f8f85694a1b1691b484b0a2b/acc8c/img.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 75.88235294117648%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAPCAYAAADkmO9VAAAACXBIWXMAAAsTAAALEwEAmpwYAAABoklEQVR42pWT3Y7aMBCFef+H6GVfoM/QSr3pXdtlt8tCCiKQgBMn8V9sf5UTNkspoO1YJ4rkmeMzf7MYI+l4eUDlK9R2hdpldHmGyjOsFNjmDUYe0VVJsIoYYYg/w4yTRdOwfXkke/rBcv59wurpJ9nzA9mvh+F/vXik2q8JpuOaTYScXvDeD2B6NYwII4ghOZ9wjxA46oriuKYQ+eB/PeS+zV6DaquYVwuoFgSxwXVqckqKVacwztH3DqUUzrn7Cj2w1Ds29TO7ZgMhTgpTsGxbPn/5yoePn1gtX+j7/jZhqtWQsqz4ls3Jiu1Y1gvn6njk9zrH+3A75fRpO8t631CWB+rywH4vmOeRjbge9DoiNwm9j4hKY61GNYLWaAqp6fTfaaUihHi/VQOhNWYo9nstNckYc1XlQNhYRVmVyEZO3ZvSCgElJY2UdF03zGIiTH43CV3wiE6gjSakAb5YJ1tVmLYdSU735838h1AHx0ZsqZuacNFBFz1lK2ibdlR4h+xtbPqeQ5ljrJnKf25J9bs3ZQhPRS4KvHXjlp6l+7+r9wccVJgeXeTWNgAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;그래 이거지&apos; title=&apos;&apos; src=&apos;/static/cdc73851f8f85694a1b1691b484b0a2b/ca1dc/img.png&apos; srcset=&apos;/static/cdc73851f8f85694a1b1691b484b0a2b/e7570/img.png 170w,
+/static/cdc73851f8f85694a1b1691b484b0a2b/f46e7/img.png 340w,
+/static/cdc73851f8f85694a1b1691b484b0a2b/ca1dc/img.png 680w,
+/static/cdc73851f8f85694a1b1691b484b0a2b/acc8c/img.png 989w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;그래 이거지&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;h2&gt;작성중&lt;/h2&gt;</content:encoded></item><item><title><![CDATA[퍼포먼스 최적화 를 향해 - 1부]]></title><description><![CDATA[박살난 퍼포먼스로 다시 살리자 ✅ 개선 목표 PC / MO 페이지의 Core Web Vitals 점수 충족 이미지 / 폰트 최적화 광고 로딩 구조 재설계 불필요한 JS 다이어트 🖇️ 주요 적용 항목 항목 적용 방법 코드 스플리팅 ,  SSR/ISR…]]></description><link>https://hyungkishin.github.io/phase3/</link><guid isPermaLink="false">https://hyungkishin.github.io/phase3/</guid><pubDate>Sat, 03 May 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;박살난 퍼포먼스로 다시 살리자&lt;/h2&gt;
+&lt;p&gt;✅ 개선 목표&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;PC / MO 페이지의 Core Web Vitals 점수 충족&lt;/li&gt;
+&lt;li&gt;이미지 / 폰트 최적화&lt;/li&gt;
+&lt;li&gt;광고 로딩 구조 재설계&lt;/li&gt;
+&lt;li&gt;
+&lt;h2&gt;불필요한 JS 다이어트&lt;/h2&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;🖇️ 주요 적용 항목&lt;/h2&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;항목&lt;/th&gt;
+&lt;th&gt;적용 방법&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;코드 스플리팅&lt;/td&gt;
+&lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;next/dynamic&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;React.lazy&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;SSR/ISR 최적화&lt;/td&gt;
+&lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;dynamic()&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;revalidate&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;cache&lt;/code&gt; 옵션 조정&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;이미지 최적화&lt;/td&gt;
+&lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;next/image&lt;/code&gt;, Skeleton UI, CDN w= 자동화&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;폰트 최적화&lt;/td&gt;
+&lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;next/font&lt;/code&gt;, preload&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Web Vitals 분석&lt;/td&gt;
+&lt;td&gt;Lighthouse, Vercel Speed Insights&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;hr&gt;
+&lt;h2&gt;⚡ Core Web Vitals 별 개선 요약&lt;/h2&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;지표명 (약어)&lt;/th&gt;
+&lt;th&gt;설명&lt;/th&gt;
+&lt;th&gt;일상 비유&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;CLS&lt;/strong&gt; (Cumulative Layout Shift)&lt;/td&gt;
+&lt;td&gt;화면이 로딩 중 갑자기 밀리거나 이동한 정도&lt;/td&gt;
+&lt;td&gt;버튼을 누르려는데 갑자기 밑으로 밀려서 광고 클릭한 상황 😡&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;SI&lt;/strong&gt; (Speed Index)&lt;/td&gt;
+&lt;td&gt;화면이 시각적으로 완성되는 속도&lt;/td&gt;
+&lt;td&gt;영화 시작할 때 화면이 빠르게 차오르는 느낌&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;FCP&lt;/strong&gt; (First Contentful Paint)&lt;/td&gt;
+&lt;td&gt;첫 텍스트나 이미지가 뜨는 시점&lt;/td&gt;
+&lt;td&gt;영화 타이틀이 처음 뜨는 순간&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;LCP&lt;/strong&gt; (Largest Contentful Paint)&lt;/td&gt;
+&lt;td&gt;메인 이미지나 큰 텍스트가 완전히 보일 때&lt;/td&gt;
+&lt;td&gt;표지부터 다 읽고 본문 읽을 준비 완료&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;TBT&lt;/strong&gt; (Total Blocking Time)&lt;/td&gt;
+&lt;td&gt;JS가 렌더링을 막은 총 시간&lt;/td&gt;
+&lt;td&gt;문 열고 들어가려는데 안에서 JS 처리 중이라 안 열리는 상황&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;hr&gt;
+&lt;h2&gt;먼저 JS 번들 부터 정검 해보자&lt;/h2&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;bash&quot;&gt;&lt;pre class=&quot;language-bash&quot;&gt;&lt;code class=&quot;language-bash&quot;&gt;$ &lt;span class=&quot;token function&quot;&gt;yarn&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;add&lt;/span&gt; &lt;span class=&quot;token parameter variable&quot;&gt;-D&lt;/span&gt; @next/bundle-analyzer&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;그런다음 next.config.js 에서 analyzer 를 활성화.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;js&quot;&gt;&lt;pre class=&quot;language-js&quot;&gt;&lt;code class=&quot;language-js&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;import&lt;/span&gt; createBundleAnalyzer &lt;span class=&quot;token keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;@next/bundle-analyzer&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;token comment&quot;&gt;// ...&lt;/span&gt;
+
+&lt;span class=&quot;token keyword&quot;&gt;const&lt;/span&gt; withBundleAnalyzer &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;createBundleAnalyzer&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;token literal-property property&quot;&gt;enabled&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; process&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;env&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token constant&quot;&gt;ANALYZE&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;true&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;token literal-property property&quot;&gt;openAnalyzer&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token boolean&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;token comment&quot;&gt;// ... &lt;/span&gt;
+
+&lt;span class=&quot;token keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;withBundleAnalyzer&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;nextConfig&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;package.json script 부분역시, 명령어 활성화 필요. &lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;js&quot;&gt;&lt;pre class=&quot;language-js&quot;&gt;&lt;code class=&quot;language-js&quot;&gt;&lt;span class=&quot;token string-property property&quot;&gt;&quot;script&quot;&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+ &lt;span class=&quot;token operator&quot;&gt;...&lt;/span&gt; 
+  &lt;span class=&quot;token string-property property&quot;&gt;&quot;analyze&quot;&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;ANALYZE=true next build&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; 
+  &lt;span class=&quot;token string-property property&quot;&gt;&quot;analyze-explorer&quot;&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;source-map-explorer &apos;.next/static/chunks/*.js&apos;&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+ &lt;span class=&quot;token operator&quot;&gt;...&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+ &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;먼저 어떤 라이브러리들이 번들에 포함되어 있는지 확인하기 위해 bundle-analyzer 를 설치해 주고 분석해 보니, lodash-es 와 moment-timezone 이 포함되어 있었다.
+700KB 와 500KB 먹음직 스럽게 제거할 수 있는 크기였다. ( 그외 다수 도 +_+ )&lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/9eb11c1e04ccd688251085fb67cbecc9/07938/img_1.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 61.76470588235294%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAAAsTAAALEwEAmpwYAAABdElEQVR42n2T6W6DQAyEef+HTFESknATjpADmOpzNGnVH0Wy1vba47G9JMM4qm57df2kfpyVl43KutHtdtPj8QiZpknjOGqeZ9V1rev1qvv9HoK/qioNwxCxCYnSpnVdtG2r6qpSmn5F4LquWpZFz+fzA7jf75Vlmfq+DxDO3W4XhcBKfhJXbdumtm2V50VcYnP3er3UdZ3KslSe58HocrmoaRqdz+ewj8dj3Afg3w+g3x8sKQQoyTAlhtYRWAJMgYT5/AdmQMBIpk1IAEIRQChCy9gJQbRHADoFsDlJNgjBnhmA+L0MwNDxxVIIOBwOMWwHA8icWAIJ+GFDnFv3HTr+aBlABzIbdBJgxKBJwOauKIoA4cQPAQOmafpuGcpumSR0xO3CjC2b8el0ipMi+Hw6JgBZN1syiJ8ANsk8FZgD9n5W+Wer6MTAmjMxCAZsSADMW6MthLb8dADydr1h/0GJZ0AFBB1AP2IE3Uw5XcQ6bG1/Ay+Aktt9reT7AAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_1.png&apos; title=&apos;&apos; src=&apos;/static/9eb11c1e04ccd688251085fb67cbecc9/ca1dc/img_1.png&apos; srcset=&apos;/static/9eb11c1e04ccd688251085fb67cbecc9/e7570/img_1.png 170w,
+/static/9eb11c1e04ccd688251085fb67cbecc9/f46e7/img_1.png 340w,
+/static/9eb11c1e04ccd688251085fb67cbecc9/ca1dc/img_1.png 680w,
+/static/9eb11c1e04ccd688251085fb67cbecc9/02d09/img_1.png 1020w,
+/static/9eb11c1e04ccd688251085fb67cbecc9/9d567/img_1.png 1360w,
+/static/9eb11c1e04ccd688251085fb67cbecc9/07938/img_1.png 3404w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_1.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;📦 lodash 최적화&lt;/p&gt;
+&lt;p&gt;프로젝트 내에서 lodash-es가 설치되어 있었고, 실제 사용하는 함수는 debounce 하나뿐이었다.&lt;br&gt;
+아마도 Tree Shaking을 노리고 lodash-es를 선택했던 것 같다.   &lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;tree shaking 이란 ?
+실상 쓰는 코드만 번들에 포함시키고, 안 쓰는 코드를 제거하는 기능인 Tree Shaking&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;하지만 애석하게도, lodash-es는 ESM 구조이다.&lt;br&gt;
+Tree Shaking이 가능하다고 알려져 있지만, 내부적으로 많은 공통 유틸 함수들이 함께 import되기 때문에,&lt;br&gt;
+debounce 하나만 불러와도 수많은 내부 의존성 코드가 함께 번들된다.  &lt;/p&gt;
+&lt;p&gt;즉, 다음과 같은 코드 는 실제 번들 사이즈를 눈에 띄게 줄이지 못한다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;js&quot;&gt;&lt;pre class=&quot;language-js&quot;&gt;&lt;code class=&quot;language-js&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt; debounce &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;lodash-es&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;함수 단위 패키지로 대체 가 가능한 lodash 로 변경하기로 결정하였다.&lt;br&gt;
+개별 모듈(함수)로 쪼개서 npm 패키지를 배포하고, 무었보다 monorepo로 관리하기 때문에 효과적으로 다이어트가 가능하다고 판단했다.  &lt;/p&gt;
+&lt;p&gt;lodash.debounce를 import하려면 lodash.debounce 패키지를 따로 설치해야 하고,&lt;br&gt;
+타입스크립트 환경에서는 타입 정의 패키지(@types/lodash.debounce)도 필요하다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;bash&quot;&gt;&lt;pre class=&quot;language-bash&quot;&gt;&lt;code class=&quot;language-bash&quot;&gt;$ &lt;span class=&quot;token function&quot;&gt;yarn&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;add&lt;/span&gt; lodash.debounce
+
+$ &lt;span class=&quot;token function&quot;&gt;yarn&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;add&lt;/span&gt; &lt;span class=&quot;token parameter variable&quot;&gt;-D&lt;/span&gt; @types/lodash.debounce&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;최소한의 코드만 번들에 포함되고, 사용방법은 다음과 같다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;js&quot;&gt;&lt;pre class=&quot;language-js&quot;&gt;&lt;code class=&quot;language-js&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;import&lt;/span&gt; debounce &lt;span class=&quot;token keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;lodash.debounce&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h2&gt;⏰ moment-timezone 최적화&lt;/h2&gt;
+&lt;p&gt;앞서 말한 것 처럼 lodash는 함수별로 npm 패키지가 분리되어 있거나, ES 모듈 구조라서 개별 함수만 import할 수 있지만,&lt;br&gt;
+moment/moment-timezone 는 하나의 큰 번들(모듈)로 배포되고 내부적으로 모든 기능이 단일 객체(moment)에 결합되어 있다.&lt;/p&gt;
+&lt;p&gt;죽, moment-timezone은 하나의 큰 번들이고, 부분 import 안 된다.. 구조 상 ESM도 아니고, 트리셰이킹도 불가능.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;js&quot;&gt;&lt;pre class=&quot;language-js&quot;&gt;&lt;code class=&quot;language-js&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt; tz &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;moment-timezone&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;-&lt;/span&gt; ❌
+&lt;span class=&quot;token keyword&quot;&gt;import&lt;/span&gt; moment &lt;span class=&quot;token keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;moment/timezone&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;-&lt;/span&gt; ❌&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;구버전 브라우저(특히  Edge, 구형 크롬/파이어폭스 등)까지 완벽히 커버하면서, 타임존 목록 및 오프셋, 타임존 변환 등 기능을 제공하려면&lt;br&gt;
+moment-timezone을 계속 사용하는 것이 가장 안전한 선택이라.. 이대로 두기로 하였다. ( 언론 뉴스 페이지다 보니, 해외 구형 디바이스 까지 커버 해야 한다. )  &lt;/p&gt;
+&lt;p&gt;moment-timezone은 오래된 브라우저까지 호환성을 고려해 설계되어 있다 (IE9 이상, 구형 모바일 브라우저 등 포함)
+최신 방식인 Intl.supportedValuesOf(&apos;timeZone&apos;)는 최신 브라우저(크롬 104+, 사파리 16.4+ 등)에서만 지원되고&lt;br&gt;
+구버전 브라우저에서는 동작하지 않는다.&lt;/p&gt;
+&lt;p&gt;굳이 하려면, 데이터 범위를 줄여서 번들 사이즈를 최적화 하는게 유일한 방법이다.   &lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;bash&quot;&gt;&lt;pre class=&quot;language-bash&quot;&gt;&lt;code class=&quot;language-bash&quot;&gt;&lt;span class=&quot;token comment&quot;&gt;# slim 빌드 사용&lt;/span&gt;
+$ npx moment-timezone-data-builder &lt;span class=&quot;token parameter variable&quot;&gt;--zones&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;Asia/Seoul&quot;&lt;/span&gt; --start-year&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;1990&lt;/span&gt; --end-year&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;2026&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt; data/packed/latest.json&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;추가적으로 next.config.js 내부 설정중 optimizePackageImports 를 사용하여 조금 더 영끌 다이어트를 할 수 있는데,&lt;br&gt;
+date-fns, moment, swiper 같은 덩치 큰 라이브러리에서 &quot;쓰는 것만 가져오도록&quot; 자동 변환해줘서 번들 크기를 줄여준다.&lt;br&gt;
+( 아 물론 lodash-es 는 효과가 미미...)  &lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;js&quot;&gt;&lt;pre class=&quot;language-js&quot;&gt;&lt;code class=&quot;language-js&quot;&gt;&lt;span class=&quot;token literal-property property&quot;&gt;experimental&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;token literal-property property&quot;&gt;optimizePackageImports&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;moment-timezone&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;date-fns&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;react-share&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;swiper&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+   &lt;span class=&quot;token operator&quot;&gt;...&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h2&gt;✨ 결과 ✨&lt;/h2&gt;
+&lt;p&gt;3.11 MB -&gt; 2.38 MB 로 줄어들었다. ( 약 23.5% 감소인데, 실제 웹 성능에선 체감 가능한 수준일것 같다. )  &lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 423px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/497f8f6fceadf466cfe050c238eac3ce/6fe3b/img_2.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 8.235294117647058%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAACCAYAAABYBvyLAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAX0lEQVR42o3DSw6CMBRAUfa/MxMQzENSDIZv7Y+OgEGZXJYgJzmZ9w4TNp6iyauB4jVSyUwpC4+io582fu5E23RrFuOKjweiLG+lqZWm+Rjab0CahdnsuPXEhvS3C4kLepmUJmgK5RoAAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;before&apos; title=&apos;&apos; src=&apos;/static/497f8f6fceadf466cfe050c238eac3ce/6fe3b/img_2.png&apos; srcset=&apos;/static/497f8f6fceadf466cfe050c238eac3ce/e7570/img_2.png 170w,
+/static/497f8f6fceadf466cfe050c238eac3ce/f46e7/img_2.png 340w,
+/static/497f8f6fceadf466cfe050c238eac3ce/6fe3b/img_2.png 423w&apos; sizes=&apos;(max-width: 423px) 100vw, 423px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;before&lt;/figcaption&gt;
+  &lt;/figure&gt;  ➡️
+&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 452px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/1e7f402d0bb91d3aac9bf9a370ee8a03/80d88/img_3.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 7.0588235294117645%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAABCAYAAADeko4lAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAOUlEQVR42n3FMQrAQAgAwfz/hweKWNp4gqDlhnwgxTBPZhIRfKsqIoK7Y2acc6gqdpeZ+dXd3Ht5AdOKS51I8lATAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;after&apos; title=&apos;&apos; src=&apos;/static/1e7f402d0bb91d3aac9bf9a370ee8a03/80d88/img_3.png&apos; srcset=&apos;/static/1e7f402d0bb91d3aac9bf9a370ee8a03/e7570/img_3.png 170w,
+/static/1e7f402d0bb91d3aac9bf9a370ee8a03/f46e7/img_3.png 340w,
+/static/1e7f402d0bb91d3aac9bf9a370ee8a03/80d88/img_3.png 452w&apos; sizes=&apos;(max-width: 452px) 100vw, 452px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;after&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;( 이미지가 똑바로 안맞네; )&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;느린 네트워크, CPU 환경에서 0.7MB 감소는 LCP, TTI에 직격 영향을 줄 수 있다.&lt;/li&gt;
+&lt;li&gt;JS는 CPU cost가 높아서 압축되어도 실행 비용이 큼 (압축 전 기준 0.7MB 감소는 👍 )  &lt;/li&gt;
+&lt;li&gt;JS 줄이기만 해도 LCP, FID, CLS 등 모든 항목에 긍정적 영향.&lt;/li&gt;
+&lt;li&gt;3G 환경에선 700KB는 수 초 차이로 이어짐 ( 해외 사용자가 꽤 있다 게다가 구형 디바이스 유저도 많다. )&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;이제 남은건 Main Home 과 기사 본문의 성능최적화 !&lt;/h2&gt;</content:encoded></item><item><title><![CDATA[🏗️ AMP 페이지 개발]]></title><description><![CDATA[들어가며 AMP 페이지가 동작하지 않았던 이유는 NextJs 에서 지원하지 않은 Router 방식임을 확인.
+Pages 디렉토리를 생성후, 하위에 amp…]]></description><link>https://hyungkishin.github.io/phase2/</link><guid isPermaLink="false">https://hyungkishin.github.io/phase2/</guid><pubDate>Thu, 01 May 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;들어가며&lt;/h2&gt;
+&lt;p&gt;AMP 페이지가 동작하지 않았던 이유는 NextJs 에서 지원하지 않은 Router 방식임을 확인.
+Pages 디렉토리를 생성후, 하위에 amp 전용 페이지를 두는것으로 진행하기로 했다.&lt;/p&gt;
+&lt;p&gt;기사 본문의 내용은 기자님들이 별도 도메인에서 Editor로 작성한 본문이 string 형태로 DB 에 적재되니 응답 string 을 dom 으로 뿌려주면 되는 문제. &lt;/p&gt;
+&lt;p&gt;AMP(Accelerated Mobile Pages)는 빠른 모바일 페이지 로딩을 위해 구글이 주도한 프레임워크로, &lt;strong&gt;강력한 성능을 얻는 대신 엄격한 제약&lt;/strong&gt;을 동반한다.&lt;/p&gt;
+&lt;p&gt;Next.js에서도 AMP를 적용하려면 이 제약을 그대로 수용해야 하며, &lt;strong&gt;페이지 구조, 스타일링, JS 사용 방식 등에서 별도의 대응이 필요하다.&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Next.js에서 AMP를 적용할 때도 이러한 제한이 그대로 적용된다.&lt;/p&gt;
+&lt;p&gt;시작 하기전에 기합 넣고 ! &lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 543px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/48433615ed04eda934c72cb00342564f/10880/img_3.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 64.70588235294117%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAANCAYAAACpUE5eAAAACXBIWXMAAAsTAAALEwEAmpwYAAADOElEQVR42lWTa2yTVRiAG+MfEzUqBLwRUYegqIjGeUNNxEVDYoLRhP1hJkvUqPwRUWKMjITMuFB1zG2WdaOXfW3XrzfqNhq3Dpi167q29L4Vu445hYSNDGWYrevX7zH92gG+yTnvOW9Onvd6VFI+T1y0cD4ZpyTFYhFZlhVdkhMuJ9u2PkHV/XdTdc8a9O1trMjvp7341AfJeT3KXS4WUckyXAyHuJzLlo2ShCRJynlmKsfm9etYdedtPLzuXtbecSu1b+24BpzNZki5rUS6WpifzCg2VWmbS6eY8g6Qv7qgGAvLy4oeG/FTveEhdlY/zX2r7+KWm2+i5pVtitNSFnIliwuJM6RFHfmFK2XgpewEZ4/b+CsYZHFhQXlckj9yOerfeJ2hhi9o+vA99r27g6ZPP0GSymWRCgUFWpSKZNxWct7+MnDpn79JWbSkRRPjvb8wdzaLtJxXoBO+04y2NxLXqZmwaJn0eJif/rOccynKivPZ8SQJQYNqpfjnhgcJtP9I0t5Houc4GY+XyZM+ZvwBUg6RMX0nIYuDgM5MUBC5kJ3kysVZZf07f5nssI+4xXodODc9zYjWSMLqJiLYCButRIwiUYuTtLOPsGAjZnWRcvVzxmQn1uMiYrYR7XESF10E9WbCJvt14PlkmpC+h6jRxm9HdfgNViLddkbadIyZHAQFB6PdDqJdRgI6gZitl5Szl7AgEhJEftUaGO7QlcamXAdZaU6O8b5B/C1HCO7/iNjBL4nVvUOo9SfG9n9GpKmBaP0uEoe+JqwzEjfbGekS8B8T6DvczHCH/gZgJdL80iInd+6if+0qfHueI733TU7VvUSm/kWGtjyA+4VNmJ7cSOfWZ/E1f4evs1uJLuL8mUtT524AlsYgv6T8ENPuWtqrVnNg+2sYHnsK9eZNGOrqOfrgen54dA3qlx9HU/0Ihs/34e/QkzwxcK3r/wMWpYJiD2j2otl+O80f7+GbV2t4f8vzmBsP0L17I1/VbODIB2/TXPsM+oZD+DTHSHrKwMLiVVRy5e8qA7oy+TPTDPW6GTWLDLRpcX/fSkhvRmxswv6tmoDBjutwC4OtHZxq1ZKoAIv5Jf4DpYM7pvXOQv8AAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;좀만 더 ...!&apos; title=&apos;&apos; src=&apos;/static/48433615ed04eda934c72cb00342564f/10880/img_3.png&apos; srcset=&apos;/static/48433615ed04eda934c72cb00342564f/e7570/img_3.png 170w,
+/static/48433615ed04eda934c72cb00342564f/f46e7/img_3.png 340w,
+/static/48433615ed04eda934c72cb00342564f/10880/img_3.png 543w&apos; sizes=&apos;(max-width: 543px) 100vw, 543px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;좀만 더 ...!&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;TODO LIST 체크&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;✅ AMP 페이지 는 총 N Phase 로 배포 &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;( 우선 amp 가 존재 하는것을 mvp 목표로 배포 ! )&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;✅ Pages Router 기반의 디렉토리 구조 설계&lt;/li&gt;
+&lt;li&gt;✅ AMP 대상 페이지 컴포넌트 설계&lt;/li&gt;
+&lt;li&gt;✅ middleware.ts 에서 /amp 로 시작하는 URL을 감지하여, 해당 페이지를 AMP 페이지로 리다이렉트 하도록 설정&lt;/li&gt;
+&lt;li&gt;✅ 스타일링 ( GPT 의 도움으로 스피드하게 해결 )&lt;/li&gt;
+&lt;li&gt;✅ 본문내용 api call 이후 제약 태그 -&gt; amp 태그로 변환 util 만들기&lt;/li&gt;
+&lt;li&gt;✅ SEO 메타 태그 ( 손으로 일일히 해도 되지만 AI 이용해서 검수정도로만 빨리 ! )&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;되짚고 넘어가는 제약 사항&lt;/h2&gt;
+&lt;p&gt;⚠️ AMP는 일반적인 React 환경과 달리 다음과 같은 제한이 있다&lt;/p&gt;
+&lt;p&gt;☝️. &lt;strong&gt;React Hook 사용 제한&lt;/strong&gt;  &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code class=&quot;language-text&quot;&gt;useEffect&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;useState&lt;/code&gt; 등 hook 기반 로직 사용 불가&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;✌️. &lt;strong&gt;Sass/SCSS 등 외부 스타일 방식 제한&lt;/strong&gt;  &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;모든 스타일은 inline 또는 제한된 CSS 내에서 처리해야 함&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;🫰. &lt;strong&gt;일반 script 태그 사용 불가&lt;/strong&gt;  &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code class=&quot;language-text&quot;&gt;&amp;lt;script&gt;&lt;/code&gt; 태그 자체를 금지하며, JS는 &lt;code class=&quot;language-text&quot;&gt;amp-script&lt;/code&gt;로 제한적으로만 허용됨&lt;/li&gt;
+&lt;/ul&gt;
+&lt;blockquote&gt;
+&lt;p&gt;전체 AMP 검증은 &lt;a href=&quot;https://validator.ampproject.org/&quot;&gt;AMP Validator&lt;/a&gt; 를 통해 실시간 확인 가능&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;🗂️ 디렉팅 구조 전략&lt;/h2&gt;
+&lt;p&gt;pages 디렉토리 를 기반으로 amp 디렉토리를 생성하고, 하위에 slug 페이지를 작성한다.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;🔖 slug 란 ?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;ex ) /news/2025/04/17/기사제목&lt;/li&gt;
+&lt;li&gt;URL의 일부를 사람이 읽기 좋고 검색엔진 친화적으로 만든 문자열&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;middleware.ts 에서 /amp 로 시작하는 URL을 감지하여, 해당 페이지를 AMP 페이지로 리다이렉트 하도록 설정.&lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 363px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/2a116434e1b7aa72d000971ee8d1627a/6ddef/img.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 133.52941176470588%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAbCAYAAAB836/YAAAACXBIWXMAAAsTAAALEwEAmpwYAAAEJUlEQVR42pWVS09bZxCG89eqLrqpom66SdVVpS76Gyq1TStVqhRFTRVl0RCCS4gJuRRogDgOBhtjwA6+YGPw/X73AV/O1cfnic4HipImIc5iFkcaPWfeb96ZuWTpfca6gqFpMDaxDAVrJIOlwUjG0gefFJcYG+QPfRy4fiIRWkJqZBmetKiXs5y2a2AMPxGISTTwGDl4hYr7MvnYIn6vj8Un80RCOwJoqj3GWn9C4EihW88R8j1gc22abjOHrMuYpsZI7YkkTEWENUG1l+w/g4HUbVMqFmikD4neuMqBa4lOKYUhn9BrV+l1ahjKCejDCYCmQruWZ9P3Ave8A+X7L2ld+YzMk3/w+Df58/o1pqf/plJIi1xT7X8cKDUrlAopBu0q4cXHHK8s0sociqqkZplet87Ylj7WLpR+BhyrdJsljuJRSpl9DjZ+J33ootvIMJCaNCpZuo0ypdwx2VQcpdcRzRprFwA7jSJbvk3W15y0PF+RWf6cuH+KLZ+fW7f+wnl/lvv3Z5l33iOdjAH6e6W/LbmUQZU7JMNucnE3rXJSSLR/KMLSGeuDCy10XqFCt1kmc5ygno8Rf/4rmegqp80c2VSC7FGMfDpBMXskPPnxLgvJJbybHjzPHtD0fk3Z9cWZ5K0ADscUd+9O8WjBiTboXjg970hWhh2C/mXSsXPJpi1ZF50dT2zsc8l2lyuZMGnPLySDD5HqKaL7e2x51xkpp5ON3puSt/0+/J5/kQLf0PFd5njvrpA8M3Obk1b19VxPNClSq0KpnEVTJcKB/8gmNpDqaextBNZZty1drLWJK4xHQsSjL7k97eDZs+cUcykqhRSRUIBkfJ/Y/i5H8TCmcgrGB4BimxhD1H6HYjbJ6soyf1y7zo8/X+Xp02VCwW0W5mdxzNxhxnGH1adLIveDFb75YW8dVT5hb2cL78YL0ahKIYuh6Qx7XUxDBcZgGVim+nGg/eD2G0lSk0Q8ymHYQ871HRH3b5RSftJHCTbW1/B71ylkkjAavjM1bwHtYRerrF4kuBtgz79KZ/cHTgLfkgo52fYHcK0t8eihk3gkKICmatupfwHw3JN5e/eNVSIHUUKxKP1OFSwTyxqdSR4pIhchvf8a+j/gmcltC+1seei0aswnajjjVTRtiMe9wtycA9faMn7vC5YXH+PbcDMWN+fs7rwHqArgy70tlNMWvkyVjXQZVe6RSoTxep4TeblDvZwjebBPIZMAU8a+TZYxeD/Q9mTGfnRGxKoNDqpN0Pt0GyWUfgddlpB7bQZSA23QoV0r0Kzm0YfS20BhnZGM3OuwH/RTLGSYDhdENNoNZh1T3JtzsLayxMMFJ/POWW7evCGW7sKDOXa3ve8CRRhDRmqfsXpKst4iUWsJS9kX0BhKohK7MlPro/TajPS+uD12ha8AWZvKk/aSTj4AAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img.png&apos; title=&apos;&apos; src=&apos;/static/2a116434e1b7aa72d000971ee8d1627a/6ddef/img.png&apos; srcset=&apos;/static/2a116434e1b7aa72d000971ee8d1627a/e7570/img.png 170w,
+/static/2a116434e1b7aa72d000971ee8d1627a/f46e7/img.png 340w,
+/static/2a116434e1b7aa72d000971ee8d1627a/6ddef/img.png 363w&apos; sizes=&apos;(max-width: 363px) 100vw, 363px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;text&quot;&gt;&lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt; 
+📁 src
+|── components                     
+    ├── amp                        👈 amp 페이지 내 공통컴포넌트 ( Header, Body, Footer 등 재사용 컴포넌트들 쭉쭉 넣어주고 ~ )
+    |... 원래 있던 친구들 내비두고 ~
+├── pages                         
+│   ├── amp                        👈 AMP 페이지 전용 디렉토리
+│   │   └── [slug].tsx             👈 section 카테고리별 디렉토리
+|   |     └── [depth1].tsx         👈 amp depth 1 본문 페이지
+|   |         └── [depth2].tsx     👈 amp depth 2 본문 페이지
+|   |             └── [depth3].tsx 👈 amp depth 3 본문 페이지&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;이렇게 되면 사실상 &lt;strong&gt;사용자 관점&lt;/strong&gt; 에서 보이는 기사 뷰 페이지는 2벌이다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;일반 페이지 [ PC / MO ] &amp;#x3C;-- 다행이 반응형으로 통합되어 있어서 아멘...&lt;/li&gt;
+&lt;li&gt;AMP 페이지 ( depth 별 )&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;기존 기사 본문 URL 구조는 &lt;strong&gt;slug url&lt;/strong&gt; 형식으로 되어있으니 amp 페이지로 유입될 경우 본문에 해당되는 amp 페이지로 redirect 해주면 된다
+pages 만 UI 뼈대를 만든 후 공통화 컴포넌트화 시키면 되겠다.&lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 335px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/1287d9388ab92c89f022c3e02880814b/56823/img_1.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 175.8823529411765%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAjCAYAAACU9ioYAAAACXBIWXMAAAsTAAALEwEAmpwYAAAD9ElEQVR42p1WyVLbShTlv9nm7cirpFiwY42zp4phQZwKYGMDnmRJZigwnohnG4MtWzqvzm213HJI4ryuOmVZ6j6699xJG+PRGMlkEuVyGZZlRSgUCsjlcmuBe09PTzEajbDRaXdgWWV0u10hvbm5geO6GAyG4PJ9H74fIJBfH4FcBwgChcViIfts20ar1cJGt6sIJ5MJarUams0mGo2G/A8AzOdz+ItFSKwIfU3K65DQcRw8Pz+TsItSqRRZoxffvvpf3QsJVy2MEVqW3BRrtCVBAM/zkM/n8fT0hHq9LlYD6xCGFvKhcsmnSfBmHr4kvuDT50/Y2trChw//RERaR03o2CFhp9NFqRgSzheRqxqvr6/o9/to//ghB7Tbf7DQijSMLDBgrtVnWucYIfOIazqdYuZ58LwZZjMPs9kswnQ6w2yq7vO5gidnuKyypQh73R729/dxe3srech8+hvwDM8eHR2h3W4rCxlJPjw/P0cmk1kb2WwWZ2dnkoNEk4nd7w+QTqflTW9vb5hMXiUQ64D7WW40yHHCSukPBjhPpaXktOi/CoIOmrkYZZGqbCsNmRKpVAqVSoWpF9Uufyl6vFpgpFUQJv9cmgklE8LBYBARLpuBIjk8PMReYg97ewkkEgrJb99iKcbq+okwnUrBfYeQG6+vr3FwcIDd3V3s7Owge3mpXNXluUrYDy10XRd+mPlCyjIMfGlbXHSfQVBkCyH0A1/ykoWh2peh4a+C8qdFA5jUMcKLTAZXV1fSUdgL6/UQcq3v1dV1+F/QbOLx8REXFxk4jqsIO52OaMDN1KtYLP4ElqaGeZ9dimdIzqBKHirCsgjK+WCVSrJRg65QDpYXddZEBA3hGZ4lYbPZUu2rWHy/Y3OxxE5OTgR0b1VnfW3bDlrSD7tdedN4PMZjtaq0qtVRqymtWK8k+/79VKzjzOHs0ZpWq1U565oalm0bvV5PiOmWhuM6uL+/F8seHh5wd3cnTcDcwzMMbKQhiSgsC5wWmLOZoFaUpGjopsEapoY8X3Ery+bAPOQspoYsJeYWMV/MJaE5GnjffKbBBktD4rWcTqNSuZE5HI0Bf1kl8dGqu05YQXNPsmRZelG3cWMDitd8O6M8HAwlQHRJE5qjVrlvqyhrl6nBsn2pSTYaDrG5uYmP/34UbG9v4+XlJSw5X/abhLH2xYgpl40xuvClITAtOOQbjaYQwGi2Zj+UtJH2JRpWlMtht1kYbcz8NIkh8OVj4LcN9v90G7avyGXmYT6XR6FYwGU2G33zXUt+KeTeu87lJHcZNDYNGvRslh4X9TKH+zrQTZcVJBoOhyMcHx/LW5jx6361msjnC/ia/ArK9x8E3SgaPi2VVwAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;기사 본문 상단 구조&apos; title=&apos;&apos; src=&apos;/static/1287d9388ab92c89f022c3e02880814b/56823/img_1.png&apos; srcset=&apos;/static/1287d9388ab92c89f022c3e02880814b/e7570/img_1.png 170w,
+/static/1287d9388ab92c89f022c3e02880814b/56823/img_1.png 335w&apos; sizes=&apos;(max-width: 335px) 100vw, 335px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;기사 본문 상단 구조&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;( 그외 푸터 등등 모두 동일 ) &lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;AMP는 제약은 많지만, 뉴스 도메인에선 여전히 유의미하다&lt;/p&gt;
+&lt;p&gt;React hook이나 script 사용은 어렵지만 기본 콘텐츠 위주 뉴스 페이지엔 큰 무리는 없다&lt;/p&gt;
+&lt;p&gt;middleware.ts + slug 기반으로 AMP 라우팅 처리하면 깔끔하게 대응 가능&lt;/p&gt;
+&lt;p&gt;AMP 페이지는 별도로 구성하되, 디자인/구조는 최대한 기존과 일치시키는 전략이 효과적이다&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;기사 본문에서 amp 태그로 변환하는 util 함수 만들기&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;일반 HTML 태그는 사용 불가, AMP 전용 태그만 사용 가능&lt;/li&gt;
+&lt;li&gt;예를 들어, &lt;code class=&quot;language-text&quot;&gt;&amp;lt;img&gt;&lt;/code&gt; 태그는 &lt;code class=&quot;language-text&quot;&gt;&amp;lt;amp-img&gt;&lt;/code&gt;로 대체해야 하며, &lt;code class=&quot;language-text&quot;&gt;&amp;lt;script&gt;&lt;/code&gt; 태그는 &lt;code class=&quot;language-text&quot;&gt;&amp;lt;amp-script&gt;&lt;/code&gt;로 대체해야 한다&lt;/li&gt;
+&lt;li&gt;&lt;code class=&quot;language-text&quot;&gt;&amp;lt;style amp-custom&gt;&lt;/code&gt; 태그에는 &lt;strong&gt;최대 50KB까지만&lt;/strong&gt; CSS 작성 가능&lt;/li&gt;
+&lt;li&gt;애니메이션 전용으로 허용된 &lt;code class=&quot;language-text&quot;&gt;&amp;lt;style amp-keyframes&gt;&lt;/code&gt;는 &lt;strong&gt;최대 500KB까지&lt;/strong&gt; 허용되지만,
+이는 &lt;code class=&quot;language-text&quot;&gt;&amp;lt;body&gt;&lt;/code&gt; 하단에만 위치할 수 있고, 오직 키프레임 규칙만 작성 가능하다&lt;/li&gt;
+&lt;li&gt;JS 이벤트 핸들러 제거 , javascript: 링크 제거 &lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;허용되지 않는 태그 하위 호환&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;font, area, form&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;👉 &lt;strong&gt;총 CSS + 인라인 스타일 합산이 75KB를 넘지 않도록&lt;/strong&gt; 주의해야 한다 - &lt;a href=&quot;https://amp.dev/documentation/guides-and-tutorials/learn/spec/amphtml&quot;&gt; 관련 공식문서 &lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;⚡️ 대략 적인 AMP 페이지 구조&lt;/h2&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;html&quot;&gt;&lt;pre class=&quot;language-html&quot;&gt;&lt;code class=&quot;language-html&quot;&gt;&lt;span class=&quot;token doctype&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;!&lt;/span&gt;&lt;span class=&quot;token doctype-tag&quot;&gt;DOCTYPE&lt;/span&gt; &lt;span class=&quot;token name&quot;&gt;html&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;&lt;/span&gt;html&lt;/span&gt; &lt;span class=&quot;token attr-name&quot;&gt;⚡&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;
+  &lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;&lt;/span&gt;head&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;
+    &lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;&lt;/span&gt;meta&lt;/span&gt; &lt;span class=&quot;token attr-name&quot;&gt;charset&lt;/span&gt;&lt;span class=&quot;token attr-value&quot;&gt;&lt;span class=&quot;token punctuation attr-equals&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&quot;&lt;/span&gt;utf-8&lt;span class=&quot;token punctuation&quot;&gt;&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;
+    &lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;&lt;/span&gt;meta&lt;/span&gt; &lt;span class=&quot;token attr-name&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;token attr-value&quot;&gt;&lt;span class=&quot;token punctuation attr-equals&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&quot;&lt;/span&gt;viewport&lt;span class=&quot;token punctuation&quot;&gt;&quot;&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;token attr-name&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;token attr-value&quot;&gt;&lt;span class=&quot;token punctuation attr-equals&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&quot;&lt;/span&gt;width=device-width,minimum-scale=1,initial-scale=1&lt;span class=&quot;token punctuation&quot;&gt;&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;
+    &lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;&lt;/span&gt;link&lt;/span&gt; &lt;span class=&quot;token attr-name&quot;&gt;rel&lt;/span&gt;&lt;span class=&quot;token attr-value&quot;&gt;&lt;span class=&quot;token punctuation attr-equals&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&quot;&lt;/span&gt;canonical&lt;span class=&quot;token punctuation&quot;&gt;&quot;&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;token attr-name&quot;&gt;href&lt;/span&gt;&lt;span class=&quot;token attr-value&quot;&gt;&lt;span class=&quot;token punctuation attr-equals&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&quot;&lt;/span&gt;https://example.com/amp&lt;span class=&quot;token punctuation&quot;&gt;&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;
+    &lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;&lt;/span&gt;meta&lt;/span&gt; &lt;span class=&quot;token attr-name&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;token attr-value&quot;&gt;&lt;span class=&quot;token punctuation attr-equals&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&quot;&lt;/span&gt;amp-google-client-id-api&lt;span class=&quot;token punctuation&quot;&gt;&quot;&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;token attr-name&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;token attr-value&quot;&gt;&lt;span class=&quot;token punctuation attr-equals&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&quot;&lt;/span&gt;googleanalytics&lt;span class=&quot;token punctuation&quot;&gt;&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;
+    
+    &lt;span class=&quot;token comment&quot;&gt;&amp;lt;!--  공통 Style  --&gt;&lt;/span&gt;
+    &lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;&lt;/span&gt;style&lt;/span&gt; &lt;span class=&quot;token attr-name&quot;&gt;amp-custom&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token language-css&quot;&gt;
+      &lt;span class=&quot;token comment&quot;&gt;/* AMP 전용 CSS */&lt;/span&gt;
+    &lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;/&lt;/span&gt;style&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;
+    
+  &lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;/&lt;/span&gt;head&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;
+  &lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;&lt;/span&gt;body&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;
+    &lt;span class=&quot;token comment&quot;&gt;&amp;lt;!--  공통 헤더 check  --&gt;&lt;/span&gt;
+    &lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;&lt;/span&gt;header&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;AMP Header seo meta 태그 등 들어갈 자리&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;/&lt;/span&gt;header&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;
+    
+    &lt;span class=&quot;token comment&quot;&gt;&amp;lt;!--  기사 본문  --&gt;&lt;/span&gt;
+    &lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;&lt;/span&gt;main&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;
+      &lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;&lt;/span&gt;article&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;
+        기사 본문이 들어갈 자리
+      &lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;/&lt;/span&gt;article&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;
+      &lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;&lt;/span&gt;ad&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;
+        광고 들어갈 자리 Lazy Load 적용 대상
+      &lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;/&lt;/span&gt;ad&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;
+    &lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;/&lt;/span&gt;main&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;
+    
+    &lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;&lt;/span&gt;footer&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;푸터 들어갈 자리&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;/&lt;/span&gt;footer&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;
+  &lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;/&lt;/span&gt;body&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;/&lt;/span&gt;html&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;hr&gt;
+&lt;h2&gt;페이즈 1 오픈 결과&lt;/h2&gt;
+&lt;p&gt;검색 색인과 어제 AMP 페이지 1차 반영 이후 구글 유입이 조금씩이나만 바로 잡혀가는 모습이다.&lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/1a42130ea77c5cf2baf51cc20188af56/3e86e/img_4.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 88.82352941176471%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAASCAYAAABb0P4QAAAACXBIWXMAAAsTAAALEwEAmpwYAAADKklEQVR42p2UTW8jRRCG/ROTC0Isu+GyKxGuwIp/wD/ggsRhpeUAh02EAGVXGxErAQJOFMJuPOM4Tjwm9ni+eno+PJ6Z9oO6x84Hggstvaruquq3qrq7ujWfz9EoioLVvCxLqqoycl4UxrbCykekCb7vM45CRlHASIR4iaSVJAkaWZYhk4Q0TXHdCVeOw3gyIc0yA23XNuOfJmRpRp7nRqdt19fXeJ5HSy+mrst4PCZNE2azGcPBFaOLAbHvkwQB08mY0djBdV2yPCOOYq48h+7Qxpt4hth1p3h+QEsTXPT7/N7p4Fy7pFnO5VmP4ekpyWiEdBymgwHOyMGdTAyhFJJLb8jZ0EKEwmQYhhFxLJsMdRkyjgkiiUxSZoFLEIZkRUFWzJBpiu95pgpTspSIOCUIY7KsKVlKaWSLO2OxWDTyVtHgP8Zdv9Xe1g2JUS73Lx3U0pbIhL29PdrtNru7uziOY/Tq3t47hEopVrJeQqkFqlbGybJt3nnvXR492mBtbY3t7W2jL6vKZCnznDBJGsKqLlmw+NeClKrMzD63ePLkMR9tbvL+gwe83HnZZKiagF33kqNhtyH8+uSAH60OO28O+e5kn2e/vuL11Rkvuh2enxzw6uJPvvxhi40PHvNw4yHr6+t8/tUXbF0c882bA57/0WbLOmJn8BY/k7TaZ9e0j3v8/Msph50ue0cWP70Zsv92xMHZhKOLKd+/PuTjTz7j06dP2dz8kGffbnH8V8CBPWTfGvKb7dHpC5J8RkvVFXVdLQ9X3Rzu/xl6byuIQvP2dO+6no9Mc+ZVxWxeUpS30BegoW2VvkR9hktUakFZV1R1TauoCtRCUc1L/H4fz7bxeudMbQu/18PvneN2Laa2jWt1mVoWxXiM8n3qJeaTMWF/gNcb3L7DqioJPI9Qw/cbeD4iCImCgMj3b2SR5yj9ZOraQJUloZBMvfAuYUUYhkQiNm0k4pgoEkRCNHMREUtJkqQkaXqvq6pakeUJIhb3M4zjhkzLf0KI5hNYNYBpAp3hYmGk7mkd6F6GURSZP1FHMvNYmgB3g2hisxYxsRBNl6kF+TxnNp/xN1UJRl3gh6GKAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_4.png&apos; title=&apos;&apos; src=&apos;/static/1a42130ea77c5cf2baf51cc20188af56/ca1dc/img_4.png&apos; srcset=&apos;/static/1a42130ea77c5cf2baf51cc20188af56/e7570/img_4.png 170w,
+/static/1a42130ea77c5cf2baf51cc20188af56/f46e7/img_4.png 340w,
+/static/1a42130ea77c5cf2baf51cc20188af56/ca1dc/img_4.png 680w,
+/static/1a42130ea77c5cf2baf51cc20188af56/02d09/img_4.png 1020w,
+/static/1a42130ea77c5cf2baf51cc20188af56/3e86e/img_4.png 1062w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_4.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/bc8f198356d8e141d2b27b481b73551b/926ba/img_2.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 43.529411764705884%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAAAsTAAALEwEAmpwYAAACCElEQVR42o2Qz0tUcRTF3x/gul30YxPUQtoELVpEEbQwiEjGgnAmQaKsRYuo0EgkSoiKQbLGWuRsJCOyCCLRsdFJc0YxxxgbGX81/mCc8c28efN+ft8n3mjloqADh3u5cM8590qZaIzVwTCZoSF+fI7wbibG25kYb5JReucmkVUNVbNQNJPif1BKeaqYOXmU+cMHCFcdZPcLHzuCdVQEqtnXdYl1o4gLx3H4DbcXYqNunQNS6tQxUjVVzB3aT+hIJduenWF7p4+KwGl2dtaR05W/C/4D0tK9ZtJ3msjevc33hy34+v3Uhvyc63vEzS9BVEv/I/hLaCUNX0dwUglEZhlni4mkaBq6ZYEjwNDBMMC0wDRB1zdnm9yEUBXE8iLkslDII2wL29DLppKmqgjXYD6JM/AekYwjhvsQUzHESD/Ot3FEYgKxtFBOIsr/c0A3yeRWmF2dxVFLoBnllJJlmhvnWCYUi9hKHlPOYhZk7IKMyMvltK6YS6tUYjAdZ1xJc6K3lb3dV/B+auNipINpOY1kWhZaSSG3tkS2kMUW9sbPcLBsG8M2GVucYnIhDrbNh0SYlhvVBK7VcLz9PJUdtex5cpZd7R4i6TiSu/wqMcD10FMaw895EOsmOPWxzPvRl7SOduHpacb7upnHEz34gy2s13tZu+AjdbWescYGRpsuM3yrATk1zU92QnIFgVSinAAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;1차 적용 완료&apos; title=&apos;&apos; src=&apos;/static/bc8f198356d8e141d2b27b481b73551b/ca1dc/img_2.png&apos; srcset=&apos;/static/bc8f198356d8e141d2b27b481b73551b/e7570/img_2.png 170w,
+/static/bc8f198356d8e141d2b27b481b73551b/f46e7/img_2.png 340w,
+/static/bc8f198356d8e141d2b27b481b73551b/ca1dc/img_2.png 680w,
+/static/bc8f198356d8e141d2b27b481b73551b/926ba/img_2.png 918w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;1차 적용 완료&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;구글 서치 콘솔에서 AMP 페이지 색인 상태를 확인할 수 있다. 그런데...&lt;br&gt;
+저 빨간건 ... amp validator 에서 검증이 안된다는 뜻이다.&lt;br&gt;
+( 구글 서치 콘솔에서 AMP 페이지 색인 상태를 확인할 수 있다. )&lt;/p&gt;
+&lt;p&gt;아니 유효하지 않은 페이지가 17만이라고 ...??? 뭐때문인지 ....&lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/b108428a3e21a2c5326ed17bbbe04178/6d612/img_5.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 78.23529411764706%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAQCAYAAAAWGF8bAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB70lEQVR42o2U6Y7bMAyE/f6vWGyLHpvLcXzolihNMbQdePMjWAGE5EOfhkPaXfz1gXDvcRsGPB4PjOOI+/2OaZo0Ukr41mgNuQi69PED4XbFME6YxlGBjB1urf0WtFZBTBmdtIb29uCmsW6qCCFARPS6lHJ4JihUGENEilFV5JyfEWPUDTuUI8SI4fFAyXkF5gRJSQWlFFeF1rovKdK3o4+E78DJGPz8/Qc5rxaI9xBrde2cg/cRnfNeAfM8PwvhvdfU+BKV78DFOvz9PD0V1pI1OJhRCAldCBHGGDWfQQi9evWRw1iPz/MFslkhMUJC0DUPViDJhOxAGk4AocfgsM7jfLlBZAXWGFE3IPfFmNA559U/BtPu+x7DMGjQR848UFM2FqfLVd/LpSiQPlI/VQcCrXP6An08QngA1zuMYzYW/05nzCzWK1A2IBXuwF3lXiTOxyovdlW4bApbzqgpbkBZgT4ELMvy9PG1IMeiWO9x7Xs4R68rGqu8tVCrFSlndNPWLkeVnHkI7/OaM5vc+YDL9QZjFhQR1BggwX8FGmO1bZgaZXMj533N+/snxpSmedGe026QgrY9a61uP4eUVN3+mb0bxlrc+jvsQoUFJQRkLcoGzAVdqevPQWp7G0Wq9hk3MV1eUzHvcS21ImbBf2oY4HmsEWuaAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img_5.png&apos; title=&apos;&apos; src=&apos;/static/b108428a3e21a2c5326ed17bbbe04178/ca1dc/img_5.png&apos; srcset=&apos;/static/b108428a3e21a2c5326ed17bbbe04178/e7570/img_5.png 170w,
+/static/b108428a3e21a2c5326ed17bbbe04178/f46e7/img_5.png 340w,
+/static/b108428a3e21a2c5326ed17bbbe04178/ca1dc/img_5.png 680w,
+/static/b108428a3e21a2c5326ed17bbbe04178/6d612/img_5.png 936w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img_5.png&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;오 이런 ㅠㅠ 누락된 허용하지 않은 태그, 미디어 속성의 태그에 src 가 https 가 아닌 http 가 존재하거나,&lt;br&gt;
+&amp;#x3C;기사이름&gt; 이런식의 태그가 아닌데 태그라고 오 인식하는 문제가 있었다.  &lt;/p&gt;
+&lt;p&gt;( 이미지 혹은 뷰어 용 태그에 src 는 https 가 아니라 http 로 되어있는 부분은 server 에서 처리가 필요 ) &lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;이걸 어떻게 표준화 할까 ...?&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2&gt;🤔 라이브러리를 안 쓰고 처리 할 수 없었을까 ?&lt;/h2&gt;
+&lt;p&gt;DOMParser 를 쓸 수 없었다.
+브라우저 런타임에서만 동작하는 Web API 이고, Next.js의 서버 사이드 코드(SSR), 즉 Node.js 환경에서는 사용할 수 없다.&lt;/p&gt;
+&lt;p&gt;기사 본문은 &lt;strong&gt;서버 사이드 데이터 페칭&lt;/strong&gt; 시점에 가져온다. 그래서 amp guide 에 맞는 dom 으로 변환하는 util 함수 내에,&lt;br&gt;
+기사 본문을 amp guide 에 맞는 정규식으로 치환하거나 제거하는 방식으로 진행했더니 너무 위험했다.  &lt;/p&gt;
+&lt;p&gt;(기사 본문 내용이 틀어지거나, inline Style 이 깨지거나 ... 보여야 할 내용이 일부분 사라지거나 ...)&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;작업 예시&lt;/th&gt;
+&lt;th&gt;라이브러리 없이 가능?&lt;/th&gt;
+&lt;th&gt;설명&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;&amp;lt;img&gt;&lt;/code&gt; → &lt;code class=&quot;language-text&quot;&gt;&amp;lt;amp-img&gt;&lt;/code&gt; 변환&lt;/td&gt;
+&lt;td&gt;🔴 어려움&lt;/td&gt;
+&lt;td&gt;HTML 구조 파싱이 필요, 정규식으론 불안정&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;&amp;lt;iframe&gt;&lt;/code&gt; → &lt;code class=&quot;language-text&quot;&gt;&amp;lt;amp-iframe&gt;&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;🔴 어려움&lt;/td&gt;
+&lt;td&gt;조건 분기 및 속성 매핑 복잡&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;onClick&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;onMouseOver&lt;/code&gt; 속성 제거&lt;/td&gt;
+&lt;td&gt;🔶 가능하지만 복잡&lt;/td&gt;
+&lt;td&gt;수백 개 태그 모두 순회해야 함&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;불필요한 태그 제거 (&lt;code class=&quot;language-text&quot;&gt;&amp;lt;font&gt;&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;&amp;lt;map&gt;&lt;/code&gt;)&lt;/td&gt;
+&lt;td&gt;🔶 가능하지만 비효율&lt;/td&gt;
+&lt;td&gt;정규식 + 수작업으로 불안정&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;최종 HTML 문자열로 재조립&lt;/td&gt;
+&lt;td&gt;🔴 위험&lt;/td&gt;
+&lt;td&gt;구조 깨질 확률 높음&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;이 과정에서 여러 라이브러리를 도입했는데, 목표는 다음과 같았다.  &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;HTML 태그를 파싱해서 변형하거나 제거하는 작업이 필요하다.&lt;/li&gt;
+&lt;li&gt;따라서, DOM을 조작할 수 있는 라이브러리가 필요하다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 231px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/ce2b1f04f112de4b5b288f7f7b63f39c/1fdc3/img_6.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 165.8823529411765%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAhCAYAAADZPosTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAIIklEQVR42q2WWUyc1xmGf4Z9GWZgdvgZZmDYt2Hfhn0yMAswM5gJ+wBmMTtmsY2NTWIbgm2CbXCC7eAlcWLsunbaJHbtLqrSpmnVVonaXCRV7yL1qpWSm14/lUlaRY3Uq14cne/Vd95Xn46OdB5BIggI/68VICD8d2BAQABhYWFIAiT7dbBEQogkkFBJICESCRH7WkJQQCBBEsn3vP8J3BeCgEarZWBggPTMTAIFgd7IaJxh4bSEhpMbHIY3PBJPeATVoWFkB4d84/3uUCFBgQRKJARKAvYbaqWSmqpqCouL0MrktIeFYQ2PID8snOSQUJzhkbgiIil/rkNDEYJDCAwJRRIcTER0FEJdTjp5iXriZHIKTUmYDQYMSiUGpQqTLg6lVIY8QopSFoNOHosYq0ItU5Co0pGijSOvrAaDtweVo51T17YQbOYMSpKSSNFoKU4yUmEyUZuTTW68ngxdPGZDEkalBnWkDINCRbo2HkOMCkOsBpNCg7nEgql/iqSeEX7w6UcIVWkmKlJTyI6LpzLNhCU9jbrsbIoTjdgysjjT2cFyuxdrRhZJsWqyRT0mlRZ9rBpRKicjpxDjwCy5w2N8+LcvEAoT9ZQYk6hITaXQYKD4eZ1koi4llSWvk89u7/CrV89ypb8ba3o2Zr2RjDiRJJUGQ4yS5JRMEkcWyByd4e0v/4qQJ8ZTaDCSm5BArqgnJ06kUJ+ILTOLo61NfHztEr84f5p7M8MctlspSDCSphER5QoMMQpMadkkTC5hnFhk/Q+/QUhSxpKs0WDSaEnR6EhWacmJS8CRncektY69xSk+2d3mg+UZNvy+/cDEWDXaaBlxUVIMmbkkTJ8gdeoI7/z2GYIojyZRqUKUx2JQqTEq1GRqdbhyshmsLOPB0Un+vHuJvZlhxhtqKBCNJCt1KKNkaMLCEXPM6OZPkzm/zId//xJBlMn2n4xW+nyPQRctxxwv0pqXw4HiAtb6erg9O8W5bh++olLKk9NIVGgwqrXoZHJE1wE0x9bJOnGWva++RtBKpWiio9FEydDHKMiOF2nKy6M+K4uqjCzsBWVYUrPottQwarVTkZJFc0kp0y2NWMqK0MycQrO0TubqRV77+p8I2igpOlnM/nTOgnyWfG7mvC5GbFbmPW7GnS4cuflM25tY7+6gs8JCS0k5LnMOfe1uxOPnUS29Qta5Kxz76h8I7sJ8EmRyUtUaFr0OtkY6Oe9vZ8r5Av11tbQUljJSV8fueB/vn5xjvbeDhWYbK202To4fRP/SJopj58g8t03PF58hDFaU0ZBmIj9B5KjXwcUhH7em/Nyc7OfyUA+XD/bxYGmavblBfn7mGHcmx3hnfpgH84OsTgyQ8PImqpcvYTyyQl53D8JweTlL7iZcuRkcslWz7vdydayb+4ujvL+ywOMzS7yzMMHdw8P8eu0k92bnONvdwp2JF5kZH0B3dgvd+g6qgzNES5UIax1uNno9LLqtTDtrWHnRyfIBB5uDPnbGDnLU3cr4C1a2R/q4OjLAWlcX485qFpvL8Az70Vx4A+35N8iYOUZcXALCsxtXGLXV0l9XykmfjeUDdmZdVsYb6/DX1LDobmXe3Yq7tJxGcyEHKipY7Xcz5yrAPjOG+vKbSNd2WH/2ATZLGcLnv3zCpVNL2AsymGupYdZVz6LHwVBDNaO2ejaG+tgc9rPgaWWg3sYhexOnelys9tRSduo0qq07RG/e4NR771JZkIfw2dMf8enTH/P6yhFGraUMWSsZa6pnzmPndHcbI7Z66nPMtDc00m23U5WRyURjKYvDHsQLO6gu3kRz/T7xQzPIpTEIv3/vPn969h6fPH2XcVcNHZWF9NdWMOmwcsTrYsphp7e0kkP1TQxV1tNXXs4rvY04psZQXHwT7aWbaHYfoOgaJipcivDHp4/43eNHrEyNMNtaj688jy5LEcMv1DLb4mCls41lbzMTVXX0FxRz3NvEmt9Bev8oqu23UG/dQr37Q5RtfqShUoTPP/op6yePY4iV81KXg+7qIpzmNHyVJUy6m7k43MPWSC8TLU1Mt9rYPexnyF5FjFpEXD6P6vYjVHc/QOHpJiokCuEvH/2M9uZmckQdFwbcjNkt2HPTsSQl0pSfw3xbMxuH+jk30sfaYCcnOlswxccRGxWDLiEFsdFLwtwKqlo7UWFShI/fvUdpbh6iLIYph4UlbwNjbicHvV6aqypxVVvocNpptlTQ6bBTX2khJTkFfbyeeIWWmKAIVBFydAotaqUW4cpLy2SkpFFsLsRnq2N5sIsjg31Md3cy3OziYFsbfl8bXnsjHd4DOJoctDibsTc2UVFaQZWlhpKiUkStiFahRajML6DV1cLGxgZXd3a4t7fH9e0txr0e+hvqWTtxgls3drl+9SqvX3mN40ePcWnzIrdv3eLy5cvcufMWq6ur5GXnoZKrEAxaHb52H9vb2+xev87jJ4+5v3eXE7OzTPv72bpwnic/ecKtGzfZ3trizOnT3Ni9waNHj7h2/RoPHz7k1c1XKcovQiVTIqQbTZQXFdPscGKz2vD3+ent6sHrcDDU4mGxu5ezs7O0NtopLiqhylJFa0srHreXyorK/StoqK3HqDeiiVUjxMpiiJVGEx0RSaAkcB9HJBLJPiyZdPHYCotpyC9A1GiRSqMJCgr6lmMC9nno+bnw4FCiwiOJioh8TmDfRzLJt1TVZLdzeGGBVo8Hn89HX18foiju9ySSgG/wLeC73n36CvgeQf2bxAwGAwnP/+vcXPR6PWazmcTExP/BhwH8C5Ghk6QY/aavAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;어렵구만 ... &apos; title=&apos;&apos; src=&apos;/static/ce2b1f04f112de4b5b288f7f7b63f39c/1fdc3/img_6.png&apos; srcset=&apos;/static/ce2b1f04f112de4b5b288f7f7b63f39c/e7570/img_6.png 170w,
+/static/ce2b1f04f112de4b5b288f7f7b63f39c/1fdc3/img_6.png 231w&apos; sizes=&apos;(max-width: 231px) 100vw, 231px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;어렵구만 ... &lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;🧩 라이브러리 도입 결정&lt;/h2&gt;
+&lt;p&gt;✅ cheerio — DOM 파싱의 사실상 업계 표준 &lt;/p&gt;
+&lt;p&gt;AMP 변환의 핵심은 Google GuideLine 에 허용되지 않는 HTML 태그를 파싱해서 변형하거나 제거하는 작업이 필연적인데,&lt;br&gt;
+이때 cheerio는 서버 사이드에서 jQuery처럼 HTML을 다룰 수 있는 경량 라이브러리로, 아래 작업들을 편하게 처리할 수 있었다.&lt;/p&gt;
+&lt;p&gt;사용법은 아래 예시 로.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;jsx&quot;&gt;&lt;pre class=&quot;language-jsx&quot;&gt;&lt;code class=&quot;language-jsx&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;const&lt;/span&gt; $ &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; cheerio&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;load&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;html&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;token function&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;.writer&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;remove&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;token comment&quot;&gt;// 불필요한 요소 제거&lt;/span&gt;
+&lt;span class=&quot;token function&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;img&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;each&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;    &lt;span class=&quot;token comment&quot;&gt;// 이미지 태그 변환&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;blockquote&gt;
+&lt;p&gt;📌 대안은?&lt;br&gt;
+jsdom도 있었지만, 성능과 문법의 직관성에서 cheerio가 더 낫다고 판단.  &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;( 훨씬 무겁고, DOM 구현이 브라우저 수준이지만, cheerio보다 느림 )&lt;br&gt;
+단순한 조작에는 cheerio가 가장 적합하다.  &lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;✅ isTag (from domhandler) — 안정성 있는 노드 필터링  &lt;/p&gt;
+&lt;p&gt;모든 DOM 노드가 태그는 아니기 때문에, cheerio(&quot;*&quot;).each(...) 루프를 돌릴 때는 노드 타입 검사를 해줘야 한다.&lt;br&gt;
+이때 isTag()를 사용하면 안정적으로 태그 여부를 확인할 수 있다.  &lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;js&quot;&gt;&lt;pre class=&quot;language-js&quot;&gt;&lt;code class=&quot;language-js&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;isTag&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;el&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;token comment&quot;&gt;// 태그일 때만 속성 제거&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;⚠️ image-size + fetch  &lt;/p&gt;
+&lt;p&gt;별도 설치가 필요했던 라이브러리는 아니지만 안정성과 성능 사이의 고민이 존재했다.  &lt;/p&gt;
+&lt;p&gt;AMP에서는 &lt;amp-img&gt;에 반드시 width와 height가 있어야 한다.&lt;br&gt;
+그런데 컨텐츠에 이 정보가 누락된 경우도 있어서, 서버에서 이미지를 직접 fetch하고 image-size로 크기를 추출할 필요가 있었다.  &lt;/p&gt;
+&lt;p&gt;img 태그에 크기를 알 수 없는 경우 별도로 호출하기로 하였다. &lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;js&quot;&gt;&lt;pre class=&quot;language-js&quot;&gt;&lt;code class=&quot;language-js&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;const&lt;/span&gt; res &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;await&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;fetch&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;src&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;token keyword&quot;&gt;const&lt;/span&gt; buffer &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;token class-name&quot;&gt;Uint8Array&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token keyword&quot;&gt;await&lt;/span&gt; res&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;arrayBuffer&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;token keyword&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt; width&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; height &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;imageSize&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;buffer&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;이 방식은 어떤 이미지든 깨지지 않게 하려는 의도는 있으나, 단점도 존재한다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;SSR 성능 저하 가능성 (네트워크 fetch + 버퍼 파싱)&lt;/li&gt;
+&lt;li&gt;
+&lt;h2&gt;이미지 수가 많아질수록 병목 현상 발생&lt;/h2&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;배포는 연휴 끝나고 ...!&lt;/h2&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 494px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/8477e44d140a1627fb286173cf623b54/7f4de/img_7.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 54.11764705882353%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAALCAYAAAB/Ca1DAAAACXBIWXMAAAsTAAALEwEAmpwYAAADB0lEQVR42iWS/0/UdRzH3597fz7v+3zuc3w74e7mcYF4gkB3nYgcBzJ0gKCct/SAwCkegiZTyVUUVDI8bYgyCi1qTpm6OaetNmc/6A/VdNpatjaby9YPbVrrF7ZWc2u2tT0a1z/weD6ez9dL5LkllkuhPF6kKxdDV9TUV1MY8COE4Lmgn/KqMnTbRrdMXAEfoY2NVCZaWfZCmJxwlFjXVjraa5GGQvgKdExloAmJrlsI4SBYGqCkvBTd0AkGCnG7DDY3V7OvN0ax38byBwi2baKorh6R5yEcXs5IXxjbciFKfQYu00BIJ1IaSKFwGi4sdw7eQjeh0gK6W0JcO9XNuclOKktyyC8rIz7UTySVRCgnG2q8bGkIIIREVBWrrIFwGDh0B9KxBHWiSxOVY/F8tZ/To61cnEzwek81kRIbb2Q169LbWJVoQdkm/ckKVhbnZScSoeUKUymEppBSZoGGbqIJDSt/Gc3tjcyNJ5ge3cbYzjrq1wSJbGoi1BRj9bpyulpCJNavyNpJQyKifoVtKDRtyWoJ7s4m1ayNcvvuLX5f/Jn5uRHG9reTTq4hFq9kaiLN/MkDzBwdoDNeTH6ehaZJdGUiNhZJiiwnUrdRysrCvF4f97/7BviTv/7+hauffcgbh5J0bY6ytnYVwy/FOTXcxPGJfqRlYrkVUldIl4VoKNDwGdr//YUgHm/gx58e8i/P+HXxEb8tPuL6l1cYermL9togbesrGBvfzeFUmMF0K5FYFENpSKnQLSciYus0VlWQ2t7JhQtnefbPU/54+oTrX1xk9uwR7v1wi4VPzrD/YA/NKy0GdjQxd+UM+3ZtYGCwg+TOJJoQ6NLIvpm49/k0jx/e4MH3X3P/2zt8decmJ2ameG30ABOZV/hoYZ7Mu+8wPT3J3p42jrx9kEs3LzM+MUR3qp63Zt7EU5ifbbd0VHHj02PMvzfM8Kt7SaV7uXopw8LHx9m9q4+Rw72Mj+1havYYJ97PMJjewtz5WTIfHGXPoV62b62jbzBJ84sdOHJzsTwe/gM3poVEwo9NWgAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;가보자.&apos; title=&apos;&apos; src=&apos;/static/8477e44d140a1627fb286173cf623b54/7f4de/img_7.png&apos; srcset=&apos;/static/8477e44d140a1627fb286173cf623b54/e7570/img_7.png 170w,
+/static/8477e44d140a1627fb286173cf623b54/f46e7/img_7.png 340w,
+/static/8477e44d140a1627fb286173cf623b54/7f4de/img_7.png 494w&apos; sizes=&apos;(max-width: 494px) 100vw, 494px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;가보자.&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;h2&gt;마무리&lt;/h2&gt;
+&lt;p&gt;AMP 페이지 는 성능과 사용자 경험을 고려할 때 여전히 유용한 기술이다.&lt;br&gt;
+정리하면 다음과 같다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Next.js에서 지원하는 기능이지만, 제약이 많아 사용하기 어려운 경우가 많다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Guide 에 맞는 HTML 태그를 파싱하고 변형하는 정교한 작업이 필요하다. ( 물론 트레이드 오프는 있다. )&lt;/li&gt;
+&lt;li&gt;이때 cheerio와 isTag를 사용하면 안정적으로 작업할 수 있다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;성능과 사용자 경험을 고려할 때 여전히 유용한 기술이다. ( 도메인 특성에 맞게 사용함이 핵심. )&lt;/li&gt;
+&lt;li&gt;제약을 잘 이해하고, 필요한 라이브러리를 적절히 활용해야 한다.&lt;/li&gt;
+&lt;/ul&gt;</content:encoded></item><item><title><![CDATA[AMP]]></title><description><![CDATA[📝 Next.js + Docker + ECR + CloudFront 실전 배포 자동화 배경 회사는 언론사(미디어)라 AMP 지원 필수 였다. 검색엔진 최적화(SEO)와 트래픽 최적화가 필요하게 되어서 배포 진행중 갑자기 문제가 발생했다. App…]]></description><link>https://hyungkishin.github.io/docker-deploy/</link><guid isPermaLink="false">https://hyungkishin.github.io/docker-deploy/</guid><pubDate>Thu, 17 Apr 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;📝 Next.js + Docker + ECR + CloudFront 실전 배포 자동화&lt;/h1&gt;
 &lt;h2&gt;배경&lt;/h2&gt;
 &lt;p&gt;회사는 언론사(미디어)라 AMP 지원 필수 였다.&lt;/p&gt;
 &lt;p&gt;검색엔진 최적화(SEO)와 트래픽 최적화가 필요하게 되어서 배포 진행중 갑자기 문제가 발생했다.&lt;/p&gt;
@@ -96,93 +634,8 @@ echo &quot;✅ 전체 배포 완료!&quot;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;서버 깨짐(overlay2 디스크 에러) 복구&lt;/p&gt;
 &lt;p&gt;AMP SEO + 일반 SEO 대응 완비&lt;/p&gt;
 &lt;p&gt;Slack 실시간 배포 알림 연동&lt;/p&gt;
-&lt;p&gt;ECR + EC2 + CloudFront 캐시 퍼지 자동화 완료&lt;/p&gt;</content:encoded></item><item><title><![CDATA[🏗️ AMP 페이지 개발]]></title><description><![CDATA[🏗️ AMP 페이지 개발 AMP(Accelerated Mobile Pages)는 빠른 모바일 페이지 로딩을 위해 구글이 주도한 프레임워크로, 강력한 성능을 얻는 대신 엄격한 제약을 동반한다. Next.js에서도 AMP…]]></description><link>https://hyungkishin.github.io/phase2/</link><guid isPermaLink="false">https://hyungkishin.github.io/phase2/</guid><pubDate>Thu, 17 Apr 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;🏗️ AMP 페이지 개발&lt;/h2&gt;
-&lt;p&gt;AMP(Accelerated Mobile Pages)는 빠른 모바일 페이지 로딩을 위해 구글이 주도한 프레임워크로,&lt;br&gt;
-&lt;strong&gt;강력한 성능을 얻는 대신 엄격한 제약&lt;/strong&gt;을 동반한다.&lt;/p&gt;
-&lt;p&gt;Next.js에서도 AMP를 적용하려면 이 제약을 그대로 수용해야 하며,&lt;br&gt;
-&lt;strong&gt;페이지 구조, 스타일링, JS 사용 방식 등에서 별도의 대응이 필요하다.&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;Next.js에서 AMP를 적용할 때도 이러한 제한이 그대로 적용된다.  &lt;/p&gt;
-&lt;h2&gt;⚠️ AMP에서 제한되는 항목&lt;/h2&gt;
-&lt;p&gt;AMP는 일반적인 React 환경과 달리 다음과 같은 제한이 있다:&lt;/p&gt;
-&lt;p&gt;☝️. &lt;strong&gt;React Hook 사용 제한&lt;/strong&gt;  &lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;code class=&quot;language-text&quot;&gt;useEffect&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;useState&lt;/code&gt; 등 hook 기반 로직 사용 불가&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;✌️. &lt;strong&gt;Sass/SCSS 등 외부 스타일 방식 제한&lt;/strong&gt;  &lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;모든 스타일은 inline 또는 제한된 CSS 내에서 처리해야 함&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;🫰. &lt;strong&gt;일반 script 태그 사용 불가&lt;/strong&gt;  &lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;code class=&quot;language-text&quot;&gt;&amp;lt;script&gt;&lt;/code&gt; 태그 자체를 금지하며, JS는 &lt;code class=&quot;language-text&quot;&gt;amp-script&lt;/code&gt;로 제한적으로만 허용됨&lt;/li&gt;
-&lt;/ul&gt;
-&lt;blockquote&gt;
-&lt;p&gt;전체 AMP 검증은 &lt;a href=&quot;https://validator.ampproject.org/&quot;&gt;AMP Validator&lt;/a&gt; 를 통해 실시간 확인 가능&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h2&gt;🗂️ 디렉팅 구조 전략&lt;/h2&gt;
-&lt;p&gt;pages 디렉토리 를 기반으로 amp 디렉토리를 생성하고, 하위에 slug 페이지를 작성한다.&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;🔖 slug 란 ?&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;ex ) /news/2025/04/17/기사제목&lt;/li&gt;
-&lt;li&gt;URL의 일부를 사람이 읽기 좋고 검색엔진 친화적으로 만든 문자열&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;middleware.ts 에서 /amp 로 시작하는 URL을 감지하여, 해당 페이지를 AMP 페이지로 리다이렉트 하도록 설정.&lt;/p&gt;
-&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 363px; &apos;&gt;
-      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/2a116434e1b7aa72d000971ee8d1627a/6ddef/img.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 133.52941176470588%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAbCAYAAAB836/YAAAACXBIWXMAAAsTAAALEwEAmpwYAAAEJUlEQVR42pWVS09bZxCG89eqLrqpom66SdVVpS76Gyq1TStVqhRFTRVl0RCCS4gJuRRogDgOBhtjwA6+YGPw/X73AV/O1cfnic4HipImIc5iFkcaPWfeb96ZuWTpfca6gqFpMDaxDAVrJIOlwUjG0gefFJcYG+QPfRy4fiIRWkJqZBmetKiXs5y2a2AMPxGISTTwGDl4hYr7MvnYIn6vj8Un80RCOwJoqj3GWn9C4EihW88R8j1gc22abjOHrMuYpsZI7YkkTEWENUG1l+w/g4HUbVMqFmikD4neuMqBa4lOKYUhn9BrV+l1ahjKCejDCYCmQruWZ9P3Ave8A+X7L2ld+YzMk3/w+Df58/o1pqf/plJIi1xT7X8cKDUrlAopBu0q4cXHHK8s0sociqqkZplet87Ylj7WLpR+BhyrdJsljuJRSpl9DjZ+J33ootvIMJCaNCpZuo0ypdwx2VQcpdcRzRprFwA7jSJbvk3W15y0PF+RWf6cuH+KLZ+fW7f+wnl/lvv3Z5l33iOdjAH6e6W/LbmUQZU7JMNucnE3rXJSSLR/KMLSGeuDCy10XqFCt1kmc5ygno8Rf/4rmegqp80c2VSC7FGMfDpBMXskPPnxLgvJJbybHjzPHtD0fk3Z9cWZ5K0ADscUd+9O8WjBiTboXjg970hWhh2C/mXSsXPJpi1ZF50dT2zsc8l2lyuZMGnPLySDD5HqKaL7e2x51xkpp5ON3puSt/0+/J5/kQLf0PFd5njvrpA8M3Obk1b19VxPNClSq0KpnEVTJcKB/8gmNpDqaextBNZZty1drLWJK4xHQsSjL7k97eDZs+cUcykqhRSRUIBkfJ/Y/i5H8TCmcgrGB4BimxhD1H6HYjbJ6soyf1y7zo8/X+Xp02VCwW0W5mdxzNxhxnGH1adLIveDFb75YW8dVT5hb2cL78YL0ahKIYuh6Qx7XUxDBcZgGVim+nGg/eD2G0lSk0Q8ymHYQ871HRH3b5RSftJHCTbW1/B71ylkkjAavjM1bwHtYRerrF4kuBtgz79KZ/cHTgLfkgo52fYHcK0t8eihk3gkKICmatupfwHw3JN5e/eNVSIHUUKxKP1OFSwTyxqdSR4pIhchvf8a+j/gmcltC+1seei0aswnajjjVTRtiMe9wtycA9faMn7vC5YXH+PbcDMWN+fs7rwHqArgy70tlNMWvkyVjXQZVe6RSoTxep4TeblDvZwjebBPIZMAU8a+TZYxeD/Q9mTGfnRGxKoNDqpN0Pt0GyWUfgddlpB7bQZSA23QoV0r0Kzm0YfS20BhnZGM3OuwH/RTLGSYDhdENNoNZh1T3JtzsLayxMMFJ/POWW7evCGW7sKDOXa3ve8CRRhDRmqfsXpKst4iUWsJS9kX0BhKohK7MlPro/TajPS+uD12ha8AWZvKk/aSTj4AAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;img.png&apos; title=&apos;&apos; src=&apos;/static/2a116434e1b7aa72d000971ee8d1627a/6ddef/img.png&apos; srcset=&apos;/static/2a116434e1b7aa72d000971ee8d1627a/e7570/img.png 170w,
-/static/2a116434e1b7aa72d000971ee8d1627a/f46e7/img.png 340w,
-/static/2a116434e1b7aa72d000971ee8d1627a/6ddef/img.png 363w&apos; sizes=&apos;(max-width: 363px) 100vw, 363px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
-  &lt;/a&gt;
-    &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;img.png&lt;/figcaption&gt;
-  &lt;/figure&gt;&lt;/p&gt;
-&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;bash&quot;&gt;&lt;pre class=&quot;language-bash&quot;&gt;&lt;code class=&quot;language-bash&quot;&gt;/src
-&lt;span class=&quot;token operator&quot;&gt;|&lt;/span&gt;── components                     
-    ├── amp                        👈 amp 페이지 내 공통컴포넌트 &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt; Header, Body, Footer 등 재사용 컴포넌트들 쭉쭉 넣어주고 ~ &lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
-    &lt;span class=&quot;token operator&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;..&lt;/span&gt;. 원래 있던 친구들 
-├── pages
-│   ├── amp                        👈 AMP 페이지 전용 디렉토리
-│   │   └── &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;slug&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;.tsx             👈 section 카테고리별 디렉토리
-&lt;span class=&quot;token operator&quot;&gt;|&lt;/span&gt;   &lt;span class=&quot;token operator&quot;&gt;|&lt;/span&gt;     └── &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;depth1&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;.tsx         👈 amp depth &lt;span class=&quot;token number&quot;&gt;1&lt;/span&gt; 본문 페이지
-&lt;span class=&quot;token operator&quot;&gt;|&lt;/span&gt;   &lt;span class=&quot;token operator&quot;&gt;|&lt;/span&gt;         └── &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;depth2&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;.tsx     👈 amp depth &lt;span class=&quot;token number&quot;&gt;2&lt;/span&gt; 본문 페이지
-&lt;span class=&quot;token operator&quot;&gt;|&lt;/span&gt;   &lt;span class=&quot;token operator&quot;&gt;|&lt;/span&gt;             └── &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;depth3&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;.tsx 👈 amp depth &lt;span class=&quot;token number&quot;&gt;3&lt;/span&gt; 본문 페이지&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;이렇게 되면 사실상 &lt;strong&gt;사용자 관점&lt;/strong&gt; 에서 보이는 기사 뷰 페이지는 2벌이다.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;일반 페이지 ( PC / MO ) &lt;/li&gt;
-&lt;li&gt;AMP 페이지 ( depth 별 )&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;기존 기사 본문 URL 구조는 &lt;strong&gt;slug url&lt;/strong&gt; 형식으로 되어있으니 amp 페이지로 유입될 경우 본문에 해당되는 amp 페이지로 redirect 해주면 된다
-pages 만 UI 뼈대를 만든 후 공통화 컴포넌트화 시키면 되겠다.&lt;/p&gt;
-&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 335px; &apos;&gt;
-      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/1287d9388ab92c89f022c3e02880814b/56823/img_1.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 175.8823529411765%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAjCAYAAACU9ioYAAAACXBIWXMAAAsTAAALEwEAmpwYAAAD9ElEQVR42p1WyVLbShTlv9nm7cirpFiwY42zp4phQZwKYGMDnmRJZigwnohnG4MtWzqvzm213HJI4ryuOmVZ6j6699xJG+PRGMlkEuVyGZZlRSgUCsjlcmuBe09PTzEajbDRaXdgWWV0u10hvbm5geO6GAyG4PJ9H74fIJBfH4FcBwgChcViIfts20ar1cJGt6sIJ5MJarUams0mGo2G/A8AzOdz+ItFSKwIfU3K65DQcRw8Pz+TsItSqRRZoxffvvpf3QsJVy2MEVqW3BRrtCVBAM/zkM/n8fT0hHq9LlYD6xCGFvKhcsmnSfBmHr4kvuDT50/Y2trChw//RERaR03o2CFhp9NFqRgSzheRqxqvr6/o9/to//ghB7Tbf7DQijSMLDBgrtVnWucYIfOIazqdYuZ58LwZZjMPs9kswnQ6w2yq7vO5gidnuKyypQh73R729/dxe3srech8+hvwDM8eHR2h3W4rCxlJPjw/P0cmk1kb2WwWZ2dnkoNEk4nd7w+QTqflTW9vb5hMXiUQ64D7WW40yHHCSukPBjhPpaXktOi/CoIOmrkYZZGqbCsNmRKpVAqVSoWpF9Uufyl6vFpgpFUQJv9cmgklE8LBYBARLpuBIjk8PMReYg97ewkkEgrJb99iKcbq+okwnUrBfYeQG6+vr3FwcIDd3V3s7Owge3mpXNXluUrYDy10XRd+mPlCyjIMfGlbXHSfQVBkCyH0A1/ykoWh2peh4a+C8qdFA5jUMcKLTAZXV1fSUdgL6/UQcq3v1dV1+F/QbOLx8REXFxk4jqsIO52OaMDN1KtYLP4ElqaGeZ9dimdIzqBKHirCsgjK+WCVSrJRg65QDpYXddZEBA3hGZ4lYbPZUu2rWHy/Y3OxxE5OTgR0b1VnfW3bDlrSD7tdedN4PMZjtaq0qtVRqymtWK8k+/79VKzjzOHs0ZpWq1U565oalm0bvV5PiOmWhuM6uL+/F8seHh5wd3cnTcDcwzMMbKQhiSgsC5wWmLOZoFaUpGjopsEapoY8X3Ery+bAPOQspoYsJeYWMV/MJaE5GnjffKbBBktD4rWcTqNSuZE5HI0Bf1kl8dGqu05YQXNPsmRZelG3cWMDitd8O6M8HAwlQHRJE5qjVrlvqyhrl6nBsn2pSTYaDrG5uYmP/34UbG9v4+XlJSw5X/abhLH2xYgpl40xuvClITAtOOQbjaYQwGi2Zj+UtJH2JRpWlMtht1kYbcz8NIkh8OVj4LcN9v90G7avyGXmYT6XR6FYwGU2G33zXUt+KeTeu87lJHcZNDYNGvRslh4X9TKH+zrQTZcVJBoOhyMcHx/LW5jx6361msjnC/ia/ArK9x8E3SgaPi2VVwAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;기사 본문 상단 구조&apos; title=&apos;&apos; src=&apos;/static/1287d9388ab92c89f022c3e02880814b/56823/img_1.png&apos; srcset=&apos;/static/1287d9388ab92c89f022c3e02880814b/e7570/img_1.png 170w,
-/static/1287d9388ab92c89f022c3e02880814b/56823/img_1.png 335w&apos; sizes=&apos;(max-width: 335px) 100vw, 335px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
-  &lt;/a&gt;
-    &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;기사 본문 상단 구조&lt;/figcaption&gt;
-  &lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;( 그외 푸터 등등 모두 동일 ) &lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;AMP는 제약은 많지만, 뉴스 도메인에선 여전히 유의미하다&lt;/p&gt;
-&lt;p&gt;React hook이나 script 사용은 어렵지만 기본 콘텐츠 위주 뉴스 페이지엔 큰 무리는 없다&lt;/p&gt;
-&lt;p&gt;middleware.ts + slug 기반으로 AMP 라우팅 처리하면 깔끔하게 대응 가능&lt;/p&gt;
-&lt;p&gt;AMP 페이지는 별도로 구성하되, 디자인/구조는 최대한 기존과 일치시키는 전략이 효과적이다&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h2&gt;끝인줄 알았는데 등장하는 style 제약&lt;/h2&gt;
-&lt;p&gt;AMP에서 사용하는 스타일은 용량에 명확한 제한이 있다:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;code class=&quot;language-text&quot;&gt;&amp;lt;style amp-custom&gt;&lt;/code&gt; 태그에는 &lt;strong&gt;최대 50KB까지만&lt;/strong&gt; CSS 작성 가능&lt;/li&gt;
-&lt;li&gt;인라인 스타일 (&lt;code class=&quot;language-text&quot;&gt;style=&quot;...&quot;&lt;/code&gt;)도 포함되므로 실제 여유는 더 적을 수 있다&lt;/li&gt;
-&lt;li&gt;애니메이션 전용으로 허용된 &lt;code class=&quot;language-text&quot;&gt;&amp;lt;style amp-keyframes&gt;&lt;/code&gt;는 &lt;strong&gt;최대 500KB까지&lt;/strong&gt; 허용되지만,
-이는 &lt;code class=&quot;language-text&quot;&gt;&amp;lt;body&gt;&lt;/code&gt; 하단에만 위치할 수 있고, 오직 키프레임 규칙만 작성 가능하다&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;👉 실무에서는 &lt;strong&gt;총 CSS + 인라인 스타일 합산이 75KB를 넘지 않도록&lt;/strong&gt; 주의해야 한다 - &lt;a href=&quot;https://amp.dev/documentation/guides-and-tutorials/learn/spec/amphtml&quot;&gt; 관련 공식문서 &lt;/a&gt;&lt;/p&gt;</content:encoded></item><item><title><![CDATA[🗞️ 한 달간의 뉴스 사이트 프론트 성능 최적화✨]]></title><description><![CDATA[…]]></description><link>https://hyungkishin.github.io/phase1/</link><guid isPermaLink="false">https://hyungkishin.github.io/phase1/</guid><pubDate>Thu, 17 Apr 2025 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+&lt;p&gt;ECR + EC2 + CloudFront 캐시 퍼지 자동화 완료&lt;/p&gt;</content:encoded></item><item><title><![CDATA[🗞️ 한 달간의 뉴스 사이트 프론트 성능 최적화✨]]></title><description><![CDATA[들어가며 현재 한 언론사에서 뉴스 웹사이트 운영과 성능 최적화를 진행하고 있다.   뉴스 기사의 검색 노출 최적화는 단순한 트래픽을 넘어 광고 수익과 직결된다. 요즘 대부분의 사용자는 뉴스를 포털보다는 검색을 통해 소비하며,
+특히 모바일 사용자의 7…]]></description><link>https://hyungkishin.github.io/phase1/</link><guid isPermaLink="false">https://hyungkishin.github.io/phase1/</guid><pubDate>Thu, 17 Apr 2025 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 609px; &apos;&gt;
       &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/867c15d6bfc3e5df719c65d8a322adb5/71467/img.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 61.1764705882353%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAAAsTAAALEwEAmpwYAAADaklEQVR42h3KWUwbBACA4b6iPhjN3MPIcEPxgmmYbBLbQbnHsZajQFtaSi9KLwqUcS2Mw3GWURcrRBjHGKVAC0qHAzaOhJktOl006HAQfHGJusWBy4xm0d/E7/kTZCcryU1VUZippyDTgDRFS7pYTbpYgzStFKuhlbazbkaHLrG1vcXu3u/c/3mHx3/8xr//POHp08f8/dcufz55yN7uLwiyE3KRpRSSn6qkWKrHUuSgpqyBMpUTS3EtZarTlBZXo1Nb6Pd8wqNHv7Lz0z1841Osry5z5843bG3/yIOH99nde4DAKNdjKDRgkBtQSoqRJOZjKDAhTZQjz9BSb2tEL7di0Vr4qNfN7ds32d7ZZNYfYH3tOitLV7l2dZ5bt27ww+YGAqepkqaqOmrM1dTZa2lw1FNRVo1BZcWisdHa0EJRnp6jb75PT0cbN2+sMD3pZWHez1JwmoB3FL/vEsG5AItLCwjU0gIsCiW6HDk2lQ5HiYkqo4UzFdX0tndwweXiXFMrCmkB/b09jA0NMNDnYWL0IsP9HlwfNFNpNlNld1BfdwaBuUiNRipDLyvEKFdgLipCm5vPkcOROMsr+PhCL+7uTtqbzuK0OzDpDHyxvsyVT/10NjXiMBqxGU2UW8r5sNeNQCfNIVeUhDFPRq1Rj0OjITvpJAf3h3MwNJISZQmnrTbcrm7amhqptVsxKhSkxIrIEJ6gUqfG09XCcJ+bAc95BIdeCiXs+f3UV1RxfWmR2ZkAweAcswE/k5M+fBNefN5x1laXubb4OQH/FOOXx5iZmfn/zAc/4/JgHxc95xnscyN4bd8+DoQ8g8VkprTMjMVq48uvv8JqtzPln+b7ze9oam6my9XD3Xt3GZ/wsry2wrcbGxQq1HgnJzGVaImPPkqaUIgg9lAYB0JCcBgNnOvooK29nbkrQVqamxkZGWF1bZnO7m4Gh4ZYWVvFNz3N/MICgdlZurpdDI+OkRMXR9hzz5IVE4Xg8AsvcuLlUHLffRtDZgr54jgUCXHUKHPQpCYjT05CK5FQIslGk3WKSnk+hswMsoUidOknKRCLSY2MQiWKJSsmGoEsKgLZkVcpPvYWWW+EkxUZgVF8nJTXI4gPfwVp9DvkHYtBFSdCkxCP81QqjvQEVML30AiPUy9NojJTjDlRhFOSxn99/0dTlQelNQAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
@@ -194,8 +647,15 @@ pages 만 UI 뼈대를 만든 후 공통화 컴포넌트화 시키면 되겠다.
     &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;이미지 출처 - 한국일보&lt;/figcaption&gt;
   &lt;/figure&gt;&lt;/p&gt;
 &lt;h2&gt;들어가며&lt;/h2&gt;
-&lt;p&gt;현재 한 언론사에서 뉴스 웹사이트 운영과 성능 최적화를 진행하고 있다.&lt;br&gt;
-뉴스 기사의 &lt;strong&gt;검색 노출 최적화&lt;/strong&gt;는 단순한 트래픽을 넘어 &lt;strong&gt;광고 수익&lt;/strong&gt;과 직결되는 핵심 과제다.&lt;/p&gt;
+&lt;p&gt;현재 한 언론사에서 뉴스 웹사이트 운영과 성능 최적화를 진행하고 있다.  &lt;/p&gt;
+&lt;p&gt;뉴스 기사의 &lt;strong&gt;검색 노출 최적화&lt;/strong&gt;는 단순한 트래픽을 넘어 &lt;strong&gt;광고 수익&lt;/strong&gt;과 직결된다.&lt;/p&gt;
+&lt;p&gt;요즘 대부분의 사용자는 뉴스를 포털보다는 검색을 통해 소비하며,
+특히 모바일 사용자의 70% 이상은 검색 결과 상단에서만 기사를 클릭한다.&lt;/p&gt;
+&lt;p&gt;아래로는 거의 내려가지 않기 때문에, 검색 결과 2페이지에 있는 기사는 사실상 묻힌다고 봐도 된다.&lt;/p&gt;
+&lt;p&gt;수많은 뉴스 매체들이 같은 이슈를 거의 동시에 다루는 상황에서 검색 결과에 잘 노출되기 위해서는, &lt;strong&gt;&apos;누가 먼저, 더 빠르게, 더 안정적으로 노출되느냐&apos;&lt;/strong&gt; 가 실시간 트래픽의 성패를 가른다.&lt;/p&gt;
+&lt;p&gt;웹사이트의 &quot;속도&quot;가 빠르고 사용자 경험이 좋아야 한다.&lt;/p&gt;
+&lt;p&gt;구글은 이를 수치화해서 측정할 수 있도록 ‘Core Web Vitals’라는 성능 지표를 제공하고 있다.
+그리고 이 지표는 페이지의 노출, 유저의 이탈률, 나아가 수익성과도 직접적인 연관이 있다.&lt;/p&gt;
 &lt;p&gt;어찌 보면 당연한 이야기처럼 들릴 수 있다.&lt;br&gt;
 기사를 작성해 발행하면 포털이나 구글 검색에 &lt;em&gt;잘 뜨는 것 이 기본이니까&lt;/em&gt;.&lt;/p&gt;
 &lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
@@ -210,7 +670,7 @@ pages 만 UI 뼈대를 만든 후 공통화 컴포넌트화 시키면 되겠다.
     &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;잘..부탁드립니다요&lt;/figcaption&gt;
   &lt;/figure&gt;&lt;/p&gt;
 &lt;p&gt; 아 물론, 내가 기본이라고 말했던 오만함의 &lt;strong&gt;잘&lt;/strong&gt; 의 조건은 다음과 같다.&lt;/p&gt;
-&lt;h2&gt;🔧 검색 노출을 위한 기술 요소 정리표&lt;/h2&gt;
+&lt;h2&gt;🔧 검색 노출을 위한 기술 요소 그리고 해야할 것들&lt;/h2&gt;
 &lt;table&gt;
 &lt;thead&gt;
 &lt;tr&gt;
@@ -254,29 +714,33 @@ pages 만 UI 뼈대를 만든 후 공통화 컴포넌트화 시키면 되겠다.
 &lt;/ul&gt;
 &lt;p&gt;개선해 나아간 부분들이 정말 다행스럽다. 프론트엔드 고수분들을 진심으로 존경하고 존경한다.&lt;/p&gt;
 &lt;hr&gt;
-&lt;h2&gt;불안하다 했다.&lt;/h2&gt;
+&lt;h2&gt;입사 첫날의 징크스&lt;/h2&gt;
 &lt;p&gt;퇴사후 한달간의 리프레쉬 기간을 갖고, 어찌저찌 현 회사에 투입이 되었다.&lt;/p&gt;
 &lt;p&gt;구축 외주 인력 분들이 철수하게 되어, 운영에 필요한 인수인계를 받으면 되었다.   &lt;/p&gt;
 &lt;p&gt;가벼운 마음으로 모닝 커피 마시면서 한분 한분 인사를 드렸다.&lt;br&gt;
 ( 휴식후 너무 오랜만에 사람을 만나서 반가웠고 많이 웃었다.)&lt;/p&gt;
 &lt;p&gt;그리고 곧 철수하는 분들에게 부럽다는 표정을 숨기고, 잔여 이슈에 대해서 설명하는 시간을 가지기로 하며,
-순조롭게 인수인계를 받을 준비를 하며 노트북을 키는 순간이였다. &lt;/p&gt;
-&lt;p&gt;( 왜이렇게 순조롭지 라는 생각이 들때쯤. 상사 분의 스윗 + 다급한 목소리 )&lt;/p&gt;
+순조롭게 인수인계를 받을 준비를 하며 노트북을 키는 순간.&lt;/p&gt;
+&lt;p&gt;그런게 있다 ? 순조로운 인수인계 + 여유로운 프로젝트 + 이상한 느낌&lt;/p&gt;
+&lt;p&gt;( 아니겠지 생각이 들때쯤. 부장님 의 스윗 + 다급한 목소리 )&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;&quot;형기 씨 ... 정말 미안한데, 급해.&quot;&lt;/strong&gt;&lt;/p&gt;
-&lt;h2&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
       &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/a1be38bdccc73868e0f430c0fe2e8a73/2cbcd/img_2.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 56.470588235294116%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAALCAYAAAB/Ca1DAAAACXBIWXMAAAsTAAALEwEAmpwYAAAC5UlEQVR42k3R3U9bBRjH8ROh7Xk/Pedwzgmc9tCWIqXtoO0oMAQc68bmWEUWsjHY5EWFCshwI7LIXhrdpkvc4pZlQaNEF000Jnq1aKJe6oU3euWVV/4jX0Nnohef5MmT33PxyyO0BTGCZ9MMjh5i/MRhvrjxCnsXT3BvcYibM4e4Nz/Ei+UUjm2Q9FuYPpzjrTNFzowk8Uyd/kxAJuEiahqqpiH4qYDWZIz27hRTEyP88midL69UuXwqS9I1GC+0s/1SH8UOh1q1wIP1MW4tldmYypALLMZLHbR6JqKqIooiQlsihhPzCOkyp4+V+WPvMj/enuWNFzKYukomZlOfLnF9tsTVuQKb0wVq1Sy1U52M9focPZhE1RW0qIEsywhuq4vpmghNz/Dm3Dh/fb3DDzfP8dHq87x+vJs7Lw+ytzrMu/NFFo6muHCsi62ZPrbO5hjracVvMZBUBcMy0E0DwXZtFENrLB/fWOTPx1v89P48n21W2NsY5fNLFb6rT/LxpRF2Lw6xuzHM/Vof9fN5elMWTaEIqqag21EspwXB9T0isoTrOXz/4Rq/f7rOzx8s8uSds3yycYSHa6P8/e3bfLVT4f5Kid31Qe6+VmJzKk13EKU5EkFSRFRDxXRMBMu10Syd/W9fODnMk/fm+e3hMt9cqVKf6eHWQj+/PlrmQW2A63N5dma72Z7pYul4HN9RCUsisiqhaDKyJiNE7ShezCOdzeDG4vTnOpgd62VyIM2dpTLXzpe5W6twba7M6mSOVyc62D6XoVJ0kBUJSZUbZP0pwXJMPN8j0ZnGT8QJ0gkK5V4O9uW4ujTK6mSWtdMD1BeOsHwyz0q1i5WJdmKuQkSTUfSnVENpEEw7iu1ZRB2LaItJqjMgm081HDiQptiTJN/lM5yP81wuYCDbRiZuNI73K0qq9F9lVUaQZQlRERFlEUkWCYthmkLNDc3hEKFIBHE/I4mExAghUSQsSUjKv9T/zYrEP6LRZmCFxb3PAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;ㅇ...안돼;;&apos; title=&apos;&apos; src=&apos;/static/a1be38bdccc73868e0f430c0fe2e8a73/ca1dc/img_2.png&apos; srcset=&apos;/static/a1be38bdccc73868e0f430c0fe2e8a73/e7570/img_2.png 170w,
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;아아ㄱ...!&apos; title=&apos;&apos; src=&apos;/static/a1be38bdccc73868e0f430c0fe2e8a73/ca1dc/img_2.png&apos; srcset=&apos;/static/a1be38bdccc73868e0f430c0fe2e8a73/e7570/img_2.png 170w,
 /static/a1be38bdccc73868e0f430c0fe2e8a73/f46e7/img_2.png 340w,
 /static/a1be38bdccc73868e0f430c0fe2e8a73/ca1dc/img_2.png 680w,
 /static/a1be38bdccc73868e0f430c0fe2e8a73/2cbcd/img_2.png 764w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
   &lt;/a&gt;
     &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;ㅇ...안돼;;&lt;/figcaption&gt;
-  &lt;/figure&gt;&lt;/h2&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;아아ㄱ...!&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;hr&gt;
 &lt;h2&gt;AMP 뭔데요?&lt;/h2&gt;
 &lt;p&gt;부장님께서 호출하신 이유는 AMP 페이지가 정상적으로 동작하지 않는 심각한 이슈가 있어, 이를 분석후 걷어내야 할지 개선해서 사용할지를 검토를 해달라고 하셨다.  &lt;/p&gt;
+&lt;p&gt;현재 운영 중인 웹사이트는 Next.js 기반의 웹사이트로, 리뉴얼 개편 이후 트래픽이 1/3 정도 감소했다고 한다.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;검색 노출 하락 → 사용자 이탈 → 수익 저하&lt;/strong&gt;로 이어지는 구조적 위기였다.&lt;/p&gt;
 &lt;p&gt;AMP 가 뭔지도 모르는 나는 잠깐의 히스토리 설명을 듣고 반나절 정도 분석후 검토할 시간을 달라고 말씀드렸다.&lt;br&gt;
 ( 쪼금만 기다려주세요 입사 첫날이라서요.. )&lt;/p&gt;
 &lt;blockquote&gt;
@@ -398,6 +862,8 @@ pages 만 UI 뼈대를 만든 후 공통화 컴포넌트화 시키면 되겠다.
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
+&lt;hr&gt;
+&lt;h2&gt;검색 유입이 중요하다.&lt;/h2&gt;
 &lt;p&gt;🥰 국내 뉴스 유입이 포털 중심에서 검색 중심으로 넘어오고 있다는 사실.&lt;/p&gt;
 &lt;p&gt;물론 한국은 네이버·다음 같은 &lt;strong&gt;포털 중심의 뉴스 소비 성향&lt;/strong&gt;이 강하다.&lt;br&gt;
 하지만 최근에는 &lt;strong&gt;구글 검색 + 유튜브 검색을 통한 뉴스 소비도 꾸준히 증가 중&lt;/strong&gt;이다.&lt;/p&gt;
@@ -405,7 +871,6 @@ pages 만 UI 뼈대를 만든 후 공통화 컴포넌트화 시키면 되겠다.
 &lt;p&gt;특히 검색 기반 유입은 ‘롱테일 콘텐츠’ 확보에 핵심.&lt;br&gt;
 반면, 포털 메인은 &lt;em&gt;경쟁도 심하고, 노출 타이밍도 예측이 불가능&lt;/em&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;hr&gt;
 &lt;p&gt;오케이 🙆 도메인 적합성 + amp 배경지식 습득 완료 . 그럼 이제 트러블 슈팅 을 해보자.&lt;/p&gt;
 &lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
@@ -419,14 +884,61 @@ pages 만 UI 뼈대를 만든 후 공통화 컴포넌트화 시키면 되겠다.
     &lt;/span&gt;
     &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;이 요망한 걸림돌들&lt;/figcaption&gt;
   &lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;앞서 말했듯이 &lt;strong&gt;AMP는 정적 검증기 인 AMP Validator 를 통과해야만 페이지가 동작 가능&lt;/strong&gt; 한데, 본문에 허용하지 않는 Tag 가 선언되어 있거나,&lt;br&gt;
-./next/static 하위 js 번들이 포함되어 있으면 AMP 페이지가 정상적으로 동작하지 않는다.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#amp&quot;&gt;Next.js AMP 공식 문서&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;그러나, 문제의 &lt;em&gt;태그&lt;/em&gt; 를 해결해도 왜 next 번들 파일이 guide 규칙에 걸리는지 의문을 품던 도중   &lt;/p&gt;
-&lt;p&gt;❗ AMP는 Next.js의 pages 라우터 기반에서만 정식 지원하고, app router 기반에서는 공식적으로 AMP 지원이 되지 않는다는 사실을 알았다.    &lt;/p&gt;
-&lt;p&gt;아래와 같은 구조에 맞게 개편을 해야하는데,,, 문제는 현재 &lt;em&gt;app 디렉토리에 모든 페이지가 개발되어 있는상태.&lt;/em&gt;  &lt;/p&gt;
+&lt;p&gt;앞서 말했듯이 &lt;strong&gt;AMP 페이지 는 정적 검증기 인 AMP Validator 를 통과해야만 페이지가 동작 가능&lt;/strong&gt; 하다. &lt;/p&gt;
+&lt;p&gt;구글 search console 에서 계속 안되는 이유를 친절하게 알려준다.&lt;br&gt;
+본문에 허용하지 않는 Tag 가 선언되어 있거나, ./next/static 하위 js 번들이 html 전체 문서에 포함되어 있으면 AMP 페이지가 정상적으로 동작하지 않는다고. ( 훌륭해.. )&lt;/p&gt;
+&lt;p&gt;그러나, 문제의 &lt;em&gt;태그&lt;/em&gt; 를 해결해도 왜 next 번들 파일이 guide 규칙에 걸리는지 의문을 품던 도중&lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/9e44e24bc4e8c3aa69a953c708b2a92f/f3280/img_3.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 24.705882352941178%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAFCAYAAABFA8wzAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA/UlEQVR42mWQXWvCQBBF/f//qCBVS99b0FiwpS3GZGM22VSzm2Q/4ilrRAp9ONw783CZOzPvPKbr0FpjhwFnLd45xuAnfNRww3MJ4Y5zHmsnoo/MfBipy4L3r5SPQ823+OEgW0QzkKv+TpxFM/ms7shUT289XAKXMRD8LTCmMwZ2uWa+USwSxeOmYrkpWW1LVknJ07a66mJdsEziTrJYH0nSM5+FZpe3qHa4hs6s8wTneNs3PLxkzF9znpMjom7Z54asbEnLE0IZRK05Nh2FMlfNKkMqNftSc9IWHwPjmcZ0SFlxPjWIPKWSEjf0nOuB3vQYo29/Df+Idf9W/gUugHwBQKZ0XwAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;amp 안됌 1 스택 - Vercel 에 컨펌까지 받았대 ;;&apos; title=&apos;&apos; src=&apos;/static/9e44e24bc4e8c3aa69a953c708b2a92f/ca1dc/img_3.png&apos; srcset=&apos;/static/9e44e24bc4e8c3aa69a953c708b2a92f/e7570/img_3.png 170w,
+/static/9e44e24bc4e8c3aa69a953c708b2a92f/f46e7/img_3.png 340w,
+/static/9e44e24bc4e8c3aa69a953c708b2a92f/ca1dc/img_3.png 680w,
+/static/9e44e24bc4e8c3aa69a953c708b2a92f/f3280/img_3.png 789w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;amp 안됌 1 스택 - Vercel 에 컨펌까지 받았대 ;;&lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/cf49b49d96c8588f9990d06cfad4c3b1/d703b/img_6.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 16.470588235294116%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAADCAYAAACTWi8uAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAmElEQVR42m2NvQ6CMAAGeXc3d9/JRYXJkBgEUTAo4a+lLbScSaNOXHK56csXyFERna+YaaYfBoQQyHFEae3V2mCtxVr372wd02xXDR5lxWa7Y5CK9F5yzQvysqJ8t95n3dKPhlZo304ahJpQZl41wLP497gYCNOeKG05JQ1R1hOmHYdLzTFpCLOOffziVsnvxuGcY1kWfnwA877lABPpxxcAAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;응단됌 - 2 스택&apos; title=&apos;&apos; src=&apos;/static/cf49b49d96c8588f9990d06cfad4c3b1/ca1dc/img_6.png&apos; srcset=&apos;/static/cf49b49d96c8588f9990d06cfad4c3b1/e7570/img_6.png 170w,
+/static/cf49b49d96c8588f9990d06cfad4c3b1/f46e7/img_6.png 340w,
+/static/cf49b49d96c8588f9990d06cfad4c3b1/ca1dc/img_6.png 680w,
+/static/cf49b49d96c8588f9990d06cfad4c3b1/d703b/img_6.png 786w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;응단됌 - 2 스택&lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 542px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/e9fcfd45cafea03b77a133d412f70186/47f85/img_7.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 24.11764705882353%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAFCAYAAABFA8wzAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA9UlEQVR42oWOy07CUBRF+f/vMUKIc0UkoGKMtQ/Ks7XSep8t9xaXsSQMZOBg5Zw9OOvsXqEqpK5Rpsa13xx8S33wNK7FNu60++M5/0dPOMPofkwUJwRhQpKuyIuSdL3jsxJss4IgjAmTZffYNh5TuzMXwr0RrDcZ+0pQfkkqoZDaorXpDoSuKYVGaYNzHud/afG+7eaF8EOWHNyxkwTRgjhddW1eoi3jsOI2kNy9S6KdYpFLklyTZIo4kyxyhf7TsleoElu7rtn0cc7sac789Y3hJGUw3XHzXDCYbLgeL+k/rBnOcq5GaUd/sqKUBm0tyli0bfgB8iB4xrx8pDcAAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;그만해 .. - 3 스택&apos; title=&apos;&apos; src=&apos;/static/e9fcfd45cafea03b77a133d412f70186/47f85/img_7.png&apos; srcset=&apos;/static/e9fcfd45cafea03b77a133d412f70186/e7570/img_7.png 170w,
+/static/e9fcfd45cafea03b77a133d412f70186/f46e7/img_7.png 340w,
+/static/e9fcfd45cafea03b77a133d412f70186/47f85/img_7.png 542w&apos; sizes=&apos;(max-width: 542px) 100vw, 542px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;그만해 .. - 3 스택&lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/bda647229ccd88e6923459403a298654/11e78/img_8.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 34.11764705882353%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAHCAYAAAAIy204AAAACXBIWXMAAAsTAAALEwEAmpwYAAABH0lEQVR42oWR626DMAyF+/4vVwGaRNeu3VRNK5QUQkJzA74pWcvGr0VyjmM7xyfOBmCeZ8ZxxAef8BmbpinZX/+/tYlbuE80jeDrcqHtuuVyCCFZbGKtxXu/Io/x5znWLYTSjNT1FXGt8c4yPZKn45HX3Y4szzkcDuR5zna7pSxLiqIgyzL2+/2Siw028xhQnw3ncsfppaA5f2BvAiNqmvc3lOzw/kdpVOmcW5Q/1Uf7VThPDE1DV1Vo0XBvb9heYmWLvAlubYvsOpRSDMPAMGh09LVCa5XiUkq6R016snUW69xquHE2bdtSVRVCCIwxWOcxLmBswEZ0PqmO6uJ8IybCQWuC92vCaUJrTd/39EolVCbQW+gMCZWdMcaufvkboTAdcc70sBMAAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;아 ... ? &apos; title=&apos;&apos; src=&apos;/static/bda647229ccd88e6923459403a298654/ca1dc/img_8.png&apos; srcset=&apos;/static/bda647229ccd88e6923459403a298654/e7570/img_8.png 170w,
+/static/bda647229ccd88e6923459403a298654/f46e7/img_8.png 340w,
+/static/bda647229ccd88e6923459403a298654/ca1dc/img_8.png 680w,
+/static/bda647229ccd88e6923459403a298654/02d09/img_8.png 1020w,
+/static/bda647229ccd88e6923459403a298654/11e78/img_8.png 1027w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;아 ... ? &lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;❗❗❗ Next.js의 pages 라우터 기반에서만 정식 지원하고, app router 기반에서는 공식적으로 AMP 지원이 되지 않는다는 사실을 알았다.&lt;/p&gt;
+&lt;p&gt;아래와 같은 구조에서 pages 하위에만 Amp 대상 페이지를 두면 되긴 하는데..&lt;br&gt;
+문제는 현재 &lt;em&gt;app 디렉토리에 AMP 페이지가 개발되어 있는상태.&lt;/em&gt; ( 범인 색출 성공 )   &lt;/p&gt;
 &lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 462px; &apos;&gt;
       &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/1d366f6476bbeb95da8a777daf074d37/a9e02/img_5.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
@@ -438,24 +950,35 @@ pages 만 UI 뼈대를 만든 후 공통화 컴포넌트화 시키면 되겠다.
     &lt;/span&gt;
     &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;pages 는 구식 app 은 신식&lt;/figcaption&gt;
   &lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;마치 판매 기준을 어긴것과 같다고 보면 된다. 샌드위치 속 재료를 기준에 맞게 모두 바꿨지만, 포장지가 비닐이 아니라 종이여야 했던 걸 몰랐던 상황처럼.&lt;/p&gt;
-&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 395px; &apos;&gt;
-      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/9a600cf21b38f8317e9534ec5746f610/50f4b/img_3.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 55.294117647058826%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAALCAYAAAB/Ca1DAAAACXBIWXMAAAsTAAALEwEAmpwYAAADLElEQVR42h3N6U+TBwDA4ffjsisxAYXFQJa5LduSmehcNuMxQBCEVQFBqBxpKUJBKcyirjbgxREIxoIoBURaKadyFLkKg4W3VGQUAUtpaeswrTiWJX7a59+SPf/AI3Qoo+lVxfL4UjymK8cwVWcxVFtMf5WKJ1Uq+qtVyOMPsSc0iPDgHYTu+Jg8SQQ9N/Jo16Rh1uUwdv8CXRWZPKqWIXTkR9FXFEObNoW7mmQeXkyn96YKU7mSx7fOcz07geCPPmT3ziDCQ3YSHrqLT0NC0RVJWLGcxO9LY9Uiw3wng8GGiwiP8n6iu+g45itxtCiO0nk1A3NdLqaycwxUq1AkHOGD994nJDiIb3Z/wp5docijDjNcl4GtIQlbmxzxnpwZvYJ+nRrBqDhMV2Ek5l9imayOxLOYyKZDikWfjbmmCLU0jugvP0dxcD/qqO8Z/TUPe2UJ4zVpOMXjuMUkPPMnmHqg4JpMgvAgP4aHhSfovHSK6dsnsTalYDPImWlMw1R2ls6KElJ/3Eflz5E0Z8UzrS1gWKNmRKemozydvqpEBmrkdFcouZDwA0LrZTntV3MxapXM9aTiFiW4ZiW8tGRh62nBuzCP4VY52sjvqE2NofFsPJaqCrYDWwQ2Npho0dFZnkdTaSbK2AMIzeps2jW5GDTn6L6R9f/69G4+9uF+3rrcbLk8rNv+YLCiDENhNt2VZUwYTWz7A7x79y+D9bXoi6VU5UiQRXyLUF8i5V5JJuMtqThsycx0pjHRXM/zkUnGunpYfbaA3+nDs+TAZ19h2+fnL+9r/n69xZ/uWZZFJdYnSegvp1CafBShVnma+6VnEPWJrJll2FozeT5wk8XJKV7OzjFtHsVlX+HtxisC61786x7euHyIlil+ay/AMZDCYk82vdfi0EiPIdwpktJUms60KQFrbwK+uVOIAzLmR4147C/wLi3z4ncrAacHv8PFmzU3vqU1hrracIoFrI2dwTeTglG7l6ivwhBOH9lPxL4vOLg3jPrr0VgHZRjq4pjsK8a7ZGV9wY44Ms7mqpOA080r+zLPpix4Vlv5Z7MR61A+Dec/43bO1yQfCOM/ReFCskNqajcAAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;안되지롱~!&apos; title=&apos;&apos; src=&apos;/static/9a600cf21b38f8317e9534ec5746f610/50f4b/img_3.png&apos; srcset=&apos;/static/9a600cf21b38f8317e9534ec5746f610/e7570/img_3.png 170w,
-/static/9a600cf21b38f8317e9534ec5746f610/f46e7/img_3.png 340w,
-/static/9a600cf21b38f8317e9534ec5746f610/50f4b/img_3.png 395w&apos; sizes=&apos;(max-width: 395px) 100vw, 395px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
-  &lt;/a&gt;
-    &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;안되지롱~!&lt;/figcaption&gt;
-  &lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;그런줄도 모르고 되게 얄미워했네. 열받게...&lt;/p&gt;
-&lt;p&gt;천만 다행으로, app / pages 라우터 방식을 &lt;strong&gt;모두 지원&lt;/strong&gt; 하니 모두 pages 하위로 옮기는 불상사는 발생하지 않는다. &lt;/p&gt;
-&lt;p&gt;결론 적으로 amp 기능 개발 가능 🙏&lt;/p&gt;
+&lt;p&gt;마치 판매 기준을 어긴 것 과 같다. 샌드위치 속 재료를 기준에 맞게 모두 바꿨지만, 포장지가 비닐이 아니라 종이여야 했던 걸 몰랐던 상황처럼.&lt;/p&gt;
+&lt;p&gt;천만 다행으로, app / pages 라우터 방식을 next 에선 &lt;strong&gt;모두 지원&lt;/strong&gt; 하니 모두 pages 방식으로 forting 하는 불상사는 발생하지 않는다. &lt;/p&gt;
+&lt;p&gt;실험적으로 pages router 방식으로 mock 으로 테스트해보니, AMP Validator 에 걸리지 않은것도 확인 ✅&lt;/p&gt;
+&lt;p&gt;다시 부장님께 Amp 대상 페이지가 어떤것인지 여쭤보았고, &lt;strong&gt;기사 상세 페이지만 대상&lt;/strong&gt; 이라고 하셨다. &lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;결론&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;✅ AMP 에 대한 배경지식 체크&lt;/li&gt;
+&lt;li&gt;✅ 현재 도메인에 AMP 적용은 적합&lt;/li&gt;
+&lt;li&gt;✅ AMP 페이지는 pages router 방식에서만 지원&lt;/li&gt;
+&lt;li&gt;✅ 모든 페이지를 Pages router 방식으로 전환 하는게 아니라 기사 상세 페이지만 AMP 페이지로 별도 구성&lt;/li&gt;
+&lt;/ul&gt;
+&lt;blockquote&gt;
 &lt;p&gt;모든걸 옮길 필요 없이 뉴스 본문 기사만 옮기면 된다. ( 나머지 페이지는 app router 구조에서 계속 사용 가능. )&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;h2&gt;🏗️ AMP 페이지 개발&lt;/h2&gt;
-&lt;p&gt;다음 편에서 계속.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[Rag]]></title><description><![CDATA[Rag (Retrieval Augmented Generation) 의 탄생 배경 RAG 은 대규모 언어 모델(LLM…]]></description><link>https://hyungkishin.github.io/rag/</link><guid isPermaLink="false">https://hyungkishin.github.io/rag/</guid><pubDate>Sat, 29 Mar 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;Rag (Retrieval Augmented Generation) 의 탄생 배경&lt;/h2&gt;
+&lt;p&gt;다음 편에서 계속.&lt;/p&gt;
+&lt;h2&gt;참고 자료&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#amp&quot;&gt;Next.js AMP 공식 문서&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;시간을 아껴주신 분들&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/vercel/next.js/discussions/76918&quot;&gt;버셀에 문의까지 주신분&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/vercel/next.js/issues/64354&quot;&gt;그외-1&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.reddit.com/r/nextjs/comments/1dpuvj7/how_do_i_configure_a_page_to_be_amp_in_app_router/&quot;&gt;그외-2&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;</content:encoded></item><item><title><![CDATA[Rag]]></title><description><![CDATA[Rag (Retrieval Augmented Generation) 의 탄생 배경 RAG 은 대규모 언어 모델(LLM…]]></description><link>https://hyungkishin.github.io/rag/</link><guid isPermaLink="false">https://hyungkishin.github.io/rag/</guid><pubDate>Sat, 29 Mar 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;Rag (Retrieval Augmented Generation) 의 탄생 배경&lt;/h2&gt;
 &lt;p&gt;&lt;strong&gt;RAG&lt;/strong&gt; 은 대규모 언어 모델(LLM)의 한계를 극복하기 위해 개발된 기술로, 검색과 생성의 결합을 통해, 작업에서 정확하고 맥락에 맞는 답변을 생성하거나. 최신 정보와 특정 도메인 데이터를 동적으로 활용할 수 있도록 설계된 기술이다.&lt;/p&gt;
 &lt;h2&gt;LLM 은 어떤 한계를 가졌을까 ?&lt;/h2&gt;
 &lt;p&gt;LLM 의 한계는 학습 데이터를 기반으로 응답을 생성하다 보니, 새로운 정보나 특정 도메인 지식에 대한 질문에 대한 질의 응답을 할수가 없었다. 만약 한다 하더라도 AI 헛소리 라고 불리우는 &lt;strong&gt;할루시네이션&lt;/strong&gt; 문제가 발생하였다. 즉, &lt;strong&gt;거짓말&lt;/strong&gt; 이다.&lt;/p&gt;
