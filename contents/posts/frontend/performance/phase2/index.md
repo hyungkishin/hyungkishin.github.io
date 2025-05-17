@@ -5,6 +5,7 @@ update: 2024-05-01
 tags:
   - front-end
   - performance
+  - series
 ---
 
 ## 들어가며
@@ -21,7 +22,7 @@ Next.js에서 AMP를 적용할 때도 이러한 제한이 그대로 적용된다
 
 시작 하기전에 기합 넣고 ! 
 
-![좀만 더 ...!](img_3.png)
+![가보자고](img_3.png)
 
 --- 
 
@@ -162,10 +163,6 @@ AMP는 `<style amp-custom>` 단 하나만 허용
   - `<style amp-custom>` 내부 전체 CSS 크기 합이 75KB (75,000 bytes)를 넘으면 안 됨.
 - 초과 시 AMP validation 실패 → 페이지 노출 불가.
 
-![...](img_9.png)
-
-
-
 미지원 CSS 속성/기능
 - @import 사용 불가 ❌ 
 - !important 사용 불가 ❌
@@ -173,40 +170,25 @@ AMP는 `<style amp-custom>` 단 하나만 허용
 - animation, keyframes는 제한적으로만 허용됨 
 - filter, backdrop-filter, mix-blend-mode 등 일부 CSS 속성 사용 불가.
 
-![...!](img_10.png)
-
-
 AMP 구성요소의 스타일링
 - `<amp-img>`,`<amp-carousel>`, `<amp-sidebar>` 등 AMP 컴포넌트는 반드시 지정된 방식으로 스타일링해야 함.
 - 특히 layout="responsive" 등 AMP layout 시스템에 맞는 설정 필수.
 
-![.....](img_11.png)
-
-.    
-.  
-.  
-.  
-.  
-.  
-.  
-
-![이게 맞아.](img_8.png)
-
 ---
 
-## G 선생의 Style 도움으로 대망의 1차 배포 성공 🏰
+## 대망의 1차 배포 성공 🏰
 검색 색인과 AMP 페이지 1차 반영 이후 구글 유입이 조금씩이나만 바로 잡혀가는 모습이 너무 보기 좋다.
 
 ![어서오세요 :)](img_4.png)
 
 ![google search console](img_2.png)
 
-구글 Search Console 에서 AMP 메뉴를 확인하니, 저 빨간건 ... amp validator 에서 검증이 안된다는 뜻이다.  
-아니 유효하지 않은 페이지가 17만 이라고 ...??? 뭐때문인지 ....
+구글 Search Console 에서 AMP 메뉴를 확인하니, Google Amp validator 검증에 실패해,     
+유효하지 않은 페이지로 판단해 노출하지 않은 모양이다.
 
 ![안되는 이유가 있지..](img_5.png)
 
-오 이런 ㅠㅠ 누락된 허용하지 않은 태그, 미디어 속성의 태그에 src 가 https 가 아닌 http 가 존재하거나,  
+누락된 허용하지 않은 태그, 미디어 속성의 태그에 src 가 https 가 아닌 http 가 존재하거나,  
 <기사이름> 이런식의 태그가 아닌데 태그라고 오 인식하는 문제가 있었다.  
 
 ( 이미지 혹은 뷰어 용 태그에 src 는 https 가 아니라 http 로 되어있는 부분은 server 에서 처리가 필요 ) 
@@ -238,8 +220,6 @@ DOMParser 를 쓸 수 없었다.
 
 - HTML 태그를 파싱해서 변형하거나 제거하는 작업이 필요하다.
 - 따라서, DOM을 조작할 수 있는 라이브러리가 필요하다.
-
-![어렵구만 ... ](img_6.png)
 
 ---
 ## 🧩 라이브러리 도입 결정
@@ -291,12 +271,19 @@ const { width, height } = imageSize(buffer);
 이 방식은 어떤 이미지든 깨지지 않게 하려는 의도는 있으나, 단점도 존재한다.
 - SSR 성능 저하 가능성 (네트워크 fetch + 버퍼 파싱)
 - 이미지 수가 많아질수록 병목 현상 발생
+
+> 그러나, 최근 기사 editor 에서 이미지 크기를 지정하는 경우가 대부분 이며,
+> 
+> 오래된 기사의 경우에만 이미지 크기가 표기 되어있지 않아 (width, height), 해당 이슈에 대해서 공유를 드렸다.
+> 
+> 이미지 의 크기를 알 수 없는 경우에만 코드레벨에서 조건을 분기하였다.  
+> ( 서버에서 이미지를 직접 fetch하고 image-size로 크기를 추출하는 방식 )
+
 ---
 
-## 보정한 amp 디테일 배포는 연휴 끝나고 진행 ㄱㄱ
-![그래 까보자.](img_7.png)
-
 ## 마무리 
+![아... 영롱해](img_6.png)
+
 AMP 페이지 는 성능과 사용자 경험을 고려할 때 여전히 유용한 기술이다.  
 정리하면 다음과 같다.
 
