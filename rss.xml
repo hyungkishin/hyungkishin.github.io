@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Sat, 17 May 2025 05:35:55 GMT</lastBuildDate><item><title><![CDATA[퍼포먼스 최적화 를 향해 - 2부]]></title><description><![CDATA[들어가며 1부에서 JS 번들 다이어트를 통해 전체 페이지의 무게를 줄이는 작업을 진행했다 🤔그러나 홈페이지의 성능은 거의 그대로였다.  google Lighthouse…]]></description><link>https://hyungkishin.github.io/phase4/</link><guid isPermaLink="false">https://hyungkishin.github.io/phase4/</guid><pubDate>Sun, 04 May 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;들어가며&lt;/h2&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Mon, 19 May 2025 08:06:52 GMT</lastBuildDate><item><title><![CDATA[퍼포먼스 최적화 를 향해 - 2부]]></title><description><![CDATA[들어가며 1부에서 JS 번들 다이어트를 통해 전체 페이지의 무게를 줄이는 작업을 진행했다 🤔그러나 홈페이지의 성능은 거의 그대로였다.   google Lighthouse…]]></description><link>https://hyungkishin.github.io/phase4/</link><guid isPermaLink="false">https://hyungkishin.github.io/phase4/</guid><pubDate>Sun, 04 May 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;들어가며&lt;/h2&gt;
 &lt;p&gt;1부에서 JS 번들 다이어트를 통해 전체 페이지의 무게를 줄이는 작업을 진행했다&lt;br&gt;
 🤔그러나 홈페이지의 성능은 거의 그대로였다.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/static/test-64bff304b1cc203997cd8af6f40fd13a.gif&quot;&gt;&lt;/p&gt;
 &lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 522px; &apos;&gt;
       &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/b391369f00babe2a09072aa79faf2c3f/d15a3/img_1.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
@@ -14,6 +15,7 @@
   &lt;/figure&gt;&lt;/p&gt;
 &lt;p&gt;google Lighthouse 에서 측정 해보면, &quot;왜 느려 보이는지&quot;, &quot;어디서 막히는지&quot;, &quot;어떻게 개선해야 하는지&quot;를 구체적으로 살펴 볼 수 있다.&lt;br&gt;
 (겁나 친절한데 ..? 👍)&lt;/p&gt;
+&lt;p&gt;그 중에서도 &lt;strong&gt;Google이 공식적으로 중요하게 여기는 핵심 성능 지표&lt;/strong&gt;가 바로 &lt;strong&gt;Core Web Vitals&lt;/strong&gt;다.&lt;/p&gt;
 &lt;h2&gt;⚡ Core Web Vitals&lt;/h2&gt;
 &lt;table&gt;
 &lt;thead&gt;
@@ -55,14 +57,42 @@
 &lt;p&gt;&lt;strong&gt;✅ CLS (Cumulative Layout Shift)&lt;/strong&gt;&lt;br&gt;
 &lt;strong&gt;✅ FCP (First Contentful Paint)&lt;/strong&gt;&lt;br&gt;
 &lt;strong&gt;✅ TBT (Total Blocking Time)&lt;/strong&gt;  &lt;/p&gt;
-&lt;h2&gt;👀 CLS&lt;/h2&gt;
+&lt;h2&gt;👀 CLS - Cumulative Layout Shift&lt;/h2&gt;
 &lt;p&gt;CLS 의 &lt;strong&gt;핵심&lt;/strong&gt; 은 &lt;strong&gt;“보이는 걸 미리 예고하고, 갑자기 바꾸지 않는다”&lt;/strong&gt; 이다.&lt;/p&gt;
-&lt;p&gt;현재 운영중인 사이트에서, CLS 문제는 대부분 이미 알고는 있지만 실전에서 놓치기 쉬운 것들.&lt;br&gt;
-대표적으로 CLS 점수를 깎아 먹는 주요 원인은 Taboola 라는 광고 위젯.  &lt;/p&gt;
-&lt;p&gt;Taboola는 초기엔 비어 있다가 스크립트 로딩 이후에 콘텐츠가 삽입되는데,&lt;br&gt;
+&lt;p&gt;보통 화면이 예고 없이 ‘밀리는’ 현상이 원인인데, 페이지 로딩 중 요소들이 갑자기 이동하면, 사용자가 의도치 않은 클릭을 하거나 읽기 어려워진다.&lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/11ed8baf466a3e7a9a5dcfde929f6679/a2372/img_5.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 58.82352941176471%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAAAsTAAALEwEAmpwYAAAC3ElEQVR42m2SSWgTexzHA970JiilgslsmXSipkkmy2SSxu0paA7GSFFBL15EPSmiIi5Uiluj1fpa6XttNIjvmbHqy2sPPfTUg0jBureieBJLD7WXCqUpfGT+1uXgwI+Zw/D5fZefp7W1lYGBAUqlEr29vVQqFXp6eti0eTNxM4rhV/HrOpqmIcsyqqIgqRKyKiFpCrIkoygKXq+Xuro6PENDQ7hPrVZjfn5efE9PT5PP5zFNE5/PhyLLBA0DwzBYJSukm2xSGQvJr6DIiljmQiVJwlMulxkdHWV4eJiRkRHGxsbEbN9eIBqNip/8fj+hUIhwOCzgLWfPcPrMaTTdYE1jo1ikqppY7unv72d2dpapqSlmZmaEwsnJyR8KXaCqqui6jh4IUL9iBcVikatXinh9XgKBAA0NDWKpAA4ODgrI3Nzcby1/B9rpJFbKImomaG8vcrntAvF4kqbsOtKZLMFgUOToqVarfJ7+zMTEBDNfvlCrzQmF3y27RciygpWKE0/EkBWN/6oPcfr+RdN0wuGoiMN1IBT+X63y6eNH3o2P83z0KW9evuT1ixcUCj+BkiRj20kaI40sW7acv7q7KJX+Fq266t1xixHAPqfCsyePeXTf4dyhfXS2nOSf8m0BNBeAK1d62btnJ7ncFqJxi+MnjnL81DESiSRJyyaRTNFgGN8s9zkO7968oqujg6Di54+m9dy9dYvm5uZfFEoc2L+P/I4CwVCU9u4/uXSzg4iZwLIzpOwMhrGQoVO5x4e34xzcf4hFixazZMlSrl5qY/fuXUQiEXw+SeSzYctWUrltBOy1XOu8zrXOGwTTa7GyG1i3fuNPhQ+cCu9fP+fUkcP46usJB3Sc8m127voGFC1rGpF0E2YmSziVJl/YISZi2ZjxJLF4QpyPyLDt4nn67pa5091FW2sLN9uLPHQqbM3liMViwrKrMptNEQqtFvfm1zTx1lR14QrkH6V8BXoG+IycCQ7jAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;뭐야..이거&apos; title=&apos;&apos; src=&apos;/static/11ed8baf466a3e7a9a5dcfde929f6679/ca1dc/img_5.png&apos; srcset=&apos;/static/11ed8baf466a3e7a9a5dcfde929f6679/e7570/img_5.png 170w,
+/static/11ed8baf466a3e7a9a5dcfde929f6679/f46e7/img_5.png 340w,
+/static/11ed8baf466a3e7a9a5dcfde929f6679/ca1dc/img_5.png 680w,
+/static/11ed8baf466a3e7a9a5dcfde929f6679/02d09/img_5.png 1020w,
+/static/11ed8baf466a3e7a9a5dcfde929f6679/9d567/img_5.png 1360w,
+/static/11ed8baf466a3e7a9a5dcfde929f6679/a2372/img_5.png 1621w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;뭐야..이거&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;그런데, 나의 경우는 달랐다. 사용자가 보기엔 그냥 지나가는 광고였지만,&lt;br&gt;
+Lighthouse 기준으로는 CLS가 다섯 번이나 터졌다.&lt;br&gt;
+&quot;응? 나 아무것도 안 건드렸는데요…?&quot; 싶을 정도.  &lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 412px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/fbb2920be03788f99e0b3c9c3b227923/1f9f1/img_4.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 52.352941176470594%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAKCAYAAAC0VX7mAAAACXBIWXMAAAsTAAALEwEAmpwYAAACk0lEQVR42hXOaU8iBwCA4fnWNDExrrWrGxuXknW3Cl0RRR28xpkB54I5YaZcgohFQHTVBW27SWlCTLo90k/9t2/T5xc8gqEd8XQRY9yO0W3EKairrK+8JL40y4vZL8l+t8yVsc3AyHBr7vChIDIKZD54EsVMnNjXX1AvpxjfRfz28w8IBUuhX5K4spOE7h5mLktiZYHY4hyv5mdw997RzqepSCmudJFJ1eK55fHXZci0oWNsx0i8mUeV3nM16iG4jka1UkbT8mhWgbxyzDcLM7x8MYP4bpmulqGlbnGey1A7TnGti/wSqAwLh9wHCneBxOLcDEvzswSdHoLn6pxVA/6fFlwLTRJJLM/zenGOhpxmYO4THSTJpVcpZ9e4VDbpyBuE4ltuXYnHKM/6ygLxlSXObsYIvm/SbkYULBXTtqi5BpX9JOk3r7hxThgWj7jIZ2gqWwxNkd+bNtOmxWl6legoxcg/IfXtIruSRG/yJ0Lgm3RaFVwnT8GxqJdcqrtrONkkN7bMyMvxqZRnWtF5siX+bgf8O6jyGCh89BWeW0Xkne8p9e+5nv6DEAQW540yZlHGcAyCwKMppekaB/T1LAN9n4+2zEDd4/wgxSTUmZTzTMJT/mj5PFcNTD3H5a+f6U0+I1iWyv2wy7h6TtsNiSwfeWOVrnlAS97i7GiTqpgk2k1Q2k1gvY8T7azTUzPcmYe01R2C5gXtpyln958QTrUT6qHP2K8wcGp0TksoG2vUTjKMag6PdYuBp+CJG1ipt1QON7l1VBrHaar7SUJNIuw/EPYeiPoPCIp8iKnJ/HjpcOH5DBSbu7xF51jmJ6/J0NB5qkTY2U1SS18hvl6muL1OXdrGFxMUfR+nfY3d7GI3e/wH0z97u0K0+ZQAAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;출처 - 5분 순삭&apos; title=&apos;&apos; src=&apos;/static/fbb2920be03788f99e0b3c9c3b227923/1f9f1/img_4.png&apos; srcset=&apos;/static/fbb2920be03788f99e0b3c9c3b227923/e7570/img_4.png 170w,
+/static/fbb2920be03788f99e0b3c9c3b227923/f46e7/img_4.png 340w,
+/static/fbb2920be03788f99e0b3c9c3b227923/1f9f1/img_4.png 412w&apos; sizes=&apos;(max-width: 412px) 100vw, 412px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;출처 - 5분 순삭&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;대표적으로 &lt;strong&gt;Taboola 광고 위젯&lt;/strong&gt; , 이미지 영역, 비동기 컴포넌트, 웹폰트 로딩 지연 등이 주요 원인 이였다.&lt;/p&gt;
+&lt;p&gt;Taboola 는 초기엔 비어 있다가 스크립트 로딩 이후에 콘텐츠가 삽입되는데,&lt;br&gt;
 이때 높이를 미리 잡아두지 않으면 아래 콘텐츠들이 순식간에 밀려나며 CLS가 발생한다.      &lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;마치 의자에 앉으려고 했는데, 뒤로 밀려서 엉덩방아 찍은 느낌이다. ( 오늘 일임 )&lt;/p&gt;
+&lt;p&gt;마치 의자에 앉으려고 했는데, 뒤로 밀려서 엉덩방아 찍은 느낌이다.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;table&gt;
 &lt;thead&gt;
@@ -73,33 +103,32 @@
 &lt;/thead&gt;
 &lt;tbody&gt;
 &lt;tr&gt;
-&lt;td&gt;❌ 이미지/광고 영역의 크기 미지정&lt;/td&gt;
+&lt;td&gt;이미지/광고 영역의 크기 미지정&lt;/td&gt;
 &lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;&amp;lt;img&gt;&lt;/code&gt;나 광고 &lt;code class=&quot;language-text&quot;&gt;&amp;lt;div&gt;&lt;/code&gt;에 &lt;code class=&quot;language-text&quot;&gt;width&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;height&lt;/code&gt;, 또는 &lt;code class=&quot;language-text&quot;&gt;aspect-ratio&lt;/code&gt;가 없어 로딩 후 밀림 발생&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;❌ 비동기 렌더링 컴포넌트&lt;/td&gt;
+&lt;td&gt;비동기 렌더링 컴포넌트&lt;/td&gt;
 &lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;dynamic(import(...))&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;&amp;lt;Suspense&gt;&lt;/code&gt; 등을 통해 불쑥 나타나는 컴포넌트로 인해 레이아웃 밀림 발생&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;❌ navigation 메뉴/헤더 애니메이션&lt;/td&gt;
+&lt;td&gt;navigation 메뉴/헤더 애니메이션&lt;/td&gt;
 &lt;td&gt;fixed 헤더가 transition으로 등장하면서 콘텐츠를 아래로 밀어냄&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;❌ 웹폰트 로딩 지연&lt;/td&gt;
+&lt;td&gt;웹폰트 로딩 지연&lt;/td&gt;
 &lt;td&gt;FOIT/FOUT 현상으로 텍스트 표시가 밀려 CLS 유발&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;⚠️ 광고/소셜 위젯 로딩 지연&lt;/td&gt;
+&lt;td&gt;광고/소셜 위젯 로딩 지연&lt;/td&gt;
 &lt;td&gt;GPT 광고, Interplay, Taboola 등 외부 위젯이 나중에 등장하면서 전체 구조가 밀림&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;p&gt;이런 문제를 해결하는 가장 확실한 방법은, 비동기 렌더링 컴포넌트의 높이를 미리 지정해 콘텐츠의 위치를 예고하는 것이다.&lt;/p&gt;
-&lt;p&gt;그리고 광고 영역은 Lazy Load로 처리해, 일정 스크롤 이후에 렌더링되도록 하는 것이 핵심 !  &lt;/p&gt;
-&lt;h3&gt;❗비동기 렌더링 컴포넌트&lt;/h3&gt;
-&lt;p&gt;비동기 컴포넌트는 렌더링 시점까지 공간을 차지하지 않기 때문에, 아래 콘텐츠가 갑자기 밀려버릴 수 있다.
-예를 들어 dynamic(import(...)), &lt;Suspense&gt;로 로딩되는 컴포넌트는 로딩 중에 명확한 높이 또는 placeholder 가 없다면 layout shift 를 유발한다.&lt;/p&gt;
-&lt;p&gt;외부 컴포넌트(TodayTopStories, 댓글, 추천 콘텐츠 등)는 특히 레벨이 높은 CLS 유발 요인이다. ( 제일 맛도리다. )&lt;/p&gt;
+&lt;p&gt;이런 문제를 해결하는 가장 확실한 방법은, 비동기 렌더링 컴포넌트의 &lt;strong&gt;높이를 미리 지정&lt;/strong&gt;해 콘텐츠의 위치를 &lt;strong&gt;예고&lt;/strong&gt;하는 것이다.    &lt;/p&gt;
+&lt;p&gt;하지만 비동기 렌더링 컴포넌트는 렌더 시점까지 공간을 차지하지 않기 때문에, 아래 콘텐츠가 갑자기 밀려버리는 수가 있다.&lt;/p&gt;
+&lt;p&gt;이런 경우에 react 에서 제공하는 &lt;code class=&quot;language-text&quot;&gt;&amp;lt;Suspense&gt;&lt;/code&gt; 태그를 사용하면, 다음과 같은 효과를 볼 수 있다.  &lt;/p&gt;
+&lt;p&gt;&quot;아. 이 컴포넌트가 아직 준비 안 됐을 수도 있으니, 그동안 대체 UI (fallback) 를 보여 줘야겠구만?&quot; &lt;/p&gt;
+&lt;p&gt;ex ) 코드 레벨 예시&lt;/p&gt;
 &lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;js&quot;&gt;&lt;pre class=&quot;language-js&quot;&gt;&lt;code class=&quot;language-js&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;import&lt;/span&gt; dynamic &lt;span class=&quot;token keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;next/dynamic&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
 &lt;span class=&quot;token keyword&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt; Skeleton &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;@/components/Skeleton&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
 
@@ -118,63 +147,116 @@
 &lt;Skeleton /&gt; 컴포넌트 자체가 min-height 또는 fixed height를 갖지 않는다면 의미가 없다.&lt;br&gt;
 fallback 은 시각적 장식이 아니라 레이아웃 안정장치라는 점을 명심해야 한다.&lt;/p&gt;
 &lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;p&gt;그런데, CLS를 해결하려고 구조를 정리하다 보니, 자연스럽게 컴포넌트들이 렌더링 되는 시점에 의문을 갖기 시작했다.  &lt;/p&gt;
+&lt;p&gt;광고 컴포넌트 는 기사 본문 을 다 읽고 나서, &lt;strong&gt;본문 하단에 보이는 영역&lt;/strong&gt; 이다.&lt;br&gt;
+애초에 사용자가 그렇게 빨리 글을 읽나 ..?&lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 482px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/a2d0a5986c250918b56560f4f535e5c0/b58a3/img_3.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 52.94117647058824%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAALCAYAAAB/Ca1DAAAACXBIWXMAAAsTAAALEwEAmpwYAAADIElEQVR42h3OW0+bBQCA4Y8LSRAGSyYImiAJqMwFSDhMAkZg4liEipQSaBOhp7WsZThaGNCW0sDKwIJy2FiRMU5jwke7lmI5FJCtZI6DBfXGK01I9j9eE59f8AjymmtYutrotlm5f9+GY6wP15QLdZsRuVKOVq9AISsk85NUElPeIe1yOhp9K/Z+JzqjCqX2GxqUUvQmHXZHM8Kko4WHA3YW5h7jCSwhim6e+eeoVLdTKtGh1Mn5tDgHISqK2LgY3o6NJvtqNs3tJuQ3m5hYeoDFZeS2SYXTrkYoKc6nUqElGN7AG95i9WUI36tdxn5e5JqkHoVOw5W8fN6KjiI6Jprk5IvkFXzMLbMSg1mLprUJo9VIZ08HI/0ahOT3Evi8vAwxvI3vt18JRI7wnRyz+ecJI4vTZJfrKKuW80VRBgU5aUgqcmmrK6TXepc7fSN0GBoxmtSoWpWM9ioQ0q98SGZuDl/V1bCyF8R3dMj63//inJ7EMTZEpUJDSVUtUlkNLfWf0dVUSl9LA/WadlIv59Og1NLlGqTdrsdtkyLkZmUgLc+jsb6K2YDITGid6Q0/XfcsGMzN/DAzTkmllOyrVSiaVDRWlXBdUkdCUgpxCRfIKrrOt61mrLZmHluqEW4rvsRqqKXbdJNZ7xJi+AWvz98QOI2wcrCDa97D8KNR+g0yyioqSP8oi0tJScTGx1F0Q4bt0S6m4WU6v5PxxNGAYOkx43IPM+N9irjtw3+wR/ifc9ZPIyzvbuAWV5ibd+Ma7CS/uIDE1HRSUj8gM7cQy8QqvT9t4nz2F+MDHYw7lAhP/YuIWyKrIQ+e0HPWwiF+OX5N8PdjtiKH7J69Yi28hWdjHkntDd5NeZ8LlxJJTstAfXcAuzuI/ckhD2Z9uJx3ENb3vCxvruLZD+DZeY7/5SYbZ6fsRA54cRIksO/BG5xnbmkCa6uCQf3XlOZlEhOfQGz8RapVZmxTO3y/EqF/qB9BDHnx7Pjw7q/jD2/+v9k+O+WPN+cEdhdZFn9kYWEE0TOFe/Ieo1YNo5ZbdD/cRt8zibLDRefYGo65I4amFvkPYkEQt1ooSYQAAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;읽을 시간좀 ...&apos; title=&apos;&apos; src=&apos;/static/a2d0a5986c250918b56560f4f535e5c0/b58a3/img_3.png&apos; srcset=&apos;/static/a2d0a5986c250918b56560f4f535e5c0/e7570/img_3.png 170w,
+/static/a2d0a5986c250918b56560f4f535e5c0/f46e7/img_3.png 340w,
+/static/a2d0a5986c250918b56560f4f535e5c0/b58a3/img_3.png 482w&apos; sizes=&apos;(max-width: 482px) 100vw, 482px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;읽을 시간좀 ...&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;‼️ &lt;strong&gt;“보이지 않는 요소는 애초에 늦게 보여줘도 된다.”&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;즉, 굳이 초반에 렌더링할 필요 없는 컴포넌트는 &lt;strong&gt;Lazy Load&lt;/strong&gt;로 뒤로 미루고,&lt;br&gt;
+대신 &lt;strong&gt;초기 화면을 안정적으로 고정&lt;/strong&gt;해두는 것이 사용자 경험에도, 성능 측면에서도 훨씬 낫다.  &lt;/p&gt;
+&lt;p&gt;이게 바로 &lt;strong&gt;FCP 개선&lt;/strong&gt;과도 밀접하게 연결되는 &lt;strong&gt;Lazy Load&lt;/strong&gt; 이다.   &lt;/p&gt;
 &lt;h2&gt;⏰ Lazy Load&lt;/h2&gt;
-&lt;p&gt;예를 들어 뉴스 기사 하단의 댓글 영역, 추천 콘텐츠, Taboola 광고 등은 반드시 초반에 보여줄 필요가 없다.    &lt;/p&gt;
-&lt;p&gt;Lazy Load 대상으로 적합하고, 아래는 이를 위한 &lt;code class=&quot;language-text&quot;&gt;LazyShow&lt;/code&gt; 유틸 컴포넌트 예시다.    &lt;/p&gt;
+&lt;p&gt;Taboola 광고는 스크롤이 일정 수준 내려간 후에야 자체 CDN 스크립트 (Taboola CDN) 를 호출해 UI를 동적으로 구성한다   &lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;초기 화면에서 반드시 필요하지 않은 요소&lt;/strong&gt;라면, 애초에 &lt;strong&gt;Lazy Load&lt;/strong&gt;로 처리하는 것이 맞다.&lt;br&gt;
+&lt;strong&gt;일정 스크롤 이후에만 렌더링되도록&lt;/strong&gt; 하는 것이 합리적 이라고 판단했다.  &lt;/p&gt;
+&lt;p&gt;뉴스 기사 하단의 댓글 영역, 추천 콘텐츠, Taboola 광고 등은,&lt;br&gt;
+&lt;strong&gt;처음부터 보여줄 필요가 없는 전형적인 Lazy Load 대상&lt;/strong&gt;이다.&lt;/p&gt;
+&lt;p&gt;이를 위해 아래와 같은 &lt;code class=&quot;language-text&quot;&gt;LazyShow&lt;/code&gt; 유틸 컴포넌트를 사용했다.   &lt;/p&gt;
 &lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;js&quot;&gt;&lt;pre class=&quot;language-js&quot;&gt;&lt;code class=&quot;language-js&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;use client&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
 
 &lt;span class=&quot;token keyword&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt; useEffect&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; useRef&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; useState &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;react&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
 
 &lt;span class=&quot;token keyword&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;token class-name&quot;&gt;LazyShowProps&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
-  &lt;span class=&quot;token literal-property property&quot;&gt;children&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; React&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;ReactNode&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
-  rootMargin&lt;span class=&quot;token operator&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; string&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
-  threshold&lt;span class=&quot;token operator&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; number&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
-  once&lt;span class=&quot;token operator&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; boolean&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;token comment&quot;&gt;// 한번만 보여줄지&lt;/span&gt;
+  &lt;span class=&quot;token literal-property property&quot;&gt;children&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; React&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;ReactNode&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;          &lt;span class=&quot;token comment&quot;&gt;// Lazy 로딩할 자식 컴포넌트&lt;/span&gt;
+  rootMargin&lt;span class=&quot;token operator&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; string&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;                &lt;span class=&quot;token comment&quot;&gt;// IntersectionObserver의 rootMargin 설정 (기본값: 200px)&lt;/span&gt;
+  threshold&lt;span class=&quot;token operator&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; number&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;                 &lt;span class=&quot;token comment&quot;&gt;// 교차 비율 임계값 (기본값: 0.1 = 10% 보이면 발동)&lt;/span&gt;
+  once&lt;span class=&quot;token operator&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; boolean&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;                     &lt;span class=&quot;token comment&quot;&gt;// true일 경우 한 번만 보여주고 계속 유지, false면 스크롤에 따라 반복 토글&lt;/span&gt;
 &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
 
+&lt;span class=&quot;token comment&quot;&gt;/**
+ * LazyShow
+ * - 컴포넌트가 뷰포트에 들어왔을 때 children을 렌더링
+ * - IntersectionObserver를 사용한 Lazy Load 유틸
+ *  
+ * @param children
+ * @param rootMargin
+ * @param threshold
+ * @param once
+ * @returns {JSX.Element}
+ */&lt;/span&gt;
 &lt;span class=&quot;token keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;const&lt;/span&gt; LazyShow &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt; children&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; rootMargin &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;200px&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; threshold &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;0.1&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; once &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token boolean&quot;&gt;true&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; LazyShowProps&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;=&gt;&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
   &lt;span class=&quot;token keyword&quot;&gt;const&lt;/span&gt; ref &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; useRef&lt;span class=&quot;token operator&quot;&gt;&amp;lt;&lt;/span&gt;HTMLDivElement&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token keyword&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
   &lt;span class=&quot;token keyword&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;isVisible&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; setIsVisible&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;useState&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token boolean&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
 
   &lt;span class=&quot;token function&quot;&gt;useEffect&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;=&gt;&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;!&lt;/span&gt;ref&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;current&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
-
+    
+    &lt;span class=&quot;token comment&quot;&gt;// IntersectionObserver API를 지원하지 않는 환경(fallback 처리)&lt;/span&gt;
     &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;IntersectionObserver&quot;&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;in&lt;/span&gt; window&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
-      &lt;span class=&quot;token comment&quot;&gt;// Safari 구버전 대비 fallback&lt;/span&gt;
       &lt;span class=&quot;token function&quot;&gt;setIsVisible&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token boolean&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
       &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
     &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
 
+    &lt;span class=&quot;token comment&quot;&gt;// IntersectionObserver 인스턴스 생성&lt;/span&gt;
     &lt;span class=&quot;token keyword&quot;&gt;const&lt;/span&gt; observer &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;token class-name&quot;&gt;IntersectionObserver&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;
-      &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token parameter&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;entry&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;=&gt;&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;entry&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;isIntersecting&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
-          &lt;span class=&quot;token function&quot;&gt;setIsVisible&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token boolean&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
-          &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;once&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
-            observer&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;disconnect&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token parameter&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;entry&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;=&gt;&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+          &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;entry&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;isIntersecting&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+              &lt;span class=&quot;token comment&quot;&gt;// 요소가 뷰포트에 들어오면 표시&lt;/span&gt;
+              &lt;span class=&quot;token function&quot;&gt;setIsVisible&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token boolean&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
+              &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;once&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+                  observer&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;disconnect&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;token comment&quot;&gt;// 한 번만 보여줄 경우 감시 중단&lt;/span&gt;
+              &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+          &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;!&lt;/span&gt;once&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+              &lt;span class=&quot;token comment&quot;&gt;// 반복 모드일 경우 다시 안 보이면 숨김 처리&lt;/span&gt;
+              &lt;span class=&quot;token function&quot;&gt;setIsVisible&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token boolean&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
           &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
-        &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;!&lt;/span&gt;once&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
-          &lt;span class=&quot;token function&quot;&gt;setIsVisible&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token boolean&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
-        &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
       &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
       &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt; rootMargin&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; threshold &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
     &lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
 
+    &lt;span class=&quot;token comment&quot;&gt;// 감시 시작&lt;/span&gt;
     observer&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;observe&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;ref&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;current&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
+
+    &lt;span class=&quot;token comment&quot;&gt;// 컴포넌트 언마운트 시 Observer 해제&lt;/span&gt;
     &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;=&gt;&lt;/span&gt; observer&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;disconnect&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
   &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;rootMargin&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; threshold&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; once&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
 
-  &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;&amp;lt;&lt;/span&gt;div ref&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;ref&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;isVisible &lt;span class=&quot;token operator&quot;&gt;?&lt;/span&gt; children &lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;/&lt;/span&gt;div&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;&amp;lt;&lt;/span&gt;div ref&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;ref&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;isVisible &lt;span class=&quot;token operator&quot;&gt;?&lt;/span&gt; children &lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;/&lt;/span&gt;div&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;token comment&quot;&gt;// 보일 때만 children 렌더링&lt;/span&gt;
 &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;결국 CLS 방지는 “언제 어디서 무엇이 렌더링될지”를 브라우저에게 미리 알려주는 것이다.&lt;br&gt;
-예측 가능한 레이아웃만이 안정적인 사용자 경험을 만든다.  &lt;/p&gt;
+&lt;p&gt;CLS 방지를 위한 핵심 전략은 &lt;strong&gt;언제, 어디서, 무엇이 렌더링될지&lt;/strong&gt;를 브라우저에게 &lt;strong&gt;미리 예고&lt;/strong&gt;해주는 것이다.&lt;br&gt;
+그렇게 해야 사용자는 불쑥 튀어나오는 콘텐츠에 방해받지 않고, 안정적인 화면을 경험할 수 있다.  &lt;/p&gt;
+&lt;p&gt;하지만 모든 콘텐츠를 미리 자리를 잡아놓는다고 해서, &lt;strong&gt;무조건 처음부터 렌더링할 필요는 없다.&lt;/strong&gt;&lt;br&gt;
+오히려 사용자가 당장 보지 않을 요소라면, &lt;strong&gt;불필요한 초기 렌더링을 줄이는 것이 오히려 성능에 이롭다.&lt;/strong&gt;  &lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;&lt;strong&gt;비동기로 로딩되더라도, 언제 어디서 어떤 높이로 들어올지 예고&lt;/strong&gt;&lt;br&gt;
-&lt;strong&gt;중요한 콘텐츠가 아닌경우 Lazy Load !&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;비동기로 로딩되더라도, 어디에 어떤 크기로 들어올지는 예고해두고, 랜더링 타이밍은 미룬다.&lt;/strong&gt;&lt;br&gt;
+이게 바로 &lt;strong&gt;Lazy Load의 본질&lt;/strong&gt;이다.&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h2&gt;😶‍🌫️ FCP&lt;/h2&gt;
-&lt;p&gt;FCP는 사용자가 페이지에서 &lt;strong&gt;&quot;첫 번째 콘텐츠(텍스트, 이미지 등)를 보는 순간까지의 시간&quot;&lt;/strong&gt; 을 의미한다.  &lt;/p&gt;
-&lt;p&gt;즉, 페이지가 뜨긴 떴는데 아무것도 안 보이는 상태가 길어질수록 FCP 점수는 나빠진다.&lt;br&gt;
-위쪽 영역(Above the Fold) 콘텐츠를 최대한 빨리 보여주는 것이 핵심 POINT.
+&lt;p&gt;개선 이후, 사용자가 화면을 처음 열었을 때 이제서야 ...&lt;br&gt;
+&lt;strong&gt;가장 먼저 보여줘야 할 콘텐츠&lt;/strong&gt; 들이 이전보다 더 빠르고 안정적으로 나타나기 시작했다.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;&quot;갑자기 튀어나오는 광고&quot;&lt;/strong&gt; 나 &lt;strong&gt;&quot;스크롤을 내리면 밀리는 댓글 영역&quot;&lt;/strong&gt; 등의 문제는 Fade Out !  &lt;/p&gt;
+&lt;p&gt;다음으로 가장먼저 보여지는 콘텐츠의 랜더링 속도를 보고나니, 자연스럽게 다음과 같은 고민으로 이어졌다.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;‘첫 화면에서 아무것도 안 보이는 시간’&lt;/strong&gt; 을 얼마나 줄일 수 있을까 ?&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2&gt;😶‍🌫️ FCP - First Contentful Paint&lt;/h2&gt;
+&lt;p&gt;FCP 는 사용자가 페이지에서 &lt;strong&gt;&quot;첫 번째 콘텐츠(텍스트, 이미지 등)를 보는 순간까지의 시간&quot;&lt;/strong&gt; 이다.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;&quot;앞에서 무엇을 보여주느냐&quot;&lt;/strong&gt; + &lt;strong&gt;&quot;얼마나 빨리 보여주느냐&quot;&lt;/strong&gt; 가 광건이다.&lt;/p&gt;
+&lt;p&gt;만약, 페이지에는 접근했으나 아무것도 안 보이는 상태가 길어진다면 FCP 점수는 나빠진다.&lt;br&gt;
+위쪽 영역(Above the Fold) 콘텐츠를 최대한 빨리 보여주는 것을 목표로 하였다.&lt;br&gt;
 ( 이미지든 텍스트든, 뭐든간에 첫 화면이 빠르게 보이면 점수가 좋아진다. )&lt;/p&gt;
 &lt;table&gt;
 &lt;thead&gt;
@@ -185,52 +267,150 @@ fallback 은 시각적 장식이 아니라 레이아웃 안정장치라는 점�
 &lt;/thead&gt;
 &lt;tbody&gt;
 &lt;tr&gt;
-&lt;td&gt;❌ 이미지 용량이 큰 경우&lt;/td&gt;
+&lt;td&gt;이미지 용량이 큰 경우&lt;/td&gt;
 &lt;td&gt;상단 이미지를 lazy 처리하면 실제 첫 시각 요소가 늦게 등장함&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;❌ JS 의존형 컴포넌트&lt;/td&gt;
+&lt;td&gt;JS 의존형 컴포넌트&lt;/td&gt;
 &lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;hydrate&lt;/code&gt; 이후에 렌더링되는 컴포넌트 의 경우, 초기 화면엔 보이지 않음&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;❌ 웹폰트 지연 로딩 (FOUT/FOIT)&lt;/td&gt;
+&lt;td&gt;웹폰트 지연 로딩 (FOUT/FOIT)&lt;/td&gt;
 &lt;td&gt;커스텀 폰트가 늦게 적용되며 텍스트 위치가 늦게 나타남&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;❌ 초기 데이터 비동기 처리&lt;/td&gt;
+&lt;td&gt;초기 데이터 비동기 처리&lt;/td&gt;
 &lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;useEffect&lt;/code&gt;에서 데이터 fetch 이후, 첫 화면 렌더링이 지연됨&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;❌ 너무 많은 요소 한꺼번에 렌더링&lt;/td&gt;
+&lt;td&gt;너무 많은 요소 한꺼번에 렌더링&lt;/td&gt;
 &lt;td&gt;초기 화면에서 꼭 보여야 할 핵심 콘텐츠조차 뒤늦게 등장하거나, 렌더링 경쟁에 밀려버리는 문제&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;p&gt;그런데, CLS 를 처리하면서 FCP 점수도 덩달아 오르는것을 확인할 수 있었다.  &lt;/p&gt;
+&lt;p&gt;앞에서 CLS를 해결하며 &quot;무조건 다 보여주기&quot;가 아닌, &lt;strong&gt;&quot;보여줄 타이밍과 우선순위&quot;&lt;/strong&gt;를 정리하게 되었고, 자연스럽게 FCP 개선으로 이어졌다.  &lt;/p&gt;
+&lt;p&gt;즉, 최초로 사용자에게 보여줄 콘텐츠를 최대한 빠르게, 그리고 안정적으로 렌더링하는 것이 핵심이다.  &lt;/p&gt;
+&lt;p&gt;개선하면서, 적용한 원칙 3가지는 다음과 같다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;이미지&lt;/strong&gt; 라면 LCP 대상인지 확인하고, &lt;strong&gt;priority preload 설정&lt;/strong&gt;으로 미리 불러오자.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;폰트&lt;/strong&gt; 라면 웹폰트 preload, 또는 &lt;strong&gt;시스템 기본체 fallback을 활용해 FOIT 현상&lt;/strong&gt;을 줄이자.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;컴포넌트&lt;/strong&gt; 라면 SSR을 통해 최소한의 &lt;em&gt;구조라도 즉시&lt;/em&gt; 보여주고, 이후 &lt;strong&gt;dynamic&lt;/strong&gt; 하게 확장하자.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;위 원칙들을 적용하니, 페이지가 로드된 직후 &quot;사용자 눈에 보이는 콘텐츠가 없던 시간&quot; 을 눈에 띄게 줄일 수 있었다.&lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 160px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/e8de41b5ceaf1bd3283dc021d472b987/065de/img_7.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 66.875%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAANCAYAAACpUE5eAAAACXBIWXMAAAsTAAALEwEAmpwYAAACJ0lEQVR42n2Tz1LTUBSH+xAuhDTJTe69bZO0aZoYOm1pEYGqI1VBKFUR2SiDMLJzHN24cHwA/+yccafju/hOn3MDSEVh8SVn5p589/xmTkqe52HwfZ/T+jzmbJqL+gwl8xBCUC6XcRznWHCCZwTSx7ZtLMsqegyXSUuu6xJFEQ/W1xmurOC4Lo7vI4zUcilfnWVh8TqbW2M2NjcZDoeF/CJpyUwVxzF7BwesjccI26YlJYH08Reb2LFk2F/i8doWe8+eMxgMLp2yiOwIQSYEI6mY6ApPpKZb07if7qF/TBCf7+JOcsq+YMYqoy6LbHseHSn5EoaMKppupLjWkOSxZC7wSDs16jsd1PctGrs96jMOM76HvEi4rjQjpWmGknai6KWKwQn9TNFvSgYVlzjwWG1U+dWIWVCSWfF/aWmsNFld0jeClmL+PKliPtMsZIpWLHkdBbyrBlin23BunUpZKI8/OhEU4vTf2jDIFFFDcl9rhlJhCYEnRLFWhkLYa51NZt5zsaIdK3qJot2QXKvLop6+sBsqtqVGS4nSmiRJSNP0WNifajSiF6MabycBd7qaN5OQD09Dluc03eSsL28qNjyflVbK9u4u+/v7HB4eFj9I6U+cVJFFkq8v63w7qnMjVzxcqvDzVYPlfErYUuSJYlUrbtcC8l6PTrtNtVr9W2gw8W91NB/3Io7WajxarvB+JyQJZXHhmVAyqmpu+pIr1iyObRcyE/k3/0GRA9smLZEAAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;만점 채운 FCP 점수&apos; title=&apos;&apos; src=&apos;/static/e8de41b5ceaf1bd3283dc021d472b987/065de/img_7.png&apos; srcset=&apos;/static/e8de41b5ceaf1bd3283dc021d472b987/065de/img_7.png 160w&apos; sizes=&apos;(max-width: 160px) 100vw, 160px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;만점 채운 FCP 점수&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 679px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/a464985613126e878498c5079326e0b2/a96cc/img_6.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 24.11764705882353%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAFCAYAAABFA8wzAAAACXBIWXMAAAsTAAALEwEAmpwYAAABZUlEQVR42j3MXS9CAQDG8T5GzsmF05trH8XMhQ9gLJTW5mXLsFi06BzF5oK8TZ3N2lzTxpUNUxMhZCNv0YuKbvI32dw9++3ZX7O0HESZ8yMrfoaHnQzY7fjm5rF0duH1eHCOjOOwWvEpAXq7e3C7Jhh3TWGzWJCVefr77Iw5R/B4ZTra2tEAVKtVarUaD5kXbi8u+Qbix3GqlTIvbwVSibPfG4l4glI+R6H0xXksVrfL5BWvmQw1YCuk/gU/PysUix/cnB6QfUzz+vxE6mSPcrlC+uyIx7sk+VyO5OEupY8idxcx7lNxCrl3rk/2ec8+k82k2dneRBONRolEIqiqysy0i4WAzMb6GhNjg3VTZtwos9OEQyEmR4cIq2EW/D5krxt1a5spl5PVlSDBpUUctm40Wq0WnU6HKIoIokiDINR3gyAiCMK/6RobMZrNmEwmzOZmJL2RppZW9MZmJEnCYDAg6Q38AEGVGEsqmYrpAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;사용자가 첫 진입시 페이지 랜더링 체감&apos; title=&apos;&apos; src=&apos;/static/a464985613126e878498c5079326e0b2/a96cc/img_6.png&apos; srcset=&apos;/static/a464985613126e878498c5079326e0b2/e7570/img_6.png 170w,
+/static/a464985613126e878498c5079326e0b2/f46e7/img_6.png 340w,
+/static/a464985613126e878498c5079326e0b2/a96cc/img_6.png 679w&apos; sizes=&apos;(max-width: 679px) 100vw, 679px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;사용자가 첫 진입시 페이지 랜더링 체감&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;많은 요소를 한꺼번에 렌더링하지 않고 사용자가 보는 뷰포트에 맞는 컴포넌트만 랜더링 하기 때문 &lt;/p&gt;
+&lt;p&gt;오랜 시간 기다리던 페이지, 이젠 안녕이다.&lt;br&gt;
+첫 진입시, 콘텐츠가 직관적으로 뜰 때까지 기다리는 시간이 줄어들었다.  &lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;p&gt;FCP 의 경우는 사용자가 처음 보는 콘텐츠가 얼마나 빨리 보이느냐의 문제다.&lt;/p&gt;
-&lt;h2&gt;🚫 TBT&lt;/h2&gt;
-&lt;p&gt;BT는 JS가 렌더링을 막고 있는 시간을 말한다.&lt;br&gt;
-코드 스플리팅, 불필요한 JS 제거, 그리고 불필요하게 SSR로 처리되던 인터랙티브한 위젯들 (ex. 댓글, 공유 모듈)&lt;/p&gt;
-&lt;p&gt;이 문제들을 해결하기 위해, 상단은 SSR 하단은 &lt;code class=&quot;language-text&quot;&gt;LazyShow&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;dynamic(import(...))&lt;/code&gt;을 활용해 랜딩 시점을 뒤로 미루고 나니  &lt;/p&gt;
-&lt;p&gt;TBT는 &lt;strong&gt;0ms&lt;/strong&gt;로 떨어졌다.&lt;/p&gt;
-&lt;h2&gt;Light House 를 돌려보자&lt;/h2&gt;
+&lt;h2&gt;TBT&lt;/h2&gt;
+&lt;p&gt;🚫 TBT는 JS가 렌더링을 막고 있는 시간을 말한다.  &lt;/p&gt;
+&lt;p&gt;TBT 에 직접 영향을 주는 요소로는 &lt;strong&gt;JS 번들 크기&lt;/strong&gt;와 &lt;strong&gt;렌더링 시점&lt;/strong&gt; 이지만 JS 번들 크기를 0.7MB 정도 다이어트 함과,
+Tree Shaking 을 통해 불필요한 코드도 제거 했었다.&lt;/p&gt;
+&lt;p&gt;코드 스플리팅, 불필요한 JS 제거, 그리고 불필요하게 SSR로 처리되던 인터랙티브한 위젯들 (ex. 댓글, 공유 모듈) 이 주요 원인 이였다.   &lt;/p&gt;
+&lt;p&gt;그런데, 앞서 FCP, CLS 를 해소하면서 자연스레 해소 되어버렸다.  &lt;/p&gt;
+&lt;p&gt;즉,&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;&quot;사용자에게 먼저 보여줄 콘텐츠만 빠르게 준비하고, 나머지는 뒤로 미루자&quot;&lt;/strong&gt; 라는 개선 목표는,
+브라우저가 긴 JS 작업에 막히지 않고, 렌더링 병목을 해소하는 것으로 이어졌다.&lt;/p&gt;
+&lt;p&gt;*TBT 점수는 &lt;strong&gt;0ms&lt;/strong&gt; 를 달성 하였다.* &lt;/p&gt;
+&lt;h2&gt;🙏 결과&lt;/h2&gt;
 &lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
-      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/411f324fb0e1d400f58ff6e62cfdff73/536b4/img.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 75.29411764705883%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAPCAYAAADkmO9VAAAACXBIWXMAAAsTAAALEwEAmpwYAAABnElEQVR42pWT2ZLTMBBF8///wCM/MN8AVTzwOAtJyCTGJLHjTd5kW9uhIk+GBOwUdFXLltR9q/ve1oI3M1VKfwqRUUAXh8j4B/L0E1UXozfjd6hz+jLFDZIpW1x+bCs4bFcEq2d2yyeC5RPbb4/s1i+EmyXB+sV7+LpCxHts39wHBIezFmM01hics1ducNZg7Xg+hrv7gOfrvM1JxIGsiP3BdMp9W7i3tHxoWBXfQWwwIkLJ3xxprZGyY1DKd9DJDqXU/Qo1jkAeiMSGpDn6li4VnpNFWfPp8xc+fHxgt31FaT0PeElMy4Kvu2f2WXxhlWtKiiwj3McYa+dbPi9V07E/1aRpRpXlxIlgHcFRXPh33t/B/9j/BaiVoSh71NDRVDnt0BNXEtmZm+AziHX3pfKAfd9hZjiZsrNIfd9PVukB60GSFCl1Xb+rN7Y1zpsUgqoqadt2fATW+rhZQOMMRStQejpIidKPkRfjX1qWdmCfH3yFxtzyprEkde7vmqaZFeMG0CpFkkWzw6qNvlH32qfnUGu6Y/RfwsxV+At5rZhBpfqIIwAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;CLS 와 TBT, FCP 가 개선됨&apos; title=&apos;&apos; src=&apos;/static/411f324fb0e1d400f58ff6e62cfdff73/ca1dc/img.png&apos; srcset=&apos;/static/411f324fb0e1d400f58ff6e62cfdff73/e7570/img.png 170w,
-/static/411f324fb0e1d400f58ff6e62cfdff73/f46e7/img.png 340w,
-/static/411f324fb0e1d400f58ff6e62cfdff73/ca1dc/img.png 680w,
-/static/411f324fb0e1d400f58ff6e62cfdff73/536b4/img.png 983w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/1722891e715e4403c5fb8d3086beeebe/8a72f/img.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 120%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAYCAYAAAD6S912AAAACXBIWXMAAAsTAAALEwEAmpwYAAAEG0lEQVR42nWU248URRTG5xlGYHcBYWanu6vvt5nuufTszCyzXJWLESP3oGtC3CW846OJAtEEY0xMNKLJorIhYDC+mQjsg5pITPRVCb5swr+A7z9TNTO9N+zkpFKnT331fedShWKxyGrbvLnItq1Ftm8rsmnLC2x6cdvAv30rm8e2UFS+MdafG1nBNE1WmxAmr+xxOLPXptSLmDyVoTV9KicytMN19G5E6e09iMTD1AWmtfZ8QQjByAzDwLZtjswkzLRCnHpM9PIUTuhh91OMuo8ZuXiH2xi2iTBWzo5sLaAwcByHtNGiWktJ4ipTzYzAD9jf30e7lSmQmh8iDGMDmAJcK1egGwJtsoKu64pxRdeU37IsLNvGNAcXr0/VBsm6puM4NtU4wJ+u49kOumHkF0lwCSpTst5GMSuSZe58D3d/woHMo7snpOm7ipEQA2ny0M6dOxkfn2BiYmjjE4yNjVMqlXLQgjAFoqJjZ1WCQylnezYneg5TgY/nuoqZDC6Xy1y5eo07d77jxtcLfLbwJQsL33Dv+x+YnX2LXbt2KQW5ZE0Y6P2Q6rRPNBPgRjaGZiBME9u22L17N0tLS8jvzq0vuHH9Xb69+RV//bPMtWtXFWMpvzAohIFe0QjTKq3j++i9/hK276Jrg+LImyXDxcVFnjx5wunjrxJbFufPnuPnX37l8uXL7NixYwAog33fx/U8slbGdLvLdNah3szw4xQ/qinJUnoYhqRpgmnZ6MLEdT2yrIXneeq/yqEEbEz1aXVnqNVqxNWYKApJWx3a+4+RTPXzCkq2mqZhyiINK1+paDmYApRyXV3HtR1cW1CPXWzbRbN0nMjFHrIbVXo0nusnLGfo2A5BEAwKo2mKxSBw4yF9+F/Gjfyu66qUSaUDyY5N3EhIawlJkqg8rWYz6i/fcYhrNWpJQpokakRHgDKHOaCiW/VwmzGB7+eBa2dcEFkW01FE6Pt4qxitljtsbBMn8oirVaIoUqV/HkMrcGj4AZEfEA7jNj59kqE8nAaEnZQ4jhVDY/1LIvexHM0WYb1GNYpzhhtfG0Pgei5OuhK04RUZ+gzPwjBFPo7PZ2gYtD2PvUmqEvxcwHXA/2e5ZNlrtjAxhJm3hVbR1FqpVKhMTjI5NLmfLJdXVukvl/NWKgSBz4GDh+jtPUiz3VMJlwVKGw3VRq2sTbPVotFskrWnSNM67U5nuHap1wf7ai1RZApzc3PqBfn32TOePn3K8vIyj/9+zPUP3uPhg/vcvnWTu7cXuf/Tj3z+6cc8evQbH334Pn/+8TufXL/C0oMH3Lu7yOkTr1EqlSn0ej0uXbrE3Nw8Fy9eZH5+ngsXLtDtdDh18iS9bpeZfp9jR4/SabeZfXOWei3kjbl3yKYPc/7cGY4eOUIYBKpD/gPwYe4H/h8baAAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;CLS 와 TBT, FCP 가 개선됨&apos; title=&apos;&apos; src=&apos;/static/1722891e715e4403c5fb8d3086beeebe/ca1dc/img.png&apos; srcset=&apos;/static/1722891e715e4403c5fb8d3086beeebe/e7570/img.png 170w,
+/static/1722891e715e4403c5fb8d3086beeebe/f46e7/img.png 340w,
+/static/1722891e715e4403c5fb8d3086beeebe/ca1dc/img.png 680w,
+/static/1722891e715e4403c5fb8d3086beeebe/8a72f/img.png 780w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
   &lt;/a&gt;
     &lt;/span&gt;
     &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;CLS 와 TBT, FCP 가 개선됨&lt;/figcaption&gt;
   &lt;/figure&gt;&lt;/p&gt;
-&lt;h2&gt;추가로 개선 할 부분&lt;/h2&gt;
-&lt;p&gt;이제 남은 성능 요소는 LCP 와 SI 만 남은 상태이다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[퍼포먼스 최적화 를 향해 - 1부]]></title><description><![CDATA[들어가며 웹페이지가 빠르지 않으면, 유저는 기다려주지 않는다. 특히 뉴스/언론 사이트처럼 콘텐츠 소비가 빠르게 이루어지는 환경에서는 더더욱 그렇다.   네트워크 텝을 열어보니 JS…]]></description><link>https://hyungkishin.github.io/phase3/</link><guid isPermaLink="false">https://hyungkishin.github.io/phase3/</guid><pubDate>Sat, 03 May 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;들어가며&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;WOW.... 프론트 포지션에서 이런 수치 처음봐서 살짝 설레였다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 542px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/7c4d4e4978d0db51b2aefbaba45121c9/47f85/img_9.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 82.3529411764706%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAQCAYAAAAWGF8bAAAACXBIWXMAAAsTAAALEwEAmpwYAAAEMElEQVR42k3O3U9TBwCG8V5rduOYydycmZkXGllGCyhKgQKiOATGFhwwERTpN4VCSymWFijQ06/T9vTzlFNAhMJQcerc1H2pcdlM2MW2ZNlf8yywXeziyXv3y6ua8w4SmDYgzOgRZoxEA1YGrrSwOmXhV3mB18sxfinKfJPykHD0oTut5uDBg7xVcoB9+/ajPashJY6TiU+QTbhRBab1e1jQbyDsNxJZMDM10suKz8GLVICvpTD3pDBLPiuyq5/r7Y0cPvweJSUl7N//Bk2Np5GlCbIxFznJjSo4+x80ZyS6YCQmWAk5bpBxGtn2O4kN95NwmAhbe5FGrmLsaODQobc58u4hSt48QG/3RZT0JLnEOHJyAtUuFp03IS6YiAfMJENW5Ekj61M2niW8FH3DZJ16bs9YSY9do69Zy4mj79DXoKH85AfMTRtQUm5kyYWccqGKLpiJBawkBAtSyEJaMPMiNceLhJ+HASev5CB/rKd5FHYz299Kd72G7tpSPJ830VRfsQfld0u6WNwF44IZKWghGbaSigyRC9tYdulZH9cjGTopOg08DU4iWbqwf1qDubWKmd5mLp35iBt9l1iVPeSkcZTUxF6qZNBMKjxENmojH7GhxEeQ3NcRetuJDXSy6RllzWVAGGzDebkOZ2ctfec0VKmPko7aKaQnWfw/mInYyEWHWRRtKKKNJWmM1dAA81c/xtXWgq+rnczIFfzXWhj7TMtQawVtp47RVXcEv0VHPm5nKeelkL1JIeNGlY8O/wvF7SwnxliLXGPDW0PSVM9kaxPR/g4i+o49zNSswdKipkdXSn/t+4gDpSQcNSiBHvLxURbTHlSKOEwhPsZSws6a8AVFTz0rE1Xcslcy212Lv6+V8csNGC5oMF5Q4+rUMnBBg6X5BFL/cRKGD9n0nWV1ppGsrwPV7rN18QZbgTY2J3VseBrIDp9izVGFv0uNrV2L5XwZ1pYK3N06vFcaMFysZLyznLxJQ8Feyfa0lgfzdTwQ6lFtBju549Ox6a6mOFqBYlaTt6pZGipH7D2O4+IJJq534O09x2xPDa5PTzHQXMl8VxlFaxnFkXLy1goUSzl3vdWo7kw18uVELYrtLLmog2x6jpjoQ5HnUHJ+xMAkzqW7BFMpRFFgSpjDLcZIyEFWbgvEFvQkr57kkaeO287TqNZcOu6Oa0mOniey9ROJledEFp/gEh4Rzz1hp5DnlRTnZSjE98oK4q0fEXJP9/am9APzX23zwF3Nw6lakvqyXbCe4ugZ4rYmlGc7PHz+N5mNnync2+H+4994fe8+j0MJvouleLn9mPTmDsWnv7P67Z8Etv5ibGML3yfHCPeUkhksR7XhamB1tJqkqZpg2MviskQqFyFfiLK8HEcuSEwH/OhdN3GEYkwFF4imBDIrIgE5wuyMGWVQzdaYFlmv4R8pPQFV8l+wswAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;ㄹㅇ...&apos; title=&apos;&apos; src=&apos;/static/7c4d4e4978d0db51b2aefbaba45121c9/47f85/img_9.png&apos; srcset=&apos;/static/7c4d4e4978d0db51b2aefbaba45121c9/e7570/img_9.png 170w,
+/static/7c4d4e4978d0db51b2aefbaba45121c9/f46e7/img_9.png 340w,
+/static/7c4d4e4978d0db51b2aefbaba45121c9/47f85/img_9.png 542w&apos; sizes=&apos;(max-width: 542px) 100vw, 542px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;ㄹㅇ...&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;대망의 중간 배포 후, 구글 서치 콘솔에서 확인한 결과.  &lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;개선이 필요한 URL&lt;/strong&gt; 은 &lt;strong&gt;빠른 URL 과&lt;/strong&gt; 자리를 바꾸었다 🥰. &lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/cfaca0f9933b21e069cddcd2b2fc966d/536b4/img_8.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 39.411764705882355%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAICAYAAAD5nd/tAAAACXBIWXMAAAsTAAALEwEAmpwYAAABFUlEQVR42n2R605cMQyE9/1fEbW/oEVl1eXk5kucfFVyFgRtRaTR2BNlPFYuuSkv19/UJowJ3ge9T3pMYszdfwXzwVGDqoPUjIuZk9JBa0JEZ4xBRNB735hz8tVZ19YnMaGIcxEVasnkXEgpYW6UVne9sAYs042xME68aR8GbkP1zyn+TrQfLdbGfH5k/nxk/npm5uPUP5jeE/pe9d9dVpK7Hg6eIF/xp28M1f+u/54wutEt0b2evKCL88lyIwBphfz0QDuuFHmlSKZq2ezhp6H1QE2pVsntlbY50Vwo2qhyULTSupLyDfnxnSg3VCsuB/422BpFOpcihljf36827hyYr0H9U28WiDhigS7dx3u9PI6q/AFQrHMlScidBwAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;이 사진 크몽의 bk 님이 올리셨던데... 저도 따라해 보니... 기분이 좋습니다 :) &apos; title=&apos;&apos; src=&apos;/static/cfaca0f9933b21e069cddcd2b2fc966d/ca1dc/img_8.png&apos; srcset=&apos;/static/cfaca0f9933b21e069cddcd2b2fc966d/e7570/img_8.png 170w,
+/static/cfaca0f9933b21e069cddcd2b2fc966d/f46e7/img_8.png 340w,
+/static/cfaca0f9933b21e069cddcd2b2fc966d/ca1dc/img_8.png 680w,
+/static/cfaca0f9933b21e069cddcd2b2fc966d/536b4/img_8.png 983w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;이 사진 크몽의 bk 님이 올리셨던데... 저도 따라해 보니... 기분이 좋습니다 :) &lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;h2&gt;마무리&lt;/h2&gt;
+&lt;p&gt;CLS, FCP, TBT 를 모두 안정화하면서 퍼포먼스 점수는 이전과는 다르게 상당히 점수가 올라갔다.&lt;br&gt;
+Lighthouse, PageSpeed Insights, 서치콘솔까지 성능 개선 효과가 확실히 반영되기 시작했다.&lt;/p&gt;
+&lt;p&gt;하지만 아직 개선되지 않은 &lt;strong&gt;LCP (Largest Contentful Paint)&lt;/strong&gt; 와 &lt;strong&gt;SI (Speed Index)&lt;/strong&gt;&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;항목&lt;/th&gt;
+&lt;th&gt;상태&lt;/th&gt;
+&lt;th&gt;개선 포인트&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;LCP&lt;/td&gt;
+&lt;td&gt;답도없음&lt;/td&gt;
+&lt;td&gt;가장 큰 콘텐츠(대개 대표 이미지)를 더 빠르게 렌더링해야 함&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;SI&lt;/td&gt;
+&lt;td&gt;어떡함&lt;/td&gt;
+&lt;td&gt;시각적으로 완성되는 속도를 높이기 위해 불필요한 CSS/JS를 줄이고, critical 리소스만 우선 처리 필요&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;그러나 Core Web Vitals 의 5대 요소를 total &lt;strong&gt;90점 이상 유지&lt;/strong&gt; 한다면.&lt;br&gt;
+다음과 같은 부분들을 누릴 수 있다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;뉴스 검색 순위 떡상&lt;/li&gt;
+&lt;li&gt;사용자 체류 시간 증가&lt;/li&gt;
+&lt;li&gt;구글 검색에 이전 보다 더 많은 뉴스가 사용자 에게 노출&lt;/li&gt;
+&lt;li&gt;광고 노출 은 덤으로 이어지는 선순환 구조 달성&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;3부에서는 곧, 지옥이 펼쳐질 &lt;strong&gt;LCP를 어떻게 개선할 것인지&lt;/strong&gt; 와, &lt;strong&gt;SI&lt;/strong&gt; 개선에 대해서 다뤄볼 예정이다. &lt;/p&gt;
+&lt;p&gt;참고 &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://web.dev/articles/defining-core-web-vitals-thresholds?hl=ko&quot;&gt;Core Web Vitals 측정항목 기준점을 정의하는 방법&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://blog.kmong.com/%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%A5%BC-%EC%9C%84%ED%95%9C-%EA%B2%80%EC%83%89%EC%97%94%EC%A7%84-%EC%B5%9C%EC%A0%81%ED%99%94-cls%EA%B0%80-%EB%AC%B4%EC%97%87%EC%9D%B8%EC%A7%80-%EC%9D%B4-%EA%B8%80-%EB%B3%B4%EA%B3%A0%EB%8F%84-%EB%AA%A8%EB%A5%B4%EB%A9%B4-%EB%8B%B9%EC%8B%A0%EC%9D%80-%EC%9B%90%EC%88%AD%EC%9D%B4-1ccd4da309d8&quot;&gt;크몽 - bk 님&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content:encoded></item><item><title><![CDATA[퍼포먼스 최적화 를 향해 - 1부]]></title><description><![CDATA[들어가며 웹페이지가 빠르지 않으면, 유저는 기다려주지 않는다. 특히 뉴스/언론 사이트처럼 콘텐츠 소비가 빠르게 이루어지는 환경에서는 더더욱 그렇다.   네트워크 텝을 열어보니 JS…]]></description><link>https://hyungkishin.github.io/phase3/</link><guid isPermaLink="false">https://hyungkishin.github.io/phase3/</guid><pubDate>Sat, 03 May 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;들어가며&lt;/h2&gt;
 &lt;p&gt;웹페이지가 빠르지 않으면, 유저는 기다려주지 않는다.&lt;br&gt;
 특히 뉴스/언론 사이트처럼 콘텐츠 소비가 빠르게 이루어지는 환경에서는 더더욱 그렇다.  &lt;/p&gt;
 &lt;p&gt;네트워크 텝을 열어보니 JS 가 프로젝트 사이즈에 비해 많은 용량을 차지하고 있었다.&lt;/p&gt;
@@ -672,7 +852,7 @@ pages 만 UI 뼈대를 만든 후 공통화 컴포넌트화 시키면 되겠다.
 &lt;li&gt;따라서, DOM을 조작할 수 있는 라이브러리가 필요하다.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;hr&gt;
-&lt;h2&gt;🧩 라이브러리 도입 결정&lt;/h2&gt;
+&lt;h2&gt;라이브러리 도입 결정&lt;/h2&gt;
 &lt;p&gt;✅ cheerio — DOM 파싱의 사실상 업계 표준 &lt;/p&gt;
 &lt;p&gt;AMP 변환의 핵심은 Google GuideLine 에 허용되지 않는 HTML 태그를 파싱해서 변형하거나 제거하는 작업이 필연적인데,&lt;br&gt;
 이때 cheerio는 서버 사이드에서 jQuery처럼 HTML을 다룰 수 있는 경량 라이브러리로, 아래 작업들을 편하게 처리할 수 있었다.&lt;/p&gt;
@@ -860,7 +1040,7 @@ jsdom도 있었지만, 성능과 문법의 직관성에서 cheerio가 더 낫다
 &lt;li&gt;구글이 주도해서 만들었고, 현재는 다양한 회사와 커뮤니티가 함께 관리되고 있다.&lt;/li&gt;
 &lt;li&gt;빠른 로딩 속도 + 안정적인 사용자 경험으로, 특히 뉴스/블로그/미디어 사이트에 매우 강력한 효과를 준다.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;🔐 AMP 는 운영중 제약이 많아 요즘엔 &lt;strong&gt;Core Web Vitals 을 통해 대체하는 추세&lt;/strong&gt; 이다.&lt;/p&gt;
+&lt;p&gt;AMP 는 운영중 제약이 많아서, 요즘에는 &lt;strong&gt;Core Web Vitals 을 통해 대체하는 추세&lt;/strong&gt; 이다.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;📉 AMP 단점 요약&lt;/p&gt;
 &lt;table&gt;
@@ -872,23 +1052,23 @@ jsdom도 있었지만, 성능과 문법의 직관성에서 cheerio가 더 낫다
 &lt;/thead&gt;
 &lt;tbody&gt;
 &lt;tr&gt;
-&lt;td&gt;🧩 기능&lt;/td&gt;
+&lt;td&gt;기능&lt;/td&gt;
 &lt;td&gt;JS 사용 제한, 커스텀 기능 구현 어려움&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;🎨 디자인&lt;/td&gt;
+&lt;td&gt;디자인&lt;/td&gt;
 &lt;td&gt;CSS 용량 제한, 커스터마이징 불편&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;🧪 개발 경험&lt;/td&gt;
+&lt;td&gt;개발 경험&lt;/td&gt;
 &lt;td&gt;디버깅 어려움, validator 의존&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;💼 운영 부담&lt;/td&gt;
+&lt;td&gt;운영 부담&lt;/td&gt;
 &lt;td&gt;AMP 따로 만들고 유지 → 리소스 증가&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;🛰️ 종속성&lt;/td&gt;
+&lt;td&gt;종속성&lt;/td&gt;
 &lt;td&gt;구글 캐시 도메인 문제, 유입 분석 어려움&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
@@ -910,31 +1090,31 @@ jsdom도 있었지만, 성능과 문법의 직관성에서 cheerio가 더 낫다
 &lt;/thead&gt;
 &lt;tbody&gt;
 &lt;tr&gt;
-&lt;td&gt;🚀 속도&lt;/td&gt;
+&lt;td&gt;속도&lt;/td&gt;
 &lt;td&gt;AMP는 로딩 속도가 &lt;strong&gt;압도적으로 빠름&lt;/strong&gt; (HTML + 제한된 JS/CSS만 허용)&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;📱 사용자 경험&lt;/td&gt;
+&lt;td&gt;사용자 경험&lt;/td&gt;
 &lt;td&gt;기본적으로 Lazy Load + Viewport 우선 렌더링 → &lt;strong&gt;UX 최적화&lt;/strong&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;🔍 검색 최적화&lt;/td&gt;
+&lt;td&gt;검색 최적화&lt;/td&gt;
 &lt;td&gt;&lt;strong&gt;구글 AMP 캐시&lt;/strong&gt;에 의해 빠른 응답 + 검색 상단 노출 가능성 증가&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;💎 Core Web Vitals&lt;/td&gt;
+&lt;td&gt;Core Web Vitals&lt;/td&gt;
 &lt;td&gt;LCP, CLS, INP 등 &lt;strong&gt;성능 지표 자동 개선 효과&lt;/strong&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;📈 SEO/트래픽&lt;/td&gt;
+&lt;td&gt;SEO/트래픽&lt;/td&gt;
 &lt;td&gt;빠른 로딩 + UX 개선 → &lt;strong&gt;이탈률 감소 + 유입 증가&lt;/strong&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;🧰 내장 컴포넌트&lt;/td&gt;
+&lt;td&gt;내장 컴포넌트&lt;/td&gt;
 &lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;amp-img&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;amp-carousel&lt;/code&gt; 등으로 &lt;strong&gt;인터랙션을 JS 없이 구현 가능&lt;/strong&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;🧵 일관성&lt;/td&gt;
+&lt;td&gt;일관성&lt;/td&gt;
 &lt;td&gt;AMP validator 통과 필수 → &lt;strong&gt;표준화된 코드와 구조 강제&lt;/strong&gt;로 QA 부담 감소&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
@@ -971,10 +1151,15 @@ jsdom도 있었지만, 성능과 문법의 직관성에서 cheerio가 더 낫다
 &lt;/tbody&gt;
 &lt;/table&gt;
 &lt;hr&gt;
-&lt;h2&gt;검색 유입의 트랜드&lt;/h2&gt;
-&lt;p&gt;🥰 국내 뉴스 유입이 포털 중심에서 검색 중심으로 넘어오고 있다는 사실.&lt;/p&gt;
-&lt;p&gt;물론 한국은 네이버·다음 같은 &lt;strong&gt;포털 중심의 뉴스 소비 성향&lt;/strong&gt;이 강하다.&lt;br&gt;
-하지만 최근에는 &lt;strong&gt;구글 검색 + 유튜브 검색을 통한 뉴스 소비도 꾸준히 증가 중&lt;/strong&gt;이다.&lt;/p&gt;
+&lt;h2&gt;뉴스 검색 유입의 변화 - 포털에서 검색&lt;/h2&gt;
+&lt;p&gt;한국은 전통적으로 네이버 / 다음 같은 &lt;em&gt;포털 중심의 뉴스 소비&lt;/em&gt; 환경이 강했다.&lt;br&gt;
+하지만 최근 몇 년 사이, 이 구조에 점진적인 변화가 일어나고 있다.  &lt;/p&gt;
+&lt;p&gt;2023~2024년 주요 언론사 내부 트래픽 데이터(GA, GSC 등)를 살펴보면,&lt;br&gt;
+포털 메인 노출 의존도가 줄고, 구글 검색을 통한 유입 비중이 점차 확대되고 있다.  &lt;/p&gt;
+&lt;p&gt;예를 들어, 특정 기사가 포털에서 노출되지 않아도&lt;br&gt;
+구글 검색에서 &quot;퇴직금 계산법&quot;, &quot;청약 자격 조건&quot;, &quot;2025 설날 날짜&quot; 등 정보성 키워드로 지속 유입되는 패턴이 발견된다.    &lt;/p&gt;
+&lt;p&gt;기존의 &quot;순간적인 폭발 트래픽(포털)&quot;보다,&lt;br&gt;
+&lt;strong&gt;지속적·장기적인 트래픽 구조(검색)&lt;/strong&gt; 가 점점 중요해지고 있다는 신호다.  &lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;특히 검색 기반 유입은 ‘롱테일 콘텐츠’ 확보에 핵심.&lt;br&gt;
 반면, 포털 메인은 &lt;em&gt;경쟁도 심하고, 노출 타이밍도 예측이 불가능&lt;/em&gt;&lt;/p&gt;
@@ -1092,6 +1277,9 @@ jsdom도 있었지만, 성능과 문법의 직관성에서 cheerio가 더 낫다
 &lt;h2&gt;참고 자료&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&quot;https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#amp&quot;&gt;Next.js AMP 공식 문서&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.journalist.or.kr/news/article.html?no=57770&amp;#x26;utm_source=chatgpt.com&quot;&gt;2023 언론수용자 조사 - 한국언론진흥재단&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.journalist.or.kr/news/article.html?no=55137&quot;&gt;포털 방문자, 뉴스보다 다른 콘텐츠 찾나… 뉴스 이용 &apos;뚝&apos; - 한국기자협회&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://publishinstitute.org/news/search-engine-seo-google-news/&quot;&gt;검색이 통로아닌 목적지로 변화&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;시간을 아껴주신 분들&lt;/p&gt;
 &lt;ul&gt;
