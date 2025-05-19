@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Mon, 19 May 2025 08:06:52 GMT</lastBuildDate><item><title><![CDATA[퍼포먼스 최적화 를 향해 - 2부]]></title><description><![CDATA[들어가며 1부에서 JS 번들 다이어트를 통해 전체 페이지의 무게를 줄이는 작업을 진행했다 🤔그러나 홈페이지의 성능은 거의 그대로였다.   google Lighthouse…]]></description><link>https://hyungkishin.github.io/phase4/</link><guid isPermaLink="false">https://hyungkishin.github.io/phase4/</guid><pubDate>Sun, 04 May 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;들어가며&lt;/h2&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Mon, 19 May 2025 08:24:12 GMT</lastBuildDate><item><title><![CDATA[퍼포먼스 최적화 를 향해 - 2부]]></title><description><![CDATA[들어가며 1부에서 JS 번들 다이어트를 통해 전체 페이지의 무게를 줄이는 작업을 진행했다 🤔그러나 홈페이지의 성능은 거의 그대로였다.   google Lighthouse…]]></description><link>https://hyungkishin.github.io/phase4/</link><guid isPermaLink="false">https://hyungkishin.github.io/phase4/</guid><pubDate>Sun, 04 May 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;들어가며&lt;/h2&gt;
 &lt;p&gt;1부에서 JS 번들 다이어트를 통해 전체 페이지의 무게를 줄이는 작업을 진행했다&lt;br&gt;
 🤔그러나 홈페이지의 성능은 거의 그대로였다.&lt;/p&gt;
 &lt;p&gt;&lt;img src=&quot;/static/test-64bff304b1cc203997cd8af6f40fd13a.gif&quot;&gt;&lt;/p&gt;
@@ -330,8 +330,28 @@ Tree Shaking 을 통해 불필요한 코드도 제거 했었다.&lt;/p&gt;
 &lt;p&gt;즉,&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;&quot;사용자에게 먼저 보여줄 콘텐츠만 빠르게 준비하고, 나머지는 뒤로 미루자&quot;&lt;/strong&gt; 라는 개선 목표는,
 브라우저가 긴 JS 작업에 막히지 않고, 렌더링 병목을 해소하는 것으로 이어졌다.&lt;/p&gt;
-&lt;p&gt;*TBT 점수는 &lt;strong&gt;0ms&lt;/strong&gt; 를 달성 하였다.* &lt;/p&gt;
-&lt;h2&gt;🙏 결과&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;TBT 점수는 &lt;strong&gt;0ms&lt;/strong&gt; 를 달성 하였다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;중간 배포 🙏&lt;/h2&gt;
+&lt;p&gt;이제까지의 개선을 통해, Core Web Vitals 의 3대 요소를 모두 안정화 시켰다.&lt;br&gt;
+Google Core Web Vitals 의 경고가 약간의 조급함을 불러 일으켜서 인지.&lt;/p&gt;
+&lt;p&gt;현재까지 개선한 부분에 대해서, 주간미팅 에서 팀원 분들께 공유를 드리기로 하였다.&lt;br&gt;
+그리고 중간배포를 진행하는것으로 마무리 되었다.&lt;/p&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 617px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/8337bc364c4c6d85a78765f57d7f5a41/8a174/img_10.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 55.294117647058826%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAALCAYAAAB/Ca1DAAAACXBIWXMAAAsTAAALEwEAmpwYAAADFklEQVR42h3D71OTBQDA8ec8GVvInu0htS5DY3v2/NjGxhjizqARILFkktldEdRZ1l2amtebujreIJqdb3bYwuHBwJxLoYHkkDWCJcvIuE6Z88DjLL3zRS/7B77d9bn7CAnZSr/taU7KElGHRFS2ct5hZlKVSOgSI7rIhGolqVu4qonkHBLz8iayzmdY1aq5o9RRUGpYUXxktM0II4qZfk3ka4dEvy7Sp4gMqiIxtYxhRxmjupmkczOjmplRvZxpRzkTHpFFbRtF2cF9tZaC5uGR7uFn7VmEhCwSVc0MKpb/DylWLtgNpBoCZLqOcKl2B2snYqQbdzP/ShvFIxF+bH2JolrJA93Pil7Dmque+/pOktoWhD5NZECTiCkVDCkSUaWCWGUJub3dFD/7jvE9e8i8fZzfPzzFrz2HWT+TIR3czW3HFp5oXh7pfv52+7mju0jbJITTLgunZCNnZSPnqkxEbEYi9lKSXhtTwSDxuh2Mes1c72hgcq+Pa+0+xnwVxOUNpGSRRXUrWdXC93YTP6giwmVnGTfCrzL71sek9vUw1tLEt77nmWpr42Lry6Tf7KJw7BP+OPgu04HtZDtCXAt6ubH/ANPhTi4H/aTf6CLR3MhZzYTwjUMg//5RHn51k7XPL1HsvcK9kzMUvpwgd7ifv87MsHzwPVaP95F7rZHF7ne4eyzC8qdR8t1HuftBL6tfJMh3nSBStQFhxmYl2xBgfH83qfYOptr3kf/oNDcP9TId6iDdEiTT+AK/HQix0GYj3+7mdvh1rofDjNcrzDU1s9DZQzbUyQXZiLCiVrNgq2DAbiBiNxB1lHJOMRBTSxmpLWVyp5Gf6jYxv2sjvzSYuOUzMauVMOYxMOw2ElM3MqiXMKQ/xUWPiPCPy8ecWsmAWyTmshB3isQVkauqyBWvhUyzlVyLmaXmrTyul1nX7Cy7VJZrdGad2/mzVWY9rHErsI3xagnhgV7PvFrFoNPMsFtk2FVOXDOT9IjMBSxkmswsBSQe6y4ean5WFBdripd7Si0F+y6ehAL8e6iOpRefI+WW+A9NQNFOKLXNXAAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;하루 뒤 ㅋ&apos; title=&apos;&apos; src=&apos;/static/8337bc364c4c6d85a78765f57d7f5a41/8a174/img_10.png&apos; srcset=&apos;/static/8337bc364c4c6d85a78765f57d7f5a41/e7570/img_10.png 170w,
+/static/8337bc364c4c6d85a78765f57d7f5a41/f46e7/img_10.png 340w,
+/static/8337bc364c4c6d85a78765f57d7f5a41/8a174/img_10.png 617w&apos; sizes=&apos;(max-width: 617px) 100vw, 617px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;하루 뒤 ㅋ&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;올 ...&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
       &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/1722891e715e4403c5fb8d3086beeebe/8a72f/img.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
@@ -344,22 +364,21 @@ Tree Shaking 을 통해 불필요한 코드도 제거 했었다.&lt;/p&gt;
     &lt;/span&gt;
     &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;CLS 와 TBT, FCP 가 개선됨&lt;/figcaption&gt;
   &lt;/figure&gt;&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;WOW.... 프론트 포지션에서 이런 수치 처음봐서 살짝 설레였다.&lt;/p&gt;
-&lt;/blockquote&gt;
+&lt;p&gt;직접 운영했던 서비스에서 이런 수치는 처음본 까닭에 기분은 좋았으나..&lt;/p&gt;
+&lt;p&gt;빨간 지표로 보이는 LCP (Large Content&apos;s Paint) 와 SI (Speed Index) 가 마음을 어렵게 만들었다.&lt;/p&gt;
 &lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 542px; &apos;&gt;
       &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/7c4d4e4978d0db51b2aefbaba45121c9/47f85/img_9.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 82.3529411764706%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAQCAYAAAAWGF8bAAAACXBIWXMAAAsTAAALEwEAmpwYAAAEMElEQVR42k3O3U9TBwCG8V5rduOYydycmZkXGllGCyhKgQKiOATGFhwwERTpN4VCSymWFijQ06/T9vTzlFNAhMJQcerc1H2pcdlM2MW2ZNlf8yywXeziyXv3y6ua8w4SmDYgzOgRZoxEA1YGrrSwOmXhV3mB18sxfinKfJPykHD0oTut5uDBg7xVcoB9+/ajPashJY6TiU+QTbhRBab1e1jQbyDsNxJZMDM10suKz8GLVICvpTD3pDBLPiuyq5/r7Y0cPvweJSUl7N//Bk2Np5GlCbIxFznJjSo4+x80ZyS6YCQmWAk5bpBxGtn2O4kN95NwmAhbe5FGrmLsaODQobc58u4hSt48QG/3RZT0JLnEOHJyAtUuFp03IS6YiAfMJENW5Ekj61M2niW8FH3DZJ16bs9YSY9do69Zy4mj79DXoKH85AfMTRtQUm5kyYWccqGKLpiJBawkBAtSyEJaMPMiNceLhJ+HASev5CB/rKd5FHYz299Kd72G7tpSPJ830VRfsQfld0u6WNwF44IZKWghGbaSigyRC9tYdulZH9cjGTopOg08DU4iWbqwf1qDubWKmd5mLp35iBt9l1iVPeSkcZTUxF6qZNBMKjxENmojH7GhxEeQ3NcRetuJDXSy6RllzWVAGGzDebkOZ2ctfec0VKmPko7aKaQnWfw/mInYyEWHWRRtKKKNJWmM1dAA81c/xtXWgq+rnczIFfzXWhj7TMtQawVtp47RVXcEv0VHPm5nKeelkL1JIeNGlY8O/wvF7SwnxliLXGPDW0PSVM9kaxPR/g4i+o49zNSswdKipkdXSn/t+4gDpSQcNSiBHvLxURbTHlSKOEwhPsZSws6a8AVFTz0rE1Xcslcy212Lv6+V8csNGC5oMF5Q4+rUMnBBg6X5BFL/cRKGD9n0nWV1ppGsrwPV7rN18QZbgTY2J3VseBrIDp9izVGFv0uNrV2L5XwZ1pYK3N06vFcaMFysZLyznLxJQ8Feyfa0lgfzdTwQ6lFtBju549Ox6a6mOFqBYlaTt6pZGipH7D2O4+IJJq534O09x2xPDa5PTzHQXMl8VxlFaxnFkXLy1goUSzl3vdWo7kw18uVELYrtLLmog2x6jpjoQ5HnUHJ+xMAkzqW7BFMpRFFgSpjDLcZIyEFWbgvEFvQkr57kkaeO287TqNZcOu6Oa0mOniey9ROJledEFp/gEh4Rzz1hp5DnlRTnZSjE98oK4q0fEXJP9/am9APzX23zwF3Nw6lakvqyXbCe4ugZ4rYmlGc7PHz+N5mNnync2+H+4994fe8+j0MJvouleLn9mPTmDsWnv7P67Z8Etv5ibGML3yfHCPeUkhksR7XhamB1tJqkqZpg2MviskQqFyFfiLK8HEcuSEwH/OhdN3GEYkwFF4imBDIrIgE5wuyMGWVQzdaYFlmv4R8pPQFV8l+wswAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;ㄹㅇ...&apos; title=&apos;&apos; src=&apos;/static/7c4d4e4978d0db51b2aefbaba45121c9/47f85/img_9.png&apos; srcset=&apos;/static/7c4d4e4978d0db51b2aefbaba45121c9/e7570/img_9.png 170w,
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;LCP 4초 실화...&apos; title=&apos;&apos; src=&apos;/static/7c4d4e4978d0db51b2aefbaba45121c9/47f85/img_9.png&apos; srcset=&apos;/static/7c4d4e4978d0db51b2aefbaba45121c9/e7570/img_9.png 170w,
 /static/7c4d4e4978d0db51b2aefbaba45121c9/f46e7/img_9.png 340w,
 /static/7c4d4e4978d0db51b2aefbaba45121c9/47f85/img_9.png 542w&apos; sizes=&apos;(max-width: 542px) 100vw, 542px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
   &lt;/a&gt;
     &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;ㄹㅇ...&lt;/figcaption&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;LCP 4초 실화...&lt;/figcaption&gt;
   &lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;대망의 중간 배포 후, 구글 서치 콘솔에서 확인한 결과.  &lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;개선이 필요한 URL&lt;/strong&gt; 은 &lt;strong&gt;빠른 URL 과&lt;/strong&gt; 자리를 바꾸었다 🥰. &lt;/p&gt;
+&lt;p&gt;뭐 어찌됬든 점진적으로 개선하면 될것같다. &lt;strike&gt; 이제 그만 하고싶다 &lt;/strike&gt;     &lt;/p&gt;
+&lt;p&gt;아 참, 반가운 지표가 하나 더 발견되었는데, 중간 배포 이후 구글 Search Console 에서 확인한 지표 결과는 &lt;strong&gt;개선이 필요한 URL&lt;/strong&gt; 은 &lt;strong&gt;빠른 URL 과&lt;/strong&gt; 자리를 바꾸었다 🥰. &lt;/p&gt;
 &lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
       &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/cfaca0f9933b21e069cddcd2b2fc966d/536b4/img_8.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
