@@ -1,22 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Mon, 19 May 2025 08:24:12 GMT</lastBuildDate><item><title><![CDATA[퍼포먼스 최적화 를 향해 - 2부]]></title><description><![CDATA[들어가며 1부에서 JS 번들 다이어트를 통해 전체 페이지의 무게를 줄이는 작업을 진행했다 🤔그러나 홈페이지의 성능은 거의 그대로였다.   google Lighthouse…]]></description><link>https://hyungkishin.github.io/phase4/</link><guid isPermaLink="false">https://hyungkishin.github.io/phase4/</guid><pubDate>Sun, 04 May 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;들어가며&lt;/h2&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Sat, 29 Nov 2025 07:54:04 GMT</lastBuildDate><item><title><![CDATA[퍼포먼스 최적화 를 향해 - 2부]]></title><description><![CDATA[들어가며 1부에서 JS 번들 다이어트를 통해 전체 페이지의 무게를 줄이는 작업을 진행했다 🤔그러나 홈페이지의 성능은 거의 그대로였다.  google Lighthouse…]]></description><link>https://hyungkishin.github.io/phase4/</link><guid isPermaLink="false">https://hyungkishin.github.io/phase4/</guid><pubDate>Sun, 04 May 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;들어가며&lt;/h2&gt;
 &lt;p&gt;1부에서 JS 번들 다이어트를 통해 전체 페이지의 무게를 줄이는 작업을 진행했다&lt;br&gt;
 🤔그러나 홈페이지의 성능은 거의 그대로였다.&lt;/p&gt;
 &lt;p&gt;&lt;img src=&quot;/static/test-64bff304b1cc203997cd8af6f40fd13a.gif&quot;&gt;&lt;/p&gt;
-&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 522px; &apos;&gt;
-      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/b391369f00babe2a09072aa79faf2c3f/d15a3/img_1.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 99.41176470588235%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAACXBIWXMAAAsTAAALEwEAmpwYAAAELElEQVR42p2U60+bdRTH+4+YmJjojK986wuNiWbTF8ZLFmOWZS8kc7qLxoXETKdZ6DayDVRgUqBXWvq0ULBcCh1Q6Bzg2HRdsjIKDgiXcVu7Ar0/z9N+zO9XIXMxmniSkzw5eX7f8z3ne84x6LrO5uYmycdJstksqVSKZDJJoVDYc1VV0TTtb66qGqACBfSiRkEtxw0CcHxsjJ+7uhgcHMRiseDxeJibm0NYsVhE/PM0aKmocW9BJ3yvRHJbpVTSUAWgeBSbmWV4+DpuRaGlpQW/38/ExIT0np4eZmdnJXiZrQYllctulYNHJvnyIwfvVm4zPZ8HNAz3p2N4PTZMV7+l+qKRGzfGCIVCDA0N0dvbi9frJRAIsLi4iK6X5KPfomleOZan60INY8ff4aWDCb6o2aFY1DA4nW1Unq7AYfmGmpqLKIoHRVEkUHt7O93d3dTX12MymdCLSMDW3h32HcrSfLaDuKualw8nOHAqSSqjYohE7tDfH+RRfIt4IsmjeIKHKyuS0dLSEisrK0xNTTE5OYmmFSVgZDrLcx9sU3l2huFqC8++vc5nl1LlkkXT1UKBTC7PrfHrjAz4STwWKquk02kymYxUf1ftXXWdgQL7j2Z49UiOT4wai2uFMmAhn5cND3pbuPjhi3z33gucOfwGsehdGddUdU/lJ8dIgG4kdGYXNfL5AsViOZlUeSY2zadvPs/Jt/ZR/fFrHH39GZxNP0pAdY9ZgVKpJF3TxejogC5ZiZioVCSTc5jOZDFdOoPrfAW522YC1irSmRzFv5gJW9/YYGLiFuHQKPOz88xEY6wurZLaSjE6OMqdyd8lsGH3wfziMiPmr7jXVsnC1E12Mnk0TZWZE4kEjVfPcazifY5/fRLfTT/WYCu+X/0E7ga54vmBattlIncjGASLzXiSz7vvc9D4E+dMCuPX2gnYLlBQdZl1dXUVp/081qYqGlrrae5rwuRvpD8SoP0XL/agDaOpihMnTpR7OHArwoHm2+yvG6fC2oPn+9P0mqsoUbZMJi2FERaP7zAcuo3L1cPGZpqFhYe4lQBms4LRaMSwtrnFWG89586c4lBDmLN1tUxaTjIxeo3lh6vMxGJyqAf6A4yEhnF2DNHUFqK5bRiTa4hG5yBm73WuNHqwWq0Yamtr6ersxOfrpMvXjuJ206Z46ejolNvidityY5xOJ2azGYfNjNNhwWk302q3yG+Xw4LV3ITL5cIwOhpmfX2D5aVlHszNkcvnyeWyTE1F5cV58OAPotGo3Jj/soGBAQx9fX0yu7gwdXV1hMNh1tbWaGhokAztdrvcZZ/PJ2/lkwP+9M2UgAJAU8W0C2Y5uW5iVMTNE0KItctlc3t3UMT+ycWbYDCIYWRkRNJ9cl8F+G6CXUa7sX9zUa1BlONwOKRCNpvtf7loizjMQpQ/AfNTTQnMA9CXAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;빨라진것 같은 느낌은.. 합리화 임.&apos; title=&apos;&apos; src=&apos;/static/b391369f00babe2a09072aa79faf2c3f/d15a3/img_1.png&apos; srcset=&apos;/static/b391369f00babe2a09072aa79faf2c3f/e7570/img_1.png 170w,
-/static/b391369f00babe2a09072aa79faf2c3f/f46e7/img_1.png 340w,
-/static/b391369f00babe2a09072aa79faf2c3f/d15a3/img_1.png 522w&apos; sizes=&apos;(max-width: 522px) 100vw, 522px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
-  &lt;/a&gt;
-    &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;빨라진것 같은 느낌은.. 합리화 임.&lt;/figcaption&gt;
-  &lt;/figure&gt;&lt;/p&gt;
 &lt;p&gt;google Lighthouse 에서 측정 해보면, &quot;왜 느려 보이는지&quot;, &quot;어디서 막히는지&quot;, &quot;어떻게 개선해야 하는지&quot;를 구체적으로 살펴 볼 수 있다.&lt;br&gt;
 (겁나 친절한데 ..? 👍)&lt;/p&gt;
 &lt;p&gt;그 중에서도 &lt;strong&gt;Google이 공식적으로 중요하게 여기는 핵심 성능 지표&lt;/strong&gt;가 바로 &lt;strong&gt;Core Web Vitals&lt;/strong&gt;다.&lt;/p&gt;
-&lt;h2&gt;⚡ Core Web Vitals&lt;/h2&gt;
+&lt;h2&gt;Core Web Vitals ⚡&lt;/h2&gt;
 &lt;table&gt;
 &lt;thead&gt;
 &lt;tr&gt;
@@ -54,11 +43,11 @@
 &lt;/tbody&gt;
 &lt;/table&gt;
 &lt;h2&gt;개선 목표&lt;/h2&gt;
-&lt;p&gt;&lt;strong&gt;✅ CLS (Cumulative Layout Shift)&lt;/strong&gt;&lt;br&gt;
-&lt;strong&gt;✅ FCP (First Contentful Paint)&lt;/strong&gt;&lt;br&gt;
-&lt;strong&gt;✅ TBT (Total Blocking Time)&lt;/strong&gt;  &lt;/p&gt;
-&lt;h2&gt;👀 CLS - Cumulative Layout Shift&lt;/h2&gt;
-&lt;p&gt;CLS 의 &lt;strong&gt;핵심&lt;/strong&gt; 은 &lt;strong&gt;“보이는 걸 미리 예고하고, 갑자기 바꾸지 않는다”&lt;/strong&gt; 이다.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;CLS (Cumulative Layout Shift)&lt;/strong&gt;&lt;br&gt;
+&lt;strong&gt;FCP (First Contentful Paint)&lt;/strong&gt;&lt;br&gt;
+&lt;strong&gt;TBT (Total Blocking Time)&lt;/strong&gt;  &lt;/p&gt;
+&lt;h2&gt;CLS - Cumulative Layout Shift&lt;/h2&gt;
+&lt;p&gt;👀 CLS 의 &lt;strong&gt;핵심&lt;/strong&gt; 은 &lt;strong&gt;“보이는 걸 미리 예고하고, 갑자기 바꾸지 않는다”&lt;/strong&gt; 이다.&lt;/p&gt;
 &lt;p&gt;보통 화면이 예고 없이 ‘밀리는’ 현상이 원인인데, 페이지 로딩 중 요소들이 갑자기 이동하면, 사용자가 의도치 않은 클릭을 하거나 읽기 어려워진다.&lt;/p&gt;
 &lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
@@ -168,7 +157,7 @@ fallback 은 시각적 장식이 아니라 레이아웃 안정장치라는 점�
 &lt;p&gt;즉, 굳이 초반에 렌더링할 필요 없는 컴포넌트는 &lt;strong&gt;Lazy Load&lt;/strong&gt;로 뒤로 미루고,&lt;br&gt;
 대신 &lt;strong&gt;초기 화면을 안정적으로 고정&lt;/strong&gt;해두는 것이 사용자 경험에도, 성능 측면에서도 훨씬 낫다.  &lt;/p&gt;
 &lt;p&gt;이게 바로 &lt;strong&gt;FCP 개선&lt;/strong&gt;과도 밀접하게 연결되는 &lt;strong&gt;Lazy Load&lt;/strong&gt; 이다.   &lt;/p&gt;
-&lt;h2&gt;⏰ Lazy Load&lt;/h2&gt;
+&lt;h2&gt;Lazy Load ⏰&lt;/h2&gt;
 &lt;p&gt;Taboola 광고는 스크롤이 일정 수준 내려간 후에야 자체 CDN 스크립트 (Taboola CDN) 를 호출해 UI를 동적으로 구성한다   &lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;초기 화면에서 반드시 필요하지 않은 요소&lt;/strong&gt;라면, 애초에 &lt;strong&gt;Lazy Load&lt;/strong&gt;로 처리하는 것이 맞다.&lt;br&gt;
 &lt;strong&gt;일정 스크롤 이후에만 렌더링되도록&lt;/strong&gt; 하는 것이 합리적 이라고 판단했다.  &lt;/p&gt;
@@ -252,7 +241,7 @@ fallback 은 시각적 장식이 아니라 레이아웃 안정장치라는 점�
 &lt;p&gt;&lt;strong&gt;‘첫 화면에서 아무것도 안 보이는 시간’&lt;/strong&gt; 을 얼마나 줄일 수 있을까 ?&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;hr&gt;
-&lt;h2&gt;😶‍🌫️ FCP - First Contentful Paint&lt;/h2&gt;
+&lt;h2&gt;FCP - First Contentful Paint 😶‍🌫️&lt;/h2&gt;
 &lt;p&gt;FCP 는 사용자가 페이지에서 &lt;strong&gt;&quot;첫 번째 콘텐츠(텍스트, 이미지 등)를 보는 순간까지의 시간&quot;&lt;/strong&gt; 이다.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;&quot;앞에서 무엇을 보여주느냐&quot;&lt;/strong&gt; + &lt;strong&gt;&quot;얼마나 빨리 보여주느냐&quot;&lt;/strong&gt; 가 광건이다.&lt;/p&gt;
 &lt;p&gt;만약, 페이지에는 접근했으나 아무것도 안 보이는 상태가 길어진다면 FCP 점수는 나빠진다.&lt;br&gt;
@@ -436,7 +425,7 @@ Lighthouse, PageSpeed Insights, 서치콘솔까지 성능 개선 효과가 확�
 &lt;p&gt;그래서 가장 먼저 손을 댄 건 JS 번들 다이어트.&lt;br&gt;
 JS 번들의 크기가 클 수록 Core Web Vital 의 TBT 성능에도 영향을 주는데, 한마디로 main Thread 가 일을 너무 많이 하는 바람에 UI 를 그리기 힘들어 할 수 있다.  &lt;/p&gt;
 &lt;p&gt;그래서 사용되는 JS Library 들이 TreeShaking 잘 되고 있는지, 총 bundle 의 크기가 어떻게 되는지 파악 이 필요했다.&lt;/p&gt;
-&lt;p&gt;✅ 개선 목표&lt;/p&gt;
+&lt;p&gt;개선 목표&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;JS bundle 점검 및 개선&lt;/p&gt;
@@ -486,7 +475,7 @@ JS 번들의 크기가 클 수록 Core Web Vital 의 TBT 성능에도 영향을 
     &lt;/span&gt;
     &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;프로젝트 내 js 번들 결과&lt;/figcaption&gt;
   &lt;/figure&gt;&lt;/p&gt;
-&lt;h2&gt;📦 lodash 최적화&lt;/h2&gt;
+&lt;h2&gt;lodash 최적화&lt;/h2&gt;
 &lt;p&gt;프로젝트 내에서 lodash-es가 설치되어 있었고, 실제 사용하는 함수는 debounce 하나뿐이었다.&lt;br&gt;
 아마도 Tree Shaking을 노리고 lodash-es를 선택했던 것 같다.   &lt;/p&gt;
 &lt;blockquote&gt;
@@ -507,7 +496,7 @@ debounce 하나만 불러와도 수많은 내부 의존성 코드가 함께 번�
 $ &lt;span class=&quot;token function&quot;&gt;yarn&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;add&lt;/span&gt; &lt;span class=&quot;token parameter variable&quot;&gt;-D&lt;/span&gt; @types/lodash.debounce&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;최소한의 코드만 번들에 포함되고, 사용방법은 다음과 같다.&lt;/p&gt;
 &lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;js&quot;&gt;&lt;pre class=&quot;language-js&quot;&gt;&lt;code class=&quot;language-js&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;import&lt;/span&gt; debounce &lt;span class=&quot;token keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;lodash.debounce&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;h2&gt;⏰ moment-timezone 최적화&lt;/h2&gt;
+&lt;h2&gt;moment-timezone ⏰ 최적화&lt;/h2&gt;
 &lt;p&gt;앞서 말한 것 처럼 lodash는 함수별로 npm 패키지가 분리되어 있거나, ES 모듈 구조라서 개별 함수만 import할 수 있지만,&lt;br&gt;
 moment/moment-timezone 는 하나의 큰 번들(모듈)로 배포되고 내부적으로 모든 기능이 단일 객체(moment)에 결합되어 있다.&lt;/p&gt;
 &lt;p&gt;죽, moment-timezone은 하나의 큰 번들이고, 부분 import 안 된다.. 구조 상 ESM도 아니고, 트리셰이킹도 불가능.&lt;/p&gt;
@@ -528,7 +517,7 @@ $ npx moment-timezone-data-builder &lt;span class=&quot;token parameter variable
   &lt;span class=&quot;token literal-property property&quot;&gt;optimizePackageImports&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;moment-timezone&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;date-fns&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;react-share&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;swiper&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
    &lt;span class=&quot;token operator&quot;&gt;...&lt;/span&gt;
 &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;h2&gt;✨ 결과 ✨&lt;/h2&gt;
+&lt;h2&gt;결과 ✨&lt;/h2&gt;
 &lt;p&gt;3.11 MB -&gt; 2.38 MB 로 줄어들었다.  &lt;/p&gt;
 &lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 423px; &apos;&gt;
@@ -578,9 +567,9 @@ JS는 CPU cost가 높아서 압축되어도 실행 비용이 크다.  &lt;/p&gt;
 &lt;p&gt;개발 속도와 마감 기한에 쫓기다 보면, 무심코 라이브러리를 도입하고 의존성을 늘리기 쉽다.
 하지만 작은 습관 하나—&quot;진짜 필요한가?&quot; 라는 질문만으로도 많은 비용을 아낄 수 있다.&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;✅ 정기적으로 번들 사이즈를 분석하고&lt;/li&gt;
-&lt;li&gt;✅ 라이브러리 도입 전 체크리스트를 습관화하며&lt;/li&gt;
-&lt;li&gt;✅ 팀 차원에서 도입 가이드라인을 마련해두자.&lt;/li&gt;
+&lt;li&gt;정기적으로 번들 사이즈를 분석하고&lt;/li&gt;
+&lt;li&gt;라이브러리 도입 전 체크리스트를 습관화하며&lt;/li&gt;
+&lt;li&gt;팀 차원에서 도입 가이드라인을 마련해두자.&lt;/li&gt;
 &lt;/ul&gt;</content:encoded></item><item><title><![CDATA[🏗️ AMP 페이지 개발]]></title><description><![CDATA[들어가며 AMP 페이지가 동작하지 않았던 이유는 NextJs 에서 지원하지 않은 Router 방식임을 확인.
 Pages 디렉토리를 생성후, 하위에 amp…]]></description><link>https://hyungkishin.github.io/phase2/</link><guid isPermaLink="false">https://hyungkishin.github.io/phase2/</guid><pubDate>Thu, 01 May 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;들어가며&lt;/h2&gt;
 &lt;p&gt;AMP 페이지가 동작하지 않았던 이유는 NextJs 에서 지원하지 않은 Router 방식임을 확인.
@@ -605,20 +594,20 @@ Pages 디렉토리를 생성후, 하위에 amp 전용 페이지를 두는것으�
 &lt;h2&gt;TODO LIST 체크&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;
-&lt;p&gt;✅ AMP 페이지 는 총 N Phase 로 배포 &lt;/p&gt;
+&lt;p&gt;AMP 페이지 는 총 N Phase 로 배포 &lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;( 우선 amp 가 존재 하는것을 mvp 목표로 배포 ! )&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;✅ Pages Router 기반의 디렉토리 구조 설계&lt;/li&gt;
-&lt;li&gt;✅ AMP 대상 페이지 컴포넌트 설계&lt;/li&gt;
-&lt;li&gt;✅ middleware.ts 에서 /amp 로 시작하는 URL을 감지하여, 해당 페이지를 AMP 페이지로 리다이렉트 하도록 설정&lt;/li&gt;
-&lt;li&gt;✅ 스타일링 ( GPT 의 도움으로 스피드하게 해결 )&lt;/li&gt;
-&lt;li&gt;✅ 본문내용 api call 이후 제약 태그 -&gt; amp 태그로 변환 util 만들기&lt;/li&gt;
-&lt;li&gt;✅ SEO 메타 태그 ( 손으로 일일히 해도 되지만 AI 이용해서 검수정도로만 빨리 ! )&lt;/li&gt;
+&lt;li&gt;Pages Router 기반의 디렉토리 구조 설계&lt;/li&gt;
+&lt;li&gt;AMP 대상 페이지 컴포넌트 설계&lt;/li&gt;
+&lt;li&gt;middleware.ts 에서 /amp 로 시작하는 URL을 감지하여, 해당 페이지를 AMP 페이지로 리다이렉트 하도록 설정&lt;/li&gt;
+&lt;li&gt;스타일링 ( GPT 의 도움으로 스피드하게 해결 )&lt;/li&gt;
+&lt;li&gt;본문내용 api call 이후 제약 태그 -&gt; amp 태그로 변환 util 만들기&lt;/li&gt;
+&lt;li&gt;SEO 메타 태그 ( 손으로 일일히 해도 되지만 AI 이용해서 검수정도로만 빨리 ! )&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2&gt;되짚고 넘어가는 제약 사항&lt;/h2&gt;
-&lt;p&gt;⚠️ AMP는 일반적인 React 환경과 달리 다음과 같은 제한이 있다&lt;/p&gt;
+&lt;h2&gt;되짚고 넘어가는 제약 사항 ⚠️&lt;/h2&gt;
+&lt;p&gt;AMP는 일반적인 React 환경과 달리 다음과 같은 제한이 있다&lt;/p&gt;
 &lt;p&gt;☝️. &lt;strong&gt;React Hook 사용 제한&lt;/strong&gt;  &lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;code class=&quot;language-text&quot;&gt;useEffect&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;useState&lt;/code&gt; 등 hook 기반 로직 사용 불가&lt;/li&gt;
@@ -635,7 +624,7 @@ Pages 디렉토리를 생성후, 하위에 amp 전용 페이지를 두는것으�
 &lt;p&gt;전체 AMP 검증은 &lt;a href=&quot;https://validator.ampproject.org/&quot;&gt;AMP Validator&lt;/a&gt; 를 통해 실시간 확인 가능&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;hr&gt;
-&lt;h2&gt;🗂️ 디렉팅 구조 전략&lt;/h2&gt;
+&lt;h2&gt;디렉팅 구조 전략 🗂️&lt;/h2&gt;
 &lt;p&gt;pages 디렉토리 를 기반으로 amp 디렉토리를 생성하고, 하위에 slug 페이지를 작성한다.&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;🔖 slug 란 ?&lt;/p&gt;
@@ -659,14 +648,14 @@ Pages 디렉토리를 생성후, 하위에 amp 전용 페이지를 두는것으�
 &lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;text&quot;&gt;&lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt; 
 📁 src
 |── components                     
-    ├── amp                        👈 amp 페이지 내 공통컴포넌트 ( Header, Body, Footer 등 재사용 컴포넌트들 쭉쭉 넣어주고 ~ )
+    ├── amp                        # amp 페이지 내 공통컴포넌트 ( Header, Body, Footer 등 재사용 컴포넌트들 쭉쭉 넣어주고 ~ )
     |... 원래 있던 친구들 내비두고 ~
 ├── pages                         
-│   ├── amp                        👈 AMP 페이지 전용 디렉토리
-│   │   └── [slug].tsx             👈 section 카테고리별 디렉토리
-|   |     └── [depth1].tsx         👈 amp depth 1 본문 페이지
-|   |         └── [depth2].tsx     👈 amp depth 2 본문 페이지
-|   |             └── [depth3].tsx 👈 amp depth 3 본문 페이지&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+│   ├── amp                        # AMP 페이지 전용 디렉토리
+│   │   └── [slug].tsx             # section 카테고리별 디렉토리
+|   |     └── [depth1].tsx         # amp depth 1 본문 페이지
+|   |         └── [depth2].tsx     # amp depth 2 본문 페이지
+|   |             └── [depth3].tsx # amp depth 3 본문 페이지&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;이렇게 되면 사실상 &lt;strong&gt;사용자 관점&lt;/strong&gt; 에서 보이는 기사 뷰 페이지는 2벌이다.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;일반 페이지 [ PC / MO ] &amp;#x3C;-- 다행이 반응형으로 통합되어 있어서 아멘...&lt;/li&gt;
@@ -759,12 +748,12 @@ pages 만 UI 뼈대를 만든 후 공통화 컴포넌트화 시키면 되겠다.
 &lt;li&gt;&lt;code class=&quot;language-text&quot;&gt;&amp;lt;style amp-custom&gt;&lt;/code&gt; 내부 전체 CSS 크기 합이 75KB (75,000 bytes)를 넘으면 안 됨.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;초과 시 AMP validation 실패 → 페이지 노출 불가.&lt;/li&gt;
+&lt;li&gt;초과 시 AMP validation 실패는 곧 페이지 노출 불가로 이어진다.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;미지원 CSS 속성/기능&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;@import 사용 불가 ❌ &lt;/li&gt;
-&lt;li&gt;!important 사용 불가 ❌&lt;/li&gt;
+&lt;li&gt;@import 사용 불가 &lt;/li&gt;
+&lt;li&gt;!important 사용 불가&lt;/li&gt;
 &lt;li&gt;position: fixed는 예외적으로 일부 AMP 컴포넌트에서만 허용 (ex. &lt;amp-sidebar&gt;)&lt;/li&gt;
 &lt;li&gt;animation, keyframes는 제한적으로만 허용됨 &lt;/li&gt;
 &lt;li&gt;filter, backdrop-filter, mix-blend-mode 등 일부 CSS 속성 사용 불가.&lt;/li&gt;
@@ -839,28 +828,28 @@ pages 만 UI 뼈대를 만든 후 공통화 컴포넌트화 시키면 되겠다.
 &lt;/thead&gt;
 &lt;tbody&gt;
 &lt;tr&gt;
-&lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;&amp;lt;img&gt;&lt;/code&gt; → &lt;code class=&quot;language-text&quot;&gt;&amp;lt;amp-img&gt;&lt;/code&gt; 변환&lt;/td&gt;
-&lt;td&gt;🔴 어려움&lt;/td&gt;
+&lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;&amp;lt;img&gt;&lt;/code&gt; -&gt; &lt;code class=&quot;language-text&quot;&gt;&amp;lt;amp-img&gt;&lt;/code&gt; 변환&lt;/td&gt;
+&lt;td&gt;어려움&lt;/td&gt;
 &lt;td&gt;HTML 구조 파싱이 필요, 정규식으론 불안정&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;&amp;lt;iframe&gt;&lt;/code&gt; → &lt;code class=&quot;language-text&quot;&gt;&amp;lt;amp-iframe&gt;&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;🔴 어려움&lt;/td&gt;
+&lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;&amp;lt;iframe&gt;&lt;/code&gt; -&gt; &lt;code class=&quot;language-text&quot;&gt;&amp;lt;amp-iframe&gt;&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;어려움&lt;/td&gt;
 &lt;td&gt;조건 분기 및 속성 매핑 복잡&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;onClick&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;onMouseOver&lt;/code&gt; 속성 제거&lt;/td&gt;
-&lt;td&gt;🔶 가능하지만 복잡&lt;/td&gt;
+&lt;td&gt;가능하지만 복잡&lt;/td&gt;
 &lt;td&gt;수백 개 태그 모두 순회해야 함&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;불필요한 태그 제거 (&lt;code class=&quot;language-text&quot;&gt;&amp;lt;font&gt;&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;&amp;lt;map&gt;&lt;/code&gt;)&lt;/td&gt;
-&lt;td&gt;🔶 가능하지만 비효율&lt;/td&gt;
+&lt;td&gt;가능하지만 비효율&lt;/td&gt;
 &lt;td&gt;정규식 + 수작업으로 불안정&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;최종 HTML 문자열로 재조립&lt;/td&gt;
-&lt;td&gt;🔴 위험&lt;/td&gt;
+&lt;td&gt;위험&lt;/td&gt;
 &lt;td&gt;구조 깨질 확률 높음&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
@@ -872,7 +861,7 @@ pages 만 UI 뼈대를 만든 후 공통화 컴포넌트화 시키면 되겠다.
 &lt;/ul&gt;
 &lt;hr&gt;
 &lt;h2&gt;라이브러리 도입 결정&lt;/h2&gt;
-&lt;p&gt;✅ cheerio — DOM 파싱의 사실상 업계 표준 &lt;/p&gt;
+&lt;p&gt;cheerio — DOM 파싱의 사실상 업계 표준 &lt;/p&gt;
 &lt;p&gt;AMP 변환의 핵심은 Google GuideLine 에 허용되지 않는 HTML 태그를 파싱해서 변형하거나 제거하는 작업이 필연적인데,&lt;br&gt;
 이때 cheerio는 서버 사이드에서 jQuery처럼 HTML을 다룰 수 있는 경량 라이브러리로, 아래 작업들을 편하게 처리할 수 있었다.&lt;/p&gt;
 &lt;p&gt;사용법은 아래 예시 로.&lt;/p&gt;
@@ -880,20 +869,20 @@ pages 만 UI 뼈대를 만든 후 공통화 컴포넌트화 시키면 되겠다.
 &lt;span class=&quot;token function&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;.writer&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;remove&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;token comment&quot;&gt;// 불필요한 요소 제거&lt;/span&gt;
 &lt;span class=&quot;token function&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;img&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;each&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;    &lt;span class=&quot;token comment&quot;&gt;// 이미지 태그 변환&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;blockquote&gt;
-&lt;p&gt;📌 대안은?&lt;br&gt;
+&lt;p&gt;대안은?&lt;br&gt;
 jsdom도 있었지만, 성능과 문법의 직관성에서 cheerio가 더 낫다고 판단.  &lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;( 훨씬 무겁고, DOM 구현이 브라우저 수준이지만, cheerio보다 느림 )&lt;br&gt;
 단순한 조작에는 cheerio가 가장 적합하다.  &lt;/li&gt;
 &lt;/ul&gt;
 &lt;/blockquote&gt;
-&lt;p&gt;✅ isTag (from domhandler) — 안정성 있는 노드 필터링  &lt;/p&gt;
+&lt;p&gt;isTag (from domhandler) — 안정성 있는 노드 필터링  &lt;/p&gt;
 &lt;p&gt;모든 DOM 노드가 태그는 아니기 때문에, cheerio(&quot;*&quot;).each(...) 루프를 돌릴 때는 노드 타입 검사를 해줘야 한다.&lt;br&gt;
 이때 isTag()를 사용하면 안정적으로 태그 여부를 확인할 수 있다.  &lt;/p&gt;
 &lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;js&quot;&gt;&lt;pre class=&quot;language-js&quot;&gt;&lt;code class=&quot;language-js&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;isTag&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;el&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;token comment&quot;&gt;// 태그일 때만 속성 제거&lt;/span&gt;
 &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;⚠️ image-size + fetch  &lt;/p&gt;
+&lt;p&gt;image-size + fetch ⚠️&lt;/p&gt;
 &lt;p&gt;별도 설치가 필요했던 라이브러리는 아니지만 안정성과 성능 사이의 고민이 존재했다.  &lt;/p&gt;
 &lt;p&gt;AMP에서는 &lt;amp-img&gt;에 반드시 width와 height가 있어야 한다.&lt;br&gt;
 그런데 컨텐츠에 이 정보가 누락된 경우도 있어서, 서버에서 이미지를 직접 fetch하고 image-size로 크기를 추출할 필요가 있었다.  &lt;/p&gt;
@@ -975,7 +964,7 @@ jsdom도 있었지만, 성능과 문법의 직관성에서 cheerio가 더 낫다
     &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;잘..부탁드립니다요&lt;/figcaption&gt;
   &lt;/figure&gt;&lt;/p&gt;
 &lt;p&gt; 아 물론, 내가 기본이라고 말했던 오만함의 &lt;strong&gt;잘&lt;/strong&gt; 의 조건은 다음과 같다.&lt;/p&gt;
-&lt;h2&gt;🔧 검색 노출을 위한 기술 요소 그리고 해야할 것들&lt;/h2&gt;
+&lt;h2&gt;검색 노출을 위한 기술 요소 그리고 해야할 것들&lt;/h2&gt;
 &lt;table&gt;
 &lt;thead&gt;
 &lt;tr&gt;
@@ -1053,7 +1042,7 @@ jsdom도 있었지만, 성능과 문법의 직관성에서 cheerio가 더 낫다
 &lt;p&gt;현재 도메인 특성에 맞는 기술인지 판단하고, 개선하면 되는 것을 잘 알기에 조금만 더 digging 을 해보았다.
 ( &lt;strike&gt; 구글이 만든 기술이니 구글에 맞는 스킬이겠지. &lt;/strike&gt; )&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;📦 AMP 란 ?&lt;/p&gt;
+&lt;p&gt;AMP 란 ?&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;AMP 는 Accelerated Mobile Pages의 줄임말로, 모바일 웹 페이지를 더 빠르게 로딩하기 위한 오픈소스 프레임워크 이다.&lt;/li&gt;
 &lt;li&gt;구글이 주도해서 만들었고, 현재는 다양한 회사와 커뮤니티가 함께 관리되고 있다.&lt;/li&gt;
@@ -1061,7 +1050,7 @@ jsdom도 있었지만, 성능과 문법의 직관성에서 cheerio가 더 낫다
 &lt;/ul&gt;
 &lt;p&gt;AMP 는 운영중 제약이 많아서, 요즘에는 &lt;strong&gt;Core Web Vitals 을 통해 대체하는 추세&lt;/strong&gt; 이다.&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;p&gt;📉 AMP 단점 요약&lt;/p&gt;
+&lt;p&gt;AMP 단점 요약&lt;/p&gt;
 &lt;table&gt;
 &lt;thead&gt;
 &lt;tr&gt;
@@ -1099,7 +1088,7 @@ jsdom도 있었지만, 성능과 문법의 직관성에서 cheerio가 더 낫다
 &lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;html&quot;&gt;&lt;pre class=&quot;language-html&quot;&gt;&lt;code class=&quot;language-html&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;&lt;/span&gt;amp-script&lt;/span&gt; &lt;span class=&quot;token attr-name&quot;&gt;layout&lt;/span&gt;&lt;span class=&quot;token attr-value&quot;&gt;&lt;span class=&quot;token punctuation attr-equals&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&quot;&lt;/span&gt;container&lt;span class=&quot;token punctuation&quot;&gt;&quot;&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;token attr-name&quot;&gt;src&lt;/span&gt;&lt;span class=&quot;token attr-value&quot;&gt;&lt;span class=&quot;token punctuation attr-equals&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&quot;&lt;/span&gt;https://당신의-회사-cdn-주소-혹은-프로젝트-내에-별도-스크립트-파일이-필요합니다-젠장/script.js&lt;span class=&quot;token punctuation&quot;&gt;&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;
   &lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;&lt;/span&gt;p&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;이곳에 스크립트가 삽입됨.&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;/&lt;/span&gt;p&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;
 &lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;/&lt;/span&gt;amp-script&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;⚡ AMP 장점 요약   &lt;/p&gt;
+&lt;p&gt;AMP ⚡ 장점   &lt;/p&gt;
 &lt;table&gt;
 &lt;thead&gt;
 &lt;tr&gt;
@@ -1138,7 +1127,7 @@ jsdom도 있었지만, 성능과 문법의 직관성에서 cheerio가 더 낫다
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;p&gt;🤔 현재 도메인에 AMP 적합성 요약  &lt;/p&gt;
+&lt;p&gt;현재 도메인에 AMP 적합성 검토... 🤔&lt;/p&gt;
 &lt;p&gt;현재 운영 중인 웹사이트는 기사 본문 중심의 뉴스 사이트다. 즉, 동적인 UI보다는 텍스트 콘텐츠 위주로 구성되어 있다.  &lt;/p&gt;
 &lt;p&gt;사용자가 본문을 한 번 로드한 이후에는 인터랙션이 거의 없는 만큼 사용자 경험이 단순하고, 정적 콘텐츠 중심인 구조다.  &lt;/p&gt;
 &lt;p&gt;이런 특성의 사이트는 AMP의 제약과 잘 맞는다.
@@ -1153,19 +1142,19 @@ jsdom도 있었지만, 성능과 문법의 직관성에서 cheerio가 더 낫다
 &lt;/thead&gt;
 &lt;tbody&gt;
 &lt;tr&gt;
-&lt;td&gt;📰 뉴스, 미디어, 퍼블리싱 플랫폼&lt;/td&gt;
-&lt;td&gt;✅ 매우 적합&lt;/td&gt;
+&lt;td&gt;뉴스, 미디어, 퍼블리싱 플랫폼&lt;/td&gt;
+&lt;td&gt;Best&lt;/td&gt;
 &lt;td&gt;정적 콘텐츠 중심 + 검색 유입이 중요&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;🛍️ 쇼핑몰, 커뮤니티, SaaS&lt;/td&gt;
-&lt;td&gt;⚠️ 부적합&lt;/td&gt;
+&lt;td&gt;쇼핑몰, 커뮤니티, SaaS&lt;/td&gt;
+&lt;td&gt;Bad&lt;/td&gt;
 &lt;td&gt;동적 UI, 사용자 상호작용 많음&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;📅 2024 이후&lt;/td&gt;
-&lt;td&gt;선택적 적용&lt;/td&gt;
-&lt;td&gt;구글이 AMP 강제 ↓, 다만 여전히 Top Stories 노출은 유리함&lt;/td&gt;
+&lt;td&gt;2024 이후&lt;/td&gt;
+&lt;td&gt;선택적 적용 가능&lt;/td&gt;
+&lt;td&gt;구글이 AMP 강제 하지 않는다, 다만 여전히 Top Stories 노출은 유리함&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
@@ -1283,15 +1272,15 @@ jsdom도 있었지만, 성능과 문법의 직관성에서 cheerio가 더 낫다
 &lt;hr&gt;
 &lt;h2&gt;결론&lt;/h2&gt;
 &lt;ul&gt;
-&lt;li&gt;✅ AMP 에 대한 배경지식 체크&lt;/li&gt;
-&lt;li&gt;✅ 현재 도메인에 AMP 적용은 적합&lt;/li&gt;
-&lt;li&gt;✅ AMP 페이지는 pages router 방식에서만 지원&lt;/li&gt;
-&lt;li&gt;✅ 모든 페이지를 Pages router 방식으로 전환 하는게 아니라 기사 상세 페이지만 AMP 페이지로 별도 구성&lt;/li&gt;
+&lt;li&gt;AMP 에 대한 배경지식 체크&lt;/li&gt;
+&lt;li&gt;현재 도메인에 AMP 적용은 적합&lt;/li&gt;
+&lt;li&gt;AMP 페이지는 pages router 방식에서만 지원&lt;/li&gt;
+&lt;li&gt;모든 페이지를 Pages router 방식으로 전환 하는게 아니라 기사 상세 페이지만 AMP 페이지로 별도 구성&lt;/li&gt;
 &lt;/ul&gt;
 &lt;blockquote&gt;
 &lt;p&gt;모든걸 옮길 필요 없이 뉴스 본문 기사만 옮기면 된다. ( 나머지 페이지는 app router 구조에서 계속 사용 가능. )&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h2&gt;🏗️ AMP 페이지 개발&lt;/h2&gt;
+&lt;h2&gt;AMP 페이지 개발&lt;/h2&gt;
 &lt;p&gt;다음 편에서 계속.&lt;/p&gt;
 &lt;h2&gt;참고 자료&lt;/h2&gt;
 &lt;ul&gt;

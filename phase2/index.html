@@ -251,20 +251,20 @@ Pages 디렉토리를 생성후, 하위에 amp 전용 페이지를 두는것으�
 <h2>TODO LIST 체크</h2>
 <ul>
 <li>
-<p>✅ AMP 페이지 는 총 N Phase 로 배포 </p>
+<p>AMP 페이지 는 총 N Phase 로 배포 </p>
 <ul>
 <li>( 우선 amp 가 존재 하는것을 mvp 목표로 배포 ! )</li>
 </ul>
 </li>
-<li>✅ Pages Router 기반의 디렉토리 구조 설계</li>
-<li>✅ AMP 대상 페이지 컴포넌트 설계</li>
-<li>✅ middleware.ts 에서 /amp 로 시작하는 URL을 감지하여, 해당 페이지를 AMP 페이지로 리다이렉트 하도록 설정</li>
-<li>✅ 스타일링 ( GPT 의 도움으로 스피드하게 해결 )</li>
-<li>✅ 본문내용 api call 이후 제약 태그 -> amp 태그로 변환 util 만들기</li>
-<li>✅ SEO 메타 태그 ( 손으로 일일히 해도 되지만 AI 이용해서 검수정도로만 빨리 ! )</li>
+<li>Pages Router 기반의 디렉토리 구조 설계</li>
+<li>AMP 대상 페이지 컴포넌트 설계</li>
+<li>middleware.ts 에서 /amp 로 시작하는 URL을 감지하여, 해당 페이지를 AMP 페이지로 리다이렉트 하도록 설정</li>
+<li>스타일링 ( GPT 의 도움으로 스피드하게 해결 )</li>
+<li>본문내용 api call 이후 제약 태그 -> amp 태그로 변환 util 만들기</li>
+<li>SEO 메타 태그 ( 손으로 일일히 해도 되지만 AI 이용해서 검수정도로만 빨리 ! )</li>
 </ul>
-<h2>되짚고 넘어가는 제약 사항</h2>
-<p>⚠️ AMP는 일반적인 React 환경과 달리 다음과 같은 제한이 있다</p>
+<h2>되짚고 넘어가는 제약 사항 ⚠️</h2>
+<p>AMP는 일반적인 React 환경과 달리 다음과 같은 제한이 있다</p>
 <p>☝️. <strong>React Hook 사용 제한</strong>  </p>
 <ul>
 <li><code class="language-text">useEffect</code>, <code class="language-text">useState</code> 등 hook 기반 로직 사용 불가</li>
@@ -281,7 +281,7 @@ Pages 디렉토리를 생성후, 하위에 amp 전용 페이지를 두는것으�
 <p>전체 AMP 검증은 <a href="https://validator.ampproject.org/">AMP Validator</a> 를 통해 실시간 확인 가능</p>
 </blockquote>
 <hr>
-<h2>🗂️ 디렉팅 구조 전략</h2>
+<h2>디렉팅 구조 전략 🗂️</h2>
 <p>pages 디렉토리 를 기반으로 amp 디렉토리를 생성하고, 하위에 slug 페이지를 작성한다.</p>
 <blockquote>
 <p>🔖 slug 란 ?</p>
@@ -305,14 +305,14 @@ Pages 디렉토리를 생성후, 하위에 amp 전용 페이지를 두는것으�
 <div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text"> 
 📁 src
 |── components                     
-    ├── amp                        👈 amp 페이지 내 공통컴포넌트 ( Header, Body, Footer 등 재사용 컴포넌트들 쭉쭉 넣어주고 ~ )
+    ├── amp                        # amp 페이지 내 공통컴포넌트 ( Header, Body, Footer 등 재사용 컴포넌트들 쭉쭉 넣어주고 ~ )
     |... 원래 있던 친구들 내비두고 ~
 ├── pages                         
-│   ├── amp                        👈 AMP 페이지 전용 디렉토리
-│   │   └── [slug].tsx             👈 section 카테고리별 디렉토리
-|   |     └── [depth1].tsx         👈 amp depth 1 본문 페이지
-|   |         └── [depth2].tsx     👈 amp depth 2 본문 페이지
-|   |             └── [depth3].tsx 👈 amp depth 3 본문 페이지</code></pre></div>
+│   ├── amp                        # AMP 페이지 전용 디렉토리
+│   │   └── [slug].tsx             # section 카테고리별 디렉토리
+|   |     └── [depth1].tsx         # amp depth 1 본문 페이지
+|   |         └── [depth2].tsx     # amp depth 2 본문 페이지
+|   |             └── [depth3].tsx # amp depth 3 본문 페이지</code></pre></div>
 <p>이렇게 되면 사실상 <strong>사용자 관점</strong> 에서 보이는 기사 뷰 페이지는 2벌이다.</p>
 <ul>
 <li>일반 페이지 [ PC / MO ] &#x3C;-- 다행이 반응형으로 통합되어 있어서 아멘...</li>
@@ -405,12 +405,12 @@ pages 만 UI 뼈대를 만든 후 공통화 컴포넌트화 시키면 되겠다.
 <li><code class="language-text">&lt;style amp-custom></code> 내부 전체 CSS 크기 합이 75KB (75,000 bytes)를 넘으면 안 됨.</li>
 </ul>
 </li>
-<li>초과 시 AMP validation 실패 → 페이지 노출 불가.</li>
+<li>초과 시 AMP validation 실패는 곧 페이지 노출 불가로 이어진다.</li>
 </ul>
 <p>미지원 CSS 속성/기능</p>
 <ul>
-<li>@import 사용 불가 ❌ </li>
-<li>!important 사용 불가 ❌</li>
+<li>@import 사용 불가 </li>
+<li>!important 사용 불가</li>
 <li>position: fixed는 예외적으로 일부 AMP 컴포넌트에서만 허용 (ex. <amp-sidebar>)</li>
 <li>animation, keyframes는 제한적으로만 허용됨 </li>
 <li>filter, backdrop-filter, mix-blend-mode 등 일부 CSS 속성 사용 불가.</li>
@@ -485,28 +485,28 @@ pages 만 UI 뼈대를 만든 후 공통화 컴포넌트화 시키면 되겠다.
 </thead>
 <tbody>
 <tr>
-<td><code class="language-text">&lt;img></code> → <code class="language-text">&lt;amp-img></code> 변환</td>
-<td>🔴 어려움</td>
+<td><code class="language-text">&lt;img></code> -> <code class="language-text">&lt;amp-img></code> 변환</td>
+<td>어려움</td>
 <td>HTML 구조 파싱이 필요, 정규식으론 불안정</td>
 </tr>
 <tr>
-<td><code class="language-text">&lt;iframe></code> → <code class="language-text">&lt;amp-iframe></code></td>
-<td>🔴 어려움</td>
+<td><code class="language-text">&lt;iframe></code> -> <code class="language-text">&lt;amp-iframe></code></td>
+<td>어려움</td>
 <td>조건 분기 및 속성 매핑 복잡</td>
 </tr>
 <tr>
 <td><code class="language-text">onClick</code>, <code class="language-text">onMouseOver</code> 속성 제거</td>
-<td>🔶 가능하지만 복잡</td>
+<td>가능하지만 복잡</td>
 <td>수백 개 태그 모두 순회해야 함</td>
 </tr>
 <tr>
 <td>불필요한 태그 제거 (<code class="language-text">&lt;font></code>, <code class="language-text">&lt;map></code>)</td>
-<td>🔶 가능하지만 비효율</td>
+<td>가능하지만 비효율</td>
 <td>정규식 + 수작업으로 불안정</td>
 </tr>
 <tr>
 <td>최종 HTML 문자열로 재조립</td>
-<td>🔴 위험</td>
+<td>위험</td>
 <td>구조 깨질 확률 높음</td>
 </tr>
 </tbody>
@@ -518,7 +518,7 @@ pages 만 UI 뼈대를 만든 후 공통화 컴포넌트화 시키면 되겠다.
 </ul>
 <hr>
 <h2>라이브러리 도입 결정</h2>
-<p>✅ cheerio — DOM 파싱의 사실상 업계 표준 </p>
+<p>cheerio — DOM 파싱의 사실상 업계 표준 </p>
 <p>AMP 변환의 핵심은 Google GuideLine 에 허용되지 않는 HTML 태그를 파싱해서 변형하거나 제거하는 작업이 필연적인데,<br>
 이때 cheerio는 서버 사이드에서 jQuery처럼 HTML을 다룰 수 있는 경량 라이브러리로, 아래 작업들을 편하게 처리할 수 있었다.</p>
 <p>사용법은 아래 예시 로.</p>
@@ -526,20 +526,20 @@ pages 만 UI 뼈대를 만든 후 공통화 컴포넌트화 시키면 되겠다.
 <span class="token function">$</span><span class="token punctuation">(</span><span class="token string">".writer"</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">remove</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 불필요한 요소 제거</span>
 <span class="token function">$</span><span class="token punctuation">(</span><span class="token string">"img"</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">each</span><span class="token punctuation">(</span><span class="token operator">...</span><span class="token punctuation">)</span><span class="token punctuation">;</span>    <span class="token comment">// 이미지 태그 변환</span></code></pre></div>
 <blockquote>
-<p>📌 대안은?<br>
+<p>대안은?<br>
 jsdom도 있었지만, 성능과 문법의 직관성에서 cheerio가 더 낫다고 판단.  </p>
 <ul>
 <li>( 훨씬 무겁고, DOM 구현이 브라우저 수준이지만, cheerio보다 느림 )<br>
 단순한 조작에는 cheerio가 가장 적합하다.  </li>
 </ul>
 </blockquote>
-<p>✅ isTag (from domhandler) — 안정성 있는 노드 필터링  </p>
+<p>isTag (from domhandler) — 안정성 있는 노드 필터링  </p>
 <p>모든 DOM 노드가 태그는 아니기 때문에, cheerio("*").each(...) 루프를 돌릴 때는 노드 타입 검사를 해줘야 한다.<br>
 이때 isTag()를 사용하면 안정적으로 태그 여부를 확인할 수 있다.  </p>
 <div class="gatsby-highlight" data-language="js"><pre class="language-js"><code class="language-js"><span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isTag</span><span class="token punctuation">(</span>el<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token comment">// 태그일 때만 속성 제거</span>
 <span class="token punctuation">}</span></code></pre></div>
-<p>⚠️ image-size + fetch  </p>
+<p>image-size + fetch ⚠️</p>
 <p>별도 설치가 필요했던 라이브러리는 아니지만 안정성과 성능 사이의 고민이 존재했다.  </p>
 <p>AMP에서는 <amp-img>에 반드시 width와 height가 있어야 한다.<br>
 그런데 컨텐츠에 이 정보가 누락된 경우도 있어서, 서버에서 이미지를 직접 fetch하고 image-size로 크기를 추출할 필요가 있었다.  </p>
