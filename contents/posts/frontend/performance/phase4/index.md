@@ -14,14 +14,12 @@ tags:
 
 ![](test.gif)
 
-![빨라진것 같은 느낌은.. 합리화 임.](img_1.png)
-
 google Lighthouse 에서 측정 해보면, "왜 느려 보이는지", "어디서 막히는지", "어떻게 개선해야 하는지"를 구체적으로 살펴 볼 수 있다.    
 (겁나 친절한데 ..? 👍)
 
 그 중에서도 **Google이 공식적으로 중요하게 여기는 핵심 성능 지표**가 바로 **Core Web Vitals**다.
 
-## ⚡ Core Web Vitals
+## Core Web Vitals ⚡
 
 | 지표명 (약어)                           | 설명                       | 일상 비유                             |
 | ---------------------------------- | ------------------------ | --------------------------------- |
@@ -32,12 +30,12 @@ google Lighthouse 에서 측정 해보면, "왜 느려 보이는지", "어디서
 | **TBT** (Total Blocking Time)      | JS가 렌더링을 막은 총 시간         | 문 열고 들어가려는데 안에서 JS 처리 중이라 안 열리는 상황 |
 
 ## 개선 목표
-**✅ CLS (Cumulative Layout Shift)**  
-**✅ FCP (First Contentful Paint)**  
-**✅ TBT (Total Blocking Time)**  
+**CLS (Cumulative Layout Shift)**  
+**FCP (First Contentful Paint)**  
+**TBT (Total Blocking Time)**  
 
-## 👀 CLS - Cumulative Layout Shift
-CLS 의 **핵심** 은 **“보이는 걸 미리 예고하고, 갑자기 바꾸지 않는다”** 이다.
+## CLS - Cumulative Layout Shift
+👀 CLS 의 **핵심** 은 **“보이는 걸 미리 예고하고, 갑자기 바꾸지 않는다”** 이다.
 
 보통 화면이 예고 없이 ‘밀리는’ 현상이 원인인데, 페이지 로딩 중 요소들이 갑자기 이동하면, 사용자가 의도치 않은 클릭을 하거나 읽기 어려워진다.
 
@@ -111,7 +109,7 @@ const RelatedStories = dynamic(() => import("./RelatedStories"), {
 이게 바로 **FCP 개선**과도 밀접하게 연결되는 **Lazy Load** 이다.   
 
 
-## ⏰ Lazy Load
+## Lazy Load ⏰
 Taboola 광고는 스크롤이 일정 수준 내려간 후에야 자체 CDN 스크립트 (Taboola CDN) 를 호출해 UI를 동적으로 구성한다   
 
 **초기 화면에서 반드시 필요하지 않은 요소**라면, 애초에 **Lazy Load**로 처리하는 것이 맞다.     
@@ -206,7 +204,7 @@ CLS 방지를 위한 핵심 전략은 **언제, 어디서, 무엇이 렌더링�
 
 ---
 
-## 😶‍🌫️ FCP - First Contentful Paint
+## FCP - First Contentful Paint 😶‍🌫️
 FCP 는 사용자가 페이지에서 **"첫 번째 콘텐츠(텍스트, 이미지 등)를 보는 순간까지의 시간"** 이다.
 
 **"앞에서 무엇을 보여주느냐"** + **"얼마나 빨리 보여주느냐"** 가 광건이다.

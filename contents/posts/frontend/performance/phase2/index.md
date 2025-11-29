@@ -27,17 +27,17 @@ Next.js에서 AMP를 적용할 때도 이러한 제한이 그대로 적용된다
 --- 
 
 ## TODO LIST 체크
-- ✅ AMP 페이지 는 총 N Phase 로 배포 
+- AMP 페이지 는 총 N Phase 로 배포 
   - ( 우선 amp 가 존재 하는것을 mvp 목표로 배포 ! )
-- ✅ Pages Router 기반의 디렉토리 구조 설계
-- ✅ AMP 대상 페이지 컴포넌트 설계
-- ✅ middleware.ts 에서 /amp 로 시작하는 URL을 감지하여, 해당 페이지를 AMP 페이지로 리다이렉트 하도록 설정
-- ✅ 스타일링 ( GPT 의 도움으로 스피드하게 해결 )
-- ✅ 본문내용 api call 이후 제약 태그 -> amp 태그로 변환 util 만들기
-- ✅ SEO 메타 태그 ( 손으로 일일히 해도 되지만 AI 이용해서 검수정도로만 빨리 ! )
+- Pages Router 기반의 디렉토리 구조 설계
+- AMP 대상 페이지 컴포넌트 설계
+- middleware.ts 에서 /amp 로 시작하는 URL을 감지하여, 해당 페이지를 AMP 페이지로 리다이렉트 하도록 설정
+- 스타일링 ( GPT 의 도움으로 스피드하게 해결 )
+- 본문내용 api call 이후 제약 태그 -> amp 태그로 변환 util 만들기
+- SEO 메타 태그 ( 손으로 일일히 해도 되지만 AI 이용해서 검수정도로만 빨리 ! )
 
-## 되짚고 넘어가는 제약 사항
-⚠️ AMP는 일반적인 React 환경과 달리 다음과 같은 제한이 있다
+## 되짚고 넘어가는 제약 사항 ⚠️
+AMP는 일반적인 React 환경과 달리 다음과 같은 제한이 있다
 
 ☝️. **React Hook 사용 제한**  
 - `useEffect`, `useState` 등 hook 기반 로직 사용 불가
@@ -52,7 +52,7 @@ Next.js에서 AMP를 적용할 때도 이러한 제한이 그대로 적용된다
 
 ---
 
-## 🗂️ 디렉팅 구조 전략
+## 디렉팅 구조 전략 🗂️
 pages 디렉토리 를 기반으로 amp 디렉토리를 생성하고, 하위에 slug 페이지를 작성한다.
 
 > 🔖 slug 란 ?
@@ -67,14 +67,14 @@ middleware.ts 에서 /amp 로 시작하는 URL을 감지하여, 해당 페이지
  
 📁 src
 |── components                     
-    ├── amp                        👈 amp 페이지 내 공통컴포넌트 ( Header, Body, Footer 등 재사용 컴포넌트들 쭉쭉 넣어주고 ~ )
+    ├── amp                        # amp 페이지 내 공통컴포넌트 ( Header, Body, Footer 등 재사용 컴포넌트들 쭉쭉 넣어주고 ~ )
     |... 원래 있던 친구들 내비두고 ~
 ├── pages                         
-│   ├── amp                        👈 AMP 페이지 전용 디렉토리
-│   │   └── [slug].tsx             👈 section 카테고리별 디렉토리
-|   |     └── [depth1].tsx         👈 amp depth 1 본문 페이지
-|   |         └── [depth2].tsx     👈 amp depth 2 본문 페이지
-|   |             └── [depth3].tsx 👈 amp depth 3 본문 페이지
+│   ├── amp                        # AMP 페이지 전용 디렉토리
+│   │   └── [slug].tsx             # section 카테고리별 디렉토리
+|   |     └── [depth1].tsx         # amp depth 1 본문 페이지
+|   |         └── [depth2].tsx     # amp depth 2 본문 페이지
+|   |             └── [depth3].tsx # amp depth 3 본문 페이지
 ```
 
 이렇게 되면 사실상 **사용자 관점** 에서 보이는 기사 뷰 페이지는 2벌이다.
@@ -161,11 +161,11 @@ AMP는 `<style amp-custom>` 단 하나만 허용
 - 총 CSS 용량은 75KB 이하
 - CSS 속성은 inline 스타일로 작성해야 함. ( CSS-in-JS 방식은 사용 불가 )
   - `<style amp-custom>` 내부 전체 CSS 크기 합이 75KB (75,000 bytes)를 넘으면 안 됨.
-- 초과 시 AMP validation 실패 → 페이지 노출 불가.
+- 초과 시 AMP validation 실패는 곧 페이지 노출 불가로 이어진다.
 
 미지원 CSS 속성/기능
-- @import 사용 불가 ❌ 
-- !important 사용 불가 ❌
+- @import 사용 불가 
+- !important 사용 불가
 - position: fixed는 예외적으로 일부 AMP 컴포넌트에서만 허용 (ex. <amp-sidebar>)
 - animation, keyframes는 제한적으로만 허용됨 
 - filter, backdrop-filter, mix-blend-mode 등 일부 CSS 속성 사용 불가.
@@ -208,12 +208,12 @@ DOMParser 를 쓸 수 없었다.
 (기사 본문 내용이 틀어지거나, inline Style 이 깨지거나 ... 보여야 할 내용이 일부분 사라지거나 ...)
 
 | 작업 예시                          | 라이브러리 없이 가능? | 설명                        |
-| ------------------------------ | ------------ | ------------------------- |
-| `<img>` → `<amp-img>` 변환       | 🔴 어려움       | HTML 구조 파싱이 필요, 정규식으론 불안정 |
-| `<iframe>` → `<amp-iframe>`    | 🔴 어려움       | 조건 분기 및 속성 매핑 복잡          |
-| `onClick`, `onMouseOver` 속성 제거 | 🔶 가능하지만 복잡  | 수백 개 태그 모두 순회해야 함         |
-| 불필요한 태그 제거 (`<font>`, `<map>`) | 🔶 가능하지만 비효율 | 정규식 + 수작업으로 불안정           |
-| 최종 HTML 문자열로 재조립               | 🔴 위험        | 구조 깨질 확률 높음               |
+|--------------------------------| ----------- | ------------------------- |
+| `<img>` -> `<amp-img>` 변환      | 어려움       | HTML 구조 파싱이 필요, 정규식으론 불안정 |
+| `<iframe>` -> `<amp-iframe>`   | 어려움      | 조건 분기 및 속성 매핑 복잡          |
+| `onClick`, `onMouseOver` 속성 제거 | 가능하지만 복잡 | 수백 개 태그 모두 순회해야 함         |
+| 불필요한 태그 제거 (`<font>`, `<map>`) | 가능하지만 비효율 | 정규식 + 수작업으로 불안정           |
+| 최종 HTML 문자열로 재조립               | 위험       | 구조 깨질 확률 높음               |
 
 
 이 과정에서 여러 라이브러리를 도입했는데, 목표는 다음과 같았다.  
@@ -224,7 +224,7 @@ DOMParser 를 쓸 수 없었다.
 ---
 ## 라이브러리 도입 결정
 
-✅ cheerio — DOM 파싱의 사실상 업계 표준 
+cheerio — DOM 파싱의 사실상 업계 표준 
 
 AMP 변환의 핵심은 Google GuideLine 에 허용되지 않는 HTML 태그를 파싱해서 변형하거나 제거하는 작업이 필연적인데,  
 이때 cheerio는 서버 사이드에서 jQuery처럼 HTML을 다룰 수 있는 경량 라이브러리로, 아래 작업들을 편하게 처리할 수 있었다.
@@ -236,12 +236,12 @@ $(".writer").remove(); // 불필요한 요소 제거
 $("img").each(...);    // 이미지 태그 변환
 ```
 
-> 📌 대안은?  
+> 대안은?  
 > jsdom도 있었지만, 성능과 문법의 직관성에서 cheerio가 더 낫다고 판단.  
 > - ( 훨씬 무겁고, DOM 구현이 브라우저 수준이지만, cheerio보다 느림 )  
 > 단순한 조작에는 cheerio가 가장 적합하다.  
 
-✅ isTag (from domhandler) — 안정성 있는 노드 필터링  
+isTag (from domhandler) — 안정성 있는 노드 필터링  
 
 모든 DOM 노드가 태그는 아니기 때문에, cheerio("*").each(...) 루프를 돌릴 때는 노드 타입 검사를 해줘야 한다.  
 이때 isTag()를 사용하면 안정적으로 태그 여부를 확인할 수 있다.  
@@ -252,7 +252,7 @@ if (isTag(el)) {
 }
 ```
 
-⚠️ image-size + fetch  
+image-size + fetch ⚠️
 
 별도 설치가 필요했던 라이브러리는 아니지만 안정성과 성능 사이의 고민이 존재했다.  
 

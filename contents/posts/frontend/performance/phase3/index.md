@@ -19,7 +19,7 @@ JS 번들의 크기가 클 수록 Core Web Vital 의 TBT 성능에도 영향을 
 
 그래서 사용되는 JS Library 들이 TreeShaking 잘 되고 있는지, 총 bundle 의 크기가 어떻게 되는지 파악 이 필요했다.
 
-✅ 개선 목표
+개선 목표
 - JS bundle 점검 및 개선
   - TreeShaking
   - 불필요 library 다이어트
@@ -69,7 +69,7 @@ package.json script 부분역시, 명령어 활성화 필요.
 ![프로젝트 내 js 번들 결과](img_1.png)
 
  
-## 📦 lodash 최적화
+## lodash 최적화
 
 프로젝트 내에서 lodash-es가 설치되어 있었고, 실제 사용하는 함수는 debounce 하나뿐이었다.  
 아마도 Tree Shaking을 노리고 lodash-es를 선택했던 것 같다.   
@@ -105,7 +105,7 @@ $ yarn add -D @types/lodash.debounce
 import debounce from "lodash.debounce";
 ```
 
-## ⏰ moment-timezone 최적화 
+## moment-timezone ⏰ 최적화 
 
 앞서 말한 것 처럼 lodash는 함수별로 npm 패키지가 분리되어 있거나, ES 모듈 구조라서 개별 함수만 import할 수 있지만,   
 moment/moment-timezone 는 하나의 큰 번들(모듈)로 배포되고 내부적으로 모든 기능이 단일 객체(moment)에 결합되어 있다.
@@ -144,7 +144,7 @@ experimental: {
 },
 ```
 
-## ✨ 결과 ✨  
+## 결과 ✨  
 3.11 MB -> 2.38 MB 로 줄어들었다.  
 
 ![before](img_2.png)  ➡️
@@ -182,7 +182,7 @@ JS 번들 최적화는 단순히 용량을 줄이는 일이 아니다.
 개발 속도와 마감 기한에 쫓기다 보면, 무심코 라이브러리를 도입하고 의존성을 늘리기 쉽다.
 하지만 작은 습관 하나—"진짜 필요한가?" 라는 질문만으로도 많은 비용을 아낄 수 있다.
 
-- ✅ 정기적으로 번들 사이즈를 분석하고
-- ✅ 라이브러리 도입 전 체크리스트를 습관화하며
-- ✅ 팀 차원에서 도입 가이드라인을 마련해두자.
+- 정기적으로 번들 사이즈를 분석하고
+- 라이브러리 도입 전 체크리스트를 습관화하며
+- 팀 차원에서 도입 가이드라인을 마련해두자.
 
