@@ -7,11 +7,9 @@ tags:
 ---
 
 
-📧 [tkaqkeldk@naver.com](mailto:tkaqkeldk@naver.com)
-📱 010-7184-2976
-
-GitHub: https://github.com/hyungkishin
-
+email: tkaqkeldk99@gmail.com   
+phone: 010-7184-2976   
+GitHub: https://github.com/hyungkishin   
 Blog: https://hyungkishin.github.io/
 
 ---
