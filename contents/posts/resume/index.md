@@ -1,3 +1,12 @@
+---
+title: "이력서"
+date: 2026-01-18
+update: 2026-01-18
+tags:
+  - resume
+---
+
+
 📧 [tkaqkeldk@naver.com](mailto:tkaqkeldk@naver.com)
 📱 010-7184-2976
 
