@@ -26,7 +26,6 @@
     "gatsby-remark-images": "^7.11.0",
     "gatsby-remark-katex": "^7.11.0",
     "gatsby-remark-prismjs": "^7.11.0",
-    "gatsby-remark-reading-time": "^1.1.0",
     "gatsby-remark-static-images": "^1.2.1",
     "gatsby-source-filesystem": "^5.11.0",
     "gatsby-transformer-remark": "^6.11.0",

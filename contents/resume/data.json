@@ -1,0 +1,460 @@
+{
+  "contact": {
+    "name": "신형기",
+    "role": "Web Systems / Software Engineer",
+    "email": "tkaqkeldk99@gmail.com",
+    "phone": "010-7184-2976",
+    "github": "https://github.com/hyungkishin",
+    "blog": "https://hyungkishin.github.io/"
+  },
+  "intro": [
+    "대규모 트래픽 환경에서 렌더링 전략, 캐시 계층, SEO 안정성, 운영 장애를 함께 설계해 온 Web Systems / Soft Engineer입니다.",
+    "AI 기반 개발 환경에서 무엇을 자동화하고, 무엇은 사람이 통제해야 하는지를 구조와 규칙으로 정의하는 역할에 강점이 있습니다."
+  ],
+  "careers": [
+    {
+      "company": "한국일보 (코리아타임즈)",
+      "position": "Frontend Engineer",
+      "period": "2025.04 ~ 현재"
+    },
+    {
+      "company": "부릉 (라스트마일)",
+      "position": "Backend Engineer",
+      "period": "2024.10 ~ 2025.02"
+    },
+    {
+      "company": "하나투어 (예약/결제)",
+      "position": "Full-Stack Engineer",
+      "period": "2021.12 ~ 2024.09"
+    },
+    {
+      "company": "Early Career (프리랜서)",
+      "position": "Full-Stack Developer",
+      "period": "2018.11 ~ 2021.11"
+    }
+  ],
+  "skills": [
+    {
+      "category": "Frontend",
+      "items": ["Next.js 14 (App Router)", "React 18", "Vue.js", "Nuxt.js", "TypeScript", "SCSS Modules", "Zustand"]
+    },
+    {
+      "category": "Backend",
+      "items": ["Java", "Spring Boot", "Spring Batch", "JPA/Hibernate", "MyBatis"]
+    },
+    {
+      "category": "Database",
+      "items": ["MySQL", "MariaDB", "Redis"]
+    },
+    {
+      "category": "클라우드 & 인프라",
+      "items": ["AWS (EC2, RDS, Lambda, CloudFront)", "Jenkins", "ArgoCD", "Docker"]
+    },
+    {
+      "category": "테스트 & 모니터링",
+      "items": ["JUnit5", "Jest", "Playwright", "ELK Stack", "Grafana", "Pinpoint"]
+    },
+    {
+      "category": "AI-assisted Development",
+      "items": ["Claude Code 기반 Sub-Agent 설계", "역할 분리(설계/구현/리뷰/운영) 자동화", "개발자 개입 지점이 명시된 개발 파이프라인 운영"]
+    }
+  ],
+  "companies": [
+    {
+      "name": "코리아타임즈",
+      "projects": [
+        {
+          "title": "홈페이지 성능 최적화",
+          "subtitle": "LCP 19초 → 1.8초 개선",
+          "techStack": ["Next.js 14.2", "React 18", "CloudFront", "Webpack", "Scss", "Zustand"],
+          "achievement": "LCP 90% 개선 | JS 번들 33% 감소 | Google Discover 유입 70% 증가",
+          "overview": "리뉴얼 이후 렌더링 전략과 캐시 정책 부재로 메인 및 기사 상세 페이지의 LCP가 최대 19초까지 증가하여 실사용이 어려운 수준의 성능 병목 해결",
+          "role": [
+            "프론트엔드 2명 중 성능 최적화 전담",
+            "렌더링 전략 수립 및 CloudFront 캐시 정책 문서화"
+          ],
+          "tasks": [
+            "Chrome DevTools, Lighthouse로 LCP 병목 지점 분석",
+            "페이지별 렌더링 전략 재설계 (SSR/ISR/CSR 분리)",
+            "CloudFront 캐시 Behavior 분리 설계"
+          ],
+          "problemSolving": [
+            {
+              "title": "병목 원인 분석",
+              "items": [
+                "모든 페이지가 SSR로 동작하여 매 요청마다 서버 렌더링",
+                "CloudFront에서 HTML과 Data가 동일 TTL로 캐시되어 동적 데이터 갱신 지연",
+                "사용하지 않는 라이브러리 포함으로 JS 번들 3.2MB"
+              ]
+            },
+            {
+              "title": "렌더링 전략 재설계",
+              "items": [
+                "메인: SSR → ISR (revalidate: 60)로 변경, 캐시 적중률 확보",
+                "기사 상세: SSR 유지 + CloudFront 캐시 적용 (CMS 연동 비용 없이 즉시 반영 가능)",
+                "검색 결과: SSR → CSR로 변경, 검색어마다 결과가 달라 캐시 효과 없음"
+              ]
+            },
+            {
+              "title": "캐시 계층 분리",
+              "items": [
+                "HTML(/*.html): TTL 1시간, stale-while-revalidate 적용",
+                "Data Cache(/_next/data/*): TTL 5분, 조회수/추천 기사 등 동적 데이터 반영"
+              ]
+            },
+            {
+              "title": "번들 최적화",
+              "items": [
+                "moment.js(500KB) → date-fns(50KB) 교체, 로케일 전체 로딩 문제 해결",
+                "lodash 전체 import → 개별 함수 import로 변경",
+                "광고 스크립트 lazy loading 적용"
+              ]
+            }
+          ],
+          "results": [
+            "Google Search Console 기준 느린 URL이 모두 빠른 URL로 전환 (Golden Cross 확인)",
+            "CloudFront 캐시 적중률 0% → 78% 개선",
+            "서버 연산 및 중복 fetch 감소로 EC2 비용 절감"
+          ]
+        },
+        {
+          "title": "홈페이지 비정상 Redirect 장애 대응",
+          "subtitle": "CloudFront + RSC 캐시 상호작용 분석",
+          "techStack": ["Next.js App Router", "CloudFront"],
+          "achievement": "",
+          "overview": "홈페이지(`/`) 접속 시 0.5초 후 과거(2016년) 기사로 강제 redirect 발생. PC/MO 전체 영향.",
+          "role": [],
+          "tasks": [
+            "CloudFront 로그 및 브라우저 캐시 분석",
+            "Next.js App Router RSC 요청 동작 코드 레벨 분석",
+            "middleware에서 RSC 요청 식별 및 캐시 정책 적용"
+          ],
+          "problemSolving": [
+            {
+              "title": "현상 분석",
+              "items": [
+                "CloudFront 캐시 무효화 후에도 일부 환경에서 재현 지속",
+                "하드 리프레시(Ctrl+Shift+R)로는 해결, 일반 새로고침으로는 재현",
+                "CloudFront 로그에 301 응답 기록 없음 → 브라우저 디스크 캐시 문제로 판단"
+              ]
+            },
+            {
+              "title": "원인 추적",
+              "items": [
+                "브라우저 디스크 캐시에 `/`에 대한 301 응답이 저장되어 있음 확인",
+                "App Router의 RSC 요청이 캐시된 301 응답을 follow",
+                "Next.js `app-router.ts` 코드에서 follow된 URL을 `canonicalUrl`로 처리, `history.replaceState()` 수행 확인"
+              ]
+            },
+            {
+              "title": "해결",
+              "items": [
+                "middleware에서 RSC 요청 식별 강화 (accept, sec-fetch-dest 헤더 분석)",
+                "RSC 요청에 `Cache-Control: no-store` 적용",
+                "CloudFront Behavior에서 RSC 요청(`/_next/data/*`, `.rsc`) 캐시 대상 제외"
+              ]
+            }
+          ],
+          "results": [
+            "redirect 재발 차단 및 캐시 계층별 책임 분리",
+            "Next.js App Router + CloudFront 환경에서의 RSC 캐시 주의사항 팀 내 문서화"
+          ]
+        },
+        {
+          "title": "Google News 중복 색인 장애 대응",
+          "subtitle": "SEO 메타데이터 누락 방지",
+          "techStack": ["Next.js", "CloudFront"],
+          "achievement": "",
+          "overview": "Google News에서 동일 기사 중복 색인 발생, 일부 기사가 제목/설명 없이 이미지만 노출",
+          "role": [],
+          "tasks": [],
+          "problemSolving": [
+            {
+              "title": "원인 분석",
+              "items": [
+                "중복 색인된 기사들의 공통점: 메타데이터 누락 상태로 색인, 색인 시점에 API 서버 장애 로그 존재",
+                "`generateMetadata` 함수에서 API 실패 시 빈 객체 `{}` 반환",
+                "메타데이터 없는 HTML이 200 OK로 CloudFront에 캐시되어 Google 크롤러가 수집"
+              ]
+            },
+            {
+              "title": "해결 방안 검토",
+              "items": [
+                "빈 메타데이터 시 기본값 사용시, SEO 품질 저하, 중복 콘텐츠 문제",
+                "500 에러 반환시, 사용자 경험 저하",
+                "404 반환 (`notFound()`) 시, 크롤러가 색인하지 않으며 CloudFront 캐시되지 않음"
+              ]
+            },
+            {
+              "title": "적용",
+              "items": [
+                "API 실패/데이터 없음/예외 발생 시 `notFound()` 처리로 원천 차단",
+                "메타데이터 검증 로직을 공통 유틸로 분리하고, E2E 테스트코드 작성"
+              ]
+            }
+          ],
+          "results": [
+            "Google News 중복 색인 신규 발생 차단",
+            "SEO 장애가 캐시를 통해 확산되는 구조 제거",
+            "재발 방지를 위해, 배포 파이프라인 과정에서 E2E Test 코드 통과후 배포 될 수 있도록 그라운드 룰 제시 이후, rule 적용"
+          ]
+        },
+        {
+          "title": "운영 개선",
+          "subtitle": "",
+          "techStack": [],
+          "achievement": "",
+          "overview": "",
+          "role": [],
+          "tasks": [],
+          "problemSolving": [
+            {
+              "title": "Playwright E2E 테스트 도입",
+              "items": [
+                "배경: 레거시 코드에서 SEO 메타데이터, Schema.org 마크업이 깨지는 이슈 반복 발생",
+                "적용: 핵심 페이지 SEO 요소 검증 테스트 작성, Husky pre-push 훅 연동",
+                "성과: SEO 메타데이터 누락/렌더링 오류가 운영으로 유입되는 흐름 사전 차단"
+              ]
+            },
+            {
+              "title": "광고 노출 정책 외부화",
+              "items": [
+                "배경: 광고 노출 변경 시마다 코드 수정 → 빌드 → 배포 필요, 잦은 개발 리소스 소모 (하루에 많게는 일 5건)",
+                "적용: 광고 관리기 구축후, S3 JSON으로 관리 제안, CloudFront TTL 5분, fallback 전략 구현",
+                "성과: 광고 변경 시 배포 없이 운영 대응 가능"
+              ]
+            }
+          ],
+          "results": []
+        }
+      ]
+    },
+    {
+      "name": "부릉",
+      "projects": [
+        {
+          "title": "기사별 개인할증 시스템",
+          "subtitle": "요기요 물류수행률 증가를 위한 할증 기능",
+          "techStack": ["Java", "Spring Boot", "Redis", "MySQL"],
+          "achievement": "요기요 수행 물량 20% 증가",
+          "overview": "요기요 물류수행률 증가를 위해 지점에 귀속된 기사분들의 할증요금 부여 시스템 신규 구축",
+          "role": [
+            "백엔드 단독 개발",
+            "기존 할증 로직 분석 및 책임 분리 설계"
+          ],
+          "tasks": [
+            "지점별 귀속 기사 개인할증 설정 및 이력 관리 기능 구축",
+            "배송 완료 시점 정산 로직 동시성 처리",
+            "AWS Top Query 분석 및 Slow Query 개선"
+          ],
+          "problemSolving": [
+            {
+              "title": "할증 로직 책임 분리",
+              "items": [
+                "기존: 하나의 Service에 거리/시간대/날씨 할증 로직 혼합",
+                "개선: Strategy 패턴 적용하여 할증 유형별 클래스 분리",
+                "효과: 신규 개인할증 추가 시 기존 로직 영향 최소화"
+              ]
+            },
+            {
+              "title": "동시성 이슈 해결",
+              "items": [
+                "문제: 동일 기사 연속 배송 완료 시 계좌 잔액 업데이트 충돌",
+                "시도: 낙관적 락 적용시, 피크타임 TPS 부하테스트에서 `OptimisticLockException` 빈번 발생",
+                "해결: 비관적 락으로 변경, 정산 정합성 확보 (대기 시간 평균 50ms로 허용 가능)"
+              ]
+            },
+            {
+              "title": "정산 쿼리 최적화",
+              "items": [
+                "문제: 지점 정산 페이지 Slow Query 3.2초",
+                "원인: 개별 인덱스만 존재하였고 복합 인덱스 없음을 확인",
+                "해결: 복합 인덱스 추가로 3.2초 → 120ms 개선"
+              ]
+            }
+          ],
+          "results": [
+            "오픈 1개월 후 데이터분석팀 지표 기준, 요기요 수행 물량 20% 증가",
+            "정산 페이지 성능 병목 해소"
+          ]
+        },
+        {
+          "title": "프렌즈 앱 오더 상세 개선",
+          "subtitle": "일반 배달 기사 현장 혼선 해소",
+          "techStack": ["Java", "Spring Boot", "Redis"],
+          "achievement": "",
+          "overview": "일반인 배달 기사가 홈플러스, CU, 맥도널드 등에서 주문번호가 상이한 문제로, 현장에서 많은 시간 소요되는 문제 해결",
+          "role": [],
+          "tasks": [],
+          "problemSolving": [
+            {
+              "title": "데이터 저장 전략 선택",
+              "items": [
+                "선택지: RDB JSON 컬럼 vs Redis Hash",
+                "고민 포인트: 해당 데이터가 이력인지, 현장 식별 정보인지 식별",
+                "판단: 배송 완료 후에는 불필요한 데이터임을 확인하여, Redis 선택"
+              ]
+            },
+            {
+              "title": "TTL 정책 설계",
+              "items": [
+                "배송 평균 소요 시간 30분~1시간 + 지연 케이스 고려",
+                "TTL 3시간으로 설정, 피크타임 RDB 부하 방지"
+              ]
+            },
+            {
+              "title": "정합성 유지",
+              "items": [
+                "픽업 완료 여부는 정산 연관 데이터임으로, RDB에 영속화",
+                "주문 접수 시점 Redis 저장 / 픽업 완료 시점 RDB 저장 / 배송 완료 시점 Redis TTL 자동 삭제"
+              ]
+            }
+          ],
+          "results": [
+            "일반 기사 현장 주문 혼선 VOC 인입건 90% 해소",
+            "과적 판단 용이해져 본사 문의 감소"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "하나투어",
+      "projects": [
+        {
+          "title": "예약/결제 시스템 분리",
+          "subtitle": "결제 도메인 독립 및 확장성 확보",
+          "techStack": ["Java", "Spring Boot", "RestDocs"],
+          "achievement": "간편결제 실패율 90% 감소 | 네이버페이 사용 25% 증가 | 유지보수 시간 80% 절감",
+          "overview": "예약/결제 화면이 PC/Mobile 적응형으로 개발되어 유지보수 저하. 예약과 결제 기능이 혼합되어 장애 시 비즈니스 로직 추적이 어렵고 신규 결제수단 추가 시 높은 개발 비용 발생",
+          "role": [
+            "결제 도메인 분리 아이디어 제안 및 설계",
+            "RestDocs 기반 API 문서화 및 통합 테스트 구축"
+          ],
+          "tasks": [
+            "결제 핵심 로직을 신규 결제 도메인으로 이관",
+            "할인수단(쿠폰, 마일리지, 기프트카드) 관리 구조 개선",
+            "정산 재처리 로직 정책화"
+          ],
+          "problemSolving": [
+            {
+              "title": "기존 구조 문제",
+              "items": [
+                "ReservationService 안에 결제 로직 혼합",
+                "신규 결제수단 추가 시 예약 로직까지 영향",
+                "장애 발생 시 예약/결제 문제 구분 어려움"
+              ]
+            },
+            {
+              "title": "도메인 분리 전략",
+              "items": [
+                "예약: \"무엇을 예약할지\"만 담당",
+                "결제: \"얼마를 어떻게 받을지\"만 담당",
+                "점진적 이관: 신규 결제수단부터 새 구조로 개발, 기존 결제수단은 단계적 이관"
+              ]
+            },
+            {
+              "title": "할인수단 추상화",
+              "items": [
+                "기존: 쿠폰 / 마일리지 / 기프트카드 각각 다른 if 문 2000 라인으로 처리",
+                "개선: DiscountPolicy 인터페이스로 추상화, 신규 할인수단 추가 용이"
+              ]
+            },
+            {
+              "title": "정산 안정화",
+              "items": [
+                "PG사 응답 지연으로 정산 데이터 누락 케이스 발생",
+                "Spring Retry 적용 (maxAttempts: 3, backoff: 1초 → 2초 → 4초)"
+              ]
+            }
+          ],
+          "results": [
+            "신규 결제수단 개발 기간 평균 2주에서 3일로 단축",
+            "타 부서 서비스 연계 시 결제 타입만 고려, 유지보수 시간 80% 절감",
+            "간편결제 실패율 90% 감소 (VOC 인입 티켓 지표)",
+            "네이버페이 사용 고객 25% 증가 (정산팀 공유)"
+          ]
+        },
+        {
+          "title": "카드사 프로모션 Admin 개편",
+          "subtitle": "테스트 커버리지 98% 달성",
+          "techStack": ["Java", "Spring Boot", "JUnit5"],
+          "achievement": "",
+          "overview": "프로모션 조건 Admin 시스템 구축으로 프론트엔드 하드코딩 제거 및 배포 빈도 감소",
+          "role": [],
+          "tasks": [],
+          "problemSolving": [
+            {
+              "title": "기존 문제",
+              "items": [
+                "카드사 프로모션 조건이 프론트엔드에 하드코딩, 변경 시 코드 수정 → QA → 배포 사이클 2-3일 소요"
+              ]
+            },
+            {
+              "title": "해결",
+              "items": [
+                "기획팀이 직접 등록 / 수정 가능한 Admin 시스템 구축, 프론트엔드는 API로 동적 조회"
+              ]
+            },
+            {
+              "title": "테스트",
+              "items": [
+                "프로모션 경계 조건 (특정 카드사, 최소 금액, 기간, 상품간 프로모션 [항공, 호텔, 패키지]) 전체 테스트 코드 작성, 커버리지 98%"
+              ]
+            },
+            {
+              "title": "팀 기여",
+              "items": [
+                "엣지케이스 문서화하여 QA팀 공유, 사내 테크데이에서 \"TDD 실무 적용 사례\" 발표"
+              ]
+            }
+          ],
+          "results": [
+            "프로모션 변경 시 배포 없이 Admin에서 즉시 반영",
+            "테스트 커버리지 98%로 회귀 버그 방지",
+            "팀 내 테스트 코드 진입 장벽 해소"
+          ]
+        },
+        {
+          "title": "상품평 리뉴얼 및 배치 시스템",
+          "subtitle": "AWS Fargate 도입으로 서버 비용 절감",
+          "techStack": ["Java", "Spring Batch", "AWS Fargate"],
+          "achievement": "",
+          "overview": "리뷰 월간 Best Top 5 마일리지 리워드 배치 구축 및 리뷰 작성 유도 AppPush / 알림톡 개선",
+          "role": [],
+          "tasks": [],
+          "problemSolving": [
+            {
+              "title": "기존 문제",
+              "items": [
+                "배치 작업이 운영 WAS에서 실행, 월초 배치 실행 시 사용자 응답 속도 저하"
+              ]
+            },
+            {
+              "title": "배치 서버 분리 검토",
+              "items": [
+                "EC2 인스턴스: 24시간 비용 발생, 배치는 하루 몇 분만 실행",
+                "Lambda: 15분 제한, Spring Batch 부적합",
+                "Fargate 선택: 실행 시간만 비용 발생, 배치 실행 시간 10-30분에 적합"
+              ]
+            },
+            {
+              "title": "모니터링",
+              "items": [
+                "CloudWatch, 배치 실패 시 메신저 알림 구축"
+              ]
+            }
+          ],
+          "results": [
+            "운영 WAS 서버 리소스 확보로 사용자 응답 속도 안정화",
+            "AWS Fargate 도입으로 서버 비용 70% 절감 (EC2 상시 운영 대비)",
+            "배치 실패 시 즉시 알림으로 장애 대응 시간 단축"
+          ]
+        }
+      ]
+    }
+  ],
+  "activities": [
+    "사내 테크데이 발표: 클라우드 환경에서의 무중단 배포, TDD 실무 적용 사례",
+    "사내 책 스터디: DDD, 클린 코드, 오브젝트"
+  ]
+}

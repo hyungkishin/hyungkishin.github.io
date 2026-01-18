@@ -43,7 +43,6 @@ module.exports = {
       },
     },
     "gatsby-plugin-styled-components",
-    "gatsby-remark-reading-time",
     `gatsby-plugin-react-helmet`,
     {
       resolve: `gatsby-source-filesystem`,
@@ -77,9 +76,7 @@ module.exports = {
     {
       resolve: `gatsby-transformer-remark`,
       options: {
-        commonmark: true,
         footnotes: true,
-        pedantic: true,
         gfm: true,
         plugins: [
           {

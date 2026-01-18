@@ -6,6 +6,7 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
 
   const postTemplate = require.resolve(`./src/templates/Post.jsx`)
   const seriesTemplate = require.resolve(`./src/templates/Series.jsx`)
+  const resumeTemplate = require.resolve(`./src/templates/Resume.jsx`)
 
   const result = await graphql(`
     {
@@ -55,10 +56,11 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
     posts.forEach((post, index) => {
       const previousPostId = index === 0 ? null : posts[index - 1].id
       const nextPostId = index === posts.length - 1 ? null : posts[index + 1].id
+      const isResume = post.fields.slug === "/resume/"
 
       createPage({
         path: post.fields.slug,
-        component: postTemplate,
+        component: isResume ? resumeTemplate : postTemplate,
         context: {
           id: post.id,
           series: post.frontmatter.series,
