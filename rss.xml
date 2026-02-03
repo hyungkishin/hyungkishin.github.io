@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Tue, 03 Feb 2026 08:08:41 GMT</lastBuildDate><item><title><![CDATA[설계의 본질]]></title><description><![CDATA[들어가며 loopers Round…]]></description><link>https://hyungkishin.github.io/architecture/</link><guid isPermaLink="false">https://hyungkishin.github.io/architecture/</guid><pubDate>Tue, 03 Feb 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;들어가며&lt;/h2&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Tue, 03 Feb 2026 08:16:04 GMT</lastBuildDate><item><title><![CDATA[설계의 본질]]></title><description><![CDATA[들어가며 loopers Round…]]></description><link>https://hyungkishin.github.io/architecture/</link><guid isPermaLink="false">https://hyungkishin.github.io/architecture/</guid><pubDate>Tue, 03 Feb 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;들어가며&lt;/h2&gt;
 &lt;p&gt;loopers Round1 을 진행하며 고민한 흔적을 남깁니다.&lt;/p&gt;
 &lt;p&gt;정신을 차리고 보니, 어느새 코드보다. 설계에 더 많은 시간을 쏟게 되는것 같습니다.&lt;/p&gt;
 &lt;blockquote&gt;
@@ -51,23 +51,19 @@
 &lt;/blockquote&gt;
 &lt;hr&gt;
 &lt;h2&gt;의존성 방향에 대해서, 왜 이렇게 가져가는가?&lt;/h2&gt;
-&lt;p&gt;현재 의존성 구조:&lt;/p&gt;
+&lt;p&gt;현재 의존성 구조&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;interfaces → application → domain&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;infrastructure → domain&lt;/p&gt;
-&lt;/li&gt;
+&lt;li&gt;interfaces -&gt; application -&gt; domain&lt;/li&gt;
+&lt;li&gt;infrastructure -&gt; domain&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;지켜야 할 의존 방향&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;의존성은 항상 안쪽(도메인)을 향한다&lt;/li&gt;
 &lt;li&gt;도메인은 외부 기술에 의존하지 않는다&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;처음엔 왜 이렇게 되었을까 라고 생각하기보단.
-창피하게도, 패턴으로 외우기 바빴다.&lt;/p&gt;
-&lt;p&gt;지금보니, 이건 &lt;strong&gt;복잡성을 효율적으로 관리하기 위해 세워진 전략&lt;/strong&gt; 중 하나인것으로 보인다.&lt;/p&gt;
+&lt;p&gt;사실, 처음엔 왜 이렇게 되었을까 라고 생각하기보단.&lt;br&gt;
+외우기 바빴다.&lt;/p&gt;
+&lt;p&gt;생각을 정리하니, &lt;strong&gt;복잡성을 효율적으로 관리하기 위해 세워진 전략&lt;/strong&gt; 중 하나인것으로 보아야할것으로 보인다.&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;그러면, 앞서 말한 &lt;strong&gt;여러 전략중 하나&lt;/strong&gt; 가 있듯이.
 복잡성도 여러 종류가 있을까 ?&lt;/p&gt;
@@ -84,12 +80,12 @@
 안정적인 것에 의존해야 한다는 점이다.&lt;/p&gt;
 &lt;p&gt;그래야 변경이 전파되지 않는다고 생각한다.&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;어느순간 이걸 왜 고민하게 되었지 ? 라는 질문은 자연스레 해소되었다.
+&lt;p&gt;어느순간 이걸 왜 고민하게 되었지 ? 라는 질문은 자연스레 해소되었다.&lt;br&gt;
 결론적으로, 일을 효율적으로 하기 위해서는 여러방식이 있다고 생각한다.&lt;/p&gt;
 &lt;p&gt;그런데 아직 가려운 부분은 해소가 안되었다.&lt;/p&gt;
-&lt;p&gt;개발의 생태계는 프레임별로 간단하다면 간단하게,
+&lt;p&gt;개발의 생태계는 프레임별로 간단하다면 간단하게,&lt;br&gt;
 어렵다면 무진장 어렵게 생각 할 수 있다.&lt;/p&gt;
-&lt;p&gt;그래서 보통 저마다의 상황이 있어, 더 나은 선택을 위함이지.
+&lt;p&gt;그래서 보통 저마다의 상황이 있어, 더 나은 선택을 위함이지.&lt;br&gt;
 이게 정답입니다 ! 라고 함부로 말하기 어려운 영역인것 같다.&lt;/p&gt;
 &lt;p&gt;그럼 내 상황에서, 생각해보자.&lt;/p&gt;
 &lt;p&gt;코드레벨, 구조&lt;/p&gt;
@@ -146,7 +142,7 @@
 &lt;/ul&gt;
 &lt;p&gt;다시 정리하면, 설계 위반은 지금 당장 고장 나지 않는다.&lt;/p&gt;
 &lt;p&gt;다만.. &quot;미래의 버그 확률을 구조적으로 증가시키는 행위&quot; 로 생각했다.&lt;/p&gt;
-&lt;p&gt;강제 수준은 다음과 같다.&lt;/p&gt;
+&lt;p&gt;강제 수준은 다음과 같이 표현해볼 수 있을것 같다.&lt;/p&gt;
 &lt;table&gt;
 &lt;thead&gt;
 &lt;tr&gt;
