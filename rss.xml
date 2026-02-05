@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Thu, 05 Feb 2026 13:53:00 GMT</lastBuildDate><item><title><![CDATA[컨텍스트 미아가 되어 버렸어요.]]></title><description><![CDATA[배경 처음엔 제공된 구조를 그대로 신뢰했지만, E2E 테스트를 진행하며, 인프라가 자동으로 기동되는 문제를 발견했다. 테스트 실행 제어권이 모듈 경계를 넘어선다는 느낌을 받았고, ai…]]></description><link>https://hyungkishin.github.io/round1/</link><guid isPermaLink="false">https://hyungkishin.github.io/round1/</guid><pubDate>Thu, 05 Feb 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;배경&lt;/h2&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Thu, 05 Feb 2026 14:27:58 GMT</lastBuildDate><item><title><![CDATA[컨텍스트 미아가 되어 버렸어요.]]></title><description><![CDATA[배경 처음엔 제공된 구조를 그대로 신뢰했지만, E2E 테스트를 진행하며, 인프라가 자동으로 기동되는 문제를 발견했다. 테스트 실행 제어권이 모듈 경계를 넘어선다는 느낌을 받았고, ai…]]></description><link>https://hyungkishin.github.io/round1/</link><guid isPermaLink="false">https://hyungkishin.github.io/round1/</guid><pubDate>Thu, 05 Feb 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;배경&lt;/h2&gt;
 &lt;p&gt;처음엔 제공된 구조를 그대로 신뢰했지만,&lt;br&gt;
 E2E 테스트를 진행하며, 인프라가 자동으로 기동되는 문제를 발견했다.&lt;/p&gt;
 &lt;p&gt;테스트 실행 제어권이 모듈 경계를 넘어선다는 느낌을 받았고,&lt;br&gt;
@@ -43,12 +43,12 @@ Docker CLI도 문제없이 동작했다.&lt;/p&gt;
     &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 653px; &apos;&gt;
       &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/5c53c5f1d565283d322ed551672bc7d8/ffe7f/image-1.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 58.235294117647065%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAAAsTAAALEwEAmpwYAAACyElEQVR42iWSyW4UZxSFyz3UPE9df3VXuXoy7WBs0yBwnLYwIBnaBtuJQCBhJyhSREQWUcg2jxAp6yyzTV4juzzUl+ticVTzV+fcc7WmDDk/PeJi/RVpURAXJdmoJlZDfnz3kvNnRxysHrK9s2C2GDOsSqIsxY1C7CAQhXhJRlio9jttXAZcngnw+SFpOWRQN+T1poBH/Pz+a85OjuTFEfN5Q7WpKFRBIsAojQUct1AnFGgckymFNq0CXl0cc/jgDmVTU03H7Z/yeswHcfjpp2+ZbG+Li4QkTxioVKApQeSJfPwowBMFaUI2HKHN6pCX6xXj8Y3linIyJa82icThu9dr/vzjNy4vT2nGpTjxUKXEi326uk7P0HF8Dz+OCFMZQ5ygbdUxBwe75IMYJTA1m1NO53hZwXdX5/z37z/88vE9z+/P2duqSNMQ13fomgIUmY7dAk3XlWsDbVL6NJMRaR6IuwnFZMZQFKkRr795xt9//c7Vi8dcHe9xd1YSRi5pFgjIxLCtFqhbJl3j8w+0pnCJxV2SeQxnU0aLBbUolXKOH33Jx+/f8ODOjMuHC5rcQ3d0SRMxKCKcwG5jd41+C+yafWlZOQJMWmBYKqKqYSCRfVWxWh1ycXbcjuTpcouRiojzSEpJpGW/BXTNXhu/b1kYjotWFzZhHstQXVRTicubGW6RScu7yyVPH61Y7u9LKTWpJOlbfSxP4or6lkHf1tHtm+NnaWVqSeUBbmBy64tN7t7fYb5zm8XePnvLe9yW81QS5MMCVZdYviklOO3R8GRuTo++Y0h8F90VYBoaGL4t9B5+4pMNMrIsIxFIJvsWSlk3Hy0P73H9wzW3dheyj+JU7m1YG3TMjqyLKyvlsGFuoBlOl54lEmDH6sgCe/LQxA4tTi/WvL1+w5OTxzxZn/Dh10/k4wmGa7bvdpwOTuy1cN2VWTod/geJDEN1Yva3/wAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;아니야...&apos; title=&apos;&apos; src=&apos;/static/5c53c5f1d565283d322ed551672bc7d8/ffe7f/image-1.png&apos; srcset=&apos;/static/5c53c5f1d565283d322ed551672bc7d8/e7570/image-1.png 170w,
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;...&apos; title=&apos;&apos; src=&apos;/static/5c53c5f1d565283d322ed551672bc7d8/ffe7f/image-1.png&apos; srcset=&apos;/static/5c53c5f1d565283d322ed551672bc7d8/e7570/image-1.png 170w,
 /static/5c53c5f1d565283d322ed551672bc7d8/f46e7/image-1.png 340w,
 /static/5c53c5f1d565283d322ed551672bc7d8/ffe7f/image-1.png 653w&apos; sizes=&apos;(max-width: 653px) 100vw, 653px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
   &lt;/a&gt;
     &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;아니야...&lt;/figcaption&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;...&lt;/figcaption&gt;
   &lt;/figure&gt;&lt;/p&gt;
 &lt;hr&gt;
 &lt;h2&gt;문제의 범위&lt;/h2&gt;
@@ -158,7 +158,7 @@ Docker CLI도 문제없이 동작했다.&lt;/p&gt;
 &lt;p&gt;Testcontainers는 패턴을 단일화해야 한다.&lt;/p&gt;
 &lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;@Container + @DynamicPropertySource&lt;/code&gt; 조합만 써야되나 ..?&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;이윽고, 새별 6시경 롤백을 강행했다.&lt;/p&gt;
+&lt;p&gt;이윽고, 새벽 6시경 롤백을 강행했다.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;hr&gt;
 &lt;h2&gt;가장 큰 배움인, AI를 멈추는 타이밍&lt;/h2&gt;
@@ -166,12 +166,12 @@ Docker CLI도 문제없이 동작했다.&lt;/p&gt;
     &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 650px; &apos;&gt;
       &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/4f942581eec24576185a0d2d3b850272/663f3/image-4.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 62.94117647058823%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAANCAYAAACpUE5eAAAACXBIWXMAAAsTAAALEwEAmpwYAAADE0lEQVR42h2TWXPiVhCFhZAAsWkBSUiCAWEW22CDDdjBGIPtGsbb2HG8TVI1k5rEeZl5yEP+f31peDile+/Dp+4+pxXbtXBDj4yZJZlSqcQRWs4gnVYZ1UtcbnvsRUVqtkEntBl0q7heHj2bQUkoqIZDIqGKEiiKguJXI+J2E89zqPglBqMBqp7Czmlc7Hhc71S436/xeRDxerLDfy+f6Mb+BqhqCdR8QCKZFAlsDZ3MT9jr73Ixm/L2/MjXlwfymQy7kcXdQZWnw4jfhjVu9+U7bvBzNeZk0JGODDJZlaRVQ0/rck6ipQR4tDjFcUwC3yeMIo7rFXaDIpf9iLG0vOPlGNdMAVakypBvyz6Pn2Z0+y1yORWtFJPOpTEtbXNX2v2eHDKUHBvTtDhquNzs+Vz3Q05qDm07z9C3OG04uIZOWNBZzUfMFhMKRY1UeYts0cBzc1hmCmV7v0dWTCiVBWhbNEOXu2HIy0HA91GD5+2Q3wcfeNj/wHHgsOpU+Dg7ZLE8liKkbQEWpP2gkpe7GFVvNaVCAZYceXCwnBLD2OO2V2ZRt1lUSzz3qnwR+Krl8bIXcTbe5/L8iKBcEGCTopUjDPKUXQPlw1ZMxkhhWUVRQWZh0okcztomp1tF7vcqHEts+uUsy9iReTq06jWWiyNqgU2qEJIz18ACrptFqdSqm/wkxfq1VFUln07xse/yNHF5HZX5sYi52fU5b9t4phjgWJycTfD9AppeIG1kcEoGtp0WoORQ1cV+XdvA1vCiofF2GvP3MuZ9VuNP0VfRWbcsjuqMjodM5xOKAk+ohuRRIyO5XcdICRs12YrUJvWJddKTGluRzT+XMf9edbnr+8xbFjdDl7OeT6UWsLqa88v0QPK3LkAnqekoqmyNtgbGDZlbkbxZoLXbpTed0GpXWbQcLqSiaWwzb7ssdxwOtys0t9ucLqe8/3zn17dHrh5uOJ5PCeRHm9ULOk16R0PG5zMmFzOaB32yvkNDTBhFJodhYRPsVd+j3awQdWL8esTN8z1//Xjn+umWL9//4PXbm0BD/gcrPmO8ltkntAAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;아 ㅈ...진정해봐봐...&apos; title=&apos;&apos; src=&apos;/static/4f942581eec24576185a0d2d3b850272/663f3/image-4.png&apos; srcset=&apos;/static/4f942581eec24576185a0d2d3b850272/e7570/image-4.png 170w,
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;지금 해 뜨고있어...&apos; title=&apos;&apos; src=&apos;/static/4f942581eec24576185a0d2d3b850272/663f3/image-4.png&apos; srcset=&apos;/static/4f942581eec24576185a0d2d3b850272/e7570/image-4.png 170w,
 /static/4f942581eec24576185a0d2d3b850272/f46e7/image-4.png 340w,
 /static/4f942581eec24576185a0d2d3b850272/663f3/image-4.png 650w&apos; sizes=&apos;(max-width: 650px) 100vw, 650px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
   &lt;/a&gt;
     &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;아 ㅈ...진정해봐봐...&lt;/figcaption&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;지금 해 뜨고있어...&lt;/figcaption&gt;
   &lt;/figure&gt;&lt;/p&gt;
 &lt;p&gt;허무하게도, 조금만 플래닝을 다르게 설정하면.&lt;br&gt;
 Docker DeskTop 버전 문제임을 빠르게 알 수 있었고.&lt;/p&gt;
