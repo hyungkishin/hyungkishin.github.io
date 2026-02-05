@@ -1,16 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Thu, 05 Feb 2026 13:30:45 GMT</lastBuildDate><item><title><![CDATA[컨텍스트 미아가 되어 버렸어요.]]></title><description><![CDATA[배경  처음엔 제공된 구조를 그대로 신뢰했지만, E2E 테스트를 진행하며, 인프라가 자동으로 기동되는 문제를 발견했다. 테스트 실행 제어권이 모듈 경계를 넘어선다는 느낌을 받았고, ai…]]></description><link>https://hyungkishin.github.io/round1/</link><guid isPermaLink="false">https://hyungkishin.github.io/round1/</guid><pubDate>Thu, 05 Feb 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;배경&lt;/h2&gt;
-&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
-      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/fb58ad25591b43eff313d96509792d6d/a84ca/image.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 64.70588235294117%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAANCAYAAACpUE5eAAAACXBIWXMAAAsTAAALEwEAmpwYAAADNklEQVR42kWTyW9bVRSH/S8wqJQNWwQhFQTUYQEsCG0qJaVNUVoqOiWKHAhRCjIuqgOkgxvASWlI3JpEjofEz/EQz7Gf3/OQ2HULQiokgkoIFiwq0QWqBBsEXXyc+6KKxU/nvnPP/c7v3Ktni6cCzHomuBaeJ5ZfopgPkc+HLeVknc0G0XWNmelLHDiwn66uTuxD/fj9X1KSvNrP5aROVCxFsSUiXpZfa8fXvYuI5rMOr+YXKRYWKQhUL2mEgtM8/8IOntj+JM+0PUvHix10d+9navI8xeKS1D2sFWC2sEQyHSazMm+5KwnAUjHCqkDrtSTH3nqDPR3PcWjvy+x7ZSev7umgvb2N3bt34fF8gmnGLKCqt5XLyxiS0M24jLAsiqJLTuV1WReLGieP9vCVs5/I5RG8LjvDR7vYtu1xHnnsUXq692JIrTKgprEZhgBFZRVlwzRiVlQ5U5rkZRyv24HXeZor7x/HPXyEsYFDdO5s46Wnn+LY24epVROWkbIYsplGHCXl0hCYghjmVs4sy3clQTV6Ff3qhyTcI+SnPiA9OYr2cT/vvfk60dicdS3WpHLeVjET1iElo/L/WuUrCipRT/oIOgcIuwaJuu0kJ97lzJFOPJ+P0VjPyETS2EhYZmzV6gpKlWoSU6Ri9aGU02oKQ14+etGOdn6Q2OUhtPHTeMZHqdQz0jQmzeNUlAmRrV5PUa1tqaLgVkwJKEO9UaC5luB2wUVorI+A6xSRC3bC44OUF0a51ZTrkbq19bzAVmRkcbgmQAWtqbimlKbVTPDDNyE2zAt8GznFTd8+gucO4x3pI3TuBF7HcfTpg9xrnWXT/JTb9SlajSSbG40t4LpAlNS4JSPNRiPIjytD3JrvpXH9IMZMD0W/g0oiQMp7iWxwhu+SZ7jfGOaX1EnuRHu59/3X/PH7z9huNHMWrHWjQFSb5ouLvfhnT3Dts07mvG7S8SUWg3OEQgHyq7pMU2M5Fie0cJ3F0Dw5bYp/bw7w4Lckf96/i620qtFsZC1l0vJfpnyUC37KUSd62EV2YRxt1ok242Bu8ix3ftqkJS/vm3iHwJWPKC04uJvv469fM/zz4G/+A1194/bqoZl6AAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;alt text&apos; title=&apos;&apos; src=&apos;/static/fb58ad25591b43eff313d96509792d6d/ca1dc/image.png&apos; srcset=&apos;/static/fb58ad25591b43eff313d96509792d6d/e7570/image.png 170w,
-/static/fb58ad25591b43eff313d96509792d6d/f46e7/image.png 340w,
-/static/fb58ad25591b43eff313d96509792d6d/ca1dc/image.png 680w,
-/static/fb58ad25591b43eff313d96509792d6d/a84ca/image.png 907w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
-  &lt;/a&gt;
-    &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;alt text&lt;/figcaption&gt;
-  &lt;/figure&gt;&lt;/p&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Thu, 05 Feb 2026 13:53:00 GMT</lastBuildDate><item><title><![CDATA[컨텍스트 미아가 되어 버렸어요.]]></title><description><![CDATA[배경 처음엔 제공된 구조를 그대로 신뢰했지만, E2E 테스트를 진행하며, 인프라가 자동으로 기동되는 문제를 발견했다. 테스트 실행 제어권이 모듈 경계를 넘어선다는 느낌을 받았고, ai…]]></description><link>https://hyungkishin.github.io/round1/</link><guid isPermaLink="false">https://hyungkishin.github.io/round1/</guid><pubDate>Thu, 05 Feb 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;배경&lt;/h2&gt;
 &lt;p&gt;처음엔 제공된 구조를 그대로 신뢰했지만,&lt;br&gt;
 E2E 테스트를 진행하며, 인프라가 자동으로 기동되는 문제를 발견했다.&lt;/p&gt;
 &lt;p&gt;테스트 실행 제어권이 모듈 경계를 넘어선다는 느낌을 받았고,&lt;br&gt;
@@ -26,14 +14,25 @@ ai 에게 설정을 명시적으로 로딩하도록 수정을 요청했다.&lt;/
 &lt;p&gt;점차 뭣이 중헌지를 잃고 미아가 되고 있었다.&lt;br&gt;
 즉, 컨텍스트 미아.&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h2&gt;무엇이 문제였나?&lt;/h2&gt;
-&lt;h3&gt;환경 문제를 코드 문제로 오해했다.&lt;/h3&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 680px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/fb58ad25591b43eff313d96509792d6d/a84ca/image.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 64.70588235294117%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAANCAYAAACpUE5eAAAACXBIWXMAAAsTAAALEwEAmpwYAAADNklEQVR42kWTyW9bVRSH/S8wqJQNWwQhFQTUYQEsCG0qJaVNUVoqOiWKHAhRCjIuqgOkgxvASWlI3JpEjofEz/EQz7Gf3/OQ2HULQiokgkoIFiwq0QWqBBsEXXyc+6KKxU/nvnPP/c7v3Ktni6cCzHomuBaeJ5ZfopgPkc+HLeVknc0G0XWNmelLHDiwn66uTuxD/fj9X1KSvNrP5aROVCxFsSUiXpZfa8fXvYuI5rMOr+YXKRYWKQhUL2mEgtM8/8IOntj+JM+0PUvHix10d+9navI8xeKS1D2sFWC2sEQyHSazMm+5KwnAUjHCqkDrtSTH3nqDPR3PcWjvy+x7ZSev7umgvb2N3bt34fF8gmnGLKCqt5XLyxiS0M24jLAsiqJLTuV1WReLGieP9vCVs5/I5RG8LjvDR7vYtu1xHnnsUXq692JIrTKgprEZhgBFZRVlwzRiVlQ5U5rkZRyv24HXeZor7x/HPXyEsYFDdO5s46Wnn+LY24epVROWkbIYsplGHCXl0hCYghjmVs4sy3clQTV6Ff3qhyTcI+SnPiA9OYr2cT/vvfk60dicdS3WpHLeVjET1iElo/L/WuUrCipRT/oIOgcIuwaJuu0kJ97lzJFOPJ+P0VjPyETS2EhYZmzV6gpKlWoSU6Ri9aGU02oKQ14+etGOdn6Q2OUhtPHTeMZHqdQz0jQmzeNUlAmRrV5PUa1tqaLgVkwJKEO9UaC5luB2wUVorI+A6xSRC3bC44OUF0a51ZTrkbq19bzAVmRkcbgmQAWtqbimlKbVTPDDNyE2zAt8GznFTd8+gucO4x3pI3TuBF7HcfTpg9xrnWXT/JTb9SlajSSbG40t4LpAlNS4JSPNRiPIjytD3JrvpXH9IMZMD0W/g0oiQMp7iWxwhu+SZ7jfGOaX1EnuRHu59/3X/PH7z9huNHMWrHWjQFSb5ouLvfhnT3Dts07mvG7S8SUWg3OEQgHyq7pMU2M5Fie0cJ3F0Dw5bYp/bw7w4Lckf96/i620qtFsZC1l0vJfpnyUC37KUSd62EV2YRxt1ok242Bu8ix3ftqkJS/vm3iHwJWPKC04uJvv469fM/zz4G/+A1194/bqoZl6AAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;내가 뭐 하고 있었냐면..&apos; title=&apos;&apos; src=&apos;/static/fb58ad25591b43eff313d96509792d6d/ca1dc/image.png&apos; srcset=&apos;/static/fb58ad25591b43eff313d96509792d6d/e7570/image.png 170w,
+/static/fb58ad25591b43eff313d96509792d6d/f46e7/image.png 340w,
+/static/fb58ad25591b43eff313d96509792d6d/ca1dc/image.png 680w,
+/static/fb58ad25591b43eff313d96509792d6d/a84ca/image.png 907w&apos; sizes=&apos;(max-width: 680px) 100vw, 680px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;내가 뭐 하고 있었냐면..&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
+&lt;h2&gt;환경 문제를 코드 문제로 오해했다.&lt;/h2&gt;
 &lt;p&gt;시작은 단순한 E2E 테스트 실패,&lt;/p&gt;
 &lt;p&gt;회원가입 E2E 테스트를 실행했는데 다음과 같은 에러가 발생했다.&lt;/p&gt;
 &lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;Could not find a valid Docker environment&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;Testcontainers가 Docker에 연결하지 못한다는 메시지였다. - 클선생&lt;/p&gt;
-&lt;p&gt;그런데 이상한 점이 있었다.&lt;/p&gt;
-&lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;curl --unix-socket /var/run/docker.sock http://localhost/info&lt;/code&gt; - ㅇㅇ 클선생..&lt;/p&gt;
+&lt;p&gt;Testcontainers가 Docker에 연결하지 못한다는 메시지였다.&lt;br&gt;
+그런데 이상한 점이 있었다.&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;curl --unix-socket /var/run/docker.sock http://localhost/info&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;이 명령은 정상적으로 응답을 반환했다.&lt;br&gt;
 Docker CLI도 문제없이 동작했다.&lt;/p&gt;
 &lt;blockquote&gt;
@@ -44,12 +43,12 @@ Docker CLI도 문제없이 동작했다.&lt;/p&gt;
     &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 653px; &apos;&gt;
       &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/5c53c5f1d565283d322ed551672bc7d8/ffe7f/image-1.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 58.235294117647065%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAAAsTAAALEwEAmpwYAAACyElEQVR42iWSyW4UZxSFyz3UPE9df3VXuXoy7WBs0yBwnLYwIBnaBtuJQCBhJyhSREQWUcg2jxAp6yyzTV4juzzUl+ticVTzV+fcc7WmDDk/PeJi/RVpURAXJdmoJlZDfnz3kvNnRxysHrK9s2C2GDOsSqIsxY1C7CAQhXhJRlio9jttXAZcngnw+SFpOWRQN+T1poBH/Pz+a85OjuTFEfN5Q7WpKFRBIsAojQUct1AnFGgckymFNq0CXl0cc/jgDmVTU03H7Z/yeswHcfjpp2+ZbG+Li4QkTxioVKApQeSJfPwowBMFaUI2HKHN6pCX6xXj8Y3linIyJa82icThu9dr/vzjNy4vT2nGpTjxUKXEi326uk7P0HF8Dz+OCFMZQ5ygbdUxBwe75IMYJTA1m1NO53hZwXdX5/z37z/88vE9z+/P2duqSNMQ13fomgIUmY7dAk3XlWsDbVL6NJMRaR6IuwnFZMZQFKkRr795xt9//c7Vi8dcHe9xd1YSRi5pFgjIxLCtFqhbJl3j8w+0pnCJxV2SeQxnU0aLBbUolXKOH33Jx+/f8ODOjMuHC5rcQ3d0SRMxKCKcwG5jd41+C+yafWlZOQJMWmBYKqKqYSCRfVWxWh1ycXbcjuTpcouRiojzSEpJpGW/BXTNXhu/b1kYjotWFzZhHstQXVRTicubGW6RScu7yyVPH61Y7u9LKTWpJOlbfSxP4or6lkHf1tHtm+NnaWVqSeUBbmBy64tN7t7fYb5zm8XePnvLe9yW81QS5MMCVZdYviklOO3R8GRuTo++Y0h8F90VYBoaGL4t9B5+4pMNMrIsIxFIJvsWSlk3Hy0P73H9wzW3dheyj+JU7m1YG3TMjqyLKyvlsGFuoBlOl54lEmDH6sgCe/LQxA4tTi/WvL1+w5OTxzxZn/Dh10/k4wmGa7bvdpwOTuy1cN2VWTod/geJDEN1Yva3/wAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;님아 .. 손절좀&apos; title=&apos;&apos; src=&apos;/static/5c53c5f1d565283d322ed551672bc7d8/ffe7f/image-1.png&apos; srcset=&apos;/static/5c53c5f1d565283d322ed551672bc7d8/e7570/image-1.png 170w,
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;아니야...&apos; title=&apos;&apos; src=&apos;/static/5c53c5f1d565283d322ed551672bc7d8/ffe7f/image-1.png&apos; srcset=&apos;/static/5c53c5f1d565283d322ed551672bc7d8/e7570/image-1.png 170w,
 /static/5c53c5f1d565283d322ed551672bc7d8/f46e7/image-1.png 340w,
 /static/5c53c5f1d565283d322ed551672bc7d8/ffe7f/image-1.png 653w&apos; sizes=&apos;(max-width: 653px) 100vw, 653px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
   &lt;/a&gt;
     &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;님아 .. 손절좀&lt;/figcaption&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;아니야...&lt;/figcaption&gt;
   &lt;/figure&gt;&lt;/p&gt;
 &lt;hr&gt;
 &lt;h2&gt;문제의 범위&lt;/h2&gt;
@@ -86,14 +85,14 @@ Docker CLI도 문제없이 동작했다.&lt;/p&gt;
     &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 574px; &apos;&gt;
       &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/d28ae1cb17ddf332fb2305e914722841/312c2/image-2.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 50%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAKCAYAAAC0VX7mAAAACXBIWXMAAAsTAAALEwEAmpwYAAACbklEQVR42jWS22oTURSGJ3M+ZSYzmaQ5txlb2yY2adpqEaxStCfBA1GxFWtBqYgoVRFFKaJYVDyAN16J4L0P4SP4SJ8rsV4sBtbe/zf/Xv9STFfF9R10XUVVlWEZlkGxXGZEqpAEhxVTHxsjF0XYrotm6mQGGkNDt3UMR8e0TZQB0Mu62J6JLQe+b+F6NkHgEAskPdKkUsozUkqYne1QrZZwHAfLMglzWcLQH0Ib1Ty5wEWxXA0364hLm6xAo8gnG/jEORfL0Yb98Ykm7ZkpttZOMZ8WyScRI4WY2U6L9ZUl0YSEYsK2rEOgiNysuBJ3uZxHIH+tlmIatQKFfEAUh5xeWuTR1VXqeY8kCfE9l3Zrgr17W9y4tsH1/hr9C+dQbNcYAj0BhofAUmWEejVhcqJO2mxQLkZUywlznWl5roXtGDiew9KpBfaf3WPv/jZ3dq5wa/OiOBwcupZckBnKE2NxND/XEXeJwKr05mboTY8zWi4SxDGegAb3dZlbGGap1Sqsry3z6uVj9h7elVAsHUvSGYRj2gq5vE9XZtOoFcWtj+vanDnRZfPyOo20SZo2qFaKEqCFaYrOsjnW6fLh/Vs+fXqPohkZDFsTmDZcnyjJM9Nts3xmURJ3aLUn6S72aLWOcPtmn+9fX5OO1shkFHHqDIGVxhhfPh7w88c3lMxg97QMmqbKLurSUBht1lmY7w6/l5dPsL9xkkKU5d2bZ/z5/Yv+xlmKEpphaWRUlUB2c3d3h6dPHoheAP9LVTMoisLU1CSrq2eZP94jLYY8TyNOd6V3foXPBy/YvbNNb6GLIyHq5j/NsfZRtrcu8RdjzRLCoWJoCQAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;alt text&apos; title=&apos;&apos; src=&apos;/static/d28ae1cb17ddf332fb2305e914722841/312c2/image-2.png&apos; srcset=&apos;/static/d28ae1cb17ddf332fb2305e914722841/e7570/image-2.png 170w,
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;아니야 아니야..&apos; title=&apos;&apos; src=&apos;/static/d28ae1cb17ddf332fb2305e914722841/312c2/image-2.png&apos; srcset=&apos;/static/d28ae1cb17ddf332fb2305e914722841/e7570/image-2.png 170w,
 /static/d28ae1cb17ddf332fb2305e914722841/f46e7/image-2.png 340w,
 /static/d28ae1cb17ddf332fb2305e914722841/312c2/image-2.png 574w&apos; sizes=&apos;(max-width: 574px) 100vw, 574px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
   &lt;/a&gt;
     &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;alt text&lt;/figcaption&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;아니야 아니야..&lt;/figcaption&gt;
   &lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;결과는?&lt;/p&gt;
+&lt;p&gt;결과는 충격적이게도&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;변경된 파일 : 22 files changed.&lt;br&gt;
 현재시각 : AM 5시&lt;/p&gt;
@@ -115,7 +114,18 @@ Docker CLI도 문제없이 동작했다.&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;CLI 정상 != 라이브러리 정상&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h2&gt;BOM을 믿자&lt;/h2&gt;
+&lt;h2&gt;믿어 BOM을 ..&lt;/h2&gt;
+&lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 626px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/a41a873e87158ec9ffce7fef4934de67/ce661/image-5.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 46.470588235294116%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAAAsTAAALEwEAmpwYAAABk0lEQVR42j1SSW4bQQycm6b3fWRZwhjGRIlPueQU52YYif2H/P8blSJHyoEAm0uxiuwppAAfPHwMao5+rgXL6YS2DMY8zusFz9cvOD2eUFtD7QOpNjxvG15/vep7PDC3HDEJiA0Oxjs4+m10HB+OGEtDKRHGzvjz8Y7Pz98ovaN1xltFqRWXpyccL2eElBjj8Fwxzd4SzCpoyhF9VPRe0BqLijC2eHm54u/HT3z/tmpzoqpckio5OPaSSKIfcsEkYCK7tExWHWM0lWkZz5nsvcG6nvH24yu2c4VLkezSTdVOZnYGnvFAm0qlQwAXHYMekSxFapA3LXLY3RrZ11aUgAw0BLJUkHJGKpn5gSllr7JmNyuboHKiNogvuUpGC8FkJTJUaxnXHNezXTcs3LvIngyTO5hVRiL3LtlRlsgQxoONOSf+iL0uMbbXOu4y7z3cJ3dodJIAKMgNWAYVFlZeVRhLjbzXx0UPErlfYStMD/awy6dNdxABNjdQScoOKw8lO3W3ASK5Mdb4pbIcRnvMfzXS9w8khdZWI0/qSwAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;아직도 정신못차리는거냐구@@@&apos; title=&apos;&apos; src=&apos;/static/a41a873e87158ec9ffce7fef4934de67/ce661/image-5.png&apos; srcset=&apos;/static/a41a873e87158ec9ffce7fef4934de67/e7570/image-5.png 170w,
+/static/a41a873e87158ec9ffce7fef4934de67/f46e7/image-5.png 340w,
+/static/a41a873e87158ec9ffce7fef4934de67/ce661/image-5.png 626w&apos; sizes=&apos;(max-width: 626px) 100vw, 626px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;아직도 정신못차리는거냐구@@@&lt;/figcaption&gt;
+  &lt;/figure&gt;&lt;/p&gt;
 &lt;p&gt;아직도 정신 못차리고, docker-java를 수동으로 업그레이드했다.&lt;/p&gt;
 &lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;testImplementation(&quot;com.github.docker-java:docker-java-api:3.5.1&quot;)&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;Spring Boot는 BOM으로 의존성을 관리한다.&lt;br&gt;
@@ -123,20 +133,19 @@ Docker CLI도 문제없이 동작했다.&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;BOM이 관리하는 버전을 신뢰하자.&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;hr&gt;
 &lt;h2&gt;Testcontainers는 “한 방식”만 써야 한다&lt;/h2&gt;
 &lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 471px; &apos;&gt;
       &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/e032ce9a7fc8202e4d06827016e76594/27c0d/image-3.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
     &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 61.76470588235294%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAAAsTAAALEwEAmpwYAAADZUlEQVR42g2SWVOTBxiF80t60zodO8UBrQgFpghYCFJIwiYJiwmLDURICklIRAgRCWGLhVh2CY0QUZBURXAolaVFRUFcRmXHDkMAC5X2qldPv4sz5+555z3niGwXz3G7sYgZVxnTPRXc6G1k4+11tlbG2d+dZ2ezn+0/n7O/vc7LuWEU0pP0tVTwbN7L7DMvu7637O2s8Ne24L4lRCadnDJTHqVGDRWVxdQ7rLxf8vC373c++NbYXBtjf2ee//5d4emTu/QZkunOj8OilnLZlsP60iT/7L3h4MNj9n0TiHIzxORmxaKQx6LKScJgyGVjtZ+Pe084+Ojj3cIDrtXn0ucspLepiIVmDaPmdNKCDmPQyTjY8LK9eIvNVy7eP29FFC8OITE+jERJBJK4CNSqeJZeuNgS3p2ZGUYpCyI18ku0OWLqCsQMmxRYJSfQJIcx0GHgsdeGt93ESJeBAacW0alvAkiICSbmVJCgE2SmROCsz8darkZ5OpjokC/QqmLR5ksxywKplh1H9a0fdWVnWH3awty9WsY8Vh7dqeFarRrR4UOfcPTIZ/j7HcL/yOfERBwjKyWYQkkgPo+ZLn0SClk46XHHMQjA/KQQ9Oo4irLC6apT8oe3iu21IWbHm7lqVSIyaxLR5yVgKpCh/15KzYVMVPII8qL82fWUM1WZhSTMj/SYoyRHB2DUplFuyEApHGwwp7A8183irIuHAzW8fuhE9OJ+HcuTP7E4eZX1R21sLXTTXn0OjTiQHlUUzeknCQ/4lIRwf9SZMWiUpylRRlOWHclEv4W95UF2V4d4M9PJ9JAd0fQvjcx4G5jureD1qINXv/5IxwUFLp2ENoOManU0cnEAhfJQSrOjMAkgveJrbgutv5tu5+XoFRYeNDHituJu1CGautXAmDDq3itGXA4TPXXncRhTGWkzMuQspssip7wwFYsmAct5CTlJYUJ+sfw22Mg9jw23s5SbHeWM37Bx312FaKKviql+O3ZzphC2lOzEUIrPRnJJK0OdEY++UEmJTs1Fsw7pd2LOpkkoKyngkklYgu4Mpep4LCVyhq/bufuzAHTbi7jZZOZOZyUOfSKa1FCUcV/Rak6l05bLZaEkufgYnbU5tDhKsBvTcNvy8LaaGHSauF7/A51V+XiajHTbi/gfQ4hpHNkgBRkAAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;여기서 자면 끝나는거야.&apos; title=&apos;&apos; src=&apos;/static/e032ce9a7fc8202e4d06827016e76594/27c0d/image-3.png&apos; srcset=&apos;/static/e032ce9a7fc8202e4d06827016e76594/e7570/image-3.png 170w,
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;주인. 여기서 자면 끝나는거야 :)&apos; title=&apos;&apos; src=&apos;/static/e032ce9a7fc8202e4d06827016e76594/27c0d/image-3.png&apos; srcset=&apos;/static/e032ce9a7fc8202e4d06827016e76594/e7570/image-3.png 170w,
 /static/e032ce9a7fc8202e4d06827016e76594/f46e7/image-3.png 340w,
 /static/e032ce9a7fc8202e4d06827016e76594/27c0d/image-3.png 471w&apos; sizes=&apos;(max-width: 471px) 100vw, 471px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
   &lt;/a&gt;
     &lt;/span&gt;
-    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;여기서 자면 끝나는거야.&lt;/figcaption&gt;
+    &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;주인. 여기서 자면 끝나는거야 :)&lt;/figcaption&gt;
   &lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;우리 &lt;code class=&quot;language-text&quot;&gt;( 빈사 상태의 내 자신과, 클선생 )&lt;/code&gt; 는 이런 상태까지 갔다.&lt;/p&gt;
+&lt;p&gt;우리 &lt;code class=&quot;language-text&quot;&gt;(빈사 상태의 나, 클 선생)&lt;/code&gt; 는 이제 이 지경 까지 갔다.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;code class=&quot;language-text&quot;&gt;@TestConfiguration&lt;/code&gt;&lt;/li&gt;
 &lt;li&gt;&lt;code class=&quot;language-text&quot;&gt;@Container&lt;/code&gt;&lt;/li&gt;
@@ -149,46 +158,33 @@ Docker CLI도 문제없이 동작했다.&lt;/p&gt;
 &lt;p&gt;Testcontainers는 패턴을 단일화해야 한다.&lt;/p&gt;
 &lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;@Container + @DynamicPropertySource&lt;/code&gt; 조합만 써야되나 ..?&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;머릿속 어딘가에서, &quot;TestContainer 담에 공부하고.&lt;br&gt;
-이 길이 아닌것 같다&quot; 라는 생각이 들었다.&lt;/p&gt;
-&lt;p&gt;이윽고, 새별 6시.&lt;/p&gt;
-&lt;p&gt;그래. 손절하자.&lt;/p&gt;
-&lt;p&gt;롤백을 강행했다.&lt;/p&gt;
+&lt;p&gt;이윽고, 새별 6시경 롤백을 강행했다.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;hr&gt;
 &lt;h2&gt;가장 큰 배움인, AI를 멈추는 타이밍&lt;/h2&gt;
 &lt;p&gt;&lt;figure class=&apos;gatsby-resp-image-figure&apos; style=&apos;margin-bottom: 1rem;&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 500px; &apos;&gt;
-      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/3feb1e7a8a7a5475d5a00ad9345533df/0eb09/image-4.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
-    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 73.52941176470587%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAPCAYAAADkmO9VAAAACXBIWXMAAAsTAAALEwEAmpwYAAAENklEQVR42h3TfUwUdBzH8dvasvI4OO/5iQMOjqMDeTrgSEJQUCgEQh6EMFQgaaAkhRlohyLE0yQy0Qk+5EODAwMUmDPUSufKamgaSmQ5tVhzzaSYD5u9+9Ufv32332/f1++z34PkWflcpPOkSBUezFWLqhNVLxPVCw+dHC+jEpWPFkeYDy/Y9YT7a9AZVBTk55OZnkl2ehq7P+igvbmF4pIKJHPVMjw0nki1nv8jUoMcD4F4GTV4mtR4mVQoTPPYUJxFc+ECapfZMFgtbK1vEEgz1VVVNG3dxt6du9lUWy9AAT2nl4tUCjz0KrwMWhRGHUqTFpW3TmwmJ/LFaN6rKWdnZSrNBdFUlL5C+drVtNa7qKurp1GMjz7cQ8eug0hkGqVoUuKp06A0GFCJoRCo2qxDplGwKCWBI50NlOUspbsylv11eXQ3FrJisYmMRCs56fFsKC9ls6uRWlczEoVOJwA9SqNRJDOiMptQ+gjYImA/b9q2rGGsPQd3QxZjHZmc7irlgEskLQ6hblU45ek+rFyspXRlDiUVNUhUfgISzeoAM8agAKS+emR+euYYFQTHx7CnppCz3bVMndzBr+MD/PjVIIc2xtC5LpKG4ghceVZaimy8kaLm3RoXErXVjMJqRGM3s+q1XFbnZxDqDGaFOKMTo8NM37zJ9NQUE2On+enKN/S0rWbfm3ZaVgXiKnie+uwANi9SsTVLT3F24n+gAaXVG0+zlvD4WF7NeYl3SpdzYWyE00P9HOtq58rZAc4MHGBv61u0vZ1F21oHPdsy+Na9jUuje+hcn0x1vIw1qXYkuiA9WpHSEOiP0eaP1mbB7ozEmZxEVPIinAkO1pek0dpQycixQ5waPMrlL/qZ/u4k9344x63xUxzemEZF+BwKEyxItKEmtME+eIdYsUaGYFsQji0uAn9nGH4xofjGBOMVamHZutd5+OQJj2Zn+eOXG9y7c5O7P49zaaSd5pxAVtieJjcpUlxKmB/qMAvGiEDMUUF4x8/HnBiOz8IwvJ0h+MbORxdhI6mogJnHj3nw6BF/3v6Nx7N/cWPia5rWLaPIoeDlUA1lZeXi2TgsKKKsKCMDUMXYUCwMRua04uHwRx4t5sWaPMKfgJQ4Jm7d5h/g/u93eTh7n/NnhqnKjiLPIacoN5OGHd3ip0T4oYwNwjcpGkdeKkvKCsmuXEtJbTXVLdtp6+qktWs36+s3c+Ls58zMzDJ9+w4PZv7m0sVzrEmeT6rdk0i7L3GxDiTtXQc46D6Ge3CEz8a+5ML5i1wen+Dq5Umuf3+NyavXmZyYYvLaDQ5/fJTtW6roP7IP9+H97GrdxPKlcdj1z+CnnINB+hSS3t7jDAyM0tc/TE/fEL09/bh7B+j9pJdBdx9DfZ8yenyE4aERunZ10tHUyI73myjKziA3bSElK/PJSk0kY2kCGSlL+Bf+YoBHbR+MTAAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
-  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;아 ㅈ...진정해봐봐...&apos; title=&apos;&apos; src=&apos;/static/3feb1e7a8a7a5475d5a00ad9345533df/0eb09/image-4.png&apos; srcset=&apos;/static/3feb1e7a8a7a5475d5a00ad9345533df/e7570/image-4.png 170w,
-/static/3feb1e7a8a7a5475d5a00ad9345533df/f46e7/image-4.png 340w,
-/static/3feb1e7a8a7a5475d5a00ad9345533df/0eb09/image-4.png 500w&apos; sizes=&apos;(max-width: 500px) 100vw, 500px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-wrapper&apos; style=&apos;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 650px; &apos;&gt;
+      &lt;a class=&apos;gatsby-resp-image-link&apos; href=&apos;/static/4f942581eec24576185a0d2d3b850272/663f3/image-4.png&apos; style=&apos;display: block&apos; target=&apos;_blank&apos; rel=&apos;noopener&apos;&gt;
+    &lt;span class=&apos;gatsby-resp-image-background-image&apos; style=&quot;padding-bottom: 62.94117647058823%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAANCAYAAACpUE5eAAAACXBIWXMAAAsTAAALEwEAmpwYAAADE0lEQVR42h2TWXPiVhCFhZAAsWkBSUiCAWEW22CDDdjBGIPtGsbb2HG8TVI1k5rEeZl5yEP+f31peDile+/Dp+4+pxXbtXBDj4yZJZlSqcQRWs4gnVYZ1UtcbnvsRUVqtkEntBl0q7heHj2bQUkoqIZDIqGKEiiKguJXI+J2E89zqPglBqMBqp7Czmlc7Hhc71S436/xeRDxerLDfy+f6Mb+BqhqCdR8QCKZFAlsDZ3MT9jr73Ixm/L2/MjXlwfymQy7kcXdQZWnw4jfhjVu9+U7bvBzNeZk0JGODDJZlaRVQ0/rck6ipQR4tDjFcUwC3yeMIo7rFXaDIpf9iLG0vOPlGNdMAVakypBvyz6Pn2Z0+y1yORWtFJPOpTEtbXNX2v2eHDKUHBvTtDhquNzs+Vz3Q05qDm07z9C3OG04uIZOWNBZzUfMFhMKRY1UeYts0cBzc1hmCmV7v0dWTCiVBWhbNEOXu2HIy0HA91GD5+2Q3wcfeNj/wHHgsOpU+Dg7ZLE8liKkbQEWpP2gkpe7GFVvNaVCAZYceXCwnBLD2OO2V2ZRt1lUSzz3qnwR+Krl8bIXcTbe5/L8iKBcEGCTopUjDPKUXQPlw1ZMxkhhWUVRQWZh0okcztomp1tF7vcqHEts+uUsy9iReTq06jWWiyNqgU2qEJIz18ACrptFqdSqm/wkxfq1VFUln07xse/yNHF5HZX5sYi52fU5b9t4phjgWJycTfD9AppeIG1kcEoGtp0WoORQ1cV+XdvA1vCiofF2GvP3MuZ9VuNP0VfRWbcsjuqMjodM5xOKAk+ohuRRIyO5XcdICRs12YrUJvWJddKTGluRzT+XMf9edbnr+8xbFjdDl7OeT6UWsLqa88v0QPK3LkAnqekoqmyNtgbGDZlbkbxZoLXbpTed0GpXWbQcLqSiaWwzb7ssdxwOtys0t9ucLqe8/3zn17dHrh5uOJ5PCeRHm9ULOk16R0PG5zMmFzOaB32yvkNDTBhFJodhYRPsVd+j3awQdWL8esTN8z1//Xjn+umWL9//4PXbm0BD/gcrPmO8ltkntAAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;&lt;/span&gt;
+  &lt;img class=&apos;gatsby-resp-image-image&apos; alt=&apos;아 ㅈ...진정해봐봐...&apos; title=&apos;&apos; src=&apos;/static/4f942581eec24576185a0d2d3b850272/663f3/image-4.png&apos; srcset=&apos;/static/4f942581eec24576185a0d2d3b850272/e7570/image-4.png 170w,
+/static/4f942581eec24576185a0d2d3b850272/f46e7/image-4.png 340w,
+/static/4f942581eec24576185a0d2d3b850272/663f3/image-4.png 650w&apos; sizes=&apos;(max-width: 650px) 100vw, 650px&apos; style=&apos;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&apos; loading=&apos;lazy&apos; decoding=&apos;async&apos;&gt;
   &lt;/a&gt;
     &lt;/span&gt;
     &lt;figcaption class=&apos;gatsby-resp-image-figcaption&apos;&gt;아 ㅈ...진정해봐봐...&lt;/figcaption&gt;
   &lt;/figure&gt;&lt;/p&gt;
 &lt;p&gt;허무하게도, 조금만 플래닝을 다르게 설정하면.&lt;br&gt;
 Docker DeskTop 버전 문제임을 빠르게 알 수 있었고.&lt;/p&gt;
-&lt;p&gt;DownGrade (28v) 를 진행하니 무슨 문제였는지 기억조차 흐려질 정도로 빠르게 해결되었다.&lt;/p&gt;
-&lt;p&gt;이번 ai 와 협업 경험에서 제일 큰 교훈은 다음과 같다.&lt;/p&gt;
-&lt;p&gt;AI는 가능한 모든 해결책을 시도한다.&lt;br&gt;
-그리고 점점 더 많은 파일을 수정한다.&lt;/p&gt;
-&lt;p&gt;하지만 개발자의 역할은 다르다.&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;“이 수정은 과한가?”&lt;br&gt;
-“문제의 범위를 벗어나고 있지 않은가?”&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;그 질문을 던지고 멈추는 것이 더 중요했다.&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;잘못된 플래닝으로 부터 시작해서&lt;br&gt;
-Ai 에게 가스라이팅 을 할게 아니라,&lt;br&gt;
-올바른 판단을 할 수 있도록 이끌어야 한다.&lt;/p&gt;
-&lt;p&gt;그렇지 않으면, 파급력을 감당 할 수 없게 된다.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;hr&gt;
-&lt;h2&gt;잘못된, 문제 해결의 순서&lt;/h2&gt;
-&lt;p&gt;이번 삽질(?)을 통해 정리한 순서&lt;/p&gt;
+&lt;p&gt;DownGrade (.28 version) 를 진행하니 무슨 문제였는지 기억조차 흐려질 정도로 빠르게 해결되었다.&lt;/p&gt;
+&lt;p&gt;그리고, AI는 가능한 모든 해결책을 시도한다는 것을 알았다.&lt;br&gt;
+심지어 점점 더 많은 파일을 수정한다.&lt;/p&gt;
+&lt;p&gt;다 박살 내놓고, 원한다면 흐름도 설명해준단다.&lt;/p&gt;
+&lt;p&gt;개발자의 역할중, 판단과 플래닝이 부족해서 생긴 일이다.&lt;/p&gt;
+&lt;p&gt;아니면, 아래의 예시처럼 &quot;과잉&quot; 이다 싶을때.&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;“이 수정은 과한가?”&lt;/code&gt;&lt;br&gt;
+&lt;code class=&quot;language-text&quot;&gt;“문제의 범위를 벗어나고 있지 않은가?”&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;위 질문을 던지고 멈추는 것이 더 중요했다.&lt;/p&gt;
+&lt;p&gt;결국 이번 경험에서 잘못된 플래닝은 다음과 같다.&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;환경 확인 (&lt;code class=&quot;language-text&quot;&gt;docker info&lt;/code&gt;)&lt;/li&gt;
 &lt;li&gt;네트워크/소켓 직접 테스트&lt;/li&gt;
@@ -196,10 +192,14 @@ Ai 에게 가스라이팅 을 할게 아니라,&lt;br&gt;
 &lt;li&gt;그 다음에 코드 수정&lt;/li&gt;
 &lt;/ol&gt;
 &lt;p&gt;나는 4번부터 시작했다.&lt;/p&gt;
+&lt;p&gt;잘못된 플래닝으로 부터 시작해서&lt;br&gt;
+Ai 에게 가스라이팅 을 할게 아니라,&lt;br&gt;
+올바른 판단을 할 수 있도록 이끌어야 한다.&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;그렇지 않으면, 파급력을 감당 할 수 없게 된다.&lt;/code&gt;.&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;플래닝을 1번부터 출발하게끔 통제 할것.&lt;br&gt;
 &lt;code class=&quot;language-text&quot;&gt;의도와 달리 모호한 답변&lt;/code&gt; 이 나오지 않고, &lt;code class=&quot;language-text&quot;&gt;의도대로 조율&lt;/code&gt; 하게 된다면.&lt;/p&gt;
-&lt;p&gt;통제 성공.&lt;/p&gt;
+&lt;p&gt;통제 성공의 객관적인 지표가 될것이다.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;hr&gt;
 &lt;h2&gt;결론&lt;/h2&gt;
@@ -214,14 +214,9 @@ Ai 에게 가스라이팅 을 할게 아니라,&lt;br&gt;
 &lt;li&gt;AI 통제 능력&lt;/li&gt;
 &lt;/ul&gt;
 &lt;blockquote&gt;
-&lt;p&gt;기술 스택보다 더 중요한 건,&lt;br&gt;
-문제의 범위를 정확히 정의하는 능력이라는 걸 배웠다.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;hr&gt;
-&lt;blockquote&gt;
 &lt;p&gt;&lt;strong&gt;TL;DR&lt;/strong&gt;&lt;br&gt;
 Docker 연결 실패처럼 보였던 문제는 코드가 아니라 환경(API negotiation) 이슈였다.&lt;br&gt;
-이 과정을 통해 Spring 초기화 순서, Testcontainers 공식 패턴, BOM 의존성 관리,&lt;/p&gt;
+이 과정을 통해 Spring 초기화 순서, Testcontainers 공식 패턴, BOM 의존성 관리&lt;/p&gt;
 &lt;p&gt;그리고 “AI를 멈추는 판단”의 중요성을 배웠다.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;hr&gt;
@@ -231,7 +226,7 @@ Docker 연결 실패처럼 보였던 문제는 코드가 아니라 환경(API ne
 &lt;li&gt;Testcontainers 공통 베이스를 만들 것인가?&lt;/li&gt;
 &lt;li&gt;CI 환경에서 Docker 전략은 어떻게 가져갈 것인가?&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;를 정리해보고 싶다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[설계의 본질]]></title><description><![CDATA[들어가며 loopers Round…]]></description><link>https://hyungkishin.github.io/architecture/</link><guid isPermaLink="false">https://hyungkishin.github.io/architecture/</guid><pubDate>Tue, 03 Feb 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;들어가며&lt;/h2&gt;
+&lt;p&gt;를 시간이 될때, 정리해보고 싶다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[설계의 본질]]></title><description><![CDATA[들어가며 loopers Round…]]></description><link>https://hyungkishin.github.io/architecture/</link><guid isPermaLink="false">https://hyungkishin.github.io/architecture/</guid><pubDate>Tue, 03 Feb 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;들어가며&lt;/h2&gt;
 &lt;p&gt;loopers Round1 을 진행하며 고민한 흔적을 남깁니다.&lt;/p&gt;
 &lt;p&gt;정신을 차리고 보니, 어느새 코드보다. 설계에 더 많은 시간을 쏟게 되는것 같습니다.&lt;/p&gt;
 &lt;blockquote&gt;
