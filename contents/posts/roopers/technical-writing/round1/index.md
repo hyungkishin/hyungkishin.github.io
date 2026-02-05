@@ -48,7 +48,7 @@ Docker CLI도 문제없이 동작했다.
 > Docker는 정상인데, Testcontainers만 실패한다?  
 > 이 지점에서 나는 `관성적으로` “코드 문제” 인가...?
 
-![아니야...](image-1.png)
+![...](image-1.png)
 
 ---
 
@@ -137,11 +137,11 @@ Testcontainers는 패턴을 단일화해야 한다.
 
 `@Container + @DynamicPropertySource` 조합만 써야되나 ..?  
 
-> 이윽고, 새별 6시경 롤백을 강행했다.   
+> 이윽고, 새벽 6시경 롤백을 강행했다.   
 ---
 
 ## 가장 큰 배움인, AI를 멈추는 타이밍
-![아 ㅈ...진정해봐봐...](image-4.png)
+![지금 해 뜨고있어...](image-4.png)
 
 허무하게도, 조금만 플래닝을 다르게 설정하면.  
 Docker DeskTop 버전 문제임을 빠르게 알 수 있었고.  
