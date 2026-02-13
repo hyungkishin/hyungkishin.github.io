@@ -1,11 +1,12 @@
 {
-  "name": "gatsby-starter-hoodie",
+  "name": "gatsby-starter-hyungki",
   "private": false,
-  "description": "gatsby-starter-hoodie is a gatsby theme developed for developers to write tech blogs.",
+  "description": "gatsby-starter-hyungki is a gatsby theme developed for developers to write tech blogs.",
   "homepage": "https://hyungkishin.github.io",
   "version": "0.2.0",
   "author": "hyungkishin",
   "dependencies": {
+    "@giscus/react": "^3.1.0",
     "babel-eslint": "^10.1.0",
     "babel-plugin-styled-components": "^2.1.4",
     "gatsby": "^5.11.0",
@@ -32,6 +33,7 @@
     "gatsby-transformer-sharp": "^5.11.0",
     "katex": "^0.12.0",
     "lodash": "^4.17.21",
+    "medium-zoom": "^1.1.0",
     "minipass": "6.0.2",
     "prismjs": "^1.29.0",
     "prop-types": "^15.8.1",

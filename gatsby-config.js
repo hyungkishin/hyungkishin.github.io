@@ -36,8 +36,8 @@ module.exports = {
       resolve: `gatsby-plugin-google-fonts`,
       options: {
         fonts: [
-          `noto sans kr\:300,400,500,700,900`,
-          `source code pro\:700`, // you can also specify font weights and styles
+          `noto sans kr:300,400,500,700,900`,
+          `source code pro:700`, // you can also specify font weights and styles
         ],
         display: "swap",
       },
@@ -82,11 +82,12 @@ module.exports = {
           {
             resolve: `gatsby-remark-images`,
             options: {
-              maxWidth: 680,
+              maxWidth: 760,
               loading: "lazy",
               wrapperStyle: "margin-bottom: 1rem;",
               quality: 100,
               showCaptions: true,
+              linkImagesToOriginal: false,
             },
           },
           {

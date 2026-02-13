@@ -9,10 +9,10 @@ const TagListWrapper = styled.div`
 
 const TagLink = styled.div`
   display: inline-block;
-  padding: 9.6px 11.2px;
-  margin-right: 8px;
-  margin-bottom: 8px;
-  border-radius: 50px;
+  padding: 6px 14px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
   background-color: ${props =>
     props.selected
       ? props.theme.colors.selectedTagBackground
@@ -22,14 +22,18 @@ const TagLink = styled.div`
       ? props.theme.colors.selectedTagText
       : props.theme.colors.tagText};
   text-decoration: none;
-  font-size: 14.4px;
-  transition: all 0.2s;
+  font-size: 13.5px;
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid ${props => (props.selected ? "transparent" : props.theme.colors.border)};
 
   &:hover {
     background-color: ${props =>
       props.selected
         ? props.theme.colors.hoveredSelectedTagBackground
         : props.theme.colors.hoveredTagBackground};
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
   }
 `
 

@@ -37,10 +37,11 @@ const HeaderWrapper = styled.header`
 const Inner = styled.div`
   display: flex;
   justify-content: space-between;
-  margin: 0 64px;
+  max-width: 760px;
+  margin: 0 auto;
 
   @media (max-width: 768px) {
-    margin: 0 15px;
+    padding: 0 20px;
   }
 `
 

@@ -50,18 +50,23 @@ const TocWrapper = styled.div`
 `
 
 const ParagraphTitle = styled.div`
-  margin-bottom: 8px;
-  padding-left: ${props => (props.subtitle ? 19.2 : 0)}px;
-  font-size: 14.4px;
+  margin-bottom: 12px;
+  padding-left: ${props => (props.subtitle ? 24 : 12)}px;
+  font-size: 13.5px;
   color: ${props => props.theme.colors.mutedText};
-  line-height: 1.3;
-  transition: all 0.2s;
+  line-height: 1.4;
+  transition: all 0.2s ease-in-out;
+  border-left: 2px solid transparent;
+  position: relative;
 
   ${props =>
     props.active &&
     css`
-      transform: translate(-11.2px, 0);
-      color: ${props => props.theme.colors.secondaryText};
+      color: ${props => props.theme.colors.accent};
+      font-weight: 600;
+      border-left: 2px solid ${props => props.theme.colors.accent};
+      background: linear-gradient(to right, ${props =>
+        props.theme.colors.background}, transparent);
     `}
 
   &:hover {
@@ -79,10 +84,11 @@ const Toc = ({ items, articleOffset }) => {
 
   useEffect(() => {
     const bioElm = document.getElementById("bio")
-
-    setRevealAt(
-      getElementOffset(bioElm).top - bioElm.getBoundingClientRect().height - 400
-    )
+    if (bioElm) {
+      setRevealAt(
+        getElementOffset(bioElm).top - bioElm.getBoundingClientRect().height - 400
+      )
+    }
   }, [])
 
   useEffect(() => {
@@ -91,25 +97,32 @@ const Toc = ({ items, articleOffset }) => {
         ...document.querySelectorAll("#article-body > h2, #article-body > h3"),
       ].map(element => getElementOffset(element).top)
     )
-  }, [])
+  }, [items])
 
   useEffect(() => {
+    let currentIdx = 0
     headers.forEach((header, i) => {
-      if (header - 300 < y) {
-        setActive(i)
-        return
+      if (header - 100 < y) {
+        currentIdx = i
       }
     })
-  }, [y])
+    setActive(currentIdx)
+  }, [y, headers])
 
   const handleClickTitle = index => {
-    animateScroll.scrollTo(headers[index] - 100)
+    animateScroll.scrollTo(headers[index] - 70, {
+      duration: 500,
+      smooth: "easeInOutQuart",
+    })
   }
 
   return (
     <RevealOnScroll revealAt={revealAt} reverse>
       <TocWrapper stick={y > articleOffset - STICK_OFFSET}>
         <div>
+          <div style={{ marginBottom: "16px", fontSize: "12px", fontWeight: "bold", color: "var(--colors-secondaryText)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+            Table of Contents
+          </div>
           {items.map((item, i) => (
             <ParagraphTitle
               key={i}

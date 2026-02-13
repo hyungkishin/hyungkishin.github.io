@@ -7,46 +7,63 @@ import Divider from "components/Divider"
 import TagList from "components/TagList"
 
 const Wrapper = styled.div`
-  margin-top: 32px;
+  margin-top: 40px;
+  margin-bottom: 48px;
   @media (max-width: 768px) {
-    padding: 0 15px;
+    padding: 0 20px;
+    margin-top: 24px;
   }
 `
 
 const ArticleTitle = styled.h1`
-  margin-bottom: 25.6px;
-  line-height: 1.2;
-  font-size: 44.8px;
-  font-weight: 700;
+  margin-bottom: 24px;
+  line-height: 1.25;
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   color: ${props => props.theme.colors.text};
+  
+  @media (max-width: 768px) {
+    font-size: 2.2rem;
+  }
 `
 
 const Information = styled.div`
+  display: flex;
+  align-items: center;
   margin-bottom: 32px;
-  font-size: 16px;
+  font-size: 0.95rem;
+  color: ${props => props.theme.colors.secondaryText};
+  gap: 8px;
 `
 
 const Author = styled.span`
-  font-weight: 700;
-  color: ${props => props.theme.colors.text};
+  font-weight: 600;
+  color: ${props => props.theme.colors.accent};
 `
 
 const Date = styled.span`
-  font-weight: 300;
-  color: ${props => props.theme.colors.secondaryText};
+  font-weight: 400;
+  opacity: 0.8;
 `
 
 const Header = ({ title, date, tags, minToRead }) => {
   return (
     <Wrapper>
-      <ArticleTitle> {title} </ArticleTitle>
+      <ArticleTitle>{title}</ArticleTitle>
       <Information>
-        <Author> @{author} </Author>
-        <Date>· {date} </Date>
-        <Date>· {minToRead} min read </Date>
+        <Author>@{author}</Author>
+        <span>·</span>
+        <Date>{date}</Date>
+        {minToRead && (
+          <>
+            <span>·</span>
+            <Date>{minToRead} min read</Date>
+          </>
+        )}
       </Information>
       {tags && <TagList tagList={tags} />}
-      <Divider mt="0" />
+      <Divider mt="32px" />
     </Wrapper>
   )
 }

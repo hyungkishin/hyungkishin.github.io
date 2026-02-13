@@ -3,9 +3,9 @@ import { navigate } from "gatsby"
 import { useSelector } from "react-redux"
 import styled, { useTheme } from "styled-components"
 import { BiLeftArrowAlt, BiRightArrowAlt } from "react-icons/bi"
-import { Utterances } from "utterances-react-component"
+import Giscus from "@giscus/react"
 
-import { utterances } from "../../../../blog-config"
+import { giscus } from "../../../../blog-config"
 
 import MDSpinner from "react-md-spinner"
 
@@ -56,19 +56,22 @@ const ArticleButtonWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: ${props => (props.right ? "flex-end" : "flex-start")};
-  padding: 20.8px 16px;
-  max-width: 250px;
-  flex-basis: 250px;
-  font-size: 17.6px;
-  border-radius: 5px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 48%;
+  font-size: 1.1rem;
+  border-radius: 12px;
   background-color: ${props => props.theme.colors.nextPostButtonBackground};
   color: ${props => props.theme.colors.text};
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid transparent;
 
   &:hover {
-    background-color: ${props =>
-      props.theme.colors.hoveredNextPostButtonBackground};
+    background-color: ${props => props.theme.colors.bodyBackground};
+    border-color: ${props => props.theme.colors.accent};
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
   }
 
   & ${ArrowFlexWrapper} {
@@ -80,22 +83,23 @@ const ArticleButtonWrapper = styled.div`
   }
 
   & ${Arrow} {
-    ${props => (props.right ? "margin-left: 16px" : "margin-right: 16px")};
-  }
-
-  &:hover ${Arrow} {
-    left: ${props => (props.right ? 2 : -2)}px;
+    ${props => (props.right ? "margin-left: 12px" : "margin-right: 12px")};
+    color: ${props => props.theme.colors.accent};
   }
 
   @media (max-width: 768px) {
-    max-width: inherit;
-    flex-basis: inherit;
+    max-width: 100%;
+    margin-bottom: 1rem;
   }
 `
 
 const ArticleButtonLabel = styled.div`
-  margin-bottom: 9.6px;
-  font-size: 12.8px;
+  margin-bottom: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: ${props => props.theme.colors.mutedText};
 `
 
 const ArticleButtonTitle = styled.div`
@@ -103,11 +107,13 @@ const ArticleButtonTitle = styled.div`
   width: 100%;
   text-overflow: ellipsis;
   overflow: hidden;
+  font-weight: 600;
 `
 
 const CommentWrapper = styled.div`
+  margin-top: 4rem;
   @media (max-width: 768px) {
-    padding: 0 15px;
+    padding: 0 20px;
   }
 `
 
@@ -153,30 +159,31 @@ const Comment = () => {
   const [spinner, setSpinner] = useState(true)
 
   useEffect(() => {
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setSpinner(false)
-    }, 1500)
+    }, 1000)
+    return () => clearTimeout(timer)
   }, [])
 
   return (
     <>
       {spinner && <Spinner />}
-
       <HiddenWrapper isHidden={spinner}>
-        <HiddenWrapper isHidden={theme === "light"}>
-          <Utterances
-            repo={utterances.repo}
-            theme={`github-dark`}
-            issueTerm={utterances.type}
-          />
-        </HiddenWrapper>
-        <HiddenWrapper isHidden={theme === "dark"}>
-          <Utterances
-            repo={utterances.repo}
-            theme={`github-light`}
-            issueTerm={utterances.type}
-          />
-        </HiddenWrapper>
+        <Giscus
+          id="comments"
+          repo={giscus.repo}
+          repoId={giscus.repoId}
+          category={giscus.category}
+          categoryId={giscus.categoryId}
+          mapping={giscus.mapping}
+          strict={giscus.strict}
+          reactionsEnabled={giscus.reactionsEnabled}
+          emitMetadata={giscus.emitMetadata}
+          inputPosition={giscus.inputPosition}
+          theme={theme === "light" ? "light" : "transparent_dark"}
+          lang="ko"
+          loading="lazy"
+        />
       </HiddenWrapper>
     </>
   )
@@ -203,7 +210,6 @@ const Footer = ({ previous, next }) => {
       <Bio />
       <CommentWrapper>
         <Divider mt="32px" />
-
         <Comment />
       </CommentWrapper>
     </>

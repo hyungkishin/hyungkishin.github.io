@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react"
-import styled from "styled-components"
+import React, { useState, useEffect, useMemo } from "react"
+import styled, { useTheme } from "styled-components"
+import mediumZoom from "medium-zoom"
 
 import useOffsetTop from "hooks/useOffsetTop"
 
@@ -15,6 +16,14 @@ const Wrapper = styled.div`
   @media (max-width: 768px) {
     padding: 0 15px;
   }
+
+  .medium-zoom-overlay {
+    z-index: 1000;
+  }
+
+  .medium-zoom-image--opened {
+    z-index: 1001;
+  }
 `
 
 const PostTopAdWrapper = styled.div`
@@ -27,8 +36,16 @@ const PostBottomAdWrapper = styled.div`
 
 const Body = ({ html }) => {
   const [toc, setToc] = useState([])
-
+  const theme = useTheme()
   const [ref, offsetTop] = useOffsetTop()
+
+  const zoom = useMemo(() => {
+    if (typeof window === "undefined") return null
+    return mediumZoom({
+      background: theme.colors.zoomBackground,
+      margin: 24,
+    })
+  }, [theme.colors.zoomBackground])
 
   useEffect(() => {
     setToc(
@@ -36,7 +53,16 @@ const Body = ({ html }) => {
         document.querySelectorAll("#article-body > h2, #article-body > h3")
       )
     )
-  }, [])
+
+    if (zoom) {
+      zoom.detach()
+      zoom.attach("#article-body img:not(.no-zoom)")
+    }
+
+    return () => {
+      if (zoom) zoom.detach()
+    }
+  }, [html, zoom])
 
   return (
     <Wrapper>
