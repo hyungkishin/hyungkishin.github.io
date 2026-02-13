@@ -1,7 +1,7 @@
 ---
 title: "요구사항을 설계로 번역하는 과정에서 내린 선택들"
-date: 2026-02-05
-update: 2026-02-05
+date: 2026-02-13
+update: 2026-02-13
 tags:
   - loopers
   - technical-writing

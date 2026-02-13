@@ -1,7 +1,7 @@
 ---
 title: "누굴 위한 문서인가"
-date: 2026-02-05
-update: 2026-02-05
+date: 2026-02-13
+update: 2026-02-13
 tags:
   - loopers
   - technical-writing
