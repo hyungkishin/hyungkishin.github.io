@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Fri, 13 Feb 2026 07:21:53 GMT</lastBuildDate><item><title><![CDATA[누굴 위한 문서인가]]></title><description><![CDATA[…]]></description><link>https://hyungkishin.github.io/round2/</link><guid isPermaLink="false">https://hyungkishin.github.io/round2/</guid><pubDate>Fri, 13 Feb 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;누굴 위한 문서인가&lt;/h2&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Fri, 13 Feb 2026 07:24:13 GMT</lastBuildDate><item><title><![CDATA[누굴 위한 문서인가]]></title><description><![CDATA[…]]></description><link>https://hyungkishin.github.io/round2/</link><guid isPermaLink="false">https://hyungkishin.github.io/round2/</guid><pubDate>Fri, 13 Feb 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;누굴 위한 문서인가&lt;/h2&gt;
 &lt;p&gt;이 문서는 특정 역할만을 위한 상세 설계서도,&lt;br&gt;
 모든 이해관계자를 만족시키는 안내서도 아니다.&lt;/p&gt;
 &lt;p&gt;요구사항을 구현 가능한 구조로 옮기는 과정에서&lt;br&gt;
@@ -54,7 +54,7 @@
 필요한 사람이 필요한 시점에 사용할 수 있는 문서를 만드는 것이 더 현실적이다.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;결국 문서의 품질은 정보의 양이 아니라&lt;br&gt;
-누가, 언제, 어떤 맥락에서 읽는지를 고려했는가에 의해 결정된다고 믿는다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[요구사항을 설계로 번역하는 과정에서 내린 선택들]]></title><description><![CDATA[배경 이번 설계는 감성 이커머스라는 가상의 서비스를 대상으로, 다음 주부터 바로 개발에 착수할 수 있는 수준의 도메인 설계 문서를 만드는 것이 목표였다. 구현 자체보다 더 중요한 조건은 다음과 같았다. 요구사항이 완전히 정제되지 않은 상태 단일 RDB…]]></description><link>https://hyungkishin.github.io/round2/</link><guid isPermaLink="false">https://hyungkishin.github.io/round2/</guid><pubDate>Fri, 13 Feb 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;배경&lt;/h2&gt;
+누가, 언제, 어떤 맥락에서 읽는지를 고려했는가에 의해 결정된다고 믿는다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[요구사항을 설계로 번역하는 과정에서 내린 선택들]]></title><description><![CDATA[배경 이번 설계는 감성 이커머스라는 가상의 서비스를 대상으로, 다음 주부터 바로 개발에 착수할 수 있는 수준의 도메인 설계 문서를 만드는 것이 목표였다. 구현 자체보다 더 중요한 조건은 다음과 같았다. 요구사항이 완전히 정제되지 않은 상태 단일 RDB…]]></description><link>https://hyungkishin.github.io/two-week/</link><guid isPermaLink="false">https://hyungkishin.github.io/two-week/</guid><pubDate>Fri, 13 Feb 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;배경&lt;/h2&gt;
 &lt;p&gt;이번 설계는 감성 이커머스라는 가상의 서비스를 대상으로,&lt;br&gt;
 &lt;strong&gt;다음 주부터 바로 개발에 착수할 수 있는 수준의 도메인 설계 문서&lt;/strong&gt;를 만드는 것이 목표였다.&lt;/p&gt;
 &lt;p&gt;구현 자체보다 더 중요한 조건은 다음과 같았다.&lt;/p&gt;
@@ -414,7 +414,7 @@ ordered_at은 비즈니스 이벤트 발생 시점이다.&lt;/p&gt;
 &lt;li&gt;Testcontainers 공통 베이스를 만들 것인가?&lt;/li&gt;
 &lt;li&gt;CI 환경에서 Docker 전략은 어떻게 가져갈 것인가?&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;를 시간이 될 때 정리해보고 싶다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[설계의 본질]]></title><description><![CDATA[들어가며 loopers Round…]]></description><link>https://hyungkishin.github.io/round1/</link><guid isPermaLink="false">https://hyungkishin.github.io/round1/</guid><pubDate>Tue, 03 Feb 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;들어가며&lt;/h2&gt;
+&lt;p&gt;를 시간이 될 때 정리해보고 싶다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[설계의 본질]]></title><description><![CDATA[들어가며 loopers Round…]]></description><link>https://hyungkishin.github.io/one-week/</link><guid isPermaLink="false">https://hyungkishin.github.io/one-week/</guid><pubDate>Tue, 03 Feb 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;들어가며&lt;/h2&gt;
 &lt;p&gt;loopers Round1 을 진행하며 고민한 흔적을 남깁니다.&lt;/p&gt;
 &lt;p&gt;정신을 차리고 보니, 어느새 코드보다. 설계에 더 많은 시간을 쏟게 되는것 같습니다.&lt;/p&gt;
 &lt;blockquote&gt;
