@@ -73,6 +73,10 @@ const PostList = ({ postList }) => {
         const { title, date, tags } = post.frontmatter
         const { excerpt } = post
         const { slug } = post.fields
+        
+        if (slug === "/resume/") {
+          return null
+        }
 
         return (
           <>

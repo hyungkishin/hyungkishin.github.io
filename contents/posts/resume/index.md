@@ -6,4 +6,4 @@ tags:
   - resume
 ---
 
-이력서 데이터는 `contents/resume/data.json`에서 관리됩니다.
+이력서
