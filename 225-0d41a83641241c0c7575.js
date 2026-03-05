@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkgatsby_starter_hyungki=self.webpackChunkgatsby_starter_hyungki||[]).push([[225],{225:function(e,t,r){r.d(t,{createArchitectureServices:function(){return s.S}});var s=r(77713);r(47492)}}]);

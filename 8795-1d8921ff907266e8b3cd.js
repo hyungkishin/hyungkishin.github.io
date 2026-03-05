@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkgatsby_starter_hyungki=self.webpackChunkgatsby_starter_hyungki||[]).push([[8795],{68795:function(e,t,r){r.d(t,{createPieServices:function(){return s.f}});var s=r(30888);r(47492)}}]);
