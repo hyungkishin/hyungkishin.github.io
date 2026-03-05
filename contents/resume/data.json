@@ -8,12 +8,14 @@
     "blog": "https://hyungkishin.github.io/"
   },
   "intro": [
-    "대규모 트래픽 환경에서 렌더링 전략, 캐시 계층, SEO 안정성, 운영 장애를 함께 설계해 온 Web Systems / Soft Engineer입니다.",
-    "AI 기반 개발 환경에서 무엇을 자동화하고, 무엇은 사람이 통제해야 하는지를 구조와 규칙으로 정의하는 역할에 강점이 있습니다."
+    "대규모 트래픽 환경에서 렌더링 전략, 캐시 계층, SEO, 시스템 안정성을 함께 설계해 온",
+    "Web Systems / Soft Engineer입니다.",
+    "AI 기반 개발 환경에서 무엇을 자동화하고,",
+    "무엇은 사람이 통제해야 하는지를 구조와 규칙으로 정의하는 역할에 강점이 있습니다."
   ],
   "careers": [
     {
-      "company": "한국일보 (코리아타임즈)",
+      "company": "한국일보 (디지털 미디어)",
       "position": "Frontend Engineer",
       "period": "2025.04 ~ 현재"
     },
@@ -36,11 +38,25 @@
   "skills": [
     {
       "category": "Frontend",
-      "items": ["Next.js 14 (App Router)", "React 18", "Vue.js", "Nuxt.js", "TypeScript", "SCSS Modules", "Zustand"]
+      "items": [
+        "Next.js 14 (App Router)",
+        "React 18",
+        "Vue.js",
+        "Nuxt.js",
+        "TypeScript",
+        "SCSS Modules",
+        "Zustand"
+      ]
     },
     {
       "category": "Backend",
-      "items": ["Java", "Spring Boot", "Spring Batch", "JPA/Hibernate", "MyBatis"]
+      "items": [
+        "Java",
+        "Spring Boot",
+        "Spring Batch",
+        "JPA/Hibernate",
+        "MyBatis"
+      ]
     },
     {
       "category": "Database",
@@ -48,15 +64,31 @@
     },
     {
       "category": "클라우드 & 인프라",
-      "items": ["AWS (EC2, RDS, Lambda, CloudFront)", "Jenkins", "ArgoCD", "Docker"]
+      "items": [
+        "AWS (EC2, RDS, Lambda, CloudFront)",
+        "Jenkins",
+        "ArgoCD",
+        "Docker"
+      ]
     },
     {
       "category": "테스트 & 모니터링",
-      "items": ["JUnit5", "Jest", "Playwright", "ELK Stack", "Grafana", "Pinpoint"]
+      "items": [
+        "JUnit5",
+        "Jest",
+        "Playwright",
+        "ELK Stack",
+        "Grafana",
+        "Pinpoint"
+      ]
     },
     {
       "category": "AI-assisted Development",
-      "items": ["Claude Code 기반 Sub-Agent 설계", "역할 분리(설계/구현/리뷰/운영) 자동화", "개발자 개입 지점이 명시된 개발 파이프라인 운영"]
+      "items": [
+        "Claude Code 기반 Sub-Agent 설계",
+        "역할 분리(설계/구현/리뷰/운영) 자동화",
+        "개발자 개입 지점이 명시된 개발 파이프라인 운영"
+      ]
     }
   ],
   "companies": [
@@ -66,7 +98,14 @@
         {
           "title": "홈페이지 성능 최적화",
           "subtitle": "LCP 19초 → 1.8초 개선",
-          "techStack": ["Next.js 14.2", "React 18", "CloudFront", "Webpack", "Scss", "Zustand"],
+          "techStack": [
+            "Next.js 14.2",
+            "React 18",
+            "CloudFront",
+            "Webpack",
+            "Scss",
+            "Zustand"
+          ],
           "achievement": "LCP 90% 개선 | JS 번들 33% 감소 | Google Discover 유입 70% 증가",
           "overview": "리뉴얼 이후 렌더링 전략과 캐시 정책 부재로 메인 및 기사 상세 페이지의 LCP가 최대 19초까지 증가하여 실사용이 어려운 수준의 성능 병목 해결",
           "role": [
@@ -238,10 +277,7 @@
           "techStack": ["Java", "Spring Boot", "Redis", "MySQL"],
           "achievement": "요기요 수행 물량 20% 증가",
           "overview": "요기요 물류수행률 증가를 위해 지점에 귀속된 기사분들의 할증요금 부여 시스템 신규 구축",
-          "role": [
-            "백엔드 단독 개발",
-            "기존 할증 로직 분석 및 책임 분리 설계"
-          ],
+          "role": ["백엔드 단독 개발", "기존 할증 로직 분석 및 책임 분리 설계"],
           "tasks": [
             "지점별 귀속 기사 개인할증 설정 및 이력 관리 기능 구축",
             "배송 완료 시점 정산 로직 동시성 처리",
@@ -439,9 +475,7 @@
             },
             {
               "title": "모니터링",
-              "items": [
-                "CloudWatch, 배치 실패 시 메신저 알림 구축"
-              ]
+              "items": ["CloudWatch, 배치 실패 시 메신저 알림 구축"]
             }
           ],
           "results": [

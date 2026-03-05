@@ -11,9 +11,9 @@ module.exports = {
   },
   giscus: {
     repo: "hyungkishin/hyungkishin.github.io",
-    repoId: "MDEwOlJlcG9zaXRvcnkzNzU4Mzg5ODI=", // Placeholder: Needs to be checked
+    repoId: "R_kgDOIA5ihQ",
     category: "General",
-    categoryId: "DIC_kwDOFl6o9s4CA0df", // Placeholder: Needs to be checked
+    categoryId: "DIC_kwDOIA5ihc4CdB-2", // Placeholder: Need actual category ID after enabling Discussions
     mapping: "pathname",
     strict: "0",
     reactionsEnabled: "1",
