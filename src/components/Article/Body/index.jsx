@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useMemo } from "react"
+import React, { useState, useEffect, useMemo, useCallback } from "react"
 import styled, { useTheme } from "styled-components"
 import mediumZoom from "medium-zoom"
+import mermaid from "mermaid"
 
 import useOffsetTop from "hooks/useOffsetTop"
 
@@ -47,12 +48,50 @@ const Body = ({ html }) => {
     })
   }, [theme.colors.zoomBackground])
 
+  const renderMermaid = useCallback(async () => {
+    const codeBlocks = document.querySelectorAll(
+      "#article-body pre code.language-mermaid"
+    )
+    if (codeBlocks.length === 0) return
+
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: theme.name === "dark" ? "dark" : "default",
+    })
+
+    for (let i = 0; i < codeBlocks.length; i++) {
+      const code = codeBlocks[i]
+      const pre = code.parentElement
+      if (!pre || pre.dataset.mermaidProcessed) continue
+      pre.dataset.mermaidProcessed = "true"
+
+      const graphDefinition = code.textContent
+      const id = `mermaid-${Date.now()}-${i}`
+
+      try {
+        const { svg } = await mermaid.render(id, graphDefinition)
+        // mermaid가 DOM에 남긴 임시 컨테이너 제거
+        const tempEl = document.getElementById("d" + id)
+        if (tempEl) tempEl.remove()
+
+        const wrapper = document.createElement("div")
+        wrapper.className = "mermaid-diagram"
+        wrapper.innerHTML = svg
+        pre.replaceWith(wrapper)
+      } catch {
+        // 렌더링 실패 시 코드블록 유지
+      }
+    }
+  }, [theme.name])
+
   useEffect(() => {
     setToc(
       Array.from(
         document.querySelectorAll("#article-body > h2, #article-body > h3")
       )
     )
+
+    renderMermaid()
 
     if (zoom) {
       zoom.detach()
@@ -62,7 +101,7 @@ const Body = ({ html }) => {
     return () => {
       if (zoom) zoom.detach()
     }
-  }, [html, zoom])
+  }, [html, zoom, renderMermaid])
 
   return (
     <Wrapper>

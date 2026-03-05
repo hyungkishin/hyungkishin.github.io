@@ -277,6 +277,18 @@ const StyledMarkdown = styled.div`
       opacity: 0.8;
     }
   }
+
+  & .mermaid-diagram {
+    margin-top: 0;
+    margin-bottom: 32px;
+    text-align: center;
+    overflow-x: auto;
+
+    svg {
+      max-width: 100%;
+      height: auto;
+    }
+  }
 `
 
 export default StyledMarkdown
