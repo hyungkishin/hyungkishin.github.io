@@ -28,7 +28,7 @@ const StyledMarkdown = styled.div`
   & img,
   & .katex-display {
     margin-top: 0;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
   }
 
   & p {
@@ -46,7 +46,7 @@ const StyledMarkdown = styled.div`
   & h4,
   & h5,
   & h6 {
-    margin: 3rem 0 1rem 0;
+    margin: 2rem 0 0.8rem 0;
     font-weight: 700;
     line-height: 1.3;
     color: ${props => props.theme.colors.text};
@@ -60,14 +60,14 @@ const StyledMarkdown = styled.div`
     font-size: 1.8rem;
     border-left: 5px solid ${props => props.theme.colors.accent};
     padding-left: 1rem;
-    margin-top: 3.5rem;
-    margin-bottom: 1.2rem;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
     line-height: 1.2;
   }
 
   & h3 {
     font-size: 1.4rem;
-    margin-top: 2rem;
+    margin-top: 1.8rem;
     color: ${props => props.theme.colors.secondaryText};
   }
 
@@ -261,8 +261,12 @@ const StyledMarkdown = styled.div`
   & hr {
     border: none;
     border-bottom: 1px solid ${props => props.theme.colors.divider};
-    margin: 4rem 0;
+    margin: 2.5rem 0;
     opacity: 0.6;
+  }
+
+  & hr + h2 {
+    margin-top: 0;
   }
 
   & a {
