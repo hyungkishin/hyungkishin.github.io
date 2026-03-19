@@ -413,25 +413,20 @@ flowchart TD
 
 > 📌 **포기한 것**: REQUESTED 상태가 최대 5분간 지속됩니다. 유저 입장에서는 "결제 버튼 눌렀는데 아무 반응이 없는" 상태가 5분간 이어질 수 있습니다.
 
-여기까지의 판단들 — timeout, retry, circuit breaker, fallback 처리, 트랜잭션 분리, 콜백 + 복구 — 이 결국 하나로 모이는 지점이 있습니다. Payment의 상태 설계입니다.
-
 ---
 
-## 📊 Payment 상태의 플로우
-
-이제 모든 판단이 결국 하나로 모이는데요,   
-각 상태가 "지금 무엇을 알고 무엇을 모르는가"를 표현하면 다음과 같습니다.
+## 📊 Payment 상태 설계
 
 ```mermaid
 stateDiagram-v2
-    [*] --> PENDING: Payment.create()\nDB 저장. PG 미호출.
+    [*] --> PENDING: Payment.create()
 
-    PENDING --> REQUESTED: PG가 transactionKey 발급\n"접수됐다. 결과는 모른다."
-    PENDING --> FAILED: 복구 스케줄러가 PG 조회 → 거래 없음\n"안 됐다. 다시 해라."
+    PENDING --> REQUESTED: PG가 transactionKey 발급
+    PENDING --> FAILED: 복구 스케줄러 PG 조회 → 거래 없음
+    PENDING --> SUCCESS: 복구 스케줄러 orderId 조회 → 성공
 
-    PENDING --> SUCCESS: 복구 스케줄러가 orderId로 PG 조회 → 성공 확인
-    REQUESTED --> SUCCESS: 콜백 또는 복구 스케줄러\n"됐다."
-    REQUESTED --> FAILED: 콜백 또는 복구 스케줄러\n"안 됐다."
+    REQUESTED --> SUCCESS: 콜백 또는 복구 스케줄러
+    REQUESTED --> FAILED: 콜백 또는 복구 스케줄러
 
     SUCCESS --> [*]
     FAILED --> [*]
