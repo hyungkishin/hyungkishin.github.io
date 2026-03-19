@@ -1,4 +1,453 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Fri, 13 Mar 2026 11:25:37 GMT</lastBuildDate><item><title><![CDATA[인덱스도 없이 캐시부터 붙이려 했냐;]]></title><description><![CDATA[설계 문서에는 있고, DB에는 없었다 상품 목록 API가 느렸다. 과제는 세 가지.
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Thu, 19 Mar 2026 18:33:23 GMT</lastBuildDate><item><title><![CDATA[PG 3초 딜레이로, 회사 문닫게 생겼어요]]></title><description><![CDATA[외부 시스템 지연은 왜 시스템 장애로 이어질수 있을까? TL;DR PG 연동 과정에서 외부 시스템이 느려졌을 때, 우리 서비스까지 같이 죽지 않으려면 어떻게 해야 하는지를 다룹니다. Timeout, Retry, Circuit Breaker…]]></description><link>https://hyungkishin.github.io/round6/</link><guid isPermaLink="false">https://hyungkishin.github.io/round6/</guid><pubDate>Fri, 20 Mar 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;외부 시스템 지연은 왜 시스템 장애로 이어질수 있을까?&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;TL;DR&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;PG 연동 과정에서 외부 시스템이 느려졌을 때, 우리 서비스까지 같이 죽지 않으려면 어떻게 해야 하는지를 다룹니다.&lt;/p&gt;
+&lt;p&gt;Timeout, Retry, Circuit Breaker를 어떤 기준으로 설정했는지.&lt;br&gt;
+그리고 응답을 못 받은 결제 건을 어떻게 복구하는지를 다뤄요 :)&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2&gt;🔍 PG가 느려지면 왜 서비스 전체가 멈출까?&lt;/h2&gt;
+&lt;p&gt;외부 시스템이 느려지는 상황입니다.&lt;/p&gt;
+&lt;p&gt;PG 응답이 3초씩 밀리기 시작하면, 요청을 처리하던 thread는 그 응답을 기다리는 동안 반환되지 않습니다.&lt;br&gt;
+HTTP 호출은 기본적으로 동기 블로킹 방식이라,&lt;br&gt;
+응답이 올 때까지 thread가 계속 점유된 상태로 남아있게 됩니다.&lt;/p&gt;
+&lt;p&gt;이 상태에서 DB 조회나 업데이트를 먼저 수행했다면,&lt;br&gt;
+해당 thread는 DB 커넥션을 잡은 상태로 외부 응답을 기다리게 됩니다.&lt;/p&gt;
+&lt;p&gt;thread와 DB 커넥션이 같이 묶이는 것인데요,&lt;br&gt;
+이게 몇 건 쌓이기 시작하면 상황이 달라집니다.&lt;/p&gt;
+&lt;p&gt;HikariCP 같은 커넥션 풀은 보통 10~20개 수준인데,&lt;br&gt;
+외부 응답을 기다리는 요청이 이걸 점유하고 있으면 새로운 요청은 DB 커넥션을 얻지 못하고 대기하게 됩니다.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;여기서부터, 결제와 상관없는 API까지 영향을 받습니다.&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;mermaid&quot;&gt;&lt;pre class=&quot;language-mermaid&quot;&gt;&lt;code class=&quot;language-mermaid&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;flowchart&lt;/span&gt; TD
+    A&lt;span class=&quot;token text string&quot;&gt;[&quot;⏳ PG 응답 지연 3초+&quot;]&lt;/span&gt; &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; B&lt;span class=&quot;token text string&quot;&gt;[&quot;🧵 thread 블로킹&quot;]&lt;/span&gt;
+    B &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; C&lt;span class=&quot;token text string&quot;&gt;[&quot;🔗 thread가 DB 커넥션 점유 중&quot;]&lt;/span&gt;
+    C &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; D&lt;span class=&quot;token text string&quot;&gt;[&quot;📈 요청 누적&quot;]&lt;/span&gt;
+    D &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; E&lt;span class=&quot;token text string&quot;&gt;[&quot;💀 커넥션풀 고갈\nHikariCP 10~20개&quot;]&lt;/span&gt;
+    E &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; F&lt;span class=&quot;token text string&quot;&gt;[&quot;상품 조회 대기&quot;]&lt;/span&gt;
+    E &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; G&lt;span class=&quot;token text string&quot;&gt;[&quot;주문 목록 대기&quot;]&lt;/span&gt;
+    E &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; H&lt;span class=&quot;token text string&quot;&gt;[&quot;쿠폰 발급 대기&quot;]&lt;/span&gt;
+    F &lt;span class=&quot;token operator&quot;&gt;&amp;amp;&lt;/span&gt; G &lt;span class=&quot;token operator&quot;&gt;&amp;amp;&lt;/span&gt; H &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; I&lt;span class=&quot;token text string&quot;&gt;[&quot;🔥 전체 서비스 장애&quot;]&lt;/span&gt;
+
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; A &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#1a1a2e&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; B &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#16213e&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; C &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#16213e&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; D &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#0f3460&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; E &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#533483&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; F &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#4a4a4a&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; G &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#4a4a4a&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; H &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#4a4a4a&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; I &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e94560&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#ffffff&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;실패는 빨리 끝납니다. thread도 커넥션도 바로 반환됩니다.&lt;/p&gt;
+&lt;p&gt;지연은 끝나지 않고, thread와 커넥션을 쥔 채로 남아있습니다.
+그게 쌓이고, 결국 퍼지게 됩니다.&lt;/p&gt;
+&lt;p&gt;실패가 아니라 지연 때문에 발생한 문제였습니다.&lt;/p&gt;
+&lt;p&gt; &lt;/p&gt;
+&lt;p&gt;여기에 더 위험한 시나리오는 다음과 같아요.&lt;/p&gt;
+&lt;p&gt;PG가 결제를 성공시켰는데, 응답이 돌아오는 도중에 timeout으로 잘린 경우입니다.&lt;br&gt;
+PG 쪽에서는 카드사 승인이 완료되어 사용자 돈이 빠진 상태인데,&lt;br&gt;
+우리 시스템은 응답을 못 받았으니 &quot;실패&quot;로 알고 있습니다.&lt;/p&gt;
+&lt;p&gt;그야말로, 결제는 되었는데 유저 입장에서는 서비스를 이용할 수가 없는 상황이 되는 거죠.&lt;/p&gt;
+&lt;p&gt;그래서 질문을 바꿨습니다. &quot;어떻게 처리할 것인가&quot;가 아니라 &lt;strong&gt;&quot;얼마나 빨리 포기하고, 모르는 상태를 어떻게 다룰 것인가&quot;&lt;/strong&gt; 로요.&lt;/p&gt;
+&lt;p&gt;첫 번째로 결정해야 했던 건, PG 응답을 얼마나 기다릴 것인가? 였습니다.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;⏱️ 그러면 얼마나 빨리 끊어야 할까요?&lt;/h2&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;yaml&quot;&gt;&lt;pre class=&quot;language-yaml&quot;&gt;&lt;code class=&quot;language-yaml&quot;&gt;&lt;span class=&quot;token key atrule&quot;&gt;payment.pg&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;token key atrule&quot;&gt;connect-timeout&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;1000&lt;/span&gt;   &lt;span class=&quot;token comment&quot;&gt;# TCP 연결 수립까지 허용하는 시간&lt;/span&gt;
+  &lt;span class=&quot;token key atrule&quot;&gt;read-timeout&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;3000&lt;/span&gt;      &lt;span class=&quot;token comment&quot;&gt;# PG 응답을 기다리는 최대 시간&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;PG 정상 응답이 100~500ms인 상황에서, read-timeout을 어디에 놓을지가 첫 번째 판단이었습니다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;mermaid&quot;&gt;&lt;pre class=&quot;language-mermaid&quot;&gt;&lt;code class=&quot;language-mermaid&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;flowchart&lt;/span&gt; LR
+    T1&lt;span class=&quot;token text string&quot;&gt;[&quot;⏱️ 1초&quot;]&lt;/span&gt; &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt;&lt;span class=&quot;token label property&quot;&gt;|&quot;PG 부하 시 700ms~1초 구간\n정상 요청도 잘림&quot;|&lt;/span&gt; R1&lt;span class=&quot;token text string&quot;&gt;[&quot;❌ 멀쩡한 결제가 실패&quot;]&lt;/span&gt;
+    T3&lt;span class=&quot;token text string&quot;&gt;[&quot;⏱️ 3초&quot;]&lt;/span&gt; &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt;&lt;span class=&quot;token label property&quot;&gt;|&quot;정상 응답 500ms의 6배\n안 오면 비정상 판단&quot;|&lt;/span&gt; R3&lt;span class=&quot;token text string&quot;&gt;[&quot;✅ 채택&quot;]&lt;/span&gt;
+    T10&lt;span class=&quot;token text string&quot;&gt;[&quot;⏱️ 10초&quot;]&lt;/span&gt; &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt;&lt;span class=&quot;token label property&quot;&gt;|&quot;200 threads 전부 블로킹\n10초간 서버 먹통&quot;|&lt;/span&gt; R10&lt;span class=&quot;token text string&quot;&gt;[&quot;❌ 서버가 먼저 죽음&quot;]&lt;/span&gt;
+
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; T1 &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#1a1a2e&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; T3 &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#1a1a2e&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; T10 &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#1a1a2e&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; R1 &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e94560&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#ffffff&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; R3 &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#2d6a4f&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#ffffff&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; R10 &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e94560&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#ffffff&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;3초는 타협입니다.&lt;/p&gt;
+&lt;p&gt;1초는 정상 요청도 잘라냅니다.
+10초는 서버가 먼저 죽습니다.
+남는 구간이 3초였습니다.&lt;/p&gt;
+&lt;p&gt;이건 정확도의 문제가 아니라, &lt;strong&gt;어디까지 같이 죽을 것인가&lt;/strong&gt;를 정하는 문제였습니다.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;📌 &lt;strong&gt;포기한 것&lt;/strong&gt;: PG가 2.8초에 승인을 완료했지만 응답이 3.1초에 도착하는 경우, 이 응답은 버려집니다. 유저 입장에서는 결제가 됐는데 주문이 안 잡히는 상황이 생길 수 있습니다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;그런데 3초 만에 끊었다고 해서 바로 실패로 확정하기엔 아쉽습니다. 네트워크가 순간적으로 흔들린 거라면, 한 번 더 시도하면 성공할 수도 있으니까요.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;🔄 끊었는데, 다시 시도해야 할까?&lt;/h2&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;yaml&quot;&gt;&lt;pre class=&quot;language-yaml&quot;&gt;&lt;code class=&quot;language-yaml&quot;&gt;&lt;span class=&quot;token key atrule&quot;&gt;resilience4j.retry.instances.pgRetry&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;token key atrule&quot;&gt;max-attempts&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;2&lt;/span&gt;
+  &lt;span class=&quot;token key atrule&quot;&gt;wait-duration&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; 1s
+  &lt;span class=&quot;token key atrule&quot;&gt;retry-exceptions&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; org.springframework.web.client.ResourceAccessException
+    &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; java.io.IOException&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;timeout이 발생하면 재시도를 고려해야 합니다.&lt;/p&gt;
+&lt;p&gt;그런데 재시도를 전부 허용하면 오히려 더 망가집니다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;mermaid&quot;&gt;&lt;pre class=&quot;language-mermaid&quot;&gt;&lt;code class=&quot;language-mermaid&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;flowchart&lt;/span&gt; TD
+    A&lt;span class=&quot;token text string&quot;&gt;[&quot;PG 호출 실패&quot;]&lt;/span&gt; &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; B&lt;span class=&quot;token text string&quot;&gt;{실패 유형?}&lt;/span&gt;
+
+    B &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt;&lt;span class=&quot;token label property&quot;&gt;|&quot;ResourceAccessException\nIOException&quot;|&lt;/span&gt; C&lt;span class=&quot;token text string&quot;&gt;[&quot;🌐 네트워크 레벨 오류\nTCP 끊김, 패킷 유실&quot;]&lt;/span&gt;
+    C &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; D&lt;span class=&quot;token text string&quot;&gt;[&quot;✅ 일시적일 수 있다 → 재시도&quot;]&lt;/span&gt;
+
+    B &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt;&lt;span class=&quot;token label property&quot;&gt;|&quot;HttpClientErrorException\n400&quot;|&lt;/span&gt; E&lt;span class=&quot;token text string&quot;&gt;[&quot;💳 카드 한도 초과\n잘못된 카드번호&quot;]&lt;/span&gt;
+    E &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; F&lt;span class=&quot;token text string&quot;&gt;[&quot;❌ 1초 뒤에 한도가\n늘어나진 않습니다&quot;]&lt;/span&gt;
+
+    B &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt;&lt;span class=&quot;token label property&quot;&gt;|&quot;HttpServerErrorException\n500&quot;|&lt;/span&gt; G&lt;span class=&quot;token text string&quot;&gt;[&quot;🖥️ PG 서버 과부하&quot;]&lt;/span&gt;
+    G &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; H&lt;span class=&quot;token text string&quot;&gt;[&quot;❌ 과부하에 요청을\n또 보내면 부하 가중&quot;]&lt;/span&gt;
+
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; A &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#1a1a2e&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; B &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#0f3460&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; C &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#16213e&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; D &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#2d6a4f&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#ffffff&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; E &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#16213e&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; F &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e94560&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#ffffff&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; G &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#16213e&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; H &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e94560&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#ffffff&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;max-attempts를 몇 회로 잡을지는, 결국 유저가 얼마나 기다릴 수 있느냐로 귀결됩니다.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;시도 횟수&lt;/th&gt;
+&lt;th&gt;최대 대기&lt;/th&gt;
+&lt;th&gt;판단&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;2회&lt;/td&gt;
+&lt;td&gt;7초 (3초 x 2 + 1초 대기)&lt;/td&gt;
+&lt;td&gt;사용자가 참을 수 있는 한계&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;3회&lt;/td&gt;
+&lt;td&gt;11초&lt;/td&gt;
+&lt;td&gt;유저가 이탈하거나 새로고침해서 중복 요청이 생깁니다&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;2회 연속 timeout이면 PG 쪽 문제일 가능성이 높습니다.
+한 번 더 보내봐야 같은 결과에요.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;📌 &lt;strong&gt;포기한 것&lt;/strong&gt;: PG 500이 GC pause 같은 순간 부하여서,&lt;br&gt;
+1초 뒤면 정상 응답을 줄 수 있는 경우에도 재시도 없이 실패 처리됩니다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;한 가지 더 생각해볼 게 있습니다.&lt;br&gt;
+2회 다 실패했다는 건, 이 요청 하나의 문제가 아니라 PG 자체가 불안정한 상태일 수 있다는 뜻인데.&lt;/p&gt;
+&lt;p&gt;그러면 다음 요청도 계속 PG에 보내는 게 맞을까요?&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;🚫 재시도도 실패하면, 계속 보내야 할까?&lt;/h2&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;yaml&quot;&gt;&lt;pre class=&quot;language-yaml&quot;&gt;&lt;code class=&quot;language-yaml&quot;&gt;&lt;span class=&quot;token key atrule&quot;&gt;resilience4j.circuitbreaker.instances.pgCircuit&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;token key atrule&quot;&gt;sliding-window-size&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;10&lt;/span&gt;
+  &lt;span class=&quot;token key atrule&quot;&gt;failure-rate-threshold&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;50&lt;/span&gt;
+  &lt;span class=&quot;token key atrule&quot;&gt;wait-duration-in-open-state&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; 10s
+  &lt;span class=&quot;token key atrule&quot;&gt;permitted-number-of-calls-in-half-open-state&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;3&lt;/span&gt;
+  &lt;span class=&quot;token key atrule&quot;&gt;slow-call-duration-threshold&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; 3s
+  &lt;span class=&quot;token key atrule&quot;&gt;slow-call-rate-threshold&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;50&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;최근 10건 중 5건이 실패했다면, PG가 정상 동작하지 않는 상태로 봐야 했어요.
+이 상태에서 계속 보내면, 요청마다 최대 7초간 thread가 블로킹되고, 지연이 쌓이고, 커넥션풀이 고갈되고, 전체 장애로 퍼지게 됩니다.&lt;/p&gt;
+&lt;p&gt;그래서 Circuit Breaker가 열리면 PG 호출 자체를 하지 않고, 즉시 fallback을 반환하도록 했습니다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;mermaid&quot;&gt;&lt;pre class=&quot;language-mermaid&quot;&gt;&lt;code class=&quot;language-mermaid&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;stateDiagram-v2&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;direction&lt;/span&gt; LR
+    &lt;span class=&quot;token text string&quot;&gt;[*]&lt;/span&gt; &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; CLOSED
+
+    CLOSED &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; OPEN&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; 최근 10건 중 실패 50%+\n또는 느린 호출&lt;span class=&quot;token text string&quot;&gt;(3초+)&lt;/span&gt; 50%+
+    OPEN &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; HALF_OPEN&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; 10초 경과
+    HALF_OPEN &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; CLOSED&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; 시험 3건 통과
+    HALF_OPEN &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; OPEN&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; 시험 중 실패
+
+    &lt;span class=&quot;token keyword&quot;&gt;note right of&lt;/span&gt; CLOSED&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; ✅ 정상 운영\nPG 호출 허용
+    &lt;span class=&quot;token keyword&quot;&gt;note right of&lt;/span&gt; OPEN&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; 🚫 차단\nPG 호출 없이 즉시 fallback\nthread 점유 0ms
+    &lt;span class=&quot;token keyword&quot;&gt;note right of&lt;/span&gt; HALF_OPEN&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; 🔎 탐색\n3건만 PG로 보내서\n복구 여부 확인&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;설정&lt;/th&gt;
+&lt;th&gt;값&lt;/th&gt;
+&lt;th&gt;왜 이 값인가&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;sliding-window&lt;/td&gt;
+&lt;td&gt;10&lt;/td&gt;
+&lt;td&gt;100으로 잡으면 50건 터지는 동안 계속 보내게 됩니다&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;slow-call-threshold&lt;/td&gt;
+&lt;td&gt;3초&lt;/td&gt;
+&lt;td&gt;read-timeout과 같은 기준입니다. 2.9초짜리가 반복되면 곧 timeout 납니다&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;wait-duration&lt;/td&gt;
+&lt;td&gt;10초&lt;/td&gt;
+&lt;td&gt;30초면 PG가 살아나도 20초간 결제가 막힙니다&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;blockquote&gt;
+&lt;p&gt;📌 &lt;strong&gt;포기한 것&lt;/strong&gt;: CB OPEN 10초 동안 들어오는 모든 결제는, PG가 50%는 성공시키고 있었더라도 시도조차 하지 않고 실패합니다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Timeout, Retry, Circuit Breaker까지 적용하면 &quot;언제 끊을지, 뭘 재시도할지, 언제 안 보낼지&quot;는 정해진 셈입니다. 그런데 여기서 풀리지 않는 문제가 하나 남습니다. timeout이 났을 때, 이걸 정말 &quot;실패&quot;로 봐도 되는 걸까요?&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;❓ timeout이 났는데, 이걸 실패로 봐도 될까요?&lt;/h2&gt;
+&lt;p&gt;여기가 이 설계에서 가장 어려운 지점이었습니다.&lt;/p&gt;
+&lt;p&gt;timeout이 발생했을 때, 이 요청의 실제 결과는 세 가지 중 하나입니다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;mermaid&quot;&gt;&lt;pre class=&quot;language-mermaid&quot;&gt;&lt;code class=&quot;language-mermaid&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;flowchart&lt;/span&gt; LR
+    T&lt;span class=&quot;token text string&quot;&gt;[&quot;⏳ timeout 발생&quot;]&lt;/span&gt; &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; A&lt;span class=&quot;token text string&quot;&gt;[&quot;PG가 요청을\n받기 전에 끊김&quot;]&lt;/span&gt;
+    T &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; B&lt;span class=&quot;token text string&quot;&gt;[&quot;PG가 받았지만\n아직 처리 중&quot;]&lt;/span&gt;
+    T &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; C&lt;span class=&quot;token text string&quot;&gt;[&quot;PG가 처리 완료했지만\n응답만 못 보냄&quot;]&lt;/span&gt;
+
+    A &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; R1&lt;span class=&quot;token text string&quot;&gt;[&quot;✅ 결제 안 됨&quot;]&lt;/span&gt;
+    B &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; R2&lt;span class=&quot;token text string&quot;&gt;[&quot;⚠️ 결제 될 수도 있음&quot;]&lt;/span&gt;
+    C &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; R3&lt;span class=&quot;token text string&quot;&gt;[&quot;🔥 이미 돈 빠짐&quot;]&lt;/span&gt;
+
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; T &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#1a1a2e&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; A &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#16213e&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; B &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#16213e&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; C &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#16213e&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; R1 &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#2d6a4f&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#ffffff&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; R2 &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#b8860b&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#ffffff&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; R3 &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e94560&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#ffffff&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;우리 쪽에서는 이 셋을 구분할 방법이 없습니다. 아는 건 하나뿐입니다. &lt;strong&gt;&quot;모른다.&quot;&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt; &lt;/p&gt;
+&lt;p&gt;이 &quot;모름&quot;을 FAILED로 확정하면, 세 번째 경우가 문제가 됩니다.&lt;/p&gt;
+&lt;p&gt;PG는 카드사 승인을 완료하고 돈을 빼간 상태인데, 우리는 &quot;실패&quot;라고 확정한 겁니다.
+PG에서 뒤늦게 콜백이 와도 Payment가 이미 FAILED(최종 상태)이므로 무시되고요.
+유저는 돈이 빠졌는데 &quot;결제 실패&quot;를 보게 됩니다.&lt;/p&gt;
+&lt;p&gt;현재 구현에는 두 경로가 존재합니다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;mermaid&quot;&gt;&lt;pre class=&quot;language-mermaid&quot;&gt;&lt;code class=&quot;language-mermaid&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;flowchart&lt;/span&gt; TD
+    A&lt;span class=&quot;token text string&quot;&gt;[&quot;PG 호출 실패/timeout&quot;]&lt;/span&gt; &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; B&lt;span class=&quot;token text string&quot;&gt;{어디서 잡혔나?}&lt;/span&gt;
+
+    B &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt;&lt;span class=&quot;token label property&quot;&gt;|&quot;Resilience4j fallback&quot;|&lt;/span&gt; C&lt;span class=&quot;token text string&quot;&gt;[&quot;Payment → FAILED&quot;]&lt;/span&gt;
+    C &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; D&lt;span class=&quot;token text string&quot;&gt;[&quot;✅ 사용자 재시도 가능&quot;]&lt;/span&gt;
+    C &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; E&lt;span class=&quot;token text string&quot;&gt;[&quot;⚠️ PG 실제 성공 건의\n콜백은 무시됨&quot;]&lt;/span&gt;
+
+    B &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt;&lt;span class=&quot;token label property&quot;&gt;|&quot;fallback 우회 — catch&quot;|&lt;/span&gt; F&lt;span class=&quot;token text string&quot;&gt;[&quot;Payment = PENDING 유지\ntxKey = null&quot;]&lt;/span&gt;
+    F &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; G&lt;span class=&quot;token text string&quot;&gt;[&quot;❌ 재시도 차단\nALREADY_PAID&quot;]&lt;/span&gt;
+    F &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; H&lt;span class=&quot;token text string&quot;&gt;[&quot;❌ 복구 스케줄러\n대상 아님&quot;]&lt;/span&gt;
+    G &lt;span class=&quot;token operator&quot;&gt;&amp;amp;&lt;/span&gt; H &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; I&lt;span class=&quot;token text string&quot;&gt;[&quot;🔥 고착 상태&quot;]&lt;/span&gt;
+
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; A &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#1a1a2e&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; B &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#0f3460&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; C &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#7b2d26&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; D &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#2d6a4f&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#ffffff&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; E &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#b8860b&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#ffffff&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; F &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#533483&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; G &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e94560&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#ffffff&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; H &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e94560&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#ffffff&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; I &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e94560&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#ffffff&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;이게 이 설계의 가장 큰 트레이드오프라고 생각합니다.&lt;/p&gt;
+&lt;p&gt;&quot;빠르게 실패 처리해서 재시도를 열어준다&quot;는 결정이,&lt;br&gt;
+&quot;PG가 실제로 성공한 결제를 실패로 덮어쓸 수 있다&quot;는 리스크를 만들기 때문입니다.&lt;br&gt;
+완전한 해결은 결제 취소 API나 정산 대사 시스템이 필요한 영역이라고 보고 있습니다.&lt;/p&gt;
+&lt;p&gt;지금까지는 PG 호출 자체를 어떻게 다룰지에 대한 이야기였는데요,&lt;br&gt;
+사실 이 모든 것보다 먼저 결정해야 할 게 하나 있었습니다.&lt;/p&gt;
+&lt;p&gt;PG를 호출하는 동안 DB 커넥션을 잡고 있을 것인가, 말 것인가입니다.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;🏗️ 그런데 왜 트랜잭션을 쪼갰을까요?&lt;/h2&gt;
+&lt;p&gt;앞에서 PG 지연이 thread를 묶고, thread가 DB 커넥션을 묶는 문제를 이야기했습니다.&lt;br&gt;
+해당 문제를 끊으려면 PG 호출 시점에 DB 커넥션을 잡고 있지 않으면 되는데요.&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;@Transactional&lt;/code&gt; 안에서 PG를 호출하면 트랜잭션이 시작되면서 획득한 DB 커넥션이 PG 응답을 기다리는 동안 계속 점유되기 때문에,&lt;br&gt;
+트랜잭션을 세 조각으로 쪼개는 방식을 택했습니다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;mermaid&quot;&gt;&lt;pre class=&quot;language-mermaid&quot;&gt;&lt;code class=&quot;language-mermaid&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;sequenceDiagram&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;participant&lt;/span&gt; UC as RequestPaymentUseCase&amp;lt;br/&gt;&lt;span class=&quot;token text string&quot;&gt;(트랜잭션 없음)&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;participant&lt;/span&gt; TxSvc as PaymentTransaction&amp;lt;br/&gt;Service
+    &lt;span class=&quot;token keyword&quot;&gt;participant&lt;/span&gt; DB as MySQL
+    &lt;span class=&quot;token keyword&quot;&gt;participant&lt;/span&gt; PG as PG 시뮬레이터
+
+    &lt;span class=&quot;token keyword&quot;&gt;rect&lt;/span&gt; rgb&lt;span class=&quot;token text string&quot;&gt;(40, 60, 90)&lt;/span&gt;
+        &lt;span class=&quot;token keyword&quot;&gt;Note over&lt;/span&gt; TxSvc,DB&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; 🟦 트랜잭션 #1 — ~10ms
+        UC&lt;span class=&quot;token arrow operator&quot;&gt;-&gt;&gt;&lt;/span&gt;TxSvc&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; createPendingPayment&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+        TxSvc&lt;span class=&quot;token arrow operator&quot;&gt;-&gt;&gt;&lt;/span&gt;DB&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; 주문 검증 + Payment INSERT&lt;span class=&quot;token text string&quot;&gt;(PENDING)&lt;/span&gt;
+        TxSvc&lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&gt;&lt;/span&gt;UC&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token text string&quot;&gt;{paymentId, amount}&lt;/span&gt;
+        &lt;span class=&quot;token keyword&quot;&gt;Note over&lt;/span&gt; DB&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; ✅ 커밋. 커넥션 반환.
+    &lt;span class=&quot;token keyword&quot;&gt;end&lt;/span&gt;
+
+    &lt;span class=&quot;token keyword&quot;&gt;rect&lt;/span&gt; rgb&lt;span class=&quot;token text string&quot;&gt;(90, 50, 30)&lt;/span&gt;
+        &lt;span class=&quot;token keyword&quot;&gt;Note over&lt;/span&gt; UC,PG&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; 🟧 트랜잭션 밖 — 최대 7초
+        UC&lt;span class=&quot;token arrow operator&quot;&gt;-&gt;&gt;&lt;/span&gt;PG&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; requestPayment&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+        PG&lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&gt;&lt;/span&gt;UC&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token text string&quot;&gt;{transactionKey}&lt;/span&gt; 또는 실패
+        &lt;span class=&quot;token keyword&quot;&gt;Note over&lt;/span&gt; UC&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; DB 커넥션 점유 없음
+    &lt;span class=&quot;token keyword&quot;&gt;end&lt;/span&gt;
+
+    &lt;span class=&quot;token keyword&quot;&gt;rect&lt;/span&gt; rgb&lt;span class=&quot;token text string&quot;&gt;(30, 70, 50)&lt;/span&gt;
+        &lt;span class=&quot;token keyword&quot;&gt;Note over&lt;/span&gt; TxSvc,DB&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; 🟩 트랜잭션 #2 — ~10ms
+        UC&lt;span class=&quot;token arrow operator&quot;&gt;-&gt;&gt;&lt;/span&gt;TxSvc&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; markRequested&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; 또는 markFailed&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+        TxSvc&lt;span class=&quot;token arrow operator&quot;&gt;-&gt;&gt;&lt;/span&gt;DB&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; UPDATE payment
+        &lt;span class=&quot;token keyword&quot;&gt;Note over&lt;/span&gt; DB&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; ✅ 커밋. 커넥션 반환.
+    &lt;span class=&quot;token keyword&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;어떻게 묶느냐&lt;/th&gt;
+&lt;th&gt;DB 커넥션 점유 시간&lt;/th&gt;
+&lt;th&gt;리스크&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;하나의 트랜잭션&lt;/td&gt;
+&lt;td&gt;⚠️ 최대 7초&lt;/td&gt;
+&lt;td&gt;10건이면 커넥션풀이 바닥나고 전체 장애&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;쪼갠 트랜잭션&lt;/td&gt;
+&lt;td&gt;✅ ~20ms&lt;/td&gt;
+&lt;td&gt;트랜잭션 #1 커밋 후 서버 죽으면 PENDING 고착&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;커넥션풀 고갈은 &lt;strong&gt;전체 서비스 장애&lt;/strong&gt;이고, PENDING 고착은 &lt;strong&gt;해당 주문 1건의 문제&lt;/strong&gt;입니다.&lt;br&gt;
+둘 중 어떤 리스크를 안을지는 선택의 여지가 없었습니다.&lt;/p&gt;
+&lt;p&gt;트랜잭션을 쪼갰다는 건, Payment가 PENDING이나 REQUESTED 상태로 한동안 남아있을 수 있다는 뜻이기도 합니다.&lt;br&gt;
+그러면 이 상태를 언제, 어떻게 최종 확정할 것인가가 다음 문제가 됩니다.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;🔄 콜백이 안 오면 어떻게 하나요?&lt;/h2&gt;
+&lt;p&gt;PG는 비동기로 결제를 처리한 뒤 콜백으로 결과를 보내주는데,&lt;br&gt;
+콜백은 안 올 수도 있습니다. 네트워크 장애, 서버 다운, PG 버그 등 이유는 다양합니다.&lt;br&gt;
+콜백에 100% 의존하면 결과를 영원히 모르는 건이 생기기 때문에,&lt;/p&gt;
+&lt;p&gt;콜백은 &quot;빠른 경로&quot;로만 보고 &lt;strong&gt;복구 스케줄러를 안전망으로 두었습니다.&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;mermaid&quot;&gt;&lt;pre class=&quot;language-mermaid&quot;&gt;&lt;code class=&quot;language-mermaid&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;flowchart&lt;/span&gt; TD
+    PG&lt;span class=&quot;token text string&quot;&gt;[&quot;🏦 PG가 결과 확정&quot;]&lt;/span&gt; &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; CB&lt;span class=&quot;token text string&quot;&gt;[&quot;📨 콜백 전송\n수초 내&quot;]&lt;/span&gt;
+    PG &lt;span class=&quot;token arrow operator&quot;&gt;-.-&gt;&lt;/span&gt;&lt;span class=&quot;token label property&quot;&gt;|&quot;콜백 유실 시&quot;|&lt;/span&gt; MISS&lt;span class=&quot;token text string&quot;&gt;[&quot;❓ 결과를 모르는 상태&quot;]&lt;/span&gt;
+
+    MISS &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; SCH&lt;span class=&quot;token text string&quot;&gt;[&quot;🕐 복구 스케줄러 1분 주기\nREQUESTED + 5분 경과 건&quot;]&lt;/span&gt;
+    SCH &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; QUERY&lt;span class=&quot;token text string&quot;&gt;[&quot;🔎 PG에 직접 상태 조회&quot;]&lt;/span&gt;
+
+    CB &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; LOCK&lt;span class=&quot;token text string&quot;&gt;[&quot;🔒 SELECT FOR UPDATE&quot;]&lt;/span&gt;
+    QUERY &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; LOCK
+    LOCK &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; CHECK&lt;span class=&quot;token text string&quot;&gt;{&quot;isTerminal?&quot;}&lt;/span&gt;
+    CHECK &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt;&lt;span class=&quot;token label property&quot;&gt;|&quot;Yes&quot;|&lt;/span&gt; SKIP&lt;span class=&quot;token text string&quot;&gt;[&quot;무시 (멱등)&quot;]&lt;/span&gt;
+    CHECK &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt;&lt;span class=&quot;token label property&quot;&gt;|&quot;No&quot;|&lt;/span&gt; APPLY&lt;span class=&quot;token text string&quot;&gt;[&quot;✅ 상태 전이&quot;]&lt;/span&gt;
+
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; PG &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#1a1a2e&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; CB &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#2d6a4f&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#ffffff&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; SCH &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#0f3460&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; MISS &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#533483&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; QUERY &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#0f3460&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; LOCK &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#4a4a4a&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; CHECK &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#4a4a4a&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; SKIP &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#4a4a4a&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e0e0e0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; APPLY &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#2d6a4f&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#ffffff&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;5분이라는 기준은 PG 비동기 처리 최대 5초에 콜백 지연까지 감안하여 설정하였어요.&lt;br&gt;
+1분이면 PG가 아직 처리 중인 건을 조회하게 되고,&lt;br&gt;
+10분이면 사용자가 너무 오래 기다리게 되기떄문에.&lt;/p&gt;
+&lt;p&gt;콜백 중복이나 콜백과 스케줄러가 동시에 같은 건을 처리하려는 경우를 방어하기 위해 &lt;code class=&quot;language-text&quot;&gt;SELECT FOR UPDATE&lt;/code&gt; + &lt;code class=&quot;language-text&quot;&gt;isTerminal()&lt;/code&gt; 체크를 두었습니다.&lt;br&gt;
+먼저 도착한 쪽이 처리하고, 나중 쪽은 무시하는 방식입니다.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;📌 &lt;strong&gt;포기한 것&lt;/strong&gt;: REQUESTED 상태가 최대 5분간 지속됩니다. 유저 입장에서는 &quot;결제 버튼 눌렀는데 아무 반응이 없는&quot; 상태가 5분간 이어질 수 있습니다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;여기까지의 판단들 — timeout, retry, circuit breaker, fallback 처리, 트랜잭션 분리, 콜백 + 복구 — 이 결국 하나로 모이는 지점이 있습니다. Payment의 상태 설계입니다.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;📊 Payment 상태의 플로우&lt;/h2&gt;
+&lt;p&gt;이제 모든 판단이 결국 하나로 모이는데요,&lt;br&gt;
+각 상태가 &quot;지금 무엇을 알고 무엇을 모르는가&quot;를 표현하면 다음과 같습니다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;mermaid&quot;&gt;&lt;pre class=&quot;language-mermaid&quot;&gt;&lt;code class=&quot;language-mermaid&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;stateDiagram-v2&lt;/span&gt;
+    &lt;span class=&quot;token text string&quot;&gt;[*]&lt;/span&gt; &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; PENDING&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; Payment.create&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;\nDB 저장. PG 미호출.
+
+    PENDING &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; REQUESTED&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; PG가 transactionKey 발급\n&lt;span class=&quot;token string&quot;&gt;&quot;접수됐다. 결과는 모른다.&quot;&lt;/span&gt;
+    PENDING &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; FAILED&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; PG 거절 또는 fallback\n&lt;span class=&quot;token string&quot;&gt;&quot;안 됐다. 다시 해라.&quot;&lt;/span&gt;
+
+    REQUESTED &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; SUCCESS&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; 콜백 또는 복구 스케줄러\n&lt;span class=&quot;token string&quot;&gt;&quot;됐다.&quot;&lt;/span&gt;
+    REQUESTED &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; FAILED&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; 콜백 또는 복구 스케줄러\n&lt;span class=&quot;token string&quot;&gt;&quot;안 됐다.&quot;&lt;/span&gt;
+
+    SUCCESS &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; &lt;span class=&quot;token text string&quot;&gt;[*]&lt;/span&gt;
+    FAILED &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; &lt;span class=&quot;token text string&quot;&gt;[*]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;상태&lt;/th&gt;
+&lt;th&gt;의미&lt;/th&gt;
+&lt;th&gt;Order 영향&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;PENDING&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;PG에 보냈는지조차 모릅니다&lt;/td&gt;
+&lt;td&gt;없음&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;REQUESTED&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;PG가 접수했습니다. 결과는 모릅니다&lt;/td&gt;
+&lt;td&gt;없음&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;SUCCESS&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;결제 확정&lt;/td&gt;
+&lt;td&gt;✅ &lt;strong&gt;Order → COMPLETED&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;FAILED&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;실패 확정. 재시도 가능&lt;/td&gt;
+&lt;td&gt;없음 (Order는 PENDING 유지)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;SUCCESS일 때만 Order가 COMPLETED로 전이하고, FAILED여도 Order는 PENDING을 유지하도록 했습니다. 사용자가 다른 카드로 다시 시도할 수 있게 하기 위해서입니다.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;⚖️ 트레이드오프 전체 정리 !&lt;/h2&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;결정&lt;/th&gt;
+&lt;th&gt;얻은 것&lt;/th&gt;
+&lt;th&gt;포기한 것&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;read-timeout 3초&lt;/td&gt;
+&lt;td&gt;thread 점유 최소화&lt;/td&gt;
+&lt;td&gt;3초 이후 도착한 PG 성공 응답은 버림&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Retry 네트워크 오류만, 2회&lt;/td&gt;
+&lt;td&gt;불필요한 재시도 차단&lt;/td&gt;
+&lt;td&gt;PG 500이 순간 부하여도 재시도 안 함&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;CB open 시 즉시 fallback&lt;/td&gt;
+&lt;td&gt;서버 가용성 보호&lt;/td&gt;
+&lt;td&gt;10초간 모든 결제 차단&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;fallback 시 PENDING 유지 + orderId 복구&lt;/td&gt;
+&lt;td&gt;PG 성공 건 유실 방지&lt;/td&gt;
+&lt;td&gt;최대 5분간 결과 미확정&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;트랜잭션 분리&lt;/td&gt;
+&lt;td&gt;DB 커넥션풀 보호&lt;/td&gt;
+&lt;td&gt;PENDING 고착 가능성&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;복구 스케줄러 5분&lt;/td&gt;
+&lt;td&gt;콜백 유실 보상&lt;/td&gt;
+&lt;td&gt;최대 5분간 결과 미확정&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;hr&gt;
+&lt;h2&gt;🔧 timeout 났는데 PG에서는 성공한 경우, 어떻게 잡을까?&lt;/h2&gt;
+&lt;p&gt;timeout이 나면 PG가 요청을 받았는지조차 모릅니다.
+이 상태를 바로 FAILED로 확정하면, PG가 실제로 성공시킨 건의 콜백이 무시됩니다.
+유저는 돈이 빠졌는데 주문이 안 잡힌 상태가 되고요.&lt;/p&gt;
+&lt;p&gt;PG에 &lt;code class=&quot;language-text&quot;&gt;GET /api/v1/payments?orderId=&lt;/code&gt; API가 있기 때문에, orderId로 PG에 거래가 있는지 확인할 수 있습니다.
+그래서 timeout이 나면 FAILED로 전이하지 않고 PENDING을 유지한 뒤,&lt;br&gt;
+복구 스케줄러가 orderId로 PG에 직접 물어보는 방식을 택했습니다.&lt;/p&gt;
+&lt;p&gt;PG에 거래가 있으면 txKey를 받아서 결과를 반영하고, 거래가 없으면 그때 FAILED로 전이시킵니다.
+이 방식이면 유저 돈이 빠졌는데 주문이 안 잡히는 상황이 생기지 않습니다.&lt;/p&gt;
+&lt;p&gt;다만 REQUESTED 상태에서 유저가 결과를 모르는 시간이 최대 5분 정도 발생할 수 있는데,&lt;br&gt;
+이건 프론트에서 polling이나 push로 풀어야 하는 영역이라 서버 코드만으로는 줄이기 어렵네요...&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;결론&lt;/h2&gt;
+&lt;p&gt;결제가 정확하게 맞아떨어지는 시스템을 만든 건 아닙니다.
+결제 시스템이 망했을 때, 같이 죽지 않는 시스템을 만든 겁니다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[인덱스도 없이 캐시부터 붙이려 했냐;]]></title><description><![CDATA[설계 문서에는 있고, DB에는 없었다 상품 목록 API가 느렸다. 과제는 세 가지.
 인덱스 최적화, 좋아요 정렬 구조 개선, Redis…]]></description><link>https://hyungkishin.github.io/round5/</link><guid isPermaLink="false">https://hyungkishin.github.io/round5/</guid><pubDate>Fri, 13 Mar 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;설계 문서에는 있고, DB에는 없었다&lt;/h2&gt;
 &lt;p&gt;상품 목록 API가 느렸다.&lt;/p&gt;
 &lt;p&gt;과제는 세 가지.
