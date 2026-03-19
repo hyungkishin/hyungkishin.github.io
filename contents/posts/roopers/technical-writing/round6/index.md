@@ -184,19 +184,19 @@ resilience4j.retry.instances.pgQueryRetry:   # 조회 전용
 resilience4j.circuitbreaker.instances:
   pgRequest:                              # 결제 요청 전용
     sliding-window-size: 10
-    failure-rate-threshold: 50
+    failure-rate-threshold: 70
     wait-duration-in-open-state: 10s
     permitted-number-of-calls-in-half-open-state: 3
     slow-call-duration-threshold: 3s
-    slow-call-rate-threshold: 50
+    slow-call-rate-threshold: 60
     automatic-transition-from-open-to-half-open-enabled: true
   pgQuery:                                # 조회 전용
     sliding-window-size: 10
-    failure-rate-threshold: 50
+    failure-rate-threshold: 70
     wait-duration-in-open-state: 30s      # 조회는 관대하게
     permitted-number-of-calls-in-half-open-state: 3
     slow-call-duration-threshold: 3s
-    slow-call-rate-threshold: 50
+    slow-call-rate-threshold: 60
     automatic-transition-from-open-to-half-open-enabled: true
 ```
 
@@ -223,7 +223,7 @@ stateDiagram-v2
     direction LR
     [*] --> CLOSED
 
-    CLOSED --> OPEN: 최근 10건 중 실패 50%+\n또는 느린 호출(3초+) 50%+
+    CLOSED --> OPEN: 최근 10건 중 실패 70%+\n또는 느린 호출(3초+) 60%+
     OPEN --> HALF_OPEN: 10초 경과 (자동 전이)
     HALF_OPEN --> CLOSED: 시험 3건 통과
     HALF_OPEN --> OPEN: 시험 중 실패
@@ -236,7 +236,8 @@ stateDiagram-v2
 | 설정 | 값 | 왜 이 값인가 |
 |------|-----|-------------|
 | sliding-window | 10 | 100으로 잡으면 50건 터지는 동안 계속 보내게 됩니다 |
-| slow-call-threshold | 3초 | read-timeout과 같은 기준입니다. 2.9초짜리가 반복되면 곧 timeout 납니다 |
+| failure-rate-threshold | 70% | PG 기본 실패율 40%에서 30%p 여유. 50%면 정상 운영 중에도 서킷이 열립니다 |
+| slow-call-threshold | 3초 / 60% | read-timeout과 같은 기준입니다. 2.9초짜리가 반복되면 곧 timeout 납니다 |
 | pgRequest wait-duration | 10초 | 결제는 빠르게 복구 시도해야 합니다 |
 | pgQuery wait-duration | 30초 | 조회는 관대하게. 복구 스케줄러가 계속 시도할 수 있도록 |
 | automatic-transition | true | 트래픽 없는 시간대에도 HALF_OPEN 전이가 되도록 |
@@ -455,7 +456,7 @@ SUCCESS일 때만 Order가 COMPLETED로 전이하고, FAILED여도 Order는 PEND
 | 결제 POST에 Retry 미적용 | 중복 결제 방지 | 네트워크 순단 시 재시도 없이 PENDING 유지 |
 | 조회 GET에만 Retry 2회 | 복구 스케줄러 안정성 확보 | PG 500이 순간 부하여도 재시도 안 함 |
 | 서킷 인스턴스 분리 (pgRequest/pgQuery) | 결제 서킷 열려도 복구 조회 가능 | 인스턴스 2개 관리 비용 |
-| CB open 시 즉시 fallback | 서버 가용성 보호 | 10초간 모든 결제 차단 |
+| CB threshold 70% (PG 실패율 40% + 30%p 여유) | 정상 운영 시 서킷 미작동 보장 | 실패율 70% 넘어야 차단 — 감지가 50%보다 늦음 |
 | fallback 시 PENDING 유지 + orderId 복구 | PG 성공 건 유실 방지 | 최대 5분간 결과 미확정 |
 | 트랜잭션 분리 | DB 커넥션풀 보호 | PENDING 고착 가능성 |
 | 복구 스케줄러 5분 | 콜백 유실 보상 | 최대 5분간 결과 미확정 |
