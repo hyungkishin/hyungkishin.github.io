@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Thu, 19 Mar 2026 19:17:47 GMT</lastBuildDate><item><title><![CDATA[PG 3초 딜레이로, 회사 문닫게 생겼어요]]></title><description><![CDATA[외부 시스템 지연은 왜 시스템 장애로 이어질수 있을까? TL;DR PG 연동 과정에서 외부 시스템이 느려졌을 때, 우리 서비스까지 같이 죽지 않으려면 어떻게 해야 하는지를 다룹니다. Timeout, Retry, Circuit Breaker…]]></description><link>https://hyungkishin.github.io/round6/</link><guid isPermaLink="false">https://hyungkishin.github.io/round6/</guid><pubDate>Fri, 20 Mar 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;외부 시스템 지연은 왜 시스템 장애로 이어질수 있을까?&lt;/h1&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Thu, 19 Mar 2026 19:33:33 GMT</lastBuildDate><item><title><![CDATA[PG 3초 딜레이로, 회사 문닫게 생겼어요]]></title><description><![CDATA[외부 시스템 지연은 왜 시스템 장애로 이어질수 있을까? TL;DR PG 연동 과정에서 외부 시스템이 느려졌을 때, 우리 서비스까지 같이 죽지 않으려면 어떻게 해야 하는지를 다룹니다. Timeout, Retry, Circuit Breaker…]]></description><link>https://hyungkishin.github.io/round6/</link><guid isPermaLink="false">https://hyungkishin.github.io/round6/</guid><pubDate>Fri, 20 Mar 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;외부 시스템 지연은 왜 시스템 장애로 이어질수 있을까?&lt;/h1&gt;
 &lt;blockquote&gt;
 &lt;p&gt;&lt;strong&gt;TL;DR&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;PG 연동 과정에서 외부 시스템이 느려졌을 때, 우리 서비스까지 같이 죽지 않으려면 어떻게 해야 하는지를 다룹니다.&lt;/p&gt;
@@ -122,19 +122,19 @@ PG가 멱등하지 않은 겁니다.&lt;/p&gt;
 &lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;yaml&quot;&gt;&lt;pre class=&quot;language-yaml&quot;&gt;&lt;code class=&quot;language-yaml&quot;&gt;&lt;span class=&quot;token key atrule&quot;&gt;resilience4j.circuitbreaker.instances&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
   &lt;span class=&quot;token key atrule&quot;&gt;pgRequest&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;                              &lt;span class=&quot;token comment&quot;&gt;# 결제 요청 전용&lt;/span&gt;
     &lt;span class=&quot;token key atrule&quot;&gt;sliding-window-size&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;10&lt;/span&gt;
-    &lt;span class=&quot;token key atrule&quot;&gt;failure-rate-threshold&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;50&lt;/span&gt;
+    &lt;span class=&quot;token key atrule&quot;&gt;failure-rate-threshold&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;70&lt;/span&gt;
     &lt;span class=&quot;token key atrule&quot;&gt;wait-duration-in-open-state&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; 10s
     &lt;span class=&quot;token key atrule&quot;&gt;permitted-number-of-calls-in-half-open-state&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;3&lt;/span&gt;
     &lt;span class=&quot;token key atrule&quot;&gt;slow-call-duration-threshold&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; 3s
-    &lt;span class=&quot;token key atrule&quot;&gt;slow-call-rate-threshold&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;50&lt;/span&gt;
+    &lt;span class=&quot;token key atrule&quot;&gt;slow-call-rate-threshold&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;60&lt;/span&gt;
     &lt;span class=&quot;token key atrule&quot;&gt;automatic-transition-from-open-to-half-open-enabled&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token boolean important&quot;&gt;true&lt;/span&gt;
   &lt;span class=&quot;token key atrule&quot;&gt;pgQuery&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;                                &lt;span class=&quot;token comment&quot;&gt;# 조회 전용&lt;/span&gt;
     &lt;span class=&quot;token key atrule&quot;&gt;sliding-window-size&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;10&lt;/span&gt;
-    &lt;span class=&quot;token key atrule&quot;&gt;failure-rate-threshold&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;50&lt;/span&gt;
+    &lt;span class=&quot;token key atrule&quot;&gt;failure-rate-threshold&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;70&lt;/span&gt;
     &lt;span class=&quot;token key atrule&quot;&gt;wait-duration-in-open-state&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; 30s      &lt;span class=&quot;token comment&quot;&gt;# 조회는 관대하게&lt;/span&gt;
     &lt;span class=&quot;token key atrule&quot;&gt;permitted-number-of-calls-in-half-open-state&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;3&lt;/span&gt;
     &lt;span class=&quot;token key atrule&quot;&gt;slow-call-duration-threshold&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; 3s
-    &lt;span class=&quot;token key atrule&quot;&gt;slow-call-rate-threshold&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;50&lt;/span&gt;
+    &lt;span class=&quot;token key atrule&quot;&gt;slow-call-rate-threshold&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;60&lt;/span&gt;
     &lt;span class=&quot;token key atrule&quot;&gt;automatic-transition-from-open-to-half-open-enabled&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token boolean important&quot;&gt;true&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;mermaid&quot;&gt;&lt;pre class=&quot;language-mermaid&quot;&gt;&lt;code class=&quot;language-mermaid&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;flowchart&lt;/span&gt; LR
     &lt;span class=&quot;token keyword&quot;&gt;subgraph&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;pgRequest 서킷 — OPEN&quot;&lt;/span&gt;
@@ -154,7 +154,7 @@ PG가 멱등하지 않은 겁니다.&lt;/p&gt;
     &lt;span class=&quot;token keyword&quot;&gt;direction&lt;/span&gt; LR
     &lt;span class=&quot;token text string&quot;&gt;[*]&lt;/span&gt; &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; CLOSED
 
-    CLOSED &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; OPEN&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; 최근 10건 중 실패 50%+\n또는 느린 호출&lt;span class=&quot;token text string&quot;&gt;(3초+)&lt;/span&gt; 50%+
+    CLOSED &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; OPEN&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; 최근 10건 중 실패 70%+\n또는 느린 호출&lt;span class=&quot;token text string&quot;&gt;(3초+)&lt;/span&gt; 60%+
     OPEN &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; HALF_OPEN&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; 10초 경과 &lt;span class=&quot;token text string&quot;&gt;(자동 전이)&lt;/span&gt;
     HALF_OPEN &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; CLOSED&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; 시험 3건 통과
     HALF_OPEN &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; OPEN&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; 시험 중 실패
@@ -177,8 +177,13 @@ PG가 멱등하지 않은 겁니다.&lt;/p&gt;
 &lt;td&gt;100으로 잡으면 50건 터지는 동안 계속 보내게 됩니다&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
+&lt;td&gt;failure-rate-threshold&lt;/td&gt;
+&lt;td&gt;70%&lt;/td&gt;
+&lt;td&gt;PG 기본 실패율 40%에서 30%p 여유. 50%면 정상 운영 중에도 서킷이 열립니다&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
 &lt;td&gt;slow-call-threshold&lt;/td&gt;
-&lt;td&gt;3초&lt;/td&gt;
+&lt;td&gt;3초 / 60%&lt;/td&gt;
 &lt;td&gt;read-timeout과 같은 기준입니다. 2.9초짜리가 반복되면 곧 timeout 납니다&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
@@ -431,9 +436,9 @@ PG에서 뒤늦게 콜백이 와도 Payment가 이미 FAILED(최종 상태)이�
 &lt;td&gt;인스턴스 2개 관리 비용&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;CB open 시 즉시 fallback&lt;/td&gt;
-&lt;td&gt;서버 가용성 보호&lt;/td&gt;
-&lt;td&gt;10초간 모든 결제 차단&lt;/td&gt;
+&lt;td&gt;CB threshold 70% (PG 실패율 40% + 30%p 여유)&lt;/td&gt;
+&lt;td&gt;정상 운영 시 서킷 미작동 보장&lt;/td&gt;
+&lt;td&gt;실패율 70% 넘어야 차단 — 감지가 50%보다 늦음&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;fallback 시 PENDING 유지 + orderId 복구&lt;/td&gt;
