@@ -652,6 +652,89 @@ Producer의 유입 속도가 Consumer의 처리 속도를 지속적으로 초과
 <p>현재 구조에서 이걸 막으려면 consumer lag을 모니터링해서, lag이 임계값을 넘으면 consumer를 scale-out 하거나 API 쪽에서 유입을 throttling 하는 판단이 필요합니다.
 Kafka는 버퍼일 뿐이고, 시스템 전체의 throughput 한계는 결국 가장 느린 Consumer가 결정합니다.</p>
 <hr>
+<h2>📊 실제로 돌려보니 어땠을까?</h2>
+<p>구조를 다 만들고 나서, k6로 실제 부하 테스트를 돌려봤습니다.</p>
+<h3>선착순 쿠폰 발급 — 500명 동시 요청, 100장 한정</h3>
+<div class="gatsby-highlight" data-language="javascript"><pre class="language-javascript"><code class="language-javascript"><span class="token comment">// k6 시나리오: 500 VU가 동시에 1회씩 발급 요청</span>
+<span class="token literal-property property">coupon_async_burst</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+  <span class="token literal-property property">executor</span><span class="token operator">:</span> <span class="token string">"per-vu-iterations"</span><span class="token punctuation">,</span>
+  <span class="token literal-property property">vus</span><span class="token operator">:</span> <span class="token number">500</span><span class="token punctuation">,</span>
+  <span class="token literal-property property">iterations</span><span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+  <span class="token literal-property property">maxDuration</span><span class="token operator">:</span> <span class="token string">"60s"</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span></code></pre></div>
+<p>500명이 동시에 쿠폰 발급 API를 호출하고, 15초 후 각자 결과를 polling 합니다.</p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>결과</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>발급 요청 202 Accepted</td>
+<td>500건 전부 성공</td>
+</tr>
+<tr>
+<td>실제 발급 (SUCCESS)</td>
+<td>100건</td>
+</tr>
+<tr>
+<td>발급 거절 (FAILED)</td>
+<td>400건</td>
+</tr>
+<tr>
+<td>타임아웃 (PENDING)</td>
+<td>0건</td>
+</tr>
+<tr>
+<td>발급 요청 p95 응답 시간</td>
+<td>200ms 미만</td>
+</tr>
+<tr>
+<td>polling 결과 확인까지 소요</td>
+<td>평균 2~3초</td>
+</tr>
+</tbody>
+</table>
+<p>정확히 100장만 발급됐고, 초과 발급은 없었습니다.
+<code class="language-text">incrementIssuedCount</code>의 <code class="language-text">WHERE issued_count &lt; max_issue_count</code> 조건이 DB 레벨에서 원자적으로 수량을 제한하고, Consumer가 partition 단위로 순차 처리하기 때문에 경합이 최소화된 결과입니다.</p>
+<p>발급 요청 자체의 응답 시간이 200ms 미만인 건, API가 Outbox에 INSERT만 하고 바로 202를 반환하기 때문입니다.
+실제 발급은 Consumer가 비동기로 처리하니까, 사용자 입장에서는 "빠르게 접수되고, 결과는 나중에 확인"하는 구조가 제대로 동작하는 걸 확인했습니다.</p>
+<h3>이벤트 파이프라인 — 조회/좋아요/주문 부하</h3>
+<div class="gatsby-highlight" data-language="javascript"><pre class="language-javascript"><code class="language-javascript"><span class="token comment">// 상품 조회: 10→50 VU ramping (40초)</span>
+<span class="token comment">// 좋아요: 5→20 VU ramping (30초)</span>
+<span class="token comment">// 주문: 5→10 VU ramping (30초)</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>p95 응답 시간</th>
+<th>임계값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>상품 조회</td>
+<td>300ms 이하</td>
+<td>500ms</td>
+</tr>
+<tr>
+<td>좋아요</td>
+<td>500ms 이하</td>
+<td>1000ms</td>
+</tr>
+<tr>
+<td>주문</td>
+<td>1200ms 이하</td>
+<td>2000ms</td>
+</tr>
+</tbody>
+</table>
+<p>세 시나리오 모두 임계값 내로 통과했고, Outbox relay가 이벤트를 Kafka로 정상 발행하는 것, commerce-streamer가 product_metrics를 upsert하는 것, event_handled 테이블에 멱등 처리 기록이 남는 것까지 확인했습니다.</p>
+<p>다만 이건 로컬 환경(단일 Kafka 브로커, 단일 DB)에서의 수치라, 운영 환경의 네트워크 지연이나 브로커 복제 오버헤드가 없는 상태입니다.
+실제 운영에서는 이보다 느려질 수 있고, 특히 Kafka 브로커 간 복제(<code class="language-text">acks=all</code>)에 의한 추가 지연이 발생합니다.</p>
+<hr>
 <h2>💭 돌아보면</h2>
 <p>처음에는 "쿠폰 발급이니까 <code class="language-text">UPDATE</code> 한 줄이면 되겠지" 싶었습니다.</p>
 <p>그런데 동시 요청이 몰리면 그 한 줄짜리 쿼리가 서비스 전체를 죽일 수 있다는 걸 알게 됐고, 그걸 피하려고 Kafka를 도입했더니 "메시지가 안 넣어질 수 있다"는 새로운 문제가 생겼고, Outbox로 해결했더니 "같은 메시지가 두 번 올 수 있다"는 문제가 또 생겼습니다.</p>
