@@ -528,6 +528,23 @@ Redis였으면 TTL 한 줄로 끝났을 텐데요.</p>
 <span class="token punctuation">}</span></code></pre></div>
 <p>Kafka retention이 7일이면 7일 지난 이벤트는 재전달될 일이 없으니, 멱등성 레코드도 그 시점에 삭제해도 안전합니다.</p>
 <hr>
+<h2>👍 좋아요는 동기인데 집계는 비동기 — 같은 숫자를 왜 다르게 처리할까?</h2>
+<p>선착순 쿠폰과 별개로, 좋아요 기능에서도 동기/비동기 경계를 나눠야 했어요.</p>
+<p>사용자가 좋아요를 누르면 <code class="language-text">product</code> 테이블의 <code class="language-text">like_count</code>를 즉시 +1 합니다.
+이건 동기 처리예요.</p>
+<p>사용자가 좋아요를 누른 직후 상품 상세 페이지에서 "좋아요 301개"가 보여야 하니까, 이 숫자는 즉시 반영되어야 합니다.</p>
+<p>동시에 <code class="language-text">ProductLikedEvent</code>를 발행해서, <code class="language-text">commerce-streamer</code>의 <code class="language-text">product_metrics</code> 테이블에도 <code class="language-text">like_count</code>를 집계해요.
+이건 비동기 처리입니다.</p>
+<p>분석용 대시보드나 추천 알고리즘에서 쓰는 숫자라, 몇 초 지연되어도 비즈니스에 영향이 없거든요.</p>
+<p>같은 "좋아요 수"라는 데이터인데 두 군데에 저장하는 이유는, 관심사가 다르기 때문이에요.</p>
+<p><code class="language-text">product.like_count</code>는 사용자에게 보여주는 숫자이고, <code class="language-text">product_metrics.like_count</code>는 데이터 파이프라인에서 집계하는 숫자입니다.
+전자는 즉시성이 중요하고, 후자는 정확한 누적이 중요해요.</p>
+<p>만약 둘을 하나로 합치면, 집계 Consumer가 느려질 때 사용자 화면의 좋아요 수도 같이 밀리거나, 반대로 사용자 화면 업데이트에 맞추려고 집계 파이프라인까지 동기로 묶어야 합니다.</p>
+<p>분리해두면 집계가 실패해도 좋아요 자체는 성공하고, 나중에 이벤트가 재전달되면 집계가 따라잡아요.</p>
+<p>📌 <strong>포기한 것</strong> — 두 숫자의 실시간 일치.</p>
+<p>사용자 화면의 <code class="language-text">like_count</code>와 metrics의 <code class="language-text">like_count</code>는 짧은 시간 동안 다를 수 있지만, eventual consistency로 수렴합니다.</p>
+<p>좋아요 집계에서도 additive 연산을 쓰고 있는데, 이벤트 순서가 뒤바뀌면 어떻게 되는지 궁금해졌어요.</p>
+<hr>
 <h2>📊 version/updated_at 체크는 언제 필요하고 언제 필요 없을까?</h2>
 <p>과제 요구사항에 "version 또는 updated_at 기준으로 최신 이벤트만 반영"이라는 항목이 있었어요.</p>
 <p>이 패턴은 <strong>상태를 교체하는(state replacement)</strong> 이벤트에서 의미가 있습니다.

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Fri, 27 Mar 2026 09:42:29 GMT</lastBuildDate><item><title><![CDATA[한 가지를 해결하면 반드시 다른 문제가 따라온다]]></title><description><![CDATA[배경 이번 주제는 이벤트 기반 아키텍처였다.
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Fri, 27 Mar 2026 09:49:21 GMT</lastBuildDate><item><title><![CDATA[한 가지를 해결하면 반드시 다른 문제가 따라온다]]></title><description><![CDATA[배경 이번 주제는 이벤트 기반 아키텍처였다.
 동기 처리로 묶여 있던 주문 흐름을 이벤트로 분리하고, Kafka…]]></description><link>https://hyungkishin.github.io/seven-week/</link><guid isPermaLink="false">https://hyungkishin.github.io/seven-week/</guid><pubDate>Fri, 27 Mar 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;배경&lt;/h2&gt;
 &lt;p&gt;이번 주제는 이벤트 기반 아키텍처였다.
 동기 처리로 묶여 있던 주문 흐름을 이벤트로 분리하고, Kafka를 도입해서 서비스 경계를 넘는 메시지 파이프라인을 구축하는 것이 목표였다.
@@ -345,6 +345,23 @@ Redis였으면 TTL 한 줄로 끝났을 텐데요.&lt;/p&gt;
     &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;deleted &lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; log&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;info&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string-literal singleline&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;event_handled 정리 완료. deleted={}&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; deleted&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
 &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Kafka retention이 7일이면 7일 지난 이벤트는 재전달될 일이 없으니, 멱등성 레코드도 그 시점에 삭제해도 안전합니다.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;👍 좋아요는 동기인데 집계는 비동기 — 같은 숫자를 왜 다르게 처리할까?&lt;/h2&gt;
+&lt;p&gt;선착순 쿠폰과 별개로, 좋아요 기능에서도 동기/비동기 경계를 나눠야 했어요.&lt;/p&gt;
+&lt;p&gt;사용자가 좋아요를 누르면 &lt;code class=&quot;language-text&quot;&gt;product&lt;/code&gt; 테이블의 &lt;code class=&quot;language-text&quot;&gt;like_count&lt;/code&gt;를 즉시 +1 합니다.
+이건 동기 처리예요.&lt;/p&gt;
+&lt;p&gt;사용자가 좋아요를 누른 직후 상품 상세 페이지에서 &quot;좋아요 301개&quot;가 보여야 하니까, 이 숫자는 즉시 반영되어야 합니다.&lt;/p&gt;
+&lt;p&gt;동시에 &lt;code class=&quot;language-text&quot;&gt;ProductLikedEvent&lt;/code&gt;를 발행해서, &lt;code class=&quot;language-text&quot;&gt;commerce-streamer&lt;/code&gt;의 &lt;code class=&quot;language-text&quot;&gt;product_metrics&lt;/code&gt; 테이블에도 &lt;code class=&quot;language-text&quot;&gt;like_count&lt;/code&gt;를 집계해요.
+이건 비동기 처리입니다.&lt;/p&gt;
+&lt;p&gt;분석용 대시보드나 추천 알고리즘에서 쓰는 숫자라, 몇 초 지연되어도 비즈니스에 영향이 없거든요.&lt;/p&gt;
+&lt;p&gt;같은 &quot;좋아요 수&quot;라는 데이터인데 두 군데에 저장하는 이유는, 관심사가 다르기 때문이에요.&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;product.like_count&lt;/code&gt;는 사용자에게 보여주는 숫자이고, &lt;code class=&quot;language-text&quot;&gt;product_metrics.like_count&lt;/code&gt;는 데이터 파이프라인에서 집계하는 숫자입니다.
+전자는 즉시성이 중요하고, 후자는 정확한 누적이 중요해요.&lt;/p&gt;
+&lt;p&gt;만약 둘을 하나로 합치면, 집계 Consumer가 느려질 때 사용자 화면의 좋아요 수도 같이 밀리거나, 반대로 사용자 화면 업데이트에 맞추려고 집계 파이프라인까지 동기로 묶어야 합니다.&lt;/p&gt;
+&lt;p&gt;분리해두면 집계가 실패해도 좋아요 자체는 성공하고, 나중에 이벤트가 재전달되면 집계가 따라잡아요.&lt;/p&gt;
+&lt;p&gt;📌 &lt;strong&gt;포기한 것&lt;/strong&gt; — 두 숫자의 실시간 일치.&lt;/p&gt;
+&lt;p&gt;사용자 화면의 &lt;code class=&quot;language-text&quot;&gt;like_count&lt;/code&gt;와 metrics의 &lt;code class=&quot;language-text&quot;&gt;like_count&lt;/code&gt;는 짧은 시간 동안 다를 수 있지만, eventual consistency로 수렴합니다.&lt;/p&gt;
+&lt;p&gt;좋아요 집계에서도 additive 연산을 쓰고 있는데, 이벤트 순서가 뒤바뀌면 어떻게 되는지 궁금해졌어요.&lt;/p&gt;
 &lt;hr&gt;
 &lt;h2&gt;📊 version/updated_at 체크는 언제 필요하고 언제 필요 없을까?&lt;/h2&gt;
 &lt;p&gt;과제 요구사항에 &quot;version 또는 updated_at 기준으로 최신 이벤트만 반영&quot;이라는 항목이 있었어요.&lt;/p&gt;
