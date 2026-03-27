@@ -5,12 +5,12 @@
       <stop offset="100%" stop-color="#16213e"/>
     </linearGradient>
     <filter id="shadow">
-      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.15"/>
     </filter>
   </defs>
 
   <!-- Background -->
-  <rect width="420" height="520" rx="12" fill="#0d1117"/>
+  <rect width="420" height="520" rx="12" fill="#ffffff"/>
 
   <!-- Node 1 -->
   <rect x="110" y="30" width="200" height="48" rx="8" fill="#1a1a2e" filter="url(#shadow)"/>
