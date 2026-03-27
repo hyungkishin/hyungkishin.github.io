@@ -9,6 +9,7 @@ import Toc from "./Toc"
 import StyledMarkdown from "./StyledMarkdown"
 import PrismTheme from "./PrismTheme"
 import GoogleAdvertise from "components/GoogleAdsense"
+import TextToSpeech from "./TextToSpeech"
 
 const Wrapper = styled.div`
   position: relative;
@@ -108,6 +109,8 @@ const Body = ({ html }) => {
       <Toc items={toc} articleOffset={offsetTop} />
 
       <PrismTheme />
+
+      <TextToSpeech />
 
       <PostTopAdWrapper>
         <GoogleAdvertise

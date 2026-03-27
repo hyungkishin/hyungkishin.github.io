@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" font-family="'Pretendard','Apple SD Gothic Neo',sans-serif">
+  <defs>
+    <filter id="shadow4">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+    <marker id="arr4" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5568"/>
+    </marker>
+    <marker id="arr4g" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2d6a4f"/>
+    </marker>
+    <marker id="arr4r" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#e94560"/>
+    </marker>
+  </defs>
+
+  <rect width="600" height="200" rx="12" fill="#0d1117"/>
+
+  <!-- Node 1: 메시지 수신 -->
+  <rect x="20" y="66" width="100" height="48" rx="8" fill="#1a1a2e" filter="url(#shadow4)"/>
+  <text x="70" y="94" text-anchor="middle" fill="#e0e0e0" font-size="12" font-weight="600">📩 수신</text>
+
+  <line x1="120" y1="90" x2="150" y2="90" stroke="#4a5568" stroke-width="2" marker-end="url(#arr4)"/>
+
+  <!-- Node 2: 처리 시도 -->
+  <rect x="155" y="66" width="100" height="48" rx="8" fill="#16213e" filter="url(#shadow4)"/>
+  <text x="205" y="94" text-anchor="middle" fill="#e0e0e0" font-size="12" font-weight="600">⚙️ 처리</text>
+
+  <!-- Success -->
+  <line x1="255" y1="78" x2="300" y2="55" stroke="#2d6a4f" stroke-width="2" marker-end="url(#arr4g)"/>
+  <text x="278" y="60" fill="#2d6a4f" font-size="10">성공</text>
+  <rect x="305" y="35" width="70" height="36" rx="6" fill="#2d6a4f" filter="url(#shadow4)"/>
+  <text x="340" y="57" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="600">✅ ACK</text>
+
+  <!-- Fail → Retry -->
+  <line x1="255" y1="100" x2="300" y2="120" stroke="#b8860b" stroke-width="2" marker-end="url(#arr4)"/>
+  <text x="278" y="118" fill="#b8860b" font-size="10">실패</text>
+  <rect x="305" y="100" width="100" height="48" rx="8" fill="#b8860b" filter="url(#shadow4)"/>
+  <text x="355" y="128" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="600">🔄 재시도 1~3</text>
+
+  <!-- Retry → Success -->
+  <path d="M 355 100 Q 355 75, 305 55" fill="none" stroke="#2d6a4f" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#arr4g)"/>
+  <text x="345" y="78" fill="#2d6a4f" font-size="9">성공</text>
+
+  <!-- Retry → DLT -->
+  <line x1="405" y1="124" x2="440" y2="124" stroke="#e94560" stroke-width="2" marker-end="url(#arr4r)"/>
+  <text x="423" y="117" fill="#e94560" font-size="9">3회 초과</text>
+  <rect x="445" y="100" width="70" height="48" rx="8" fill="#e94560" filter="url(#shadow4)"/>
+  <text x="480" y="128" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="600">💀 DLT</text>
+
+  <!-- DLT → offset -->
+  <line x1="515" y1="124" x2="535" y2="100" stroke="#2d6a4f" stroke-width="1.5" marker-end="url(#arr4g)"/>
+  <rect x="538" y="76" width="50" height="36" rx="6" fill="#2d6a4f" opacity="0.8"/>
+  <text x="563" y="98" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="600">offset↑</text>
+
+  <!-- Caption -->
+  <text x="300" y="185" text-anchor="middle" fill="#6b7280" font-size="11">3회 실패하면 DLT로 격리하고, 다음 메시지 처리를 계속한다</text>
+</svg>
