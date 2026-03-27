@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" font-family="'Pretendard','Apple SD Gothic Neo',sans-serif">
   <defs>
     <filter id="shadow4">
-      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.15"/>
     </filter>
     <marker id="arr4" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5568"/>
@@ -14,7 +14,7 @@
     </marker>
   </defs>
 
-  <rect width="600" height="200" rx="12" fill="#0d1117"/>
+  <rect width="600" height="200" rx="12" fill="#ffffff"/>
 
   <!-- Node 1: 메시지 수신 -->
   <rect x="20" y="66" width="100" height="48" rx="8" fill="#1a1a2e" filter="url(#shadow4)"/>
