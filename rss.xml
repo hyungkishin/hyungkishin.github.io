@@ -1,4 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Sat, 28 Mar 2026 06:38:27 GMT</lastBuildDate><item><title><![CDATA[한 가지를 해결하면 반드시 다른 문제가 따라온다]]></title><description><![CDATA[배경 이번 주제는 이벤트 기반 아키텍처였다.
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Tue, 31 Mar 2026 14:32:21 GMT</lastBuildDate><item><title><![CDATA[과학적 관리법을 읽고]]></title><description><![CDATA[…]]></description><link>https://hyungkishin.github.io/tailer/</link><guid isPermaLink="false">https://hyungkishin.github.io/tailer/</guid><pubDate>Tue, 31 Mar 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;기계적 통제인가, 노사 공동 번영의 길인가&lt;/h1&gt;
+&lt;h2&gt;테일러에 대한 선입견&lt;/h2&gt;
+&lt;p&gt;프레더릭 테일러라는 이름을 들으면 대부분 찰리 채플린의 영화 《모던 타임즈》를 떠올린다. 쉴 틈 없이 돌아가는 컨베이어 벨트, 화장실 가는 시간까지 통제받는 노동자. &apos;테일러리즘&apos;이라는 단어 자체가 비인간적 노동 착취의 동의어처럼 쓰이고 있으니, 솔직히 이 책을 펼치기 전까지 나 역시 그런 선입견에서 자유롭지 못했다.&lt;/p&gt;
+&lt;h2&gt;문제의 출발점은 경영자였다&lt;/h2&gt;
+&lt;p&gt;그런데 막상 『과학적 관리법』을 읽어보니, 테일러가 풀려고 했던 문제의 출발점부터 내 예상과 달랐다. 19세기 말 산업 현장에서는 노동자들이 일한 만큼 보상받지 못해 고의로 태업하는 일이 만연했다. 테일러는 이 현상의 원인을 노동자의 게으름이 아니라 경영자의 무능, 그러니까 체계적인 작업 방식을 제시하지 못하는 시스템의 부재에서 찾았다. 비난의 화살이 노동자가 아닌 경영자를 향하고 있었다는 사실이 의외였다.&lt;/p&gt;
+&lt;h2&gt;효율이 아니라 공동 번영이 목적이었다&lt;/h2&gt;
+&lt;p&gt;테일러가 내놓은 해법은 주먹구구식 경험칙을 걷어내고, 시간 및 동작 연구를 통해 가장 효율적인 작업 방식을 표준화하는 것이었다. 여기까지만 보면 역시 효율 지상주의자 아닌가 싶지만, 이 책에서 가장 놀라웠던 대목은 따로 있었다. 과학적 관리법의 궁극적 목적이 고용주와 노동자 양측의 &apos;공동 번영&apos;이라는 점이다. 테일러는 생산성 향상으로 얻은 이익을 차별적 성과급 제도를 통해 노동자와 공평하게 나눠야 한다고 주장했고, 노사가 대립이 아닌 협력적 파트너가 되어야 한다고 믿었다. 노동자를 쥐어짜는 도구가 아니라, 경영자가 먼저 최적의 방법을 찾아 노동자를 훈련시켜야 한다는 경영자의 도덕적 책임을 역설한 셈이다.&lt;/p&gt;
+&lt;h2&gt;선의는 증발하고 껍데기만 남았다&lt;/h2&gt;
+&lt;p&gt;안타까운 건 현실이었다. 수많은 자본가가 노사 협동이나 이익의 공평한 분배라는 핵심 철학은 무시한 채, 노동자를 더 효율적으로 부려먹는 도구로만 이 이론을 악용했다. 테일러의 선의는 증발하고 껍데기만 남은 것이다. 결국 노동자를 경제적 욕구에만 반응하는 기계적 존재로 간주한다는 꼬리표가 붙었고, 그 반작용으로 메이요의 호손 실험을 기반으로 한 인간관계론이 등장하게 된다.&lt;/p&gt;
+&lt;h2&gt;그럼에도 남은 유산&lt;/h2&gt;
+&lt;p&gt;그럼에도 테일러가 남긴 유산은 무겁다. 관리자의 직관에 의존하던 경영 방식을 객관적 데이터와 합리성에 기반한 시스템으로 전환시킨 것은 현대 산업공학과 경영학의 출발점이 되었다. 오늘날 데이터 분석으로 업무를 최적화하고 알고리즘으로 성과를 정량화하는 디지털 관리 시스템도, 결국 테일러가 던진 질문의 연장선에 있다.&lt;/p&gt;
+&lt;h2&gt;책을 덮으며&lt;/h2&gt;
+&lt;p&gt;이 책을 덮으며 한 가지 생각이 남았다. 진정한 생산성 향상은 노동자와 경영자의 진정성 있는 협력, 그리고 공정한 이익 배분이 전제될 때 비로소 완성된다는 것. 100여 년 전에 쓰인 이 원칙이 지금의 조직에서도 여전히 유효하다는 사실이, 이 책이 고전으로 남아 있는 이유일 것이다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[한 가지를 해결하면 반드시 다른 문제가 따라온다]]></title><description><![CDATA[배경 이번 주제는 이벤트 기반 아키텍처였다.
 동기 처리로 묶여 있던 주문 흐름을 이벤트로 분리하고, Kafka…]]></description><link>https://hyungkishin.github.io/seven-week/</link><guid isPermaLink="false">https://hyungkishin.github.io/seven-week/</guid><pubDate>Fri, 27 Mar 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;배경&lt;/h2&gt;
 &lt;p&gt;이번 주제는 이벤트 기반 아키텍처였다.
 동기 처리로 묶여 있던 주문 흐름을 이벤트로 분리하고, Kafka를 도입해서 서비스 경계를 넘는 메시지 파이프라인을 구축하는 것이 목표였다.
