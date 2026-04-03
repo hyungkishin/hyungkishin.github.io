@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 500" font-family="'Pretendard','Apple SD Gothic Neo',sans-serif">
+  <defs>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.15"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5568"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="700" height="500" rx="12" fill="#ffffff"/>
+
+  <!-- Title -->
+  <text x="350" y="28" text-anchor="middle" fill="#374151" font-size="13" font-weight="700">세 가지 동시성 전략과 DB 레벨 방어</text>
+
+  <!-- === Column 1: 재고 === -->
+  <text x="120" y="56" text-anchor="middle" fill="#1a1a2e" font-size="12" font-weight="700">📦 재고 차감</text>
+
+  <rect x="20" y="68" width="200" height="40" rx="8" fill="#1a1a2e" filter="url(#shadow)"/>
+  <text x="120" y="92" text-anchor="middle" fill="#e0e0e0" font-size="12" font-weight="600">🔒 SELECT FOR UPDATE</text>
+
+  <line x1="120" y1="108" x2="120" y2="130" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="20" y="134" width="200" height="40" rx="8" fill="#16213e" filter="url(#shadow)"/>
+  <text x="120" y="158" text-anchor="middle" fill="#e0e0e0" font-size="12" font-weight="600">⏳ 트랜잭션 직렬화</text>
+
+  <line x1="120" y1="174" x2="120" y2="196" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="20" y="200" width="200" height="50" rx="8" fill="#0f3460" filter="url(#shadow)"/>
+  <text x="120" y="222" text-anchor="middle" fill="#e0e0e0" font-size="11" font-weight="600">🛡️ WHERE stock >= qty</text>
+  <text x="120" y="240" text-anchor="middle" fill="#8b95a5" font-size="10">DB 레벨 최종 방어</text>
+
+  <line x1="120" y1="250" x2="120" y2="272" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="20" y="276" width="200" height="40" rx="8" fill="#2d6a4f" filter="url(#shadow)"/>
+  <text x="120" y="300" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="600">✅ affected=0이면 실패</text>
+
+  <!-- 재고 테스트 결과 -->
+  <rect x="20" y="332" width="200" height="76" rx="6" fill="#f0fdf4" stroke="#2d6a4f" stroke-width="1"/>
+  <text x="120" y="354" text-anchor="middle" fill="#166534" font-size="11" font-weight="600">테스트 결과</text>
+  <text x="120" y="372" text-anchor="middle" fill="#374151" font-size="10">재고 1000 + 100스레드 × 10개</text>
+  <text x="120" y="388" text-anchor="middle" fill="#2d6a4f" font-size="11" font-weight="600">100건 성공, 재고 0</text>
+  <text x="120" y="402" text-anchor="middle" fill="#374151" font-size="10">재고 50 + 100스레드 × 1개</text>
+
+  <!-- === Column 2: 쿠폰 === -->
+  <text x="350" y="56" text-anchor="middle" fill="#1a1a2e" font-size="12" font-weight="700">🎫 쿠폰 사용</text>
+
+  <rect x="250" y="68" width="200" height="40" rx="8" fill="#1a1a2e" filter="url(#shadow)"/>
+  <text x="350" y="92" text-anchor="middle" fill="#e0e0e0" font-size="12" font-weight="600">🔒 SELECT FOR UPDATE</text>
+
+  <line x1="350" y1="108" x2="350" y2="130" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="250" y="134" width="200" height="40" rx="8" fill="#16213e" filter="url(#shadow)"/>
+  <text x="350" y="158" text-anchor="middle" fill="#e0e0e0" font-size="12" font-weight="600">⏳ 트랜잭션 직렬화</text>
+
+  <line x1="350" y1="174" x2="350" y2="196" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="250" y="200" width="200" height="50" rx="8" fill="#0f3460" filter="url(#shadow)"/>
+  <text x="350" y="222" text-anchor="middle" fill="#e0e0e0" font-size="11" font-weight="600">🛡️ assertUsableBy()</text>
+  <text x="350" y="240" text-anchor="middle" fill="#8b95a5" font-size="10">상태=ISSUED 확인</text>
+
+  <line x1="350" y1="250" x2="350" y2="272" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="250" y="276" width="200" height="40" rx="8" fill="#2d6a4f" filter="url(#shadow)"/>
+  <text x="350" y="300" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="600">✅ USED 아니면 예외</text>
+
+  <!-- 쿠폰 테스트 결과 -->
+  <rect x="250" y="332" width="200" height="76" rx="6" fill="#f0fdf4" stroke="#2d6a4f" stroke-width="1"/>
+  <text x="350" y="354" text-anchor="middle" fill="#166534" font-size="11" font-weight="600">테스트 결과</text>
+  <text x="350" y="372" text-anchor="middle" fill="#374151" font-size="10">같은 쿠폰 100스레드 동시 주문</text>
+  <text x="350" y="388" text-anchor="middle" fill="#2d6a4f" font-size="11" font-weight="600">1건 성공, 99건 CouponException</text>
+  <text x="350" y="402" text-anchor="middle" fill="#374151" font-size="10">최종 상태 USED 확인</text>
+
+  <!-- === Column 3: 좋아요 === -->
+  <text x="580" y="56" text-anchor="middle" fill="#1a1a2e" font-size="12" font-weight="700">❤️ 좋아요</text>
+
+  <rect x="480" y="68" width="200" height="40" rx="8" fill="#1a1a2e" filter="url(#shadow)"/>
+  <text x="580" y="92" text-anchor="middle" fill="#e0e0e0" font-size="12" font-weight="600">🚫 INSERT IGNORE</text>
+
+  <line x1="580" y1="108" x2="580" y2="130" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="480" y="134" width="200" height="40" rx="8" fill="#16213e" filter="url(#shadow)"/>
+  <text x="580" y="158" text-anchor="middle" fill="#e0e0e0" font-size="12" font-weight="600">🔑 UK로 원자적 중복 방지</text>
+
+  <line x1="580" y1="174" x2="580" y2="196" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="480" y="200" width="200" height="50" rx="8" fill="#0f3460" filter="url(#shadow)"/>
+  <text x="580" y="222" text-anchor="middle" fill="#e0e0e0" font-size="11" font-weight="600">🛡️ like_count + 1</text>
+  <text x="580" y="240" text-anchor="middle" fill="#8b95a5" font-size="10">inserted=true일 때만 실행</text>
+
+  <line x1="580" y1="250" x2="580" y2="272" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="480" y="276" width="200" height="40" rx="8" fill="#2d6a4f" filter="url(#shadow)"/>
+  <text x="580" y="300" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="600">✅ 락 없이 멱등 보장</text>
+
+  <!-- 좋아요 테스트 결과 -->
+  <rect x="480" y="332" width="200" height="76" rx="6" fill="#f0fdf4" stroke="#2d6a4f" stroke-width="1"/>
+  <text x="580" y="354" text-anchor="middle" fill="#166534" font-size="11" font-weight="600">테스트 결과</text>
+  <text x="580" y="372" text-anchor="middle" fill="#374151" font-size="10">같은 유저 100회 동시 좋아요</text>
+  <text x="580" y="388" text-anchor="middle" fill="#2d6a4f" font-size="11" font-weight="600">likeCount = 1</text>
+  <text x="580" y="402" text-anchor="middle" fill="#374151" font-size="10">100명 동시 좋아요 = 100</text>
+
+  <!-- Bottom legend -->
+  <rect x="60" y="430" width="260" height="36" rx="6" fill="#f8f9fa" stroke="#d1d5db" stroke-width="1"/>
+  <text x="72" y="452" fill="#1a1a2e" font-size="11">🔒 비관적 락 (재고, 쿠폰)</text>
+
+  <rect x="380" y="430" width="260" height="36" rx="6" fill="#f8f9fa" stroke="#d1d5db" stroke-width="1"/>
+  <text x="392" y="452" fill="#1a1a2e" font-size="11">🚫 UK 기반 멱등성 (좋아요)</text>
+
+  <!-- Caption -->
+  <text x="350" y="488" text-anchor="middle" fill="#6b7280" font-size="11">같은 "동시성 제어"라도 도메인 특성에 따라 전략이 다르다</text>
+</svg>

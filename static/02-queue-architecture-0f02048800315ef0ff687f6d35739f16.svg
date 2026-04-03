@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 420" font-family="'Pretendard','Apple SD Gothic Neo',sans-serif">
+  <defs>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.15"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5568"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2d6a4f"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="700" height="420" rx="12" fill="#ffffff"/>
+
+  <!-- Title -->
+  <text x="350" y="28" text-anchor="middle" fill="#374151" font-size="13" font-weight="700">Redis 대기열 + 입장 토큰 구조</text>
+
+  <!-- Phase labels -->
+  <text x="130" y="56" text-anchor="middle" fill="#6b7280" font-size="11" font-weight="600">대기열 진입</text>
+  <text x="350" y="56" text-anchor="middle" fill="#6b7280" font-size="11" font-weight="600">토큰 발급 (스케줄러)</text>
+  <text x="575" y="56" text-anchor="middle" fill="#6b7280" font-size="11" font-weight="600">주문 처리</text>
+
+  <!-- Vertical dividers -->
+  <line x1="240" y1="42" x2="240" y2="380" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="460" y1="42" x2="460" y2="380" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4,4"/>
+
+  <!-- Phase 1: Queue Entry -->
+  <rect x="30" y="72" width="180" height="44" rx="8" fill="#1a1a2e" filter="url(#shadow)"/>
+  <text x="120" y="98" text-anchor="middle" fill="#e0e0e0" font-size="13" font-weight="600">👥 1만 명 요청</text>
+
+  <line x1="120" y1="116" x2="120" y2="146" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="20" y="150" width="200" height="44" rx="8" fill="#16213e" filter="url(#shadow)"/>
+  <text x="120" y="176" text-anchor="middle" fill="#e0e0e0" font-size="13" font-weight="600">🔴 Redis Sorted Set</text>
+
+  <rect x="20" y="206" width="200" height="80" rx="6" fill="#f8f9fa" stroke="#d1d5db" stroke-width="1"/>
+  <text x="120" y="226" text-anchor="middle" fill="#374151" font-size="11" font-weight="600">ZADD NX (중복 방지)</text>
+  <text x="120" y="244" text-anchor="middle" fill="#6b7280" font-size="10">score = timestamp</text>
+  <text x="120" y="262" text-anchor="middle" fill="#6b7280" font-size="10">선착순 보장</text>
+  <text x="120" y="278" text-anchor="middle" fill="#6b7280" font-size="10">경합 없음 (싱글 스레드)</text>
+
+  <!-- Phase 2: Scheduler -->
+  <rect x="262" y="72" width="180" height="44" rx="8" fill="#0f3460" filter="url(#shadow)"/>
+  <text x="352" y="98" text-anchor="middle" fill="#e0e0e0" font-size="13" font-weight="600">⏰ 100ms 주기</text>
+
+  <line x1="352" y1="116" x2="352" y2="146" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="262" y="150" width="180" height="44" rx="8" fill="#533483" filter="url(#shadow)"/>
+  <text x="352" y="176" text-anchor="middle" fill="#e0e0e0" font-size="13" font-weight="600">📤 ZPOPMIN 18명</text>
+
+  <line x1="352" y1="194" x2="352" y2="224" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="262" y="228" width="180" height="56" rx="8" fill="#16213e" filter="url(#shadow)"/>
+  <text x="352" y="252" text-anchor="middle" fill="#e0e0e0" font-size="13" font-weight="600">🎟️ UUID 토큰 발급</text>
+  <text x="352" y="272" text-anchor="middle" fill="#8b95a5" font-size="10">SET token:{userId} TTL 300s</text>
+
+  <!-- Arrow from Phase 1 to Phase 2 -->
+  <line x1="220" y1="172" x2="262" y2="172" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Phase 3: Order -->
+  <rect x="482" y="72" width="190" height="44" rx="8" fill="#1a1a2e" filter="url(#shadow)"/>
+  <text x="577" y="98" text-anchor="middle" fill="#e0e0e0" font-size="13" font-weight="600">🧑 토큰 보유 사용자</text>
+
+  <line x1="577" y1="116" x2="577" y2="146" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="482" y="150" width="190" height="44" rx="8" fill="#0f3460" filter="url(#shadow)"/>
+  <text x="577" y="176" text-anchor="middle" fill="#e0e0e0" font-size="13" font-weight="600">🔑 토큰 검증 (hasToken)</text>
+
+  <line x1="577" y1="194" x2="577" y2="224" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="482" y="228" width="190" height="56" rx="8" fill="#16213e" filter="url(#shadow)"/>
+  <text x="577" y="252" text-anchor="middle" fill="#e0e0e0" font-size="13" font-weight="600">🗄️ FOR UPDATE + 재고 차감</text>
+  <text x="577" y="272" text-anchor="middle" fill="#8b95a5" font-size="10">DB 동시 접속 18명 이하</text>
+
+  <line x1="577" y1="284" x2="577" y2="314" stroke="#2d6a4f" stroke-width="2" marker-end="url(#arrow-green)"/>
+
+  <rect x="482" y="318" width="190" height="44" rx="8" fill="#2d6a4f" filter="url(#shadow)"/>
+  <text x="577" y="344" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="600">✅ 주문 완료 + 토큰 삭제</text>
+
+  <!-- Arrow from Phase 2 to Phase 3 -->
+  <line x1="442" y1="256" x2="482" y2="256" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Bottom summary -->
+  <rect x="30" y="310" width="200" height="56" rx="8" fill="#b8860b" opacity="0.15" stroke="#b8860b" stroke-width="1"/>
+  <text x="130" y="334" text-anchor="middle" fill="#92650a" font-size="11" font-weight="600">⚠️ 대기열 앞단에서 흡수</text>
+  <text x="130" y="352" text-anchor="middle" fill="#92650a" font-size="10">1만 명이 와도 Redis가 버퍼 역할</text>
+
+  <!-- Caption -->
+  <text x="350" y="404" text-anchor="middle" fill="#6b7280" font-size="11">DB에는 스케줄러 배치 크기(18명)만큼만 도달한다</text>
+</svg>
