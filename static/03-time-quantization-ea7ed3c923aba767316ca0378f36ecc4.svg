@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 520" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="920" height="520" fill="#0f172a"/>
+
+  <text x="460" y="36" fill="#e2e8f0" font-size="18" font-weight="600" text-anchor="middle">누적 랭킹 vs 일간 랭킹</text>
+  <text x="460" y="58" fill="#64748b" font-size="12" text-anchor="middle">시간의 경계를 긋지 않으면, 과거가 현재를 덮는다</text>
+
+  <!-- Left: 누적 -->
+  <g transform="translate(40, 100)">
+    <text x="190" y="0" fill="#ef4444" font-size="14" font-weight="600" text-anchor="middle">❌ 누적만 한 경우</text>
+
+    <!-- Axes -->
+    <line x1="40" y1="40" x2="40" y2="300" stroke="#334155" stroke-width="1"/>
+    <line x1="40" y1="300" x2="360" y2="300" stroke="#334155" stroke-width="1"/>
+    <text x="40" y="320" fill="#64748b" font-size="10">Day 1</text>
+    <text x="140" y="320" fill="#64748b" font-size="10">Day 7</text>
+    <text x="240" y="320" fill="#64748b" font-size="10">Day 14</text>
+    <text x="340" y="320" fill="#64748b" font-size="10">Day 30</text>
+    <text x="20" y="46" fill="#64748b" font-size="10" text-anchor="end">Top</text>
+
+    <!-- Old top dominates (flat line at top) -->
+    <path d="M 40 80 Q 150 70 360 60" stroke="#ef4444" stroke-width="3" fill="none"/>
+    <circle cx="40" cy="80" r="4" fill="#ef4444"/>
+    <text x="50" y="76" fill="#ef4444" font-size="10">Day 1 히트 상품</text>
+
+    <!-- New items struggling -->
+    <path d="M 140 280 Q 200 270 360 240" stroke="#64748b" stroke-width="2" fill="none" stroke-dasharray="4,4"/>
+    <circle cx="140" cy="280" r="3" fill="#64748b"/>
+    <text x="148" y="276" fill="#64748b" font-size="10">Day 7 신상품</text>
+
+    <path d="M 240 290 Q 280 285 360 275" stroke="#64748b" stroke-width="2" fill="none" stroke-dasharray="4,4"/>
+    <circle cx="240" cy="290" r="3" fill="#64748b"/>
+    <text x="248" y="286" fill="#64748b" font-size="10">Day 14 신상품</text>
+
+    <text x="190" y="380" fill="#94a3b8" font-size="12" text-anchor="middle">Day 1에 오른 상품이 한 달 내내 Top</text>
+    <text x="190" y="398" fill="#94a3b8" font-size="12" text-anchor="middle">신상품은 따라잡지 못한다 (롱테일)</text>
+  </g>
+
+  <!-- Right: 일간 -->
+  <g transform="translate(500, 100)">
+    <text x="190" y="0" fill="#10b981" font-size="14" font-weight="600" text-anchor="middle">✅ 일간 키로 분리한 경우</text>
+
+    <!-- Axes -->
+    <line x1="40" y1="40" x2="40" y2="300" stroke="#334155" stroke-width="1"/>
+    <line x1="40" y1="300" x2="360" y2="300" stroke="#334155" stroke-width="1"/>
+    <text x="40" y="320" fill="#64748b" font-size="10">Day 1</text>
+    <text x="140" y="320" fill="#64748b" font-size="10">Day 7</text>
+    <text x="240" y="320" fill="#64748b" font-size="10">Day 14</text>
+    <text x="340" y="320" fill="#64748b" font-size="10">Day 30</text>
+    <text x="20" y="46" fill="#64748b" font-size="10" text-anchor="end">Top</text>
+
+    <!-- Day boundaries (vertical dashes) -->
+    <line x1="85" y1="40" x2="85" y2="300" stroke="#1e293b" stroke-width="1" stroke-dasharray="2,3"/>
+    <line x1="130" y1="40" x2="130" y2="300" stroke="#1e293b" stroke-width="1" stroke-dasharray="2,3"/>
+    <line x1="175" y1="40" x2="175" y2="300" stroke="#1e293b" stroke-width="1" stroke-dasharray="2,3"/>
+    <line x1="220" y1="40" x2="220" y2="300" stroke="#1e293b" stroke-width="1" stroke-dasharray="2,3"/>
+    <line x1="265" y1="40" x2="265" y2="300" stroke="#1e293b" stroke-width="1" stroke-dasharray="2,3"/>
+    <line x1="310" y1="40" x2="310" y2="300" stroke="#1e293b" stroke-width="1" stroke-dasharray="2,3"/>
+
+    <!-- Day 1 hit (drops after day 1) -->
+    <path d="M 40 80 L 85 85" stroke="#10b981" stroke-width="3" fill="none"/>
+    <circle cx="40" cy="80" r="3" fill="#10b981"/>
+
+    <!-- Day 7 new product (top only on day 7) -->
+    <path d="M 130 90 L 175 95" stroke="#38bdf8" stroke-width="3" fill="none"/>
+    <circle cx="130" cy="90" r="3" fill="#38bdf8"/>
+    <text x="138" y="82" fill="#38bdf8" font-size="10">신상품이 Top 진입</text>
+
+    <!-- Day 14 new product -->
+    <path d="M 220 75 L 265 80" stroke="#a78bfa" stroke-width="3" fill="none"/>
+    <circle cx="220" cy="75" r="3" fill="#a78bfa"/>
+    <text x="228" y="67" fill="#a78bfa" font-size="10">다른 신상품 등장</text>
+
+    <!-- Day 30 new product -->
+    <path d="M 310 85 L 360 90" stroke="#f59e0b" stroke-width="3" fill="none"/>
+    <circle cx="310" cy="85" r="3" fill="#f59e0b"/>
+
+    <text x="190" y="380" fill="#94a3b8" font-size="12" text-anchor="middle">매일 키가 분리되므로</text>
+    <text x="190" y="398" fill="#94a3b8" font-size="12" text-anchor="middle">오늘의 Top은 오늘의 시그널로 결정된다</text>
+  </g>
+
+  <!-- Bottom note -->
+  <rect x="60" y="450" width="800" height="40" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="460" y="475" fill="#94a3b8" font-size="12" text-anchor="middle" font-family="ui-monospace, Menlo, monospace">
+    ranking:all:20260410  /  ranking:all:20260411  /  ranking:all:20260412  ...
+  </text>
+</svg>
