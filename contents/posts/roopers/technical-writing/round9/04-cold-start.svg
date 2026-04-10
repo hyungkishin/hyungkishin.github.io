@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 500" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="920" height="500" fill="#0f172a"/>
+
+  <text x="460" y="36" fill="#e2e8f0" font-size="18" font-weight="600" text-anchor="middle">콜드 스타트 — 자정을 넘기는 순간, 랭킹은 비어있다</text>
+  <text x="460" y="58" fill="#64748b" font-size="12" text-anchor="middle">23:50에 전일 Top 500 × 10%를 익일 키로 미리 복사해둔다</text>
+
+  <!-- Yesterday -->
+  <g transform="translate(60, 110)">
+    <rect x="0" y="0" width="300" height="320" rx="10" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+    <text x="150" y="30" fill="#94a3b8" font-size="14" font-weight="600" text-anchor="middle">ranking:all:20260410</text>
+    <text x="150" y="48" fill="#64748b" font-size="11" text-anchor="middle">어제 23:50 시점</text>
+
+    <!-- entries -->
+    <g transform="translate(20, 70)">
+      <rect x="0" y="0" width="260" height="28" rx="4" fill="#0f172a" stroke="#38bdf8" stroke-width="1"/>
+      <text x="12" y="18" fill="#e2e8f0" font-size="12" font-family="ui-monospace, Menlo, monospace">product:101</text>
+      <text x="250" y="18" fill="#38bdf8" font-size="12" font-family="ui-monospace, Menlo, monospace" text-anchor="end">42.7</text>
+
+      <rect x="0" y="36" width="260" height="28" rx="4" fill="#0f172a" stroke="#38bdf8" stroke-width="1"/>
+      <text x="12" y="54" fill="#e2e8f0" font-size="12" font-family="ui-monospace, Menlo, monospace">product:208</text>
+      <text x="250" y="54" fill="#38bdf8" font-size="12" font-family="ui-monospace, Menlo, monospace" text-anchor="end">31.2</text>
+
+      <rect x="0" y="72" width="260" height="28" rx="4" fill="#0f172a" stroke="#38bdf8" stroke-width="1"/>
+      <text x="12" y="90" fill="#e2e8f0" font-size="12" font-family="ui-monospace, Menlo, monospace">product:415</text>
+      <text x="250" y="90" fill="#38bdf8" font-size="12" font-family="ui-monospace, Menlo, monospace" text-anchor="end">18.5</text>
+
+      <rect x="0" y="108" width="260" height="28" rx="4" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+      <text x="12" y="126" fill="#94a3b8" font-size="12" font-family="ui-monospace, Menlo, monospace">product:733</text>
+      <text x="250" y="126" fill="#94a3b8" font-size="12" font-family="ui-monospace, Menlo, monospace" text-anchor="end">12.1</text>
+
+      <text x="130" y="160" fill="#475569" font-size="11" text-anchor="middle">... 500개까지</text>
+    </g>
+  </g>
+
+  <!-- Arrow with "× 0.1" -->
+  <g transform="translate(380, 230)">
+    <defs>
+      <marker id="coldarr" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b"/>
+      </marker>
+    </defs>
+    <line x1="0" y1="40" x2="140" y2="40" stroke="#f59e0b" stroke-width="3" marker-end="url(#coldarr)"/>
+    <rect x="30" y="10" width="90" height="26" rx="4" fill="#1e293b" stroke="#f59e0b" stroke-width="1"/>
+    <text x="75" y="28" fill="#f59e0b" font-size="12" font-weight="600" text-anchor="middle">× 0.1</text>
+    <text x="75" y="62" fill="#64748b" font-size="10" text-anchor="middle">Scheduler 23:50</text>
+  </g>
+
+  <!-- Today -->
+  <g transform="translate(560, 110)">
+    <rect x="0" y="0" width="300" height="320" rx="10" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+    <text x="150" y="30" fill="#10b981" font-size="14" font-weight="600" text-anchor="middle">ranking:all:20260411</text>
+    <text x="150" y="48" fill="#64748b" font-size="11" text-anchor="middle">오늘 00:00 시점</text>
+
+    <g transform="translate(20, 70)">
+      <rect x="0" y="0" width="260" height="28" rx="4" fill="#0f172a" stroke="#10b981" stroke-width="1"/>
+      <text x="12" y="18" fill="#e2e8f0" font-size="12" font-family="ui-monospace, Menlo, monospace">product:101</text>
+      <text x="250" y="18" fill="#10b981" font-size="12" font-family="ui-monospace, Menlo, monospace" text-anchor="end">4.27</text>
+
+      <rect x="0" y="36" width="260" height="28" rx="4" fill="#0f172a" stroke="#10b981" stroke-width="1"/>
+      <text x="12" y="54" fill="#e2e8f0" font-size="12" font-family="ui-monospace, Menlo, monospace">product:208</text>
+      <text x="250" y="54" fill="#10b981" font-size="12" font-family="ui-monospace, Menlo, monospace" text-anchor="end">3.12</text>
+
+      <rect x="0" y="72" width="260" height="28" rx="4" fill="#0f172a" stroke="#10b981" stroke-width="1"/>
+      <text x="12" y="90" fill="#e2e8f0" font-size="12" font-family="ui-monospace, Menlo, monospace">product:415</text>
+      <text x="250" y="90" fill="#10b981" font-size="12" font-family="ui-monospace, Menlo, monospace" text-anchor="end">1.85</text>
+
+      <rect x="0" y="108" width="260" height="28" rx="4" fill="#0f172a" stroke="#10b981" stroke-width="1"/>
+      <text x="12" y="126" fill="#e2e8f0" font-size="12" font-family="ui-monospace, Menlo, monospace">product:733</text>
+      <text x="250" y="126" fill="#10b981" font-size="12" font-family="ui-monospace, Menlo, monospace" text-anchor="end">1.21</text>
+
+      <text x="130" y="160" fill="#475569" font-size="11" text-anchor="middle">+ 오늘의 신규 시그널</text>
+    </g>
+  </g>
+
+  <!-- Bottom note -->
+  <rect x="60" y="450" width="800" height="40" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="460" y="475" fill="#94a3b8" font-size="12" text-anchor="middle">10%는 "어제 인기 있었음"을 알려주는 신호일 뿐, 오늘의 시그널이 더 크면 순위는 바뀐다</text>
+</svg>
