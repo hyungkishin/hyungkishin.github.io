@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Wed, 15 Apr 2026 17:59:07 GMT</lastBuildDate><item><title><![CDATA[오늘의 인기상품, 어제의 인기상품과 어떻게 구분할까?]]></title><description><![CDATA[오늘의 인기상품, 어제의 인기상품과 어떻게 구분할까? TL;DR Kafka로 들어오는 조회/좋아요/주문 이벤트를 Redis ZSET에 누적해서 랭킹을 만들었어요. 구현 자체는  한 줄이지만, 그 주변에서  키를 어떻게 자를지, 가중치는 왜 0.1/…]]></description><link>https://hyungkishin.github.io/round9/</link><guid isPermaLink="false">https://hyungkishin.github.io/round9/</guid><pubDate>Fri, 10 Apr 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;오늘의 인기상품, 어제의 인기상품과 어떻게 구분할까?&lt;/h1&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Wed, 15 Apr 2026 18:22:55 GMT</lastBuildDate><item><title><![CDATA[오늘의 인기상품, 어제의 인기상품과 어떻게 구분할까?]]></title><description><![CDATA[오늘의 인기상품, 어제의 인기상품과 어떻게 구분할까? TL;DR Kafka로 들어오는 조회/좋아요/주문 이벤트를 Redis ZSET에 누적해서 랭킹을 만들었어요. 구현 자체는  한 줄이지만, 그 주변에서  키를 어떻게 자를지, 가중치는 왜 0.1/…]]></description><link>https://hyungkishin.github.io/round9/</link><guid isPermaLink="false">https://hyungkishin.github.io/round9/</guid><pubDate>Fri, 10 Apr 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;오늘의 인기상품, 어제의 인기상품과 어떻게 구분할까?&lt;/h1&gt;
 &lt;blockquote&gt;
 &lt;p&gt;&lt;strong&gt;TL;DR&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;Kafka로 들어오는 조회/좋아요/주문 이벤트를 Redis ZSET에 누적해서 랭킹을 만들었어요.&lt;/p&gt;
@@ -2134,8 +2134,8 @@ Offset 기반이든 Cursor 기반이든 넣어야 합니다.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;캐시를 먼저 붙이면 인덱스 없는 쿼리를 가리는 붕대가 됩니다.&lt;/strong&gt;&lt;br&gt;
 붕대 밑의 상처는 cache miss가 나는 순간 그대로 터집니다.&lt;/p&gt;
 &lt;p&gt;어디에 비용을 둘지 고르는 게 설계이고,&lt;br&gt;
-그 판단에는 순서가 있었다는걸요 :)&lt;/p&gt;</content:encoded></item><item><title><![CDATA[Kafka Consumer 성능 병목, 어디서 터지는가]]></title><description><![CDATA[TL;DR Kafka Consumer가 느린 이유는 대부분 "안 봐도 되는 메시지를 너무 정성스럽게 처리해서"입니다. 전체를 파싱하고, 역직렬화하고, 실패하면 본문째 로그로 찍는 구조인데요, 트래픽이 올라가면 consumer lag…]]></description><link>https://hyungkishin.github.io/round4/</link><guid isPermaLink="false">https://hyungkishin.github.io/round4/</guid><pubDate>Fri, 06 Mar 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;TL;DR&lt;/h2&gt;
-&lt;p&gt;Kafka Consumer가 느린 이유는 대부분 &quot;안 봐도 되는 메시지를 너무 정성스럽게 처리해서&quot;입니다.&lt;/p&gt;
+그 판단에는 순서가 있었다는걸요 :)&lt;/p&gt;</content:encoded></item><item><title><![CDATA[Kafka Consumer 병목의 진짜 원인: 잘못된 토픽 설계와 불필요한 파싱]]></title><description><![CDATA[TL;DR 잘못된 토픽 설계와 불필요한 파싱 때문에, 대부분 "안 봐도 되는 메시지를 너무 정성스럽게 처리해서" 발생한 문제를 겪었습니다. 전체를 파싱하고, 역직렬화하고, 실패하면 본문째 로그로 찍는 구조인데요, 트래픽이 올라가면 consumer…]]></description><link>https://hyungkishin.github.io/round4/</link><guid isPermaLink="false">https://hyungkishin.github.io/round4/</guid><pubDate>Fri, 06 Mar 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;TL;DR&lt;/h2&gt;
+&lt;p&gt;잘못된 토픽 설계와 불필요한 파싱 때문에, 대부분 &quot;안 봐도 되는 메시지를 너무 정성스럽게 처리해서&quot; 발생한 문제를 겪었습니다.&lt;/p&gt;
 &lt;p&gt;전체를 파싱하고, 역직렬화하고, 실패하면 본문째 로그로 찍는 구조인데요,&lt;br&gt;
 트래픽이 올라가면 consumer lag으로 바로 이어집니다.&lt;/p&gt;
 &lt;p&gt;이 글에서는 실제로 겪었던 Kafka Consumer 병목 패턴과,&lt;br&gt;
@@ -2148,9 +2148,9 @@ Jackson Streaming Parser로 사전 필터링한 경험을 다룹니다.&lt;/p&gt
 &lt;p&gt;필요한 건 특정 실패 메시지뿐인데,
 토픽을 쪼갤 수 없는 상황이라면 어떻게 해야 할까요?&lt;/p&gt;
 &lt;p&gt;근본적으로는 토픽을 도메인 단위로 분리하는 게 맞습니다.
-하지만 이 토픽은 producer 쪽에서 &quot;알림톡 실패&quot;라는 하나의 관심사로 설계한 구조였고,
-consumer마다 필요한 메시지가 다르다는 점은 나중에 드러난 문제였습니다.
-토픽 분리는 producer를 소유한 다른 팀의 변경이 필요해서 단기적으로는 어려웠고,
+하지만 이 토픽은 producer 쪽에서 &quot;알림톡 실패&quot;라는 하나의 관심사로 설계한 구조였고,&lt;/p&gt;
+&lt;p&gt;consumer마다 필요한 메시지가 다르다는 점은 나중에 드러난 문제였습니다.&lt;/p&gt;
+&lt;p&gt;토픽 분리는 producer를 소유한 다른 팀의 변경이 필요해서 단기적으로는 어려웠고,&lt;br&gt;
 consumer 쪽에서 비용을 줄이는 방향을 먼저 택했습니다.&lt;/p&gt;
 &lt;p&gt;이 구조에서 consumer를 돌리다 보면 꽤 빨리 성능 문제를 만나게 됩니다.&lt;/p&gt;
 &lt;hr&gt;
