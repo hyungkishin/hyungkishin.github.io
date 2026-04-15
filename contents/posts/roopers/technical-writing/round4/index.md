@@ -11,53 +11,41 @@ tags:
 
 ## TL;DR
 
-Kafka Consumer가 느린 이유는 대부분 "안 봐도 되는 메시지를 너무 정성스럽게 처리해서"입니다. 
+Kafka Consumer가 느린 이유는 대부분 "안 봐도 되는 메시지를 너무 정성스럽게 처리해서"입니다.    
 
 전체를 파싱하고, 역직렬화하고, 실패하면 본문째 로그로 찍는 구조인데요,   
-트래픽이 올라가면 consumer lag으로 바로 이어집니다.  
+트래픽이 올라가면 consumer lag으로 바로 이어집니다.    
 
 이 글에서는 실제로 겪었던 Kafka Consumer 병목 패턴과,  
-Jackson Streaming Parser로 사전 필터링한 경험을 다룹니다.  
+Jackson Streaming Parser로 사전 필터링한 경험을 다룹니다.    
 
 ---
 
 ## 들어가며
 
-Kafka 토픽 하나에 여러 서비스 메시지가 섞여 있는 구조는 실무에서 꽤 흔합니다.
+Kafka 토픽 하나에 여러 서비스 메시지가 섞여 있는 구조는 레거시 혹은 특정 상황에서는 자주 보이는 케이스 입니다.
 
 "알림톡 발송 실패" 토픽이 있다고 치면,   
-여기에 결제, 마케팅, 정산 등 온갖 서비스의 실패 메시지가 다 들어옵니다.
+여기에 온갖 서비스의 실패 메시지가 다 들어왔었습니다.  
 
-필요한 건 정산 서비스 실패 메시지뿐인데,   
+필요한 건 특정 실패 메시지뿐인데,
 토픽을 쪼갤 수 없는 상황이라면 어떻게 해야 할까요?
 
-이 구조에서 consumer를 돌리다 보면 꽤 빨리 성능 문제를 만나게 됩니다.
+근본적으로는 토픽을 도메인 단위로 분리하는 게 맞습니다.
+하지만 이 토픽은 producer 쪽에서 "알림톡 실패"라는 하나의 관심사로 설계한 구조였고,
+consumer마다 필요한 메시지가 다르다는 점은 나중에 드러난 문제였습니다.
+토픽 분리는 producer를 소유한 다른 팀의 변경이 필요해서 단기적으로는 어려웠고,
+consumer 쪽에서 비용을 줄이는 방향을 먼저 택했습니다.
+
+이 구조에서 consumer를 돌리다 보면 꽤 빨리 성능 문제를 만나게 됩니다.  
 
 ---
 
 ## 어떤 구조였나
 
-```mermaid
-flowchart TB
-    subgraph kafka["Kafka 토픽 — notification-fail-v1"]
-        direction LR
-        m1["정산 서비스 실패"]
-        m2["마케팅 캠페인 실패"]
-        m3["기타 서비스 실패"]
-        m4["기타 서비스 실패"]
-    end
+![Consumer 구조 — 토픽 하나에 모든 서비스 실패 메시지가 섞여 들어오는 구조](./01-architecture.svg)
 
-    kafka -->|"전부 consume"| consumer
-
-    consumer["NotificationFailConsumer<br/>(concurrency=1, maxPoll=10)"]
-    handler["FailHandler<br/>정산 관련 메시지만 처리"]
-    fallback["FallbackService<br/>SMS 대체 발송"]
-
-    consumer -->|"정산 메시지만 처리"| handler
-    handler --> fallback
-```
-
-토픽에 분당 10,000건이 들어오는데, 처리할 건 그중 0.1%인 10건 정도입니다.
+토픽에 분당 10,000건이 들어오는데, 처리할 건 그중 0.1%인 10건 정도입니다.  
 나머지 9,990건은 읽고 버려야 하는데요, 이 "읽고 버리는" 과정이 생각보다 무겁습니다.
 
 ### 흔한 구현: 일단 다 파싱하고 필터링
@@ -68,9 +56,9 @@ flowchart TD
     readTree["objectMapper.readTree()<br/>JSON 전체 파싱"]
     treeToValue["objectMapper.treeToValue()<br/>내 DTO로 역직렬화 시도"]
     success{"역직렬화<br/>성공?"}
-    handle["handle()<br/>서비스 소스 체크 후 처리"]
+    handle["handle()<br/>서비스 소스 체크"]
+    isMine{"내 서비스<br/>메시지?"}
     logError["log.error(message.value())<br/>메시지 전체 본문 로그 출력"]
-    mostly_return["대부분 return<br/>(내 서비스 아님)"]
     ack["ack.acknowledge()"]
 
     start --> readTree
@@ -78,15 +66,17 @@ flowchart TD
     treeToValue --> success
 
     success -->|"성공"| handle
-    success -->|"실패<br/>(구조 불일치)"| logError
+    success -->|"실패 (구조 불일치)<br/>9,990건"| logError
 
-    handle --> mostly_return
-    mostly_return --> ack
+    handle --> isMine
+    isMine -->|"아님 (99.9%)"| ack
+    isMine -->|"맞음 (0.1%)"| process["SMS 대체 발송"]
+    process --> ack
     logError --> ack
 
     style treeToValue fill:#e94560,color:#ffffff
     style logError fill:#e94560,color:#ffffff
-    style mostly_return fill:#b8860b,color:#e0e0e0
+    style isMine fill:#b8860b,color:#e0e0e0
 ```
 
 왜 느린지 하나씩 뜯어보겠습니다.
@@ -100,15 +90,18 @@ flowchart TD
 
 ### 병목 2: 전부 역직렬화 시도
 
-`treeToValue()`로 DTO에 매핑을 시도하는데, 다른 서비스 메시지는 구조가 다르니까 대부분 실패합니다.
+`treeToValue()`로 DTO에 매핑을 시도하는데, 다른 서비스 메시지는 구조가 다르니까 대부분 실패합니다.   
+
 9,990건의 역직렬화 실패는 곧 9,990번의 예외 생성 + 스택트레이스 구성을 의미합니다.
+
 예외를 만드는 것 자체가 비쌉니다.
 
 ### 병목 3: 실패하면 본문 전체를 로그로
 
 여기가 가장 아팠습니다.
 역직렬화 실패하면 디버깅용으로 `log.error(message.value())` 찍는 경우가 많은데, 이게 분당 9,990번 호출됩니다.
-본문이 1KB라고 치면 분당 약 10MB 로그가 쌓입니다.
+본문이 1KB라고 치면 분당 약 10MB 로그가 쌓입니다.  
+
 로그 I/O가 consumer 스레드를 잡아먹고, 로그 백엔드(Elasticsearch 등)에도 부하를 줍니다.
 
 거기다 본문에 전화번호, 이름 같은 **개인정보**가 들어있다면 로그 시스템에 민감정보가 그대로 쌓이게 됩니다.
@@ -136,12 +129,21 @@ flowchart LR
     style delay fill:#e94560,color:#ffffff
 ```
 
-10건 처리하려고 10,000건을 풀 파싱하고, 9,990번 예외 만들고, 9,990번 로그 찍는 구조입니다.
+10건 처리하려고 10,000건을 풀 파싱하고, 9,990번 예외 만들고, 9,990번 로그 찍는 구조입니다.  
+
 lag은 쌓이고, 정작 중요한 SMS 대체 발송은 몇 분씩 밀립니다.
 
 ---
 
 ## 어떻게 해결했나 ? - Jackson Streaming으로 사전 필터링
+
+선택지는 크게 두 가지였습니다.  
+
+토픽을 분리해서 구조 자체를 바꾸거나, consumer에서 필터링 비용을 줄이거나.  
+
+토픽 분리는 producer 팀과의 협의 + 메시지 마이그레이션이 필요해서 최소 몇 주가 걸리는 일이었고,
+
+당장 consumer lag이 쌓이고 있는 상황에서는 consumer 쪽에서 먼저 손을 대야 했습니다.
 
 아이디어 자체는 간단합니다.
 
@@ -150,47 +152,37 @@ lag은 쌓이고, 정작 중요한 SMS 대체 발송은 몇 분씩 밀립니다.
 JSON에서 `message_source` 필드 하나만 빠르게 읽으면 되는데,   
 그걸 위해 전체 DOM 트리를 만들 이유가 없습니다.
 
-Jackson의 **Streaming API (JsonParser)** 는 토큰 단위로 JSON을 순차 읽기하기 때문에,   
-객체를 안 만들고 원하는 필드 찾으면 바로 끊을 수 있습니다.
+Jackson의 **Streaming API (JsonParser)** 는 토큰 단위로 JSON을 순차 읽기하기 때문에, 객체를 안 만들고 원하는 필드 찾으면 바로 끊을 수 있습니다.
 
 ### 변경 후에는 어떤 흐름이 되나요?
 
 ```mermaid
 flowchart TD
-    start(["메시지 수신<br/>(모든 서비스 메시지)"])
-    streaming["Jackson Streaming Parser<br/>message_source 필드만 탐색<br/>(DOM 생성 없음)"]
-    isMine{"message_source<br/>== 내 서비스?"}
-    skipAck["ack → return<br/>즉시 skip"]
-    parseTree["objectMapper.readTree()<br/>+ treeToValue()<br/>내 메시지만 DOM 파싱/역직렬화"]
+    start(["메시지 수신"])
+    streaming["Jackson Streaming Parser<br/>message_source 필드만 탐색"]
+    isMine{"내 서비스<br/>메시지?"}
+    skipAck["즉시 ack + skip"]
+    parseTree["readTree() + treeToValue()<br/>풀 파싱 + 역직렬화"]
     handle["handle() → SMS 발송"]
-    handleResult{"처리<br/>성공?"}
-    successAck["ack (finally)"]
-    failLog["log.error(메타 정보만)<br/>topic/partition/offset<br/>key/userId/cause<br/>본문 없음"]
-    failAck["ack (finally)<br/>(partition stall 방지)"]
-    parseErr["JSON 파싱 실패<br/>log.warn(size만)"]
-    parseErrAck["false 반환<br/>→ ack + skip"]
+    ack["ack (finally)"]
 
     start --> streaming
     streaming --> isMine
 
-    isMine -->|"내 서비스"| parseTree
-    isMine -->|"그 외 (99.9%)"| skipAck
+    isMine -->|"아님 (99.9%)"| skipAck
+    isMine -->|"맞음 (0.1%)"| parseTree
 
-    streaming -.->|"파싱 실패"| parseErr --> parseErrAck
-
-    parseTree --> handle --> handleResult
-
-    handleResult -->|"성공"| successAck
-    handleResult -->|"실패"| failLog --> failAck
+    parseTree --> handle --> ack
 
     style streaming fill:#0f3460,color:#e0e0e0
-    style isMine fill:#2d6a4f,color:#ffffff
     style skipAck fill:#2d6a4f,color:#ffffff
-    style parseTree fill:#16213e,color:#e0e0e0
-    style successAck fill:#2d6a4f,color:#ffffff
-    style failLog fill:#e94560,color:#ffffff
-    style failAck fill:#b8860b,color:#e0e0e0
+    style isMine fill:#2d6a4f,color:#ffffff
 ```
+
+핵심은 **99.9%가 Streaming 단계에서 끝난다**는 점입니다.
+나머지 0.1%만 풀 파싱을 거칩니다.
+
+에러 처리와 ack 보장 전략은 [아래 섹션](#왜-실패해도-ack을-하나요)에서 다룹니다.
 
 ### Streaming과 readTree, 뭐가 다른 건가요?
 
@@ -373,28 +365,6 @@ try {
 
 ### 케이스별 정리
 
-```mermaid
-flowchart LR
-    subgraph cases["케이스별 ack 정책"]
-        direction TB
-        c1["Streaming 파싱 실패<br/>(깨진 메시지)"]
-        c2["관심 없는 메시지"]
-        c3["처리 성공"]
-        c4["처리 실패<br/>(역직렬화/외부API/DB)"]
-    end
-
-    c1 -->|"ack O"| r1["warn 로그<br/>(size만)"]
-    c2 -->|"ack O"| r2["로그 없음"]
-    c3 -->|"ack O"| r3["info 로그"]
-    c4 -->|"ack O<br/>(finally)"| r4["error 로그<br/>(상관키+cause만)<br/>본문 없음"]
-
-    style c1 fill:#4a4a4a,color:#e0e0e0
-    style c2 fill:#4a4a4a,color:#e0e0e0
-    style c3 fill:#2d6a4f,color:#ffffff
-    style c4 fill:#e94560,color:#ffffff
-    style r4 fill:#b8860b,color:#e0e0e0
-```
-
 | 케이스 | ack | 로그 | 이유 |
 |--------|-----|------|------|
 | Streaming 파싱 실패 | O | `warn` (size만) | 재시도해봤자 의미 없습니다 (깨진 메시지) |
@@ -476,7 +446,7 @@ private fun classifyCause(e: Exception): String {
 
 ### DLQ가 필요해지는 시점
 
-- 메시지 유실이 CS/정산/법적 이슈로 번질 수 있을 때
+- 메시지 유실이 CS나 법적 이슈로 번질 수 있을 때
 - 장애가 반복돼서 수동 대응이 지칠 때
 - 실패 디버깅에 원문 payload가 꼭 필요할 때 (로그에는 민감정보를 못 남기니까요)
 - 발송이 법적 의무(고지 문자 등)로 승격될 때, ack-on-failure가 위험해지면서 DLQ + 재처리 파이프라인이 필수가 됩니다
@@ -502,3 +472,8 @@ partition stall은 실패 한 건보다 훨씬 큰 장애를 만들기 때문입
 상관키는 null 방어를 해서 검색 가능한 키가 최소 하나는 남도록 했습니다.
 
 빠르게 처리하는 게 아니라, **안 해도 되는 걸 안 하는 게** 이번 개선의 핵심이었습니다.
+
+다만 이건 consumer 쪽의 대응이고, 구조 자체의 문제는 남아 있습니다.
+하나의 토픽에 여러 서비스 메시지가 섞이는 구조는 producer 편의로 만들어진 것이고,
+그 비용을 consumer가 떠안는 형태입니다.
+장기적으로는 도메인 단위 토픽 분리가 맞고, 이 개선은 그때까지의 버팀목입니다.
