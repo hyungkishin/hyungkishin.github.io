@@ -1,5 +1,5 @@
 ---
-title: "누적 테이블 위에 '주간 랭킹'을 얹었을 때 생기는 거짓말"
+title: "누적 데이터로 '이번 주 랭킹'을 만들 수 있을까?"
 date: 2026-04-17
 update: 2026-04-17
 tags:
@@ -8,228 +8,301 @@ tags:
 - 랭킹
 - Spring Batch
 - Materialized View
+- Chunk Processing
 - 커머스
 - 배치
 ---
 
 > **TL;DR**
 >
-> `product_metrics`는 날짜 컬럼이 없는 누적 테이블입니다. 그 위에 "주간/월간 랭킹"이라는 이름을 얹으면 이름과 실체가 어긋납니다. 이번 주차는 그 어긋남을 감추지 않고, 이름부터 바꾸는 쪽을 택했습니다.
+> Spring Batch로 주간/월간 랭킹을 만들었어요.
+> 근데 "이번 주에 가장 많이 팔린 상품"은 아니에요.
+> `product_metrics`가 누적 테이블이라 날짜 구분이 안 되거든요.
 >
-> - 누적 테이블 위에서는 "이번 주"를 만들 수 없다는 인정
-> - `WEEKLY_CUMULATIVE`로의 재정의와 API 계약
-> - Cleanup-Aggregate 분리 구조가 왜 가용성을 포기한 설계였는지
-> - append-only + 최신 `ranking_date` 조회로의 전환
-> - `currentRank` 멤버 변수가 사실상 "재시작 지원 안 함"이었다는 고백
+> - 누적 테이블 위에서 "이번 주"를 만들 수 없다는 한계와, 그 위에서 내린 타협
+> - Cleanup-Aggregate 분리가 가용성을 포기한 설계였다는 사실과, API Fallback으로 메운 구멍
+> - `currentRank` 멤버 변수가 재시작을 깨뜨린다는 걸 리뷰에서 지적받고, `ExecutionContext`로 고친 과정
+> - 미사용 컬럼, rank 이중 변환, 입력 검증 누락까지 — 코드 리뷰가 잡아낸 12건의 결함
 
 ---
 
-## 시작점: Round 9가 남긴 한 줄
+## 이전 라운드에서 멈춘 곳
 
-Round 9에서 일간 랭킹은 Redis ZSET으로 닫았습니다. `ZINCRBY`로 누적하고 `ZREVRANGE`로 Top-N. 블로그 마지막에 적어둔 한 줄은 이랬습니다.
+Round 9에서 Kafka Consumer + Redis ZSET으로 일간 랭킹을 만들었어요.
+`ZINCRBY` 한 줄이면 점수가 누적되고, `ZREVRANGE`로 Top-N을 꺼내면 끝이었죠.
 
-> 다음 주차는 일간을 주간/월간으로 확장하는 배치 작업입니다.
+자연스럽게 떠오른 방법이 있었어요.
+Redis ZSET 키가 `ranking:all:{yyyyMMdd}` 형태니까, 7개 키를 `ZUNIONSTORE`로 합치면 주간 랭킹이 되겠다고 생각했거든요.
 
-처음 떠오른 방법은 `ZUNIONSTORE`로 7일치 ZSET 키를 합치는 것이었습니다. 그런데 ZSET TTL이 2일이었습니다. 3일 전 키는 이미 사라진 상태였습니다. ZSET으로는 닫히지 않는 문제라, 시선을 DB로 옮겼습니다. 거기서 이 글의 본질적인 문제를 마주했습니다.
+근데 TTL이 2일이에요.
+3일 전 키는 이미 사라졌어요.
+7일치를 합칠 수가 없었어요.
 
 ---
 
-## 문제: 누적 테이블 위에는 "구간"이 없다
+## 누적 테이블 위에 "이번 주"는 없다
 
-`product_metrics`는 상품별 한 줄의 누적 row입니다.
+`product_metrics` 테이블 구조를 보면 바로 보여요.
 
 ```sql
-SELECT product_id, view_count, like_count, order_count, sales_amount
+SELECT product_id, view_count, like_count, order_count
 FROM product_metrics
 ```
 
-날짜 컬럼이 없습니다. 서비스 시작 이후의 모든 행동이 한 row에 쌓여 있습니다. "이번 주에 몇 번 조회됐는가"는 이 테이블이 답할 수 없는 질문입니다.
+날짜 컬럼이 없어요.
+서비스 시작 이후 모든 조회, 좋아요, 주문이 한 row에 누적돼 있어요.
+어제의 조회수와 오늘의 조회수가 뒤섞여 있어서, "이번 주에 몇 번 조회됐는가"를 물어볼 방법이 없거든요.
 
-진짜 주간 랭킹이 필요하면 일별 스냅샷(`product_metrics_daily`)이 선행돼야 합니다. 매일 자정에 delta를 찍고, 주간 집계에서 7일치를 합산합니다. 이건 배치 과제의 범위가 아니라 데이터 파이프라인 재설계입니다.
+진짜 주간 랭킹을 만들려면 일별 스냅샷 테이블이 필요해요.
+매일 자정에 `product_metrics_daily`에 그날의 delta를 기록하고, 주간 집계할 때 7일치를 합산하는 거죠.
+
+그건 이번 과제의 범위를 넘어가요.
+그래서 타협했어요.
+"배치가 실행되는 시점의 누적 메트릭 기준 TOP 100"을 MV 테이블에 적재하는 방식으로 갔어요.
+"이번 주에 가장 많이 팔린"이 아니라 "전체 기간에서 가장 인기 있는"에 가까운 결과예요.
+
+이걸 "주간 랭킹"이라고 부르면 기획 사기에 가까워요.
+신규 상품은 이번 주에 아무리 많이 팔려도 누적 스테디셀러를 이길 수 없으니까요.
+이건 랭킹이 아니라 명예의 전당이에요.
+
+그 사실을 숨기지 않고 적어둬요.
+실무에서도 일별 스냅샷 없이 빠르게 MVP를 만들 때 이 패턴을 쓰곤 하는데, 중요한 건 **이름이 실체를 정직하게 반영하는가**예요.
 
 ---
 
-## 가장 위험했던 선택지
+## Job을 왜 주간과 월간으로 나눴나요?
 
-여기서 가장 위험한 결정은 **"누적 데이터로 주간 랭킹을 흉내 내는 것"**이었습니다. UI에는 "이번 주 TOP"이 찍히지만 실제로 나가는 데이터는 "역대 누적 TOP"입니다. 신규 상품은 이번 주에 아무리 많이 팔려도 스테디셀러를 넘을 수 없습니다. 이건 구현의 타협이 아니라 제품 정의를 어긴 것입니다.
+하나의 Job에 `period` 파라미터를 넘겨서 분기하는 것도 가능했어요.
+코드 중복도 줄고 관리 포인트도 하나가 되니까요.
 
-그래서 이름부터 바꿨습니다.
+근데 스케줄링이 달라요.
+주간 Job은 매주 월요일 새벽에 돌고, 월간 Job은 매월 1일 새벽에 돌아요.
+Job 하나에 넣으면 `requestDate`를 파싱해서 "이게 월요일인가, 1일인가"를 판단하는 로직이 Job 안에 들어가야 하는데, 그건 스케줄러의 책임이지 Job의 책임이 아니거든요.
 
-- `DAILY` — Redis ZSET 기반 실시간 일간 랭킹
-- `WEEKLY_CUMULATIVE` — 주 1회 배치가 찍는 누적 TOP 스냅샷
-- `MONTHLY_CUMULATIVE` — 월 1회 배치가 찍는 누적 TOP 스냅샷
+Job이 분리되면 실패 시 하나만 재실행하면 돼요.
+월간 Job이 터졌는데 주간까지 다시 돌릴 이유가 없죠.
 
-API 응답에는 `semantics` 필드를 더했습니다. 클라이언트가 "이번 주 인기"가 아니라 "주간 집계 시점 기준 누적 TOP"으로 표기하도록 강제하기 위함입니다. 이름이 바뀌니 구현도, 문서도 훨씬 정직해졌습니다.
+두 Job의 구조는 거의 동일해요.
+차이는 날짜 계산뿐이에요.
+주간은 `date.with(DayOfWeek.MONDAY)`로 해당 주의 월요일을 잡고, 월간은 `date.with(TemporalAdjusters.firstDayOfMonth())`로 월초를 잡아요.
 
-> 데이터가 답할 수 없는 질문을 이름으로 답하려 하면, 시스템 전체가 거짓말을 시작합니다.
+SQL, chunk size, ranking limit 같은 공통 설정은 `RankingBatchConstants`로 추출했어요.
+두 Job Config에서 같은 SQL을 각각 선언하고 있었는데, 코드 리뷰에서 중복 지적을 받고 정리한 거예요.
 
 ---
 
-## Job을 왜 주간과 월간으로 나눴는가
+## Cleanup-Aggregate 분리의 가용성 구멍
 
-하나의 Job에 `period` 파라미터로 분기하는 방안도 검토했습니다. 코드 중복은 줄지만, 스케줄링 단위가 다릅니다. 주간은 매주 월요일 새벽, 월간은 매월 1일 새벽에 돕니다. 단일 Job 안에서 `requestDate`를 파싱해 "오늘이 월요일인가 1일인가"를 판단하는 건 스케줄러의 책임을 Job으로 끌어오는 일입니다.
+각 Job은 두 개의 Step으로 구성돼 있어요.
+Step 1은 기존 MV 데이터를 삭제하는 Cleanup Tasklet이고, Step 2는 `product_metrics`에서 읽어서 MV에 적재하는 Chunk-Oriented Step이에요.
 
-Job을 분리하면 실패 시 재실행 단위가 독립합니다. 월간이 터졌다고 주간을 다시 돌릴 이유가 없습니다. 모니터링 알림도 독립적으로 걸립니다.
+처음엔 "Aggregate Step 시작할 때 기존 데이터 DELETE하고 INSERT하면 되지 않나?" 싶었어요.
+하나의 Step에 넣으면 코드도 간결하고 트랜잭션도 하나로 묶이니까요.
+
+근데 하나의 트랜잭션이면 Aggregate가 실패했을 때 Cleanup까지 롤백돼요.
+이전 데이터가 그대로 남아 있게 되는 거죠.
+
+그래서 분리했는데, **이것도 문제가 있었어요.**
+Cleanup이 끝나고 Aggregate가 도는 사이에 유저가 랭킹 페이지에 접속하면 빈 화면을 봐요.
+Aggregate에서 네트워크 에러로 재시도가 길어지면 그 시간 동안 랭킹이 없어요.
+
+실무에서는 Shadow Table에 먼저 적재하고 `RENAME TABLE`로 무중단 교체하거나, append-only로 쌓고 최신 `ranking_date`를 조회하는 방식을 써요.
+이번엔 거기까지 가지 않고, **API 레벨에서 Fallback 체인**을 넣어서 구멍을 메웠어요.
+
+---
+
+## API Fallback: 빈 화면을 보여주지 않는 임시방편
+
+MV가 비어있을 때 빈 배열을 그대로 내보내면 서비스 장애나 다름없어요.
+그래서 `GetRankingUseCase`에 3단계 Fallback을 넣었어요.
 
 ```kotlin
-@Bean(JOB_NAME)
-fun weeklyRankingJob(): Job =
-    JobBuilder(JOB_NAME, jobRepository)
-        .incrementer(RunIdIncrementer())
-        .start(aggregateWeeklyRankingStep(null, null))
-        .listener(jobListener)
-        .build()
+RankingPeriod.WEEKLY -> {
+    val rankingDate = toStartOfWeek(date)
+    val entries = weeklyRankingRepository.findRankings(rankingDate, page - 1, size)
+    val count = weeklyRankingRepository.countByRankingDate(rankingDate)
+    if (entries.isNotEmpty()) {
+        entries to count
+    } else {
+        // 이전 주 데이터로 fallback
+        val prevWeek = rankingDate.minusWeeks(1)
+        val fallbackEntries = weeklyRankingRepository.findRankings(prevWeek, page - 1, size)
+        val fallbackCount = weeklyRankingRepository.countByRankingDate(prevWeek)
+        if (fallbackEntries.isNotEmpty()) {
+            fallbackEntries to fallbackCount
+        } else {
+            // 최종 fallback: 일간 Redis
+            rankingRepository.getTopRankings(date, offset, size.toLong()) to
+                rankingRepository.getTotalCount(date)
+        }
+    }
+}
 ```
 
-두 Job의 차이는 날짜 계산뿐입니다. 주간은 `date.with(DayOfWeek.MONDAY)`, 월간은 `date.with(TemporalAdjusters.firstDayOfMonth())`. 이 날짜가 MV 테이블의 `ranking_date`로 쓰입니다.
+이번 주 MV가 비어있으면 이전 주 MV를 찾아보고, 그마저도 없으면 일간 Redis ZSET으로 넘어가요.
+유저는 어떤 상황에서든 "뭔가"를 봐요.
+
+근본 해결은 아니에요.
+이전 주 데이터를 이번 주 데이터처럼 보여주는 건 정직하지 않으니까요.
+근본 해결은 append-only + 최신 `ranking_date` 조회이거나, Shadow Table `RENAME`이에요.
+이번엔 Fallback이 비용 대비 충분한 임시방편이라고 판단했어요.
 
 ---
 
-## 최초 설계와 그 결함: Cleanup과 Aggregate를 나눈 이유
+## 100건인데 Chunk-Oriented가 필요한가요?
 
-첫 구현은 두 Step이었습니다. Step 1은 기존 MV 데이터를 삭제하는 Cleanup Tasklet, Step 2는 `product_metrics`에서 읽어 MV에 적재하는 Chunk-Oriented Step.
-
-분리의 명분은 이랬습니다. 하나의 트랜잭션으로 묶으면 Aggregate 실패 시 Cleanup까지 롤백돼 이전 주 데이터가 남습니다. 지난 주 랭킹을 "이번 주 랭킹"으로 서빙하느니, 빈 결과로 장애를 드러내는 쪽이 낫다고 판단했습니다.
-
-**이 판단은 틀렸습니다.**
-
-Cleanup이 끝나고 Aggregate가 도는 사이에 유저가 랭킹 페이지를 열면, 완전히 빈 화면을 봅니다. Aggregate에서 네트워크 이슈로 재시도가 길어지면 그 시간 동안 랭킹 기능이 정지합니다. "틀린 데이터보다 빈 데이터가 낫다"는 논리는 개발자 편의주의입니다. 서비스 가용성의 기본은 "어떤 상태든 마지막으로 유효했던 데이터를 보여준다"입니다.
-
----
-
-## 재설계: append-only + 최신 스냅샷 조회
-
-Cleanup 자체를 없앴습니다. 배치는 **새로운 `ranking_date`로 INSERT만** 합니다. 조회는 최신 `ranking_date`를 기준으로 내려갑니다.
+Reader는 `JdbcCursorItemReader`로 composite score를 계산해서 정렬된 결과를 읽어요.
 
 ```sql
-SELECT *
-FROM mv_product_rank_weekly
-WHERE ranking_date = (
-    SELECT MAX(ranking_date)
-    FROM mv_product_rank_weekly
-    WHERE ranking_date <= :requested_date
-)
-ORDER BY ranking
-```
-
-이 구조의 장점은 세 가지입니다.
-
-첫째, 배치가 도는 동안에도 직전 스냅샷이 그대로 서빙됩니다. 빈 화면이 없습니다.
-둘째, 이번 배치가 실패하면 직전 주 데이터가 남아 있습니다. `snapshot_date`를 응답에 포함시키면 "최신 기준 X일자"로 자연스럽게 표기할 수 있고, 유저에게도 정직합니다.
-셋째, 트랜잭션 길이가 INSERT 100건으로 짧아집니다. 롤백 비용이 크지 않습니다.
-
-오래된 스냅샷은 별도 retention 배치(`DELETE WHERE ranking_date < NOW() - INTERVAL 3 MONTH`)로 정리합니다. 실무 MV 패턴 중 가장 흔하게 쓰이는 쪽입니다.
-
----
-
-## Chunk-Oriented의 가치: 100건 기준으로 판단하지 않는 이유
-
-Reader는 `JdbcCursorItemReader`로 composite score를 계산해 정렬된 결과를 읽습니다.
-
-```sql
-SELECT product_id, view_count, like_count, order_count, sales_amount,
+SELECT product_id,
        (view_count * 0.1 + like_count * 0.2 + order_count * 0.7) AS score
 FROM product_metrics
 ORDER BY score DESC
 LIMIT 100
 ```
 
-가중치는 Round 9에서 정한 `view 0.1, like 0.2, order 0.7`을 그대로 씁니다. 합이 1.0이라 score를 "가중 평균 행동 수"로 해석할 수 있는 점이 이 값의 장점입니다.
+처음엔 `sales_amount`도 SELECT에 포함했었어요.
+코드 리뷰에서 "score 계산에 안 쓰이는 컬럼을 왜 읽느냐"고 지적받았어요.
+맞는 말이에요.
+불필요한 데이터 전송이고, 나중에 가중치 바꿀 때 혼란만 줘요.
+SQL과 `ProductMetricsRow` DTO에서 전부 제거했어요.
 
-TOP 100 + chunk_size 100이면 단일 Tasklet으로도 충분합니다. Chunk-Oriented를 택한 이유는 미래 시점의 판단이었습니다. TOP이 10,000으로 늘고 chunk_size 1,000으로 분할되면, 7번째 chunk에서 실패했을 때 Tasklet은 처음부터 다시 돌아야 합니다. Chunk 방식은 실패 지점부터 재시작할 수 있습니다.
+가중치는 Round 9에서 정한 것과 동일해요.
+view 0.1, like 0.2, order 0.7.
 
-다만 "재시작할 수 있다"고 말하려면 조건이 하나 더 붙습니다.
+TOP 100 + chunk_size 100이면 한 번의 chunk에서 다 처리돼요.
+Tasklet 하나에 JDBC로 SELECT 하고 INSERT 하면 끝이에요.
+
+근데 이건 "지금 100건이니까 괜찮다"에 기대는 판단이에요.
+상품이 수만 개로 늘어나고 TOP 10,000을 집계해야 하는 날이 오면, chunk_size=1000으로 10개 chunk가 돌아야 해요.
+중간에 7번째 chunk에서 DB 커넥션이 끊기면, Tasklet 방식은 처음부터 다시 돌아야 해요.
+Chunk 방식은 실패한 chunk부터 재시작할 수 있어요.
+
+다만 "재시작할 수 있다"고 말하려면 조건이 하나 더 붙어요.
 
 ---
 
-## 솔직한 고백: 이 Writer는 재시작을 지원하지 않는다
+## `currentRank`와 `ExecutionContext` — 코드 리뷰가 잡아낸 재시작 버그
 
-첫 구현의 `RankingWriter`는 `currentRank`를 멤버 변수로 뒀습니다.
+첫 구현의 `RankingWriter`는 `currentRank`를 멤버 변수로 뒀어요.
+`beforeStep()`에서 0으로 초기화하니까 정상 흐름에서는 문제가 안 보였어요.
+
+코드 리뷰에서 이런 질문이 왔어요.
+"chunk 5에서 실패하고 재시작되면, `beforeStep`이 다시 0을 박아넣어서 chunk 6의 첫 상품이 1위로 적재되는 거 아니냐?"
+
+맞아요.
+멤버 변수에 상태를 저장하는 건 "이 배치는 재시작을 지원하지 않는다"는 선언과 같아요.
+
+`ExecutionContext`에 저장/복구하도록 수정했어요.
 
 ```kotlin
-class RankingWriter<E>(...) : ItemWriter<ProductMetricsRow>, StepExecutionListener {
+class RankingWriter<E>(
+    private val rankingDate: LocalDate,
+    private val entityFactory: (ProductMetricsRow, Int, LocalDate) -> E,
+    private val saveAction: (List<E>) -> Unit,
+) : ItemWriter<ProductMetricsRow>, StepExecutionListener {
+    private lateinit var stepExecution: StepExecution
     private var currentRank = 0
 
     override fun beforeStep(stepExecution: StepExecution) {
-        currentRank = 0
+        this.stepExecution = stepExecution
+        currentRank = stepExecution.executionContext.getInt(KEY_CURRENT_RANK, 0)
+    }
+
+    override fun write(chunk: Chunk<out ProductMetricsRow>) {
+        val entities = chunk.items.map { row ->
+            currentRank++
+            entityFactory(row, currentRank, rankingDate)
+        }
+        saveAction(entities)
+        stepExecution.executionContext.putInt(KEY_CURRENT_RANK, currentRank)
     }
 }
 ```
 
-`beforeStep`에서 0으로 초기화하기 때문에 정상 흐름에서는 문제가 보이지 않습니다. 하지만 chunk 5에서 실패한 뒤 재시작하면, `beforeStep`이 다시 0을 박아넣어 chunk 6의 첫 상품이 1위로 적재됩니다. **이 Writer는 재시작을 지원한다고 말할 수 없습니다.**
+chunk가 성공적으로 커밋되면 `ExecutionContext`에 현재 rank가 저장돼요.
+재시작 시 `beforeStep`에서 마지막으로 커밋된 rank를 복구해서 이어서 매겨요.
 
-제대로 지원하려면 `currentRank`를 `ExecutionContext`에 쓰고, `beforeStep`에서 복구해야 합니다.
-
-```kotlin
-override fun beforeStep(stepExecution: StepExecution) {
-    this.stepExecution = stepExecution
-    currentRank = stepExecution.executionContext.getInt(KEY_CURRENT_RANK, 0)
-}
-
-override fun write(chunk: Chunk<out ProductMetricsRow>) {
-    val entities = chunk.items.map { row ->
-        currentRank++
-        entityFactory(row, currentRank, rankingDate)
-    }
-    saveAction(entities)
-    stepExecution.executionContext.putInt(KEY_CURRENT_RANK, currentRank)
-}
-```
-
-이번 주차에서 여기까지 들어가지 않았습니다. TOP 100 + chunk 100 구조라 재시작이 사실상 "전체 재실행"과 거의 같고, 단일 chunk 실패를 세밀하게 관리할 이유가 적었습니다. 멤버 변수로 상태를 관리하는 선택은 **"이 배치는 재시작을 사용하지 않는다"는 암묵적 선언**과 같습니다. 그 사실을 숨기지 않고 적어둡니다.
+Writer를 제네릭으로 만든 것도 의도가 있었어요.
+주간과 월간의 Writer 로직이 동일한데, 적재하는 Entity만 달라요.
+`entityFactory`와 `saveAction`을 람다로 주입받으면 코드를 복붙하지 않아도 돼요.
 
 ---
 
-## API는 어떻게 분기하는가
+## API 분기와 rank 컨벤션 통일
 
-`RankingPeriod` enum으로 UseCase에서 분기합니다.
+`RankingPeriod` enum으로 UseCase에서 분기해요.
 
 ```kotlin
-val (entries, totalCount) = when (period) {
-    DAILY -> {
-        val entries = rankingRepository.getTopRankings(date, offset, size.toLong())
-        val count = rankingRepository.getTotalCount(date)
-        entries to count
-    }
-    WEEKLY_CUMULATIVE -> {
-        val rankingDate = toStartOfWeek(date)
-        val entries = weeklyRankingRepository.findLatestRankings(rankingDate, page - 1, size)
-        val count = weeklyRankingRepository.countByLatestRankingDate(rankingDate)
-        entries to count
-    }
-    MONTHLY_CUMULATIVE -> { /* 월간은 toStartOfMonth */ }
+enum class RankingPeriod {
+    DAILY,
+    WEEKLY,
+    MONTHLY,
 }
 ```
 
-`findLatestRankings`는 "`requested_date` 이하의 가장 최근 `ranking_date`"를 기준으로 조회합니다. 배치가 도는 중이거나 이번 주 배치가 실패한 경우에도 직전 스냅샷이 서빙됩니다.
+DAILY면 기존 Redis ZSET에서 조회하고, WEEKLY/MONTHLY면 MV 테이블에서 JPA로 조회해요.
+enrichment(상품/브랜드 조인)는 `buildRankingPageInfo`로 공통 추출했어요.
+Round 9에서 N+1을 잡을 때 만든 `findAllByIds` IN 쿼리가 그대로 재사용돼요.
 
-enrichment(상품/브랜드 조인)는 `buildRankingPageInfo`로 공통 추출했습니다. Round 9에서 N+1을 잡을 때 만든 `findAllByIds` IN 쿼리가 그대로 재사용됩니다. period에 상관없이 productId 목록이 나오면, 그 이후 흐름은 같습니다.
+코드 리뷰에서 **rank 이중 변환** 문제를 지적받았어요.
+MV 테이블에 1-based ranking(1, 2, 3...)이 저장돼 있는데, JPA 리포지토리에서 `entity.ranking - 1`로 0-based로 바꾸고, UseCase에서 다시 `entry.rank + 1`로 1-based로 되돌리고 있었어요.
+라운드트립이 무의미해요.
 
-MV 테이블에는 `(ranking_date, ranking)` 복합 인덱스를 걸었습니다. 최신 `ranking_date`로 필터링한 뒤 `ranking` 순서로 정렬하는 쿼리가 이 인덱스 하나로 커버됩니다.
+MV 리포지토리는 1-based 그대로 반환하고, Redis(DAILY)만 0-based이므로 UseCase에서 분기하도록 정리했어요.
+
+```kotlin
+val isRankZeroBased = period == RankingPeriod.DAILY
+val displayRank = if (isRankZeroBased) entry.rank + 1 else entry.rank
+```
+
+Controller에도 입력 검증이 없었어요.
+`page=0`이나 `size=-1`이 들어오면 `PageRequest.of()`에서 `IllegalArgumentException`이 터져서 500이 나가요.
+`@Min(1)` `@Max(100)`으로 4xx 응답으로 바꿨어요.
+
+```kotlin
+@Validated
+@RestController
+@RequestMapping("/api/v1/rankings")
+class RankingController(...) {
+    @GetMapping
+    fun getRankings(
+        @RequestParam(required = false) date: String?,
+        @RequestParam(required = false, defaultValue = "DAILY") period: RankingPeriod,
+        @RequestParam(required = false, defaultValue = "20") @Min(1) @Max(100) size: Int,
+        @RequestParam(required = false, defaultValue = "1") @Min(1) page: Int,
+    ): ApiResponse<GetRankingResponse> { ... }
+}
+```
+
+MV 테이블에는 `(ranking_date, ranking)` 복합 인덱스와 `(product_id, ranking_date)` 유니크 제약을 걸었어요.
+유니크 제약이 없으면 Cleanup이 스킵되거나 실패한 후 Aggregate가 재실행될 때 동일 데이터가 중복 삽입돼요.
 
 ---
 
 ## 아직 풀지 못한 것들
 
-**`product_metrics` 자체가 누적 단일 row라는 데이터 모델 결함이 남습니다.**
-`ORDER BY score DESC LIMIT 100`은 인덱스 없는 계산 컬럼으로 전체 정렬을 도는 쿼리입니다. 현재 규모에서는 문제가 되지 않습니다. 상품이 100만 개가 되면 Filesort가 DB CPU를 점유해, 배치가 도는 동안 다른 API 응답까지 느려집니다. score를 미리 계산해 인덱스를 걸어도, insert/update 시점의 인덱스 재정렬 비용이 다른 자리로 옮겨갈 뿐입니다. 이 문제는 CQRS로 조회 전용 모델을 분리하지 않는 한 쿼리 튜닝으로 덮이지 않습니다.
+**`product_metrics` 자체가 누적 단일 row라는 데이터 모델 한계가 남아요.**
+`ORDER BY (계산 컬럼) DESC LIMIT 100`은 인덱스를 못 타는 Filesort예요.
+상품이 100만 개가 되면 DB CPU가 배치에 점유되어 다른 API까지 느려져요.
 
-**"이번 주에 핫한 상품"이라는 도메인 표현은 여전히 불가능합니다.**
-이름을 `WEEKLY_CUMULATIVE`로 바꿔 정직해졌지만, 유저가 진짜 원하는 "이번 주 급상승"은 일별 스냅샷이 들어와야 풀리는 문제입니다.
+**Cleanup-Aggregate 사이의 가용성 구멍은 Fallback으로 메웠지만 근본 해결은 아니에요.**
+Shadow Table + `RENAME TABLE`이나 append-only + 최신 `ranking_date` 조회가 실무 정답이에요.
 
-**Blue/Green 슬롯 스왑과 파티셔닝은 다음 수순입니다.**
-가용성을 더 밀어붙이려면 테이블 두 벌에 active 포인터를 두는 Blue/Green 구조가 자연스러운 다음 단계입니다. 대용량 정렬이 필요해지는 시점에는 Reader 파티셔닝도 검토 대상입니다. 이번 범위에서는 append-only가 비용 대비 충분했습니다.
+**"이번 주에 핫한 상품"이라는 도메인 표현은 여전히 불가능해요.**
+일별 스냅샷이 들어와야 풀리는 문제예요.
 
 ---
 
 ## 정리
 
-이번 주차에서 가장 크게 바뀐 판단은 두 가지입니다.
+이번 주차에서 가장 많이 배운 건 **코드 리뷰의 가치**예요.
 
-하나는 **이름**입니다. 누적 데이터로 구간 랭킹을 흉내 내지 않고, `WEEKLY_CUMULATIVE`로 재정의했습니다. 데이터가 답할 수 없는 질문을 이름으로 가리면, 시스템 전체가 거짓말을 하기 시작합니다.
+혼자서는 테스트 rank 순서가 틀린 것도, `salesAmount`를 읽고 안 쓰는 것도, `currentRank`가 재시작에서 깨지는 것도 못 찾았어요.
+12건의 지적이 들어왔고, CRITICAL 3건, MAJOR 3건, MINOR 6건을 전부 수정했어요.
 
-다른 하나는 **가용성**입니다. Cleanup-Aggregate 분리는 "배치 실패 시 빈 화면"을 설계값으로 깔고 있었습니다. append-only + 최신 `ranking_date` 조회로 바꾸니, 배치 실패가 서비스 장애로 직결되지 않습니다.
+정상 흐름에서만 테스트하면 안 보이는 것들이 있어요.
+배치가 실패하고 재시작될 때, API에 잘못된 파라미터가 들어올 때, MV가 비어있을 때.
+이런 비정상 경로를 코드 작성 시점에 상상할 수 있느냐가 설계 역량의 차이라는 걸, 리뷰를 통해 체감했어요.
 
-재시작, 대용량 정렬, 진짜 구간 집계. 남은 숙제는 다음 라운드의 몫입니다.
-
-> 10주 회고는 별도 포스팅으로 분리합니다. 이 글은 "누적 테이블 위에 주간 랭킹을 얹었을 때 생기는 거짓말" 한 주제에만 집중하는 쪽이 맞다고 판단했습니다.
+> 10주 회고는 별도 포스팅으로 분리했어요. 이 글은 "누적 테이블 위에 주간 랭킹을 얹었을 때 생기는 문제"에 집중하는 쪽이 맞다고 판단했어요.
