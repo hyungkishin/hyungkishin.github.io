@@ -238,105 +238,91 @@ data-styled.g52[id="Footer__SpinnerWrapper-sc-1d9k77a-8"]{content:"fxuyBt,"}/*!s
 .ZwedX{height:0px;overflow:hidden;}/*!sc*/
 data-styled.g53[id="Footer__HiddenWrapper-sc-1d9k77a-9"]{content:"ZwedX,"}/*!sc*/
 </style><title data-react-helmet="true">Kafka Consumer 병목의 진짜 원인: 잘못된 토픽 설계와 불필요한 파싱</title><link rel="icon" href="/favicon-32x32.png?v=91b94727e22b33ed5da2a3fce4c4fa97" type="image/png"/><link rel="manifest" href="/manifest.webmanifest" crossorigin="anonymous"/><link rel="apple-touch-icon" sizes="48x48" href="/icons/icon-48x48.png?v=91b94727e22b33ed5da2a3fce4c4fa97"/><link rel="apple-touch-icon" sizes="72x72" href="/icons/icon-72x72.png?v=91b94727e22b33ed5da2a3fce4c4fa97"/><link rel="apple-touch-icon" sizes="96x96" href="/icons/icon-96x96.png?v=91b94727e22b33ed5da2a3fce4c4fa97"/><link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144x144.png?v=91b94727e22b33ed5da2a3fce4c4fa97"/><link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png?v=91b94727e22b33ed5da2a3fce4c4fa97"/><link rel="apple-touch-icon" sizes="256x256" href="/icons/icon-256x256.png?v=91b94727e22b33ed5da2a3fce4c4fa97"/><link rel="apple-touch-icon" sizes="384x384" href="/icons/icon-384x384.png?v=91b94727e22b33ed5da2a3fce4c4fa97"/><link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512x512.png?v=91b94727e22b33ed5da2a3fce4c4fa97"/><link rel="sitemap" type="application/xml" href="/sitemap-index.xml"/></head><body><div id="___gatsby"><div style="outline:none" tabindex="-1" id="gatsby-focus-wrapper"><header class="Header__HeaderWrapper-sc-o5qsy3-0 exBAWX"><div class="Header__Inner-sc-o5qsy3-1 hlSmUk"><span class="Header__BlogTitle-sc-o5qsy3-2 ihdlnV"><a href="/">hyungkishin.blog</a></span><div class="Header__Menu-sc-o5qsy3-3 lddpva"><div class="Header__ToggleWrapper-sc-o5qsy3-4 iRjIcx"><div class="Header__IconRail-sc-o5qsy3-5 hBjbuG"><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M256 160c-52.9 0-96 43.1-96 96s43.1 96 96 96 96-43.1 96-96-43.1-96-96-96zm246.4 80.5l-94.7-47.3 33.5-100.4c4.5-13.6-8.4-26.5-21.9-21.9l-100.4 33.5-47.4-94.8c-6.4-12.8-24.6-12.8-31 0l-47.3 94.7L92.7 70.8c-13.6-4.5-26.5 8.4-21.9 21.9l33.5 100.4-94.7 47.4c-12.8 6.4-12.8 24.6 0 31l94.7 47.3-33.5 100.5c-4.5 13.6 8.4 26.5 21.9 21.9l100.4-33.5 47.3 94.7c6.4 12.8 24.6 12.8 31 0l47.3-94.7 100.4 33.5c13.6 4.5 26.5-8.4 21.9-21.9l-33.5-100.4 94.7-47.3c13-6.5 13-24.7.2-31.1zm-155.9 106c-49.9 49.9-131.1 49.9-181 0-49.9-49.9-49.9-131.1 0-181 49.9-49.9 131.1-49.9 181 0 49.9 49.9 49.9 131.1 0 181z"></path></svg><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M283.211 512c78.962 0 151.079-35.925 198.857-94.792 7.068-8.708-.639-21.43-11.562-19.35-124.203 23.654-238.262-71.576-238.262-196.954 0-72.222 38.662-138.635 101.498-174.394 9.686-5.512 7.25-20.197-3.756-22.23A258.156 258.156 0 0 0 283.211 0c-141.309 0-256 114.511-256 256 0 141.309 114.511 256 256 256z"></path></svg></div></div><a href="/tags/"><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 640 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M497.941 225.941L286.059 14.059A48 48 0 0 0 252.118 0H48C21.49 0 0 21.49 0 48v204.118a48 48 0 0 0 14.059 33.941l211.882 211.882c18.744 18.745 49.136 18.746 67.882 0l204.118-204.118c18.745-18.745 18.745-49.137 0-67.882zM112 160c-26.51 0-48-21.49-48-48s21.49-48 48-48 48 21.49 48 48-21.49 48-48 48zm513.941 133.823L421.823 497.941c-18.745 18.745-49.137 18.745-67.882 0l-.36-.36L527.64 323.522c16.999-16.999 26.36-39.6 26.36-63.64s-9.362-46.641-26.36-63.64L331.397 0h48.721a48 48 0 0 1 33.941 14.059l211.882 211.882c18.745 18.745 18.745 49.137 0 67.882z"></path></svg></a><a href="/series/"><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M48 48a48 48 0 1 0 48 48 48 48 0 0 0-48-48zm0 160a48 48 0 1 0 48 48 48 48 0 0 0-48-48zm0 160a48 48 0 1 0 48 48 48 48 0 0 0-48-48zm448 16H176a16 16 0 0 0-16 16v32a16 16 0 0 0 16 16h320a16 16 0 0 0 16-16v-32a16 16 0 0 0-16-16zm0-320H176a16 16 0 0 0-16 16v32a16 16 0 0 0 16 16h320a16 16 0 0 0 16-16V80a16 16 0 0 0-16-16zm0 160H176a16 16 0 0 0-16 16v32a16 16 0 0 0 16 16h320a16 16 0 0 0 16-16v-32a16 16 0 0 0-16-16z"></path></svg></a><a href="/resume/"><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M256 288c79.5 0 144-64.5 144-144S335.5 0 256 0 112 64.5 112 144s64.5 144 144 144zm128 32h-55.1c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16H128C57.3 320 0 377.3 0 448v16c0 26.5 21.5 48 48 48h416c26.5 0 48-21.5 48-48v-16c0-70.7-57.3-128-128-128z"></path></svg></a><a href="/rss.xml"><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 448 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M128.081 415.959c0 35.369-28.672 64.041-64.041 64.041S0 451.328 0 415.959s28.672-64.041 64.041-64.041 64.04 28.673 64.04 64.041zm175.66 47.25c-8.354-154.6-132.185-278.587-286.95-286.95C7.656 175.765 0 183.105 0 192.253v48.069c0 8.415 6.49 15.472 14.887 16.018 111.832 7.284 201.473 96.702 208.772 208.772.547 8.397 7.604 14.887 16.018 14.887h48.069c9.149.001 16.489-7.655 15.995-16.79zm144.249.288C439.596 229.677 251.465 40.445 16.503 32.01 7.473 31.686 0 38.981 0 48.016v48.068c0 8.625 6.835 15.645 15.453 15.999 191.179 7.839 344.627 161.316 352.465 352.465.353 8.618 7.373 15.453 15.999 15.453h48.068c9.034-.001 16.329-7.474 16.005-16.504z"></path></svg></a><a href="/search/"><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" style="margin-right:0" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"></path></svg></a></div></div></header><div class="Body__BodyWrapper-sc-n687r8-0 brazac"><article class="Article-sc-1nlddrt-0 bwsWNZ"><div class="Header__Wrapper-sc-ctpcr6-0 ecbIyK"><h1 class="Header__ArticleTitle-sc-ctpcr6-1 gIOQIi">Kafka Consumer 병목의 진짜 원인: 잘못된 토픽 설계와 불필요한 파싱</h1><div class="Header__Information-sc-ctpcr6-2 khlLXR"><span class="Header__Author-sc-ctpcr6-3 jZCFPE">@<!-- -->hyungki</span><span>·</span><span class="Header__Date-sc-ctpcr6-4 bAOMOu">March 06, 2026</span></div><div class="TagList__TagListWrapper-sc-1a02q9k-0 fUPqrC"><a href="/tags/?q=loopers"><div class="TagList__TagLink-sc-1a02q9k-1 czAeUJ">loopers</div></a><a href="/tags/?q=technical-writing"><div class="TagList__TagLink-sc-1a02q9k-1 czAeUJ">technical-writing</div></a><a href="/tags/?q=kafka"><div class="TagList__TagLink-sc-1a02q9k-1 czAeUJ">kafka</div></a><a href="/tags/?q=performance"><div class="TagList__TagLink-sc-1a02q9k-1 czAeUJ">performance</div></a></div><hr class="Divider-sc-2jtmwl-0 byhHmP"/></div><div class="Body__Wrapper-sc-16q266i-0 fIRmOT"><div class="RevealOnScroll__StyledWrapper-sc-t7o3ro-0 jHzTTD"><div class="Toc__TocWrapper-sc-w139sz-0 hUDtyP"><div><div style="margin-bottom:16px;font-size:12px;font-weight:bold;color:var(--colors-secondaryText);text-transform:uppercase;letter-spacing:0.1em">Table of Contents</div></div></div></div><div class="Body__PostTopAdWrapper-sc-16q266i-1 hVNuSw"><ins class="adsbygoogle" style="overflow-x:auto;overflow-y:hidden;display:block;text-align:center" data-ad-client="ca-pub-2692445439426078" data-ad-slot="2295339271" data-ad-format="auto" data-full-width-responsive="true" data-ad-layout-key=""></ins></div><div id="article-body" itemProp="articleBody" class="StyledMarkdown-sc-1j51qct-0 bgqwtf"><h2>TL;DR</h2>
-<p>잘못된 토픽 설계와 불필요한 파싱 때문에, 대부분 "안 봐도 되는 메시지를 너무 정성스럽게 처리해서" 발생한 문제를 겪었습니다.</p>
-<p>전체를 파싱하고, 역직렬화하고, 실패하면 본문째 로그로 찍는 구조인데요,<br>
-트래픽이 올라가면 consumer lag으로 바로 이어집니다.</p>
-<p>이 글에서는 실제로 겪었던 Kafka Consumer 병목 패턴과,<br>
-Jackson Streaming Parser로 사전 필터링한 경험을 다룹니다.</p>
+<p>Kafka Consumer가 느렸습니다.<br>
+원인은 단순했습니다.<br>
+안 봐도 되는 메시지를 너무 정성스럽게 처리하고 있었습니다.</p>
+<p>10,000건을 전부 파싱하고, 역직렬화하고, 실패하면 본문째 로그로 찍는 구조였는데요,<br>
+정작 필요한 건 그중 10건뿐이었습니다.</p>
+<p>Jackson Streaming Parser로 사전 필터링하면서 이 문제를 해결한 경험을 공유합니다.</p>
 <hr>
 <h2>들어가며</h2>
-<p>Kafka 토픽 하나에 여러 서비스 메시지가 섞여 있는 구조는 레거시 혹은 특정 상황에서는 자주 보이는 케이스 입니다.</p>
-<p>"알림톡 발송 실패" 토픽이 있다고 치면,<br>
-여기에 온갖 서비스의 실패 메시지가 다 들어왔었습니다.</p>
-<p>필요한 건 특정 실패 메시지뿐인데,
-토픽을 쪼갤 수 없는 상황이라면 어떻게 해야 할까요?</p>
-<p>근본적으로는 토픽을 도메인 단위로 분리하는 게 맞습니다.
-하지만 이 토픽은 producer 쪽에서 "알림톡 실패"라는 하나의 관심사로 설계한 구조였고,</p>
-<p>consumer마다 필요한 메시지가 다르다는 점은 나중에 드러난 문제였습니다.</p>
-<p>토픽 분리는 producer를 소유한 다른 팀의 변경이 필요해서 단기적으로는 어려웠고,<br>
-consumer 쪽에서 비용을 줄이는 방향을 먼저 택했습니다.</p>
-<p>이 구조에서 consumer를 돌리다 보면 꽤 빨리 성능 문제를 만나게 됩니다.</p>
+<p>Kafka 토픽 하나에 여러 서비스의 메시지가 섞여 들어오는 구조, 실무에서 보신 적 있으신가요?</p>
+<p>"알림톡 발송 실패"라는 토픽이 하나 있었습니다.<br>
+여기에 온갖 서비스의 실패 메시지가 다 들어왔습니다.<br>
+필요한 건 특정 서비스의 실패 메시지뿐인데, 토픽을 쪼갤 수 없는 상황이었습니다.</p>
+<p>근본적으로는 토픽을 도메인 단위로 분리하는 게 맞습니다.<br>
+하지만 이 토픽은 producer 쪽에서 "알림톡 실패"라는 하나의 관심사로 설계한 구조였고,
+consumer마다 필요한 메시지가 다르다는 점은 나중에 드러난 문제였습니다.</p>
+<p>토픽 분리는 producer를 소유한 다른 팀의 변경이 필요해서 단기적으로는 어려웠습니다.</p>
+<p>그래서 consumer 쪽에서 비용을 줄이는 방향을 먼저 택했습니다.</p>
 <hr>
 <h2>어떤 구조였나</h2>
 <p><img src="/static/01-architecture-1a73eb0c06aa352b199b2056904906a3.svg" alt="Consumer 구조 — 토픽 하나에 모든 서비스 실패 메시지가 섞여 들어오는 구조"></p>
-<p>토픽에 분당 10,000건이 들어오는데, 처리할 건 그중 0.1%인 10건 정도입니다.<br>
-나머지 9,990건은 읽고 버려야 하는데요, 이 "읽고 버리는" 과정이 생각보다 무겁습니다.</p>
+<p>토픽에 분당 10,000건이 들어오는데, 처리할 건 그중 0.1%인 10건 정도입니다.</p>
+<p>나머지 9,990건은 읽고 버려야 하는데요, 이 "읽고 버리는" 과정이 생각보다 무겁습니다.</p>
 <h3>흔한 구현: 일단 다 파싱하고 필터링</h3>
 <div class="gatsby-highlight" data-language="mermaid"><pre class="language-mermaid"><code class="language-mermaid"><span class="token keyword">flowchart</span> TD
     start<span class="token text string">(["메시지 수신&lt;br/>(모든 서비스 메시지)"])</span>
-    readTree<span class="token text string">["objectMapper.readTree()&lt;br/>JSON 전체 파싱"]</span>
-    treeToValue<span class="token text string">["objectMapper.treeToValue()&lt;br/>내 DTO로 역직렬화 시도"]</span>
+    readTree<span class="token text string">["readTree() → treeToValue()&lt;br/>전체 파싱 + 역직렬화 시도"]</span>
     success<span class="token text string">{"역직렬화&lt;br/>성공?"}</span>
-    handle<span class="token text string">["handle()&lt;br/>서비스 소스 체크"]</span>
-    isMine<span class="token text string">{"내 서비스&lt;br/>메시지?"}</span>
-    logError<span class="token text string">["log.error(message.value())&lt;br/>메시지 전체 본문 로그 출력"]</span>
+    isMine<span class="token text string">{"내 서비스?"}</span>
+    logError<span class="token text string">["log.error(message.value())&lt;br/>본문 전체 로그 출력&lt;br/>9,990건"]</span>
+    process<span class="token text string">["SMS 대체 발송&lt;br/>10건"]</span>
     ack<span class="token text string">["ack.acknowledge()"]</span>
 
-    start <span class="token arrow operator">--></span> readTree
-    readTree <span class="token arrow operator">--></span> treeToValue
-    treeToValue <span class="token arrow operator">--></span> success
+    start <span class="token arrow operator">--></span> readTree <span class="token arrow operator">--></span> success
+    success <span class="token arrow operator">--></span><span class="token label property">|"실패 (99%)"|</span> logError <span class="token arrow operator">--></span> ack
+    success <span class="token arrow operator">--></span><span class="token label property">|"성공"|</span> isMine
+    isMine <span class="token arrow operator">--></span><span class="token label property">|"아님"|</span> ack
+    isMine <span class="token arrow operator">--></span><span class="token label property">|"맞음 (0.1%)"|</span> process <span class="token arrow operator">--></span> ack
 
-    success <span class="token arrow operator">--></span><span class="token label property">|"성공"|</span> handle
-    success <span class="token arrow operator">--></span><span class="token label property">|"실패 (구조 불일치)&lt;br/>9,990건"|</span> logError
-
-    handle <span class="token arrow operator">--></span> isMine
-    isMine <span class="token arrow operator">--></span><span class="token label property">|"아님 (99.9%)"|</span> ack
-    isMine <span class="token arrow operator">--></span><span class="token label property">|"맞음 (0.1%)"|</span> process<span class="token text string">["SMS 대체 발송"]</span>
-    process <span class="token arrow operator">--></span> ack
-    logError <span class="token arrow operator">--></span> ack
-
-    <span class="token keyword">style</span> treeToValue <span class="token style"><span class="token property">fill</span><span class="token operator">:</span>#e94560<span class="token punctuation">,</span><span class="token property">color</span><span class="token operator">:</span>#ffffff</span>
-    <span class="token keyword">style</span> logError <span class="token style"><span class="token property">fill</span><span class="token operator">:</span>#e94560<span class="token punctuation">,</span><span class="token property">color</span><span class="token operator">:</span>#ffffff</span>
-    <span class="token keyword">style</span> isMine <span class="token style"><span class="token property">fill</span><span class="token operator">:</span>#b8860b<span class="token punctuation">,</span><span class="token property">color</span><span class="token operator">:</span>#e0e0e0</span></code></pre></div>
+    <span class="token keyword">style</span> readTree <span class="token style"><span class="token property">fill</span><span class="token operator">:</span>#e94560<span class="token punctuation">,</span><span class="token property">color</span><span class="token operator">:</span>#ffffff</span>
+    <span class="token keyword">style</span> logError <span class="token style"><span class="token property">fill</span><span class="token operator">:</span>#e94560<span class="token punctuation">,</span><span class="token property">color</span><span class="token operator">:</span>#ffffff</span></code></pre></div>
 <p>왜 느린지 하나씩 뜯어보겠습니다.</p>
 <h3>병목 1: 모든 메시지에 readTree()</h3>
-<p><code class="language-text">objectMapper.readTree()</code>는 JSON 문자열을 통째로 파싱해서 <code class="language-text">JsonNode</code> 트리를 메모리에 올립니다.
-메시지 하나당 수십~수백 개의 <code class="language-text">JsonNode</code> 객체가 만들어지고, 쓰고 나면 바로 GC 대상이 됩니다.</p>
+<p><code class="language-text">objectMapper.readTree()</code>는 JSON 문자열을 통째로 파싱해서 <code class="language-text">JsonNode</code> 트리를 메모리에 올립니다.</p>
+<p>메시지 하나당 수십~수백 개의 <code class="language-text">JsonNode</code> 객체가 만들어지고, 쓰고 나면 바로 GC 대상이 됩니다.</p>
 <p>분당 10,000건이면 분당 수십만 개의 단명 객체가 만들어졌다 사라집니다.</p>
 <h3>병목 2: 전부 역직렬화 시도</h3>
 <p><code class="language-text">treeToValue()</code>로 DTO에 매핑을 시도하는데, 다른 서비스 메시지는 구조가 다르니까 대부분 실패합니다.</p>
 <p>9,990건의 역직렬화 실패는 곧 9,990번의 예외 생성 + 스택트레이스 구성을 의미합니다.</p>
 <p>예외를 만드는 것 자체가 비쌉니다.</p>
 <h3>병목 3: 실패하면 본문 전체를 로그로</h3>
-<p>여기가 가장 아팠습니다.
-역직렬화 실패하면 디버깅용으로 <code class="language-text">log.error(message.value())</code> 찍는 경우가 많은데, 이게 분당 9,990번 호출됩니다.
+<p>여기가 가장 아팠습니다.</p>
+<p>역직렬화 실패하면 디버깅용으로 <code class="language-text">log.error(message.value())</code> 찍는 경우가 많은데, 이게 분당 9,990번 호출됩니다.<br>
 본문이 1KB라고 치면 분당 약 10MB 로그가 쌓입니다.</p>
 <p>로그 I/O가 consumer 스레드를 잡아먹고, 로그 백엔드(Elasticsearch 등)에도 부하를 줍니다.</p>
 <p>거기다 본문에 전화번호, 이름 같은 <strong>개인정보</strong>가 들어있다면 로그 시스템에 민감정보가 그대로 쌓이게 됩니다.</p>
 <h3>트래픽이 늘면 어떻게 되나요?</h3>
 <div class="gatsby-highlight" data-language="mermaid"><pre class="language-mermaid"><code class="language-mermaid"><span class="token keyword">flowchart</span> LR
     input<span class="token text string">["토픽 유입&lt;br/>10,000건/분"]</span>
-    parse<span class="token text string">["readTree()&lt;br/>10,000건&lt;br/>(DOM 생성)"]</span>
-    deser<span class="token text string">["treeToValue()&lt;br/>10,000건 시도"]</span>
-    fail<span class="token text string">["역직렬화 실패&lt;br/>9,990건"]</span>
-    logErr<span class="token text string">["log.error()&lt;br/>9,990회&lt;br/>메시지 본문 출력"]</span>
+    parse<span class="token text string">["readTree + treeToValue&lt;br/>10,000건 전부 파싱"]</span>
+    fail<span class="token text string">["역직렬화 실패 9,990건&lt;br/>+ log.error 9,990회"]</span>
     ok<span class="token text string">["정상 처리&lt;br/>10건"]</span>
-    lag<span class="token text string">["consumer lag&lt;br/>누적"]</span>
-    delay<span class="token text string">["SMS 발송&lt;br/>수분~수십분 지연"]</span>
+    lag<span class="token text string">["consumer lag 누적&lt;br/>SMS 발송 수분 지연"]</span>
 
-    input <span class="token arrow operator">--></span> parse <span class="token arrow operator">--></span> deser
-    deser <span class="token arrow operator">--></span> fail <span class="token arrow operator">--></span> logErr <span class="token arrow operator">--></span> lag <span class="token arrow operator">--></span> delay
-    deser <span class="token arrow operator">--></span> ok
+    input <span class="token arrow operator">--></span> parse
+    parse <span class="token arrow operator">--></span><span class="token label property">|"99.9%"|</span> fail <span class="token arrow operator">--></span> lag
+    parse <span class="token arrow operator">--></span><span class="token label property">|"0.1%"|</span> ok
 
     <span class="token keyword">style</span> fail <span class="token style"><span class="token property">fill</span><span class="token operator">:</span>#e94560<span class="token punctuation">,</span><span class="token property">color</span><span class="token operator">:</span>#ffffff</span>
-    <span class="token keyword">style</span> logErr <span class="token style"><span class="token property">fill</span><span class="token operator">:</span>#e94560<span class="token punctuation">,</span><span class="token property">color</span><span class="token operator">:</span>#ffffff</span>
-    <span class="token keyword">style</span> lag <span class="token style"><span class="token property">fill</span><span class="token operator">:</span>#e94560<span class="token punctuation">,</span><span class="token property">color</span><span class="token operator">:</span>#ffffff</span>
-    <span class="token keyword">style</span> delay <span class="token style"><span class="token property">fill</span><span class="token operator">:</span>#e94560<span class="token punctuation">,</span><span class="token property">color</span><span class="token operator">:</span>#ffffff</span></code></pre></div>
+    <span class="token keyword">style</span> lag <span class="token style"><span class="token property">fill</span><span class="token operator">:</span>#e94560<span class="token punctuation">,</span><span class="token property">color</span><span class="token operator">:</span>#ffffff</span></code></pre></div>
 <p>10건 처리하려고 10,000건을 풀 파싱하고, 9,990번 예외 만들고, 9,990번 로그 찍는 구조입니다.</p>
 <p>lag은 쌓이고, 정작 중요한 SMS 대체 발송은 몇 분씩 밀립니다.</p>
 <hr>
-<h2>어떻게 해결했나 ? - Jackson Streaming으로 사전 필터링</h2>
-<p>선택지는 크게 두 가지였습니다.</p>
-<p>토픽을 분리해서 구조 자체를 바꾸거나, consumer에서 필터링 비용을 줄이거나.</p>
-<p>토픽 분리는 producer 팀과의 협의 + 메시지 마이그레이션이 필요해서 최소 몇 주가 걸리는 일이었고,</p>
-<p>당장 consumer lag이 쌓이고 있는 상황에서는 consumer 쪽에서 먼저 손을 대야 했습니다.</p>
-<p>아이디어 자체는 간단합니다.</p>
+<h2>어떻게 해결했나 - Jackson Streaming으로 사전 필터링</h2>
+<p>선택지는 두 가지였습니다.<br>
+토픽을 분리해서 구조 자체를 바꾸거나, consumer에서 필터링 비용을 줄이거나.</p>
+<p>토픽 분리는 producer 팀과의 협의가 필요해서 최소 몇 주가 걸리는 일이었습니다.</p>
+<p>당장 consumer lag이 쌓이고 있는 상황에서는 consumer 쪽에서 먼저 손을 대야 했습니다.<br>
+아이디어는 간단합니다.</p>
 <blockquote>
 <p><strong>"내 메시지가 아니면 readTree()를 아예 안 부른다."</strong></p>
 </blockquote>
-<p>JSON에서 <code class="language-text">message_source</code> 필드 하나만 빠르게 읽으면 되는데,<br>
+<p>JSON에서 <code class="language-text">message_source</code> 필드 하나만 빠르게 읽으면 됩니다.<br>
 그걸 위해 전체 DOM 트리를 만들 이유가 없습니다.</p>
-<p>Jackson의 <strong>Streaming API (JsonParser)</strong> 는 토큰 단위로 JSON을 순차 읽기하기 때문에, 객체를 안 만들고 원하는 필드 찾으면 바로 끊을 수 있습니다.</p>
+<p>Jackson의 <strong>Streaming API (JsonParser)</strong> 는 토큰 단위로 JSON을 순차 읽기합니다.<br>
+객체를 안 만들고, 원하는 필드를 찾으면 바로 끊을 수 있습니다.</p>
 <h3>변경 후에는 어떤 흐름이 되나요?</h3>
 <div class="gatsby-highlight" data-language="mermaid"><pre class="language-mermaid"><code class="language-mermaid"><span class="token keyword">flowchart</span> TD
     start<span class="token text string">(["메시지 수신"])</span>
@@ -362,25 +348,6 @@ consumer 쪽에서 비용을 줄이는 방향을 먼저 택했습니다.</p>
 나머지 0.1%만 풀 파싱을 거칩니다.</p>
 <p>에러 처리와 ack 보장 전략은 <a href="#%EC%99%9C-%EC%8B%A4%ED%8C%A8%ED%95%B4%EB%8F%84-ack%EC%9D%84-%ED%95%98%EB%82%98%EC%9A%94">아래 섹션</a>에서 다룹니다.</p>
 <h3>Streaming과 readTree, 뭐가 다른 건가요?</h3>
-<div class="gatsby-highlight" data-language="mermaid"><pre class="language-mermaid"><code class="language-mermaid"><span class="token keyword">flowchart</span> LR
-    <span class="token keyword">subgraph</span> before<span class="token text string">["Before: readTree()"]</span>
-        <span class="token keyword">direction</span> TB
-        b1<span class="token text string">["JSON 문자열 입력"]</span>
-        b2<span class="token text string">["전체 DOM 트리 생성&lt;br/>(JsonNode 객체 그래프)"]</span>
-        b3<span class="token text string">["메모리 할당 + GC 부담"]</span>
-        b1 <span class="token arrow operator">--></span> b2 <span class="token arrow operator">--></span> b3
-    <span class="token keyword">end</span>
-
-    <span class="token keyword">subgraph</span> after<span class="token text string">["After: Jackson Streaming"]</span>
-        <span class="token keyword">direction</span> TB
-        a1<span class="token text string">["JSON 문자열 입력"]</span>
-        a2<span class="token text string">["토큰 단위 순차 읽기&lt;br/>(객체 생성 없음)"]</span>
-        a3<span class="token text string">["판별 필드 발견 즉시 종료&lt;br/>평균 JSON의 5~10%만 읽음"]</span>
-        a1 <span class="token arrow operator">--></span> a2 <span class="token arrow operator">--></span> a3
-    <span class="token keyword">end</span>
-
-    <span class="token keyword">style</span> before <span class="token style"><span class="token property">fill</span><span class="token operator">:</span>#e94560<span class="token punctuation">,</span><span class="token property">color</span><span class="token operator">:</span>#ffffff</span>
-    <span class="token keyword">style</span> after <span class="token style"><span class="token property">fill</span><span class="token operator">:</span>#2d6a4f<span class="token punctuation">,</span><span class="token property">color</span><span class="token operator">:</span>#ffffff</span></code></pre></div>
 <table>
 <thead>
 <tr>
@@ -413,21 +380,6 @@ consumer 쪽에서 비용을 줄이는 방향을 먼저 택했습니다.</p>
 </tbody>
 </table>
 <h3>성능은 얼마나 달라졌나요?</h3>
-<div class="gatsby-highlight" data-language="mermaid"><pre class="language-mermaid"><code class="language-mermaid"><span class="token keyword">flowchart</span> LR
-    input2<span class="token text string">["토픽 유입&lt;br/>10,000건/분"]</span>
-    streaming2<span class="token text string">["Streaming Parser&lt;br/>message_source만 탐색"]</span>
-    check<span class="token text string">["내 서비스 여부 판별&lt;br/>O(1) 토큰 탐색"]</span>
-    skipAll<span class="token text string">["즉시 skip + ack&lt;br/>9,990건&lt;br/>(DOM 생성 없음)"]</span>
-    process<span class="token text string">["readTree()&lt;br/>+ treeToValue()&lt;br/>+ handle()&lt;br/>+ SMS 발송&lt;br/>10건"]</span>
-
-    input2 <span class="token arrow operator">--></span> streaming2 <span class="token arrow operator">--></span> check
-    check <span class="token arrow operator">--></span><span class="token label property">|"99.9%"|</span> skipAll
-    check <span class="token arrow operator">--></span><span class="token label property">|"0.1%"|</span> process
-
-    <span class="token keyword">style</span> streaming2 <span class="token style"><span class="token property">fill</span><span class="token operator">:</span>#0f3460<span class="token punctuation">,</span><span class="token property">color</span><span class="token operator">:</span>#e0e0e0</span>
-    <span class="token keyword">style</span> check <span class="token style"><span class="token property">fill</span><span class="token operator">:</span>#2d6a4f<span class="token punctuation">,</span><span class="token property">color</span><span class="token operator">:</span>#ffffff</span>
-    <span class="token keyword">style</span> skipAll <span class="token style"><span class="token property">fill</span><span class="token operator">:</span>#2d6a4f<span class="token punctuation">,</span><span class="token property">color</span><span class="token operator">:</span>#ffffff</span>
-    <span class="token keyword">style</span> process <span class="token style"><span class="token property">fill</span><span class="token operator">:</span>#16213e<span class="token punctuation">,</span><span class="token property">color</span><span class="token operator">:</span>#e0e0e0</span></code></pre></div>
 <table>
 <thead>
 <tr>
@@ -505,6 +457,10 @@ consumer 쪽에서 비용을 줄이는 방향을 먼저 택했습니다.</p>
 <span class="token punctuation">}</span></code></pre></div>
 <p><code class="language-text">jsonFactory.createParser()</code>로 Streaming Parser를 열고, 토큰을 하나씩 읽다가 <code class="language-text">message_source</code>를 만나면 값만 확인하고 바로 끊습니다.
 DOM 트리를 안 만드니까 메모리 할당이 거의 없습니다.</p>
+<p>이 코드는 <code class="language-text">message_source</code>가 JSON root level에 있다는 전제입니다.
+중첩 객체 안에 같은 이름의 필드가 있으면 오판할 수 있으니, 메시지 스키마가 바뀔 때 주의가 필요합니다.</p>
+<p>또한 <code class="language-text">getOrElse { false }</code>로 파싱 실패를 "관심 없는 메시지"와 동일하게 처리하고 있습니다.
+malformed JSON이나 producer bug를 놓칠 수 있으니, 운영 환경에서는 파싱 실패 시 warn 로그(payload size + topic/partition/offset 정도)를 남기는 게 안전합니다.</p>
 <h3>Consumer 본체</h3>
 <div class="gatsby-highlight" data-language="kotlin"><pre class="language-kotlin"><code class="language-kotlin"><span class="token keyword">fun</span> <span class="token function">listen</span><span class="token punctuation">(</span>message<span class="token operator">:</span> ConsumerRecord<span class="token operator">&lt;</span>String<span class="token punctuation">,</span> String<span class="token operator">></span><span class="token punctuation">,</span> ack<span class="token operator">:</span> Acknowledgment<span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token comment">// 1. Streaming으로 내 메시지인지 확인 — 아니면 즉시 skip</span>
@@ -515,8 +471,7 @@ DOM 트리를 안 만드니까 메모리 할당이 거의 없습니다.</p>
 
     <span class="token comment">// 2. 내 메시지만 풀 파싱 + 처리 — finally로 ack 보장</span>
     <span class="token keyword">try</span> <span class="token punctuation">{</span>
-        <span class="token keyword">val</span> root <span class="token operator">=</span> objectMapper<span class="token punctuation">.</span><span class="token function">readTree</span><span class="token punctuation">(</span>message<span class="token punctuation">.</span><span class="token function">value</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
-        <span class="token keyword">val</span> <span class="token keyword">data</span> <span class="token operator">=</span> objectMapper<span class="token punctuation">.</span><span class="token function">treeToValue</span><span class="token punctuation">(</span>root<span class="token punctuation">,</span> MyDto<span class="token operator">::</span><span class="token keyword">class</span><span class="token punctuation">.</span>java<span class="token punctuation">)</span>
+        <span class="token keyword">val</span> <span class="token keyword">data</span> <span class="token operator">=</span> objectMapper<span class="token punctuation">.</span><span class="token function">readValue</span><span class="token punctuation">(</span>message<span class="token punctuation">.</span><span class="token function">value</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> MyDto<span class="token operator">::</span><span class="token keyword">class</span><span class="token punctuation">.</span>java<span class="token punctuation">)</span>
         handler<span class="token punctuation">.</span><span class="token function">handle</span><span class="token punctuation">(</span><span class="token keyword">data</span><span class="token punctuation">)</span>
     <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span>e<span class="token operator">:</span> Exception<span class="token punctuation">)</span> <span class="token punctuation">{</span>
         log<span class="token punctuation">.</span><span class="token function">error</span><span class="token punctuation">(</span>
@@ -531,8 +486,13 @@ DOM 트리를 안 만드니까 메모리 할당이 거의 없습니다.</p>
 <span class="token punctuation">}</span></code></pre></div>
 <hr>
 <h2>왜 실패해도 ack을 하나요?</h2>
-<p>"처리 실패했으면 ack 안 하고 재시도해야 하는 거 아냐?" 라고 생각할 수 있는데요.</p>
-<p>맞는 말이지만, <strong>보조 흐름(fallback)</strong> 성격의 consumer라면 실패해도 ack 하는 게 나을 때가 많습니다.</p>
+<p>"처리 실패했으면 ack 안 하고 재시도해야 하는 거 아냐?"</p>
+<p>맞는 말입니다. 하지만 이 consumer는 <strong>보조 흐름(fallback)</strong> 성격입니다.
+단건 유실보다 지연 전파가 더 위험한 서비스였기 때문에, 실패해도 ack 하는 쪽을 택했습니다.</p>
+<blockquote>
+<p>정산, 주문 확정, 법정 고지처럼 단건 유실이 치명적인 도메인에서는 반대로 DLQ + 재처리가 맞습니다.
+이 판단은 서비스 성격에 따라 달라집니다.</p>
+</blockquote>
 <h3>ack 안 하면 어떻게 되나요?</h3>
 <p><code class="language-text">MANUAL_IMMEDIATE</code> + <code class="language-text">concurrency=1</code> 구조에서 ack을 안 하면 이런 일이 벌어집니다.</p>
 <ol>
@@ -555,7 +515,7 @@ DOM 트리를 안 만드니까 메모리 할당이 거의 없습니다.</p>
     <span class="token keyword">style</span> msg3 <span class="token style"><span class="token property">fill</span><span class="token operator">:</span>#4a4a4a<span class="token punctuation">,</span><span class="token property">color</span><span class="token operator">:</span>#e0e0e0</span>
     <span class="token keyword">style</span> msg4 <span class="token style"><span class="token property">fill</span><span class="token operator">:</span>#4a4a4a<span class="token punctuation">,</span><span class="token property">color</span><span class="token operator">:</span>#e0e0e0</span></code></pre></div>
 <p>실패 한 건 때문에 뒤에 있는 수십~수백 건이 다 밀리게 됩니다.
-실패를 유실하는 것보다 이게 더 위험합니다.</p>
+이 서비스에서는 단건 유실보다 이 지연 전파가 더 위험했습니다.</p>
 <h3>ack 보장 패턴: try/finally</h3>
 <div class="gatsby-highlight" data-language="kotlin"><pre class="language-kotlin"><code class="language-kotlin"><span class="token comment">// early return 분기: 직접 ack 후 return</span>
 <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token function">isMyMessage</span><span class="token punctuation">(</span>message<span class="token punctuation">.</span><span class="token function">value</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
@@ -571,9 +531,9 @@ DOM 트리를 안 만드니까 메모리 할당이 거의 없습니다.</p>
 <span class="token punctuation">}</span> <span class="token keyword">finally</span> <span class="token punctuation">{</span>
     ack<span class="token punctuation">.</span><span class="token function">acknowledge</span><span class="token punctuation">(</span><span class="token punctuation">)</span>  <span class="token comment">// 어떤 경우에도 ack</span>
 <span class="token punctuation">}</span></code></pre></div>
-<p><code class="language-text">runCatching</code> + <code class="language-text">onFailure</code>로도 되긴 하는데,<br>
-나중에 누가 중간에 return을 하나 넣으면 ack이 빠질 수 있습니다.</p>
-<p><code class="language-text">try/finally</code>는 언어가 보장해주니까 그런 실수가 원천 차단됩니다.</p>
+<p><code class="language-text">runCatching</code> + <code class="language-text">onFailure</code>로도 되긴 합니다.
+근데 나중에 누가 중간에 return을 하나 넣으면 ack이 빠질 수 있습니다.</p>
+<p><code class="language-text">try/finally</code>는 언어가 보장해줍니다. 그런 실수가 원천 차단됩니다.</p>
 <h3>케이스별 정리</h3>
 <table>
 <thead>
@@ -588,7 +548,7 @@ DOM 트리를 안 만드니까 메모리 할당이 거의 없습니다.</p>
 <tr>
 <td>Streaming 파싱 실패</td>
 <td>O</td>
-<td><code class="language-text">warn</code> (size만)</td>
+<td><code class="language-text">warn</code> (size/offset만 권장)</td>
 <td>재시도해봤자 의미 없습니다 (깨진 메시지)</td>
 </tr>
 <tr>
@@ -613,9 +573,9 @@ DOM 트리를 안 만드니까 메모리 할당이 거의 없습니다.</p>
 </table>
 <hr>
 <h2>실패 로그 설계: 본문 대신 상관키</h2>
-<p>실패했을 때 "뭐가 실패했는지" 추적하려면 로그가 필요합니다.</p>
-<p>근데 본문 전체를 찍으면 민감정보 문제가 생기기 때문에,<br>
-대신 <strong>상관키(correlation key)</strong> 와 <strong>실패 원인 분류(cause)</strong> 만 남기도록 했습니다.</p>
+<p>실패했을 때 "뭐가 실패했는지" 추적하려면 로그가 필요합니다.
+근데 본문 전체를 찍으면 민감정보 문제가 생깁니다.</p>
+<p>그래서 <strong>상관키(correlation key)</strong> 와 <strong>실패 원인 분류(cause)</strong> 만 남기도록 했습니다.</p>
 <div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text">handle_error :
     topic={}  partition={}  offset={}    -- Kafka 좌표 (정확한 위치)
     key={}                                -- 메시지 키 (대체 상관키)
@@ -668,13 +628,13 @@ DOM 트리를 안 만드니까 메모리 할당이 거의 없습니다.</p>
 이때는 <code class="language-text">message.key()</code>로 대체해서 <strong>검색 가능한 키가 최소 하나</strong>는 남도록 했습니다.</p>
 <hr>
 <h2>이중 파싱은 괜찮은 건가요?</h2>
-<p>현재 구조에서 내 메시지(0.1%)는 Streaming 스캔 후 readTree로 <strong>2번 파싱</strong>됩니다.</p>
-<p>근데 나머지 99.9%에서 readTree를 완전히 날린 이득이 워낙 크기 때문에,<br>
+<p>현재 구조에서 내 메시지(0.1%)는 Streaming 스캔 후 readValue로 <strong>2번 파싱</strong>됩니다.</p>
+<p>근데 나머지 99.9%에서 readTree를 완전히 날린 이득이 워낙 큽니다.
 이 비율에서는 충분히 남는 장사입니다.</p>
 <p>다만 내 메시지 비율이 확 올라가는 상황(예: 외부 서비스 전체 장애로 실패가 폭증)에서는 이중 파싱 비용이 눈에 띌 수 있습니다.</p>
 <blockquote>
-<p>내 메시지 비율이 10%를 넘기면 streaming 없이 바로 readTree 후 필드 체크 방식으로 전환을 고려해야 합니다.
-이 경우에도 역직렬화(<code class="language-text">treeToValue</code>)는 내 메시지만 하니까 변경 전보다는 낫습니다.</p>
+<p>내 메시지 비율이 높아지면 (경험적으로 10% 이상) streaming 없이 바로 readValue() 후 필드 체크 방식이 나을 수 있습니다.
+정확한 전환 시점은 payload 크기, 필드 위치, commit 비용에 따라 달라지므로 벤치마크로 판단해야 합니다.</p>
 </blockquote>
 <hr>
 <h2>이것으로도 안 되면 어떻게 하나요?</h2>
@@ -704,6 +664,11 @@ DOM 트리를 안 만드니까 메모리 할당이 거의 없습니다.</p>
 <td>중간 (JSON 변형에 취약)</td>
 </tr>
 <tr>
+<td><strong>header/key 승격</strong></td>
+<td><code class="language-text">message_source</code>를 Kafka header나 key로 올리기 (producer 변경 필요)</td>
+<td>중간 (타팀 협의)</td>
+</tr>
+<tr>
 <td><strong>전용 토픽 분리</strong></td>
 <td>프로듀서 측에 전용 토픽 publish 요청</td>
 <td>높음 (타팀 협의)</td>
@@ -723,23 +688,23 @@ DOM 트리를 안 만드니까 메모리 할당이 거의 없습니다.</p>
 <li>발송이 법적 의무(고지 문자 등)로 승격될 때, ack-on-failure가 위험해지면서 DLQ + 재처리 파이프라인이 필수가 됩니다</li>
 </ul>
 <p>궁극적으로 가장 깔끔한 건 <strong>전용 토픽 분리</strong>입니다.
-내 메시지만 들어오는 토픽이 있으면 사전 필터링 자체가 필요 없습니다.
-근데 이건 프로듀서 쪽(다른 팀)이 바꿔줘야 하니까 협의 비용이 큽니다.
-현실적으로는 Streaming 필터링이 가성비가 제일 좋았습니다.</p>
+내 메시지만 들어오는 토픽이 있으면 사전 필터링 자체가 필요 없습니다.</p>
+<p>근데 이건 프로듀서 쪽(다른 팀)이 바꿔줘야 합니다. 협의 비용이 큽니다.
+현실적으로는 Streaming 필터링이 가성비가 가장 좋았습니다.</p>
 <hr>
 <h2>정리</h2>
-<p><strong>안 볼 메시지에 비용 쓰지 않는 것</strong>이 가장 중요했습니다.</p>
-<p>Jackson Streaming으로 판별 필드만 읽고 바로 skip하도록 바꿨고,<br>
-로그에는 본문 대신 상관키와 cause만 남기도록 했습니다.</p>
-<p>보조 흐름이면 실패해도 ack을 해야 하는데요,<br>
+<p>이번 개선의 핵심은 빠르게 처리하는 게 아니라, <strong>안 해도 되는 걸 안 하는 것</strong>이었습니다.</p>
+<ul>
+<li>Jackson Streaming으로 판별 필드만 읽고 바로 skip</li>
+<li>로그에는 본문 대신 상관키와 cause만</li>
+<li>모든 경로에서 <code class="language-text">try/finally</code>로 ack 보장</li>
+<li>상관키 null 방어로 검색 가능한 키 최소 하나 확보</li>
+</ul>
+<p>보조 흐름이면 실패해도 ack을 해야 합니다.
 partition stall은 실패 한 건보다 훨씬 큰 장애를 만들기 때문입니다.</p>
-<p>모든 경로에서 ack을 보장하기 위해 <code class="language-text">try/finally</code>를 사용했고,<br>
-상관키는 null 방어를 해서 검색 가능한 키가 최소 하나는 남도록 했습니다.</p>
-<p>빠르게 처리하는 게 아니라, <strong>안 해도 되는 걸 안 하는 게</strong> 이번 개선의 핵심이었습니다.</p>
 <p>다만 이건 consumer 쪽의 대응이고, 구조 자체의 문제는 남아 있습니다.
-하나의 토픽에 여러 서비스 메시지가 섞이는 구조는 producer 편의로 만들어진 것이고,
-그 비용을 consumer가 떠안는 형태입니다.
-장기적으로는 도메인 단위 토픽 분리가 맞고, 이 개선은 그때까지의 버팀목입니다.</p></div><div class="Body__PostBottomAdWrapper-sc-16q266i-2 cLIrav"><ins class="adsbygoogle" style="overflow-x:auto;overflow-y:hidden;display:block;text-align:center" data-ad-client="ca-pub-2692445439426078" data-ad-slot="2295339271" data-ad-format="auto" data-full-width-responsive="true" data-ad-layout-key=""></ins></div></div><div class="Footer__ArticleButtonContainer-sc-1d9k77a-0 idOCUa"><div class="Footer__ArticleButtonWrapper-sc-1d9k77a-4 fJrJmF"><div class="Footer__ArrowFlexWrapper-sc-1d9k77a-1 vAYWy"><div class="Footer__Arrow-sc-1d9k77a-3 bUoaiX"><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M12.707 17.293 8.414 13H18v-2H8.414l4.293-4.293-1.414-1.414L4.586 12l6.707 6.707z"></path></svg></div><div class="Footer__ArticleButtonTextWrapper-sc-1d9k77a-2 hTURsA"><div class="Footer__ArticleButtonLabel-sc-1d9k77a-5 dikUTf">Previous Post</div><div class="Footer__ArticleButtonTitle-sc-1d9k77a-6 gCkfdk">협업을 위해 요구사항 문서를 어디까지 작성해야 하는가</div></div></div></div><div class="Footer__ArticleButtonWrapper-sc-1d9k77a-4 erYsaP"><div class="Footer__ArrowFlexWrapper-sc-1d9k77a-1 vAYWy"><div class="Footer__Arrow-sc-1d9k77a-3 bUoaiX"><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="m11.293 17.293 1.414 1.414L19.414 12l-6.707-6.707-1.414 1.414L15.586 11H6v2h9.586z"></path></svg></div><div class="Footer__ArticleButtonTextWrapper-sc-1d9k77a-2 hTURsA"><div class="Footer__ArticleButtonLabel-sc-1d9k77a-5 dikUTf">Next Post</div><div class="Footer__ArticleButtonTitle-sc-1d9k77a-6 gCkfdk">인덱스도 없이 캐시부터 붙이려 했냐;</div></div></div></div></div><div id="bio" class="Bio__BioWrapper-sc-c63sem-0 ijKral"><div class="Bio__Profile-sc-c63sem-1 lgmXva"></div><div><div class="Bio__Author-sc-c63sem-2 byREtO">@<!-- -->hyungki</div><div class="Bio__Description-sc-c63sem-3 fxBAYA"> 생각하는 삶</div><div class="Bio__LinksWrapper-sc-c63sem-4 iPKYEC"><a href="https://github.com/hyungkishin" target="_blank" rel="noreferrer"><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 496 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"></path></svg></a></div></div></div><div class="Footer__CommentWrapper-sc-1d9k77a-7 dpsRmG"><hr class="Divider-sc-2jtmwl-0 byhHmP"/><div class="Footer__SpinnerWrapper-sc-1d9k77a-8 fxuyBt"><span style="display:inline-block;position:relative;width:28px;height:28px;vertical-align:middle;font-size:0;animation:__react-md-spinner-animation__root-rotate 1568.235294117647ms linear infinite;-webkit-animation:__react-md-spinner-animation__root-rotate 1568.235294117647ms linear infinite"><span style="box-sizing:border-box;display:block;position:absolute;width:100%;height:100%;border-color:#4c6ef5;white-space:nowrap;opacity:1;animation-name:__react-md-spinner-animation__fill-unfill-rotate, __react-md-spinner-animation__layer-1-fade-in-out;-webkit-animation-name:__react-md-spinner-animation__fill-unfill-rotate, __react-md-spinner-animation__layer-1-fade-in-out;animation-duration:5332ms;-webkit-animation-duration:5332ms;animation-timing-function:cubic-bezier(.4, 0, .2, 1);-webkit-animation-timing-function:cubic-bezier(.4, 0, .2, 1);animation-iteration-count:infinite;-webkit-animation-iteration-count:infinite"><span style="display:inline-block;box-sizing:border-box;position:relative;width:50%;height:100%;overflow:hidden;border-color:inherit"><span style="display:inline-block;box-sizing:border-box;position:absolute;top:0;border-radius:50%;bottom:0;width:200%;border-width:3px;border-style:solid;animation-duration:1333ms;-webkit-animation-duration:1333ms;animation-timing-function:cubic-bezier(.4, 0, .2, 1);-webkit-animation-timing-function:cubic-bezier(.4, 0, .2, 1);animation-iteration-count:infinite;-webkit-animation-iteration-count:infinite;left:0;transform:rotate(129deg);-webkit-transform:rotate(129deg);animation-name:__react-md-spinner-animation__left-spin;-webkit-animation-name:__react-md-spinner-animation__left-spin;border-color:#4c6ef5 transparent transparent #4c6ef5"></span></span><span style="display:inline-block;box-sizing:border-box;position:relative;width:50%;height:100%;overflow:hidden;border-color:inherit"><span style="display:inline-block;box-sizing:border-box;position:absolute;top:0;border-radius:50%;bottom:0;width:200%;border-width:3px;border-style:solid;animation-duration:1333ms;-webkit-animation-duration:1333ms;animation-timing-function:cubic-bezier(.4, 0, .2, 1);-webkit-animation-timing-function:cubic-bezier(.4, 0, .2, 1);animation-iteration-count:infinite;-webkit-animation-iteration-count:infinite;left:-100%;transform:rotate(-129deg);-webkit-transform:rotate(-129deg);animation-name:__react-md-spinner-animation__right-spin;-webkit-animation-name:__react-md-spinner-animation__right-spin;border-color:#4c6ef5 #4c6ef5 transparent transparent"></span></span><span style="display:inline-block;box-sizing:border-box;position:absolute;top:0;border-radius:50%;left:45%;width:10%;border-width:3px;border-color:inherit;border-top-style:solid"></span></span><span style="box-sizing:border-box;display:block;position:absolute;width:100%;height:100%;border-color:#4c6ef5;white-space:nowrap;opacity:1;animation-name:__react-md-spinner-animation__fill-unfill-rotate, __react-md-spinner-animation__layer-2-fade-in-out;-webkit-animation-name:__react-md-spinner-animation__fill-unfill-rotate, __react-md-spinner-animation__layer-2-fade-in-out;animation-duration:5332ms;-webkit-animation-duration:5332ms;animation-timing-function:cubic-bezier(.4, 0, .2, 1);-webkit-animation-timing-function:cubic-bezier(.4, 0, .2, 1);animation-iteration-count:infinite;-webkit-animation-iteration-count:infinite"><span style="display:inline-block;box-sizing:border-box;position:relative;width:50%;height:100%;overflow:hidden;border-color:inherit"><span style="display:inline-block;box-sizing:border-box;position:absolute;top:0;border-radius:50%;bottom:0;width:200%;border-width:3px;border-style:solid;animation-duration:1333ms;-webkit-animation-duration:1333ms;animation-timing-function:cubic-bezier(.4, 0, .2, 1);-webkit-animation-timing-function:cubic-bezier(.4, 0, .2, 1);animation-iteration-count:infinite;-webkit-animation-iteration-count:infinite;left:0;transform:rotate(129deg);-webkit-transform:rotate(129deg);animation-name:__react-md-spinner-animation__left-spin;-webkit-animation-name:__react-md-spinner-animation__left-spin;border-color:#4c6ef5 transparent transparent #4c6ef5"></span></span><span style="display:inline-block;box-sizing:border-box;position:relative;width:50%;height:100%;overflow:hidden;border-color:inherit"><span style="display:inline-block;box-sizing:border-box;position:absolute;top:0;border-radius:50%;bottom:0;width:200%;border-width:3px;border-style:solid;animation-duration:1333ms;-webkit-animation-duration:1333ms;animation-timing-function:cubic-bezier(.4, 0, .2, 1);-webkit-animation-timing-function:cubic-bezier(.4, 0, .2, 1);animation-iteration-count:infinite;-webkit-animation-iteration-count:infinite;left:-100%;transform:rotate(-129deg);-webkit-transform:rotate(-129deg);animation-name:__react-md-spinner-animation__right-spin;-webkit-animation-name:__react-md-spinner-animation__right-spin;border-color:#4c6ef5 #4c6ef5 transparent transparent"></span></span><span style="display:inline-block;box-sizing:border-box;position:absolute;top:0;border-radius:50%;left:45%;width:10%;border-width:3px;border-color:inherit;border-top-style:solid"></span></span><span style="box-sizing:border-box;display:block;position:absolute;width:100%;height:100%;border-color:#4c6ef5;white-space:nowrap;opacity:1;animation-name:__react-md-spinner-animation__fill-unfill-rotate, __react-md-spinner-animation__layer-3-fade-in-out;-webkit-animation-name:__react-md-spinner-animation__fill-unfill-rotate, __react-md-spinner-animation__layer-3-fade-in-out;animation-duration:5332ms;-webkit-animation-duration:5332ms;animation-timing-function:cubic-bezier(.4, 0, .2, 1);-webkit-animation-timing-function:cubic-bezier(.4, 0, .2, 1);animation-iteration-count:infinite;-webkit-animation-iteration-count:infinite"><span style="display:inline-block;box-sizing:border-box;position:relative;width:50%;height:100%;overflow:hidden;border-color:inherit"><span style="display:inline-block;box-sizing:border-box;position:absolute;top:0;border-radius:50%;bottom:0;width:200%;border-width:3px;border-style:solid;animation-duration:1333ms;-webkit-animation-duration:1333ms;animation-timing-function:cubic-bezier(.4, 0, .2, 1);-webkit-animation-timing-function:cubic-bezier(.4, 0, .2, 1);animation-iteration-count:infinite;-webkit-animation-iteration-count:infinite;left:0;transform:rotate(129deg);-webkit-transform:rotate(129deg);animation-name:__react-md-spinner-animation__left-spin;-webkit-animation-name:__react-md-spinner-animation__left-spin;border-color:#4c6ef5 transparent transparent #4c6ef5"></span></span><span style="display:inline-block;box-sizing:border-box;position:relative;width:50%;height:100%;overflow:hidden;border-color:inherit"><span style="display:inline-block;box-sizing:border-box;position:absolute;top:0;border-radius:50%;bottom:0;width:200%;border-width:3px;border-style:solid;animation-duration:1333ms;-webkit-animation-duration:1333ms;animation-timing-function:cubic-bezier(.4, 0, .2, 1);-webkit-animation-timing-function:cubic-bezier(.4, 0, .2, 1);animation-iteration-count:infinite;-webkit-animation-iteration-count:infinite;left:-100%;transform:rotate(-129deg);-webkit-transform:rotate(-129deg);animation-name:__react-md-spinner-animation__right-spin;-webkit-animation-name:__react-md-spinner-animation__right-spin;border-color:#4c6ef5 #4c6ef5 transparent transparent"></span></span><span style="display:inline-block;box-sizing:border-box;position:absolute;top:0;border-radius:50%;left:45%;width:10%;border-width:3px;border-color:inherit;border-top-style:solid"></span></span><span style="box-sizing:border-box;display:block;position:absolute;width:100%;height:100%;border-color:#4c6ef5;white-space:nowrap;opacity:1;animation-name:__react-md-spinner-animation__fill-unfill-rotate, __react-md-spinner-animation__layer-4-fade-in-out;-webkit-animation-name:__react-md-spinner-animation__fill-unfill-rotate, __react-md-spinner-animation__layer-4-fade-in-out;animation-duration:5332ms;-webkit-animation-duration:5332ms;animation-timing-function:cubic-bezier(.4, 0, .2, 1);-webkit-animation-timing-function:cubic-bezier(.4, 0, .2, 1);animation-iteration-count:infinite;-webkit-animation-iteration-count:infinite"><span style="display:inline-block;box-sizing:border-box;position:relative;width:50%;height:100%;overflow:hidden;border-color:inherit"><span style="display:inline-block;box-sizing:border-box;position:absolute;top:0;border-radius:50%;bottom:0;width:200%;border-width:3px;border-style:solid;animation-duration:1333ms;-webkit-animation-duration:1333ms;animation-timing-function:cubic-bezier(.4, 0, .2, 1);-webkit-animation-timing-function:cubic-bezier(.4, 0, .2, 1);animation-iteration-count:infinite;-webkit-animation-iteration-count:infinite;left:0;transform:rotate(129deg);-webkit-transform:rotate(129deg);animation-name:__react-md-spinner-animation__left-spin;-webkit-animation-name:__react-md-spinner-animation__left-spin;border-color:#4c6ef5 transparent transparent #4c6ef5"></span></span><span style="display:inline-block;box-sizing:border-box;position:relative;width:50%;height:100%;overflow:hidden;border-color:inherit"><span style="display:inline-block;box-sizing:border-box;position:absolute;top:0;border-radius:50%;bottom:0;width:200%;border-width:3px;border-style:solid;animation-duration:1333ms;-webkit-animation-duration:1333ms;animation-timing-function:cubic-bezier(.4, 0, .2, 1);-webkit-animation-timing-function:cubic-bezier(.4, 0, .2, 1);animation-iteration-count:infinite;-webkit-animation-iteration-count:infinite;left:-100%;transform:rotate(-129deg);-webkit-transform:rotate(-129deg);animation-name:__react-md-spinner-animation__right-spin;-webkit-animation-name:__react-md-spinner-animation__right-spin;border-color:#4c6ef5 #4c6ef5 transparent transparent"></span></span><span style="display:inline-block;box-sizing:border-box;position:absolute;top:0;border-radius:50%;left:45%;width:10%;border-width:3px;border-color:inherit;border-top-style:solid"></span></span></span></div><div class="Footer__HiddenWrapper-sc-1d9k77a-9 ZwedX"></div></div></article></div><footer class="Footer__FooterWrapper-sc-1yepd37-0 ewCiZv">© <!-- -->hyungkishin.blog<!-- -->,Thank You for Visiting My Blog, Have a Good Day 😆</footer></div><div id="gatsby-announcer" style="position:absolute;top:0;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border:0" aria-live="assertive" aria-atomic="true"></div></div><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-9EMQVPHMY6"></script><script>
+하나의 토픽에 여러 서비스 메시지가 섞이는 구조는 producer 편의로 만들어진 것이고, 그 비용을 consumer가 떠안는 형태입니다.</p>
+<p>장기적으로는 도메인 단위 토픽 분리가 맞고, 이 개선은 그때까지의 버팀목입니다.</p></div><div class="Body__PostBottomAdWrapper-sc-16q266i-2 cLIrav"><ins class="adsbygoogle" style="overflow-x:auto;overflow-y:hidden;display:block;text-align:center" data-ad-client="ca-pub-2692445439426078" data-ad-slot="2295339271" data-ad-format="auto" data-full-width-responsive="true" data-ad-layout-key=""></ins></div></div><div class="Footer__ArticleButtonContainer-sc-1d9k77a-0 idOCUa"><div class="Footer__ArticleButtonWrapper-sc-1d9k77a-4 fJrJmF"><div class="Footer__ArrowFlexWrapper-sc-1d9k77a-1 vAYWy"><div class="Footer__Arrow-sc-1d9k77a-3 bUoaiX"><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M12.707 17.293 8.414 13H18v-2H8.414l4.293-4.293-1.414-1.414L4.586 12l6.707 6.707z"></path></svg></div><div class="Footer__ArticleButtonTextWrapper-sc-1d9k77a-2 hTURsA"><div class="Footer__ArticleButtonLabel-sc-1d9k77a-5 dikUTf">Previous Post</div><div class="Footer__ArticleButtonTitle-sc-1d9k77a-6 gCkfdk">협업을 위해 요구사항 문서를 어디까지 작성해야 하는가</div></div></div></div><div class="Footer__ArticleButtonWrapper-sc-1d9k77a-4 erYsaP"><div class="Footer__ArrowFlexWrapper-sc-1d9k77a-1 vAYWy"><div class="Footer__Arrow-sc-1d9k77a-3 bUoaiX"><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="m11.293 17.293 1.414 1.414L19.414 12l-6.707-6.707-1.414 1.414L15.586 11H6v2h9.586z"></path></svg></div><div class="Footer__ArticleButtonTextWrapper-sc-1d9k77a-2 hTURsA"><div class="Footer__ArticleButtonLabel-sc-1d9k77a-5 dikUTf">Next Post</div><div class="Footer__ArticleButtonTitle-sc-1d9k77a-6 gCkfdk">인덱스도 없이 캐시부터 붙이려 했냐;</div></div></div></div></div><div id="bio" class="Bio__BioWrapper-sc-c63sem-0 ijKral"><div class="Bio__Profile-sc-c63sem-1 lgmXva"></div><div><div class="Bio__Author-sc-c63sem-2 byREtO">@<!-- -->hyungki</div><div class="Bio__Description-sc-c63sem-3 fxBAYA"> 생각하는 삶</div><div class="Bio__LinksWrapper-sc-c63sem-4 iPKYEC"><a href="https://github.com/hyungkishin" target="_blank" rel="noreferrer"><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 496 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"></path></svg></a></div></div></div><div class="Footer__CommentWrapper-sc-1d9k77a-7 dpsRmG"><hr class="Divider-sc-2jtmwl-0 byhHmP"/><div class="Footer__SpinnerWrapper-sc-1d9k77a-8 fxuyBt"><span style="display:inline-block;position:relative;width:28px;height:28px;vertical-align:middle;font-size:0;animation:__react-md-spinner-animation__root-rotate 1568.235294117647ms linear infinite;-webkit-animation:__react-md-spinner-animation__root-rotate 1568.235294117647ms linear infinite"><span style="box-sizing:border-box;display:block;position:absolute;width:100%;height:100%;border-color:#4c6ef5;white-space:nowrap;opacity:1;animation-name:__react-md-spinner-animation__fill-unfill-rotate, __react-md-spinner-animation__layer-1-fade-in-out;-webkit-animation-name:__react-md-spinner-animation__fill-unfill-rotate, __react-md-spinner-animation__layer-1-fade-in-out;animation-duration:5332ms;-webkit-animation-duration:5332ms;animation-timing-function:cubic-bezier(.4, 0, .2, 1);-webkit-animation-timing-function:cubic-bezier(.4, 0, .2, 1);animation-iteration-count:infinite;-webkit-animation-iteration-count:infinite"><span style="display:inline-block;box-sizing:border-box;position:relative;width:50%;height:100%;overflow:hidden;border-color:inherit"><span style="display:inline-block;box-sizing:border-box;position:absolute;top:0;border-radius:50%;bottom:0;width:200%;border-width:3px;border-style:solid;animation-duration:1333ms;-webkit-animation-duration:1333ms;animation-timing-function:cubic-bezier(.4, 0, .2, 1);-webkit-animation-timing-function:cubic-bezier(.4, 0, .2, 1);animation-iteration-count:infinite;-webkit-animation-iteration-count:infinite;left:0;transform:rotate(129deg);-webkit-transform:rotate(129deg);animation-name:__react-md-spinner-animation__left-spin;-webkit-animation-name:__react-md-spinner-animation__left-spin;border-color:#4c6ef5 transparent transparent #4c6ef5"></span></span><span style="display:inline-block;box-sizing:border-box;position:relative;width:50%;height:100%;overflow:hidden;border-color:inherit"><span style="display:inline-block;box-sizing:border-box;position:absolute;top:0;border-radius:50%;bottom:0;width:200%;border-width:3px;border-style:solid;animation-duration:1333ms;-webkit-animation-duration:1333ms;animation-timing-function:cubic-bezier(.4, 0, .2, 1);-webkit-animation-timing-function:cubic-bezier(.4, 0, .2, 1);animation-iteration-count:infinite;-webkit-animation-iteration-count:infinite;left:-100%;transform:rotate(-129deg);-webkit-transform:rotate(-129deg);animation-name:__react-md-spinner-animation__right-spin;-webkit-animation-name:__react-md-spinner-animation__right-spin;border-color:#4c6ef5 #4c6ef5 transparent transparent"></span></span><span style="display:inline-block;box-sizing:border-box;position:absolute;top:0;border-radius:50%;left:45%;width:10%;border-width:3px;border-color:inherit;border-top-style:solid"></span></span><span style="box-sizing:border-box;display:block;position:absolute;width:100%;height:100%;border-color:#4c6ef5;white-space:nowrap;opacity:1;animation-name:__react-md-spinner-animation__fill-unfill-rotate, __react-md-spinner-animation__layer-2-fade-in-out;-webkit-animation-name:__react-md-spinner-animation__fill-unfill-rotate, __react-md-spinner-animation__layer-2-fade-in-out;animation-duration:5332ms;-webkit-animation-duration:5332ms;animation-timing-function:cubic-bezier(.4, 0, .2, 1);-webkit-animation-timing-function:cubic-bezier(.4, 0, .2, 1);animation-iteration-count:infinite;-webkit-animation-iteration-count:infinite"><span style="display:inline-block;box-sizing:border-box;position:relative;width:50%;height:100%;overflow:hidden;border-color:inherit"><span style="display:inline-block;box-sizing:border-box;position:absolute;top:0;border-radius:50%;bottom:0;width:200%;border-width:3px;border-style:solid;animation-duration:1333ms;-webkit-animation-duration:1333ms;animation-timing-function:cubic-bezier(.4, 0, .2, 1);-webkit-animation-timing-function:cubic-bezier(.4, 0, .2, 1);animation-iteration-count:infinite;-webkit-animation-iteration-count:infinite;left:0;transform:rotate(129deg);-webkit-transform:rotate(129deg);animation-name:__react-md-spinner-animation__left-spin;-webkit-animation-name:__react-md-spinner-animation__left-spin;border-color:#4c6ef5 transparent transparent #4c6ef5"></span></span><span style="display:inline-block;box-sizing:border-box;position:relative;width:50%;height:100%;overflow:hidden;border-color:inherit"><span style="display:inline-block;box-sizing:border-box;position:absolute;top:0;border-radius:50%;bottom:0;width:200%;border-width:3px;border-style:solid;animation-duration:1333ms;-webkit-animation-duration:1333ms;animation-timing-function:cubic-bezier(.4, 0, .2, 1);-webkit-animation-timing-function:cubic-bezier(.4, 0, .2, 1);animation-iteration-count:infinite;-webkit-animation-iteration-count:infinite;left:-100%;transform:rotate(-129deg);-webkit-transform:rotate(-129deg);animation-name:__react-md-spinner-animation__right-spin;-webkit-animation-name:__react-md-spinner-animation__right-spin;border-color:#4c6ef5 #4c6ef5 transparent transparent"></span></span><span style="display:inline-block;box-sizing:border-box;position:absolute;top:0;border-radius:50%;left:45%;width:10%;border-width:3px;border-color:inherit;border-top-style:solid"></span></span><span style="box-sizing:border-box;display:block;position:absolute;width:100%;height:100%;border-color:#4c6ef5;white-space:nowrap;opacity:1;animation-name:__react-md-spinner-animation__fill-unfill-rotate, __react-md-spinner-animation__layer-3-fade-in-out;-webkit-animation-name:__react-md-spinner-animation__fill-unfill-rotate, __react-md-spinner-animation__layer-3-fade-in-out;animation-duration:5332ms;-webkit-animation-duration:5332ms;animation-timing-function:cubic-bezier(.4, 0, .2, 1);-webkit-animation-timing-function:cubic-bezier(.4, 0, .2, 1);animation-iteration-count:infinite;-webkit-animation-iteration-count:infinite"><span style="display:inline-block;box-sizing:border-box;position:relative;width:50%;height:100%;overflow:hidden;border-color:inherit"><span style="display:inline-block;box-sizing:border-box;position:absolute;top:0;border-radius:50%;bottom:0;width:200%;border-width:3px;border-style:solid;animation-duration:1333ms;-webkit-animation-duration:1333ms;animation-timing-function:cubic-bezier(.4, 0, .2, 1);-webkit-animation-timing-function:cubic-bezier(.4, 0, .2, 1);animation-iteration-count:infinite;-webkit-animation-iteration-count:infinite;left:0;transform:rotate(129deg);-webkit-transform:rotate(129deg);animation-name:__react-md-spinner-animation__left-spin;-webkit-animation-name:__react-md-spinner-animation__left-spin;border-color:#4c6ef5 transparent transparent #4c6ef5"></span></span><span style="display:inline-block;box-sizing:border-box;position:relative;width:50%;height:100%;overflow:hidden;border-color:inherit"><span style="display:inline-block;box-sizing:border-box;position:absolute;top:0;border-radius:50%;bottom:0;width:200%;border-width:3px;border-style:solid;animation-duration:1333ms;-webkit-animation-duration:1333ms;animation-timing-function:cubic-bezier(.4, 0, .2, 1);-webkit-animation-timing-function:cubic-bezier(.4, 0, .2, 1);animation-iteration-count:infinite;-webkit-animation-iteration-count:infinite;left:-100%;transform:rotate(-129deg);-webkit-transform:rotate(-129deg);animation-name:__react-md-spinner-animation__right-spin;-webkit-animation-name:__react-md-spinner-animation__right-spin;border-color:#4c6ef5 #4c6ef5 transparent transparent"></span></span><span style="display:inline-block;box-sizing:border-box;position:absolute;top:0;border-radius:50%;left:45%;width:10%;border-width:3px;border-color:inherit;border-top-style:solid"></span></span><span style="box-sizing:border-box;display:block;position:absolute;width:100%;height:100%;border-color:#4c6ef5;white-space:nowrap;opacity:1;animation-name:__react-md-spinner-animation__fill-unfill-rotate, __react-md-spinner-animation__layer-4-fade-in-out;-webkit-animation-name:__react-md-spinner-animation__fill-unfill-rotate, __react-md-spinner-animation__layer-4-fade-in-out;animation-duration:5332ms;-webkit-animation-duration:5332ms;animation-timing-function:cubic-bezier(.4, 0, .2, 1);-webkit-animation-timing-function:cubic-bezier(.4, 0, .2, 1);animation-iteration-count:infinite;-webkit-animation-iteration-count:infinite"><span style="display:inline-block;box-sizing:border-box;position:relative;width:50%;height:100%;overflow:hidden;border-color:inherit"><span style="display:inline-block;box-sizing:border-box;position:absolute;top:0;border-radius:50%;bottom:0;width:200%;border-width:3px;border-style:solid;animation-duration:1333ms;-webkit-animation-duration:1333ms;animation-timing-function:cubic-bezier(.4, 0, .2, 1);-webkit-animation-timing-function:cubic-bezier(.4, 0, .2, 1);animation-iteration-count:infinite;-webkit-animation-iteration-count:infinite;left:0;transform:rotate(129deg);-webkit-transform:rotate(129deg);animation-name:__react-md-spinner-animation__left-spin;-webkit-animation-name:__react-md-spinner-animation__left-spin;border-color:#4c6ef5 transparent transparent #4c6ef5"></span></span><span style="display:inline-block;box-sizing:border-box;position:relative;width:50%;height:100%;overflow:hidden;border-color:inherit"><span style="display:inline-block;box-sizing:border-box;position:absolute;top:0;border-radius:50%;bottom:0;width:200%;border-width:3px;border-style:solid;animation-duration:1333ms;-webkit-animation-duration:1333ms;animation-timing-function:cubic-bezier(.4, 0, .2, 1);-webkit-animation-timing-function:cubic-bezier(.4, 0, .2, 1);animation-iteration-count:infinite;-webkit-animation-iteration-count:infinite;left:-100%;transform:rotate(-129deg);-webkit-transform:rotate(-129deg);animation-name:__react-md-spinner-animation__right-spin;-webkit-animation-name:__react-md-spinner-animation__right-spin;border-color:#4c6ef5 #4c6ef5 transparent transparent"></span></span><span style="display:inline-block;box-sizing:border-box;position:absolute;top:0;border-radius:50%;left:45%;width:10%;border-width:3px;border-color:inherit;border-top-style:solid"></span></span></span></div><div class="Footer__HiddenWrapper-sc-1d9k77a-9 ZwedX"></div></div></article></div><footer class="Footer__FooterWrapper-sc-1yepd37-0 ewCiZv">© <!-- -->hyungkishin.blog<!-- -->,Thank You for Visiting My Blog, Have a Good Day 😆</footer></div><div id="gatsby-announcer" style="position:absolute;top:0;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border:0" aria-live="assertive" aria-atomic="true"></div></div><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-9EMQVPHMY6"></script><script>
       
       
       if(true) {
