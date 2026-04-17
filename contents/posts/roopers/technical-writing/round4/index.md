@@ -11,35 +11,32 @@ tags:
 
 ## TL;DR
 
-잘못된 토픽 설계와 불필요한 파싱 때문에, 대부분 "안 봐도 되는 메시지를 너무 정성스럽게 처리해서" 발생한 문제를 겪었습니다.    
+Kafka Consumer가 느렸습니다.  
+원인은 단순했습니다.  
+안 봐도 되는 메시지를 너무 정성스럽게 처리하고 있었습니다.
 
-전체를 파싱하고, 역직렬화하고, 실패하면 본문째 로그로 찍는 구조인데요,   
-트래픽이 올라가면 consumer lag으로 바로 이어집니다.    
+10,000건을 전부 파싱하고, 역직렬화하고, 실패하면 본문째 로그로 찍는 구조였는데요,  
+정작 필요한 건 그중 10건뿐이었습니다.
 
-이 글에서는 실제로 겪었던 Kafka Consumer 병목 패턴과,  
-Jackson Streaming Parser로 사전 필터링한 경험을 다룹니다.    
+Jackson Streaming Parser로 사전 필터링하면서 이 문제를 해결한 경험을 공유합니다.
 
 ---
 
 ## 들어가며
 
-Kafka 토픽 하나에 여러 서비스 메시지가 섞여 있는 구조는 레거시 혹은 특정 상황에서는 자주 보이는 케이스 입니다.
+Kafka 토픽 하나에 여러 서비스의 메시지가 섞여 들어오는 구조, 실무에서 보신 적 있으신가요?
 
-"알림톡 발송 실패" 토픽이 있다고 치면,   
-여기에 온갖 서비스의 실패 메시지가 다 들어왔었습니다.  
+"알림톡 발송 실패"라는 토픽이 하나 있었습니다.  
+여기에 온갖 서비스의 실패 메시지가 다 들어왔습니다.  
+필요한 건 특정 서비스의 실패 메시지뿐인데, 토픽을 쪼갤 수 없는 상황이었습니다.
 
-필요한 건 특정 실패 메시지뿐인데,
-토픽을 쪼갤 수 없는 상황이라면 어떻게 해야 할까요?
-
-근본적으로는 토픽을 도메인 단위로 분리하는 게 맞습니다.
-하지만 이 토픽은 producer 쪽에서 "알림톡 실패"라는 하나의 관심사로 설계한 구조였고,  
-
+근본적으로는 토픽을 도메인 단위로 분리하는 게 맞습니다.  
+하지만 이 토픽은 producer 쪽에서 "알림톡 실패"라는 하나의 관심사로 설계한 구조였고,
 consumer마다 필요한 메시지가 다르다는 점은 나중에 드러난 문제였습니다.
 
-토픽 분리는 producer를 소유한 다른 팀의 변경이 필요해서 단기적으로는 어려웠고,  
-consumer 쪽에서 비용을 줄이는 방향을 먼저 택했습니다.
+토픽 분리는 producer를 소유한 다른 팀의 변경이 필요해서 단기적으로는 어려웠습니다.
 
-이 구조에서 consumer를 돌리다 보면 꽤 빨리 성능 문제를 만나게 됩니다.  
+그래서 consumer 쪽에서 비용을 줄이는 방향을 먼저 택했습니다.  
 
 ---
 
@@ -48,6 +45,7 @@ consumer 쪽에서 비용을 줄이는 방향을 먼저 택했습니다.
 ![Consumer 구조 — 토픽 하나에 모든 서비스 실패 메시지가 섞여 들어오는 구조](./01-architecture.svg)
 
 토픽에 분당 10,000건이 들어오는데, 처리할 건 그중 0.1%인 10건 정도입니다.  
+
 나머지 9,990건은 읽고 버려야 하는데요, 이 "읽고 버리는" 과정이 생각보다 무겁습니다.
 
 ### 흔한 구현: 일단 다 파싱하고 필터링
@@ -55,30 +53,21 @@ consumer 쪽에서 비용을 줄이는 방향을 먼저 택했습니다.
 ```mermaid
 flowchart TD
     start(["메시지 수신<br/>(모든 서비스 메시지)"])
-    readTree["objectMapper.readTree()<br/>JSON 전체 파싱"]
-    treeToValue["objectMapper.treeToValue()<br/>내 DTO로 역직렬화 시도"]
+    readTree["readTree() → treeToValue()<br/>전체 파싱 + 역직렬화 시도"]
     success{"역직렬화<br/>성공?"}
-    handle["handle()<br/>서비스 소스 체크"]
-    isMine{"내 서비스<br/>메시지?"}
-    logError["log.error(message.value())<br/>메시지 전체 본문 로그 출력"]
+    isMine{"내 서비스?"}
+    logError["log.error(message.value())<br/>본문 전체 로그 출력<br/>9,990건"]
+    process["SMS 대체 발송<br/>10건"]
     ack["ack.acknowledge()"]
 
-    start --> readTree
-    readTree --> treeToValue
-    treeToValue --> success
+    start --> readTree --> success
+    success -->|"실패 (99%)"| logError --> ack
+    success -->|"성공"| isMine
+    isMine -->|"아님"| ack
+    isMine -->|"맞음 (0.1%)"| process --> ack
 
-    success -->|"성공"| handle
-    success -->|"실패 (구조 불일치)<br/>9,990건"| logError
-
-    handle --> isMine
-    isMine -->|"아님 (99.9%)"| ack
-    isMine -->|"맞음 (0.1%)"| process["SMS 대체 발송"]
-    process --> ack
-    logError --> ack
-
-    style treeToValue fill:#e94560,color:#ffffff
+    style readTree fill:#e94560,color:#ffffff
     style logError fill:#e94560,color:#ffffff
-    style isMine fill:#b8860b,color:#e0e0e0
 ```
 
 왜 느린지 하나씩 뜯어보겠습니다.
@@ -86,6 +75,7 @@ flowchart TD
 ### 병목 1: 모든 메시지에 readTree()
 
 `objectMapper.readTree()`는 JSON 문자열을 통째로 파싱해서 `JsonNode` 트리를 메모리에 올립니다.
+
 메시지 하나당 수십~수백 개의 `JsonNode` 객체가 만들어지고, 쓰고 나면 바로 GC 대상이 됩니다.
 
 분당 10,000건이면 분당 수십만 개의 단명 객체가 만들어졌다 사라집니다.
@@ -101,7 +91,8 @@ flowchart TD
 ### 병목 3: 실패하면 본문 전체를 로그로
 
 여기가 가장 아팠습니다.
-역직렬화 실패하면 디버깅용으로 `log.error(message.value())` 찍는 경우가 많은데, 이게 분당 9,990번 호출됩니다.
+
+역직렬화 실패하면 디버깅용으로 `log.error(message.value())` 찍는 경우가 많은데, 이게 분당 9,990번 호출됩니다.  
 본문이 1KB라고 치면 분당 약 10MB 로그가 쌓입니다.  
 
 로그 I/O가 consumer 스레드를 잡아먹고, 로그 백엔드(Elasticsearch 등)에도 부하를 줍니다.
@@ -113,22 +104,17 @@ flowchart TD
 ```mermaid
 flowchart LR
     input["토픽 유입<br/>10,000건/분"]
-    parse["readTree()<br/>10,000건<br/>(DOM 생성)"]
-    deser["treeToValue()<br/>10,000건 시도"]
-    fail["역직렬화 실패<br/>9,990건"]
-    logErr["log.error()<br/>9,990회<br/>메시지 본문 출력"]
+    parse["readTree + treeToValue<br/>10,000건 전부 파싱"]
+    fail["역직렬화 실패 9,990건<br/>+ log.error 9,990회"]
     ok["정상 처리<br/>10건"]
-    lag["consumer lag<br/>누적"]
-    delay["SMS 발송<br/>수분~수십분 지연"]
+    lag["consumer lag 누적<br/>SMS 발송 수분 지연"]
 
-    input --> parse --> deser
-    deser --> fail --> logErr --> lag --> delay
-    deser --> ok
+    input --> parse
+    parse -->|"99.9%"| fail --> lag
+    parse -->|"0.1%"| ok
 
     style fail fill:#e94560,color:#ffffff
-    style logErr fill:#e94560,color:#ffffff
     style lag fill:#e94560,color:#ffffff
-    style delay fill:#e94560,color:#ffffff
 ```
 
 10건 처리하려고 10,000건을 풀 파싱하고, 9,990번 예외 만들고, 9,990번 로그 찍는 구조입니다.  
@@ -137,24 +123,23 @@ lag은 쌓이고, 정작 중요한 SMS 대체 발송은 몇 분씩 밀립니다.
 
 ---
 
-## 어떻게 해결했나 ? - Jackson Streaming으로 사전 필터링
+## 어떻게 해결했나 - Jackson Streaming으로 사전 필터링
 
-선택지는 크게 두 가지였습니다.  
+선택지는 두 가지였습니다.  
+토픽을 분리해서 구조 자체를 바꾸거나, consumer에서 필터링 비용을 줄이거나.
 
-토픽을 분리해서 구조 자체를 바꾸거나, consumer에서 필터링 비용을 줄이거나.  
+토픽 분리는 producer 팀과의 협의가 필요해서 최소 몇 주가 걸리는 일이었습니다.
 
-토픽 분리는 producer 팀과의 협의 + 메시지 마이그레이션이 필요해서 최소 몇 주가 걸리는 일이었고,
-
-당장 consumer lag이 쌓이고 있는 상황에서는 consumer 쪽에서 먼저 손을 대야 했습니다.
-
-아이디어 자체는 간단합니다.
+당장 consumer lag이 쌓이고 있는 상황에서는 consumer 쪽에서 먼저 손을 대야 했습니다.  
+아이디어는 간단합니다.
 
 > **"내 메시지가 아니면 readTree()를 아예 안 부른다."**
 
-JSON에서 `message_source` 필드 하나만 빠르게 읽으면 되는데,   
+JSON에서 `message_source` 필드 하나만 빠르게 읽으면 됩니다.  
 그걸 위해 전체 DOM 트리를 만들 이유가 없습니다.
 
-Jackson의 **Streaming API (JsonParser)** 는 토큰 단위로 JSON을 순차 읽기하기 때문에, 객체를 안 만들고 원하는 필드 찾으면 바로 끊을 수 있습니다.
+Jackson의 **Streaming API (JsonParser)** 는 토큰 단위로 JSON을 순차 읽기합니다.  
+객체를 안 만들고, 원하는 필드를 찾으면 바로 끊을 수 있습니다.
 
 ### 변경 후에는 어떤 흐름이 되나요?
 
@@ -188,28 +173,6 @@ flowchart TD
 
 ### Streaming과 readTree, 뭐가 다른 건가요?
 
-```mermaid
-flowchart LR
-    subgraph before["Before: readTree()"]
-        direction TB
-        b1["JSON 문자열 입력"]
-        b2["전체 DOM 트리 생성<br/>(JsonNode 객체 그래프)"]
-        b3["메모리 할당 + GC 부담"]
-        b1 --> b2 --> b3
-    end
-
-    subgraph after["After: Jackson Streaming"]
-        direction TB
-        a1["JSON 문자열 입력"]
-        a2["토큰 단위 순차 읽기<br/>(객체 생성 없음)"]
-        a3["판별 필드 발견 즉시 종료<br/>평균 JSON의 5~10%만 읽음"]
-        a1 --> a2 --> a3
-    end
-
-    style before fill:#e94560,color:#ffffff
-    style after fill:#2d6a4f,color:#ffffff
-```
-
 | 지표 | readTree() | Streaming |
 |------|-----------|-----------|
 | 메모리 할당 | JsonNode 트리 전체 | 거의 없음 (토큰 버퍼만) |
@@ -218,24 +181,6 @@ flowchart LR
 | 관심 없는 메시지 비용 | **readTree 전체 비용** | **5~10% 비용** |
 
 ### 성능은 얼마나 달라졌나요?
-
-```mermaid
-flowchart LR
-    input2["토픽 유입<br/>10,000건/분"]
-    streaming2["Streaming Parser<br/>message_source만 탐색"]
-    check["내 서비스 여부 판별<br/>O(1) 토큰 탐색"]
-    skipAll["즉시 skip + ack<br/>9,990건<br/>(DOM 생성 없음)"]
-    process["readTree()<br/>+ treeToValue()<br/>+ handle()<br/>+ SMS 발송<br/>10건"]
-
-    input2 --> streaming2 --> check
-    check -->|"99.9%"| skipAll
-    check -->|"0.1%"| process
-
-    style streaming2 fill:#0f3460,color:#e0e0e0
-    style check fill:#2d6a4f,color:#ffffff
-    style skipAll fill:#2d6a4f,color:#ffffff
-    style process fill:#16213e,color:#e0e0e0
-```
 
 | 지표 | Before | After | 개선율 |
 |------|--------|-------|--------|
@@ -277,6 +222,12 @@ private fun isMyMessage(payload: String): Boolean {
 `jsonFactory.createParser()`로 Streaming Parser를 열고, 토큰을 하나씩 읽다가 `message_source`를 만나면 값만 확인하고 바로 끊습니다.
 DOM 트리를 안 만드니까 메모리 할당이 거의 없습니다.
 
+이 코드는 `message_source`가 JSON root level에 있다는 전제입니다.
+중첩 객체 안에 같은 이름의 필드가 있으면 오판할 수 있으니, 메시지 스키마가 바뀔 때 주의가 필요합니다.
+
+또한 `getOrElse { false }`로 파싱 실패를 "관심 없는 메시지"와 동일하게 처리하고 있습니다.
+malformed JSON이나 producer bug를 놓칠 수 있으니, 운영 환경에서는 파싱 실패 시 warn 로그(payload size + topic/partition/offset 정도)를 남기는 게 안전합니다.
+
 ### Consumer 본체
 
 ```kotlin
@@ -289,8 +240,7 @@ fun listen(message: ConsumerRecord<String, String>, ack: Acknowledgment) {
 
     // 2. 내 메시지만 풀 파싱 + 처리 — finally로 ack 보장
     try {
-        val root = objectMapper.readTree(message.value())
-        val data = objectMapper.treeToValue(root, MyDto::class.java)
+        val data = objectMapper.readValue(message.value(), MyDto::class.java)
         handler.handle(data)
     } catch (e: Exception) {
         log.error(
@@ -309,9 +259,13 @@ fun listen(message: ConsumerRecord<String, String>, ack: Acknowledgment) {
 
 ## 왜 실패해도 ack을 하나요?
 
-"처리 실패했으면 ack 안 하고 재시도해야 하는 거 아냐?" 라고 생각할 수 있는데요.
+"처리 실패했으면 ack 안 하고 재시도해야 하는 거 아냐?"
 
-맞는 말이지만, **보조 흐름(fallback)** 성격의 consumer라면 실패해도 ack 하는 게 나을 때가 많습니다.
+맞는 말입니다. 하지만 이 consumer는 **보조 흐름(fallback)** 성격입니다.
+단건 유실보다 지연 전파가 더 위험한 서비스였기 때문에, 실패해도 ack 하는 쪽을 택했습니다.
+
+> 정산, 주문 확정, 법정 고지처럼 단건 유실이 치명적인 도메인에서는 반대로 DLQ + 재처리가 맞습니다.
+> 이 판단은 서비스 성격에 따라 달라집니다.
 
 ### ack 안 하면 어떻게 되나요?
 
@@ -339,7 +293,7 @@ flowchart LR
 ```
 
 실패 한 건 때문에 뒤에 있는 수십~수백 건이 다 밀리게 됩니다.
-실패를 유실하는 것보다 이게 더 위험합니다.
+이 서비스에서는 단건 유실보다 이 지연 전파가 더 위험했습니다.
 
 ### ack 보장 패턴: try/finally
 
@@ -360,16 +314,16 @@ try {
 }
 ```
 
-`runCatching` + `onFailure`로도 되긴 하는데,   
-나중에 누가 중간에 return을 하나 넣으면 ack이 빠질 수 있습니다.  
+`runCatching` + `onFailure`로도 되긴 합니다.
+근데 나중에 누가 중간에 return을 하나 넣으면 ack이 빠질 수 있습니다.
 
-`try/finally`는 언어가 보장해주니까 그런 실수가 원천 차단됩니다.
+`try/finally`는 언어가 보장해줍니다. 그런 실수가 원천 차단됩니다.
 
 ### 케이스별 정리
 
 | 케이스 | ack | 로그 | 이유 |
 |--------|-----|------|------|
-| Streaming 파싱 실패 | O | `warn` (size만) | 재시도해봤자 의미 없습니다 (깨진 메시지) |
+| Streaming 파싱 실패 | O | `warn` (size/offset만 권장) | 재시도해봤자 의미 없습니다 (깨진 메시지) |
 | 관심 없는 메시지 | O | 없음 | 내 관심사가 아닙니다 |
 | 처리 성공 | O | `info` | 정상입니다 |
 | 처리 실패 | **O (finally)** | `error` (상관키+cause) | partition stall 방지 |
@@ -378,12 +332,12 @@ try {
 
 ## 실패 로그 설계: 본문 대신 상관키
 
-실패했을 때 "뭐가 실패했는지" 추적하려면 로그가 필요합니다.  
+실패했을 때 "뭐가 실패했는지" 추적하려면 로그가 필요합니다.
+근데 본문 전체를 찍으면 민감정보 문제가 생깁니다.
 
-근데 본문 전체를 찍으면 민감정보 문제가 생기기 때문에,   
-대신 **상관키(correlation key)** 와 **실패 원인 분류(cause)** 만 남기도록 했습니다.
+그래서 **상관키(correlation key)** 와 **실패 원인 분류(cause)** 만 남기도록 했습니다.
 
-```
+```text
 handle_error :
     topic={}  partition={}  offset={}    -- Kafka 좌표 (정확한 위치)
     key={}                                -- 메시지 키 (대체 상관키)
@@ -422,15 +376,15 @@ private fun classifyCause(e: Exception): String {
 
 ## 이중 파싱은 괜찮은 건가요?
 
-현재 구조에서 내 메시지(0.1%)는 Streaming 스캔 후 readTree로 **2번 파싱**됩니다.
+현재 구조에서 내 메시지(0.1%)는 Streaming 스캔 후 readValue로 **2번 파싱**됩니다.
 
-근데 나머지 99.9%에서 readTree를 완전히 날린 이득이 워낙 크기 때문에,   
+근데 나머지 99.9%에서 readTree를 완전히 날린 이득이 워낙 큽니다.
 이 비율에서는 충분히 남는 장사입니다.
 
 다만 내 메시지 비율이 확 올라가는 상황(예: 외부 서비스 전체 장애로 실패가 폭증)에서는 이중 파싱 비용이 눈에 띌 수 있습니다.
 
-> 내 메시지 비율이 10%를 넘기면 streaming 없이 바로 readTree 후 필드 체크 방식으로 전환을 고려해야 합니다.
-> 이 경우에도 역직렬화(`treeToValue`)는 내 메시지만 하니까 변경 전보다는 낫습니다.
+> 내 메시지 비율이 높아지면 (경험적으로 10% 이상) streaming 없이 바로 readValue() 후 필드 체크 방식이 나을 수 있습니다.
+> 정확한 전환 시점은 payload 크기, 필드 위치, commit 비용에 따라 달라지므로 벤치마크로 판단해야 합니다.
 
 ---
 
@@ -443,6 +397,7 @@ private fun classifyCause(e: Exception): String {
 | **concurrency 증가** | 병렬 처리 | 낮음 |
 | **MAX_POLL_RECORDS 증가** | 한 번에 더 많이 poll | 낮음 |
 | **문자열 사전 필터** | Streaming 전에 `contains("\"message_source\":\"my-service\"")` | 중간 (JSON 변형에 취약) |
+| **header/key 승격** | `message_source`를 Kafka header나 key로 올리기 (producer 변경 필요) | 중간 (타팀 협의) |
 | **전용 토픽 분리** | 프로듀서 측에 전용 토픽 publish 요청 | 높음 (타팀 협의) |
 | **DLQ 도입** | 실패 메시지를 별도 토픽으로 | 중간 |
 
@@ -455,27 +410,25 @@ private fun classifyCause(e: Exception): String {
 
 궁극적으로 가장 깔끔한 건 **전용 토픽 분리**입니다.
 내 메시지만 들어오는 토픽이 있으면 사전 필터링 자체가 필요 없습니다.
-근데 이건 프로듀서 쪽(다른 팀)이 바꿔줘야 하니까 협의 비용이 큽니다.
-현실적으로는 Streaming 필터링이 가성비가 제일 좋았습니다.
+
+근데 이건 프로듀서 쪽(다른 팀)이 바꿔줘야 합니다. 협의 비용이 큽니다.
+현실적으로는 Streaming 필터링이 가성비가 가장 좋았습니다.
 
 ---
 
 ## 정리
 
-**안 볼 메시지에 비용 쓰지 않는 것**이 가장 중요했습니다.
+이번 개선의 핵심은 빠르게 처리하는 게 아니라, **안 해도 되는 걸 안 하는 것**이었습니다.
 
-Jackson Streaming으로 판별 필드만 읽고 바로 skip하도록 바꿨고,   
-로그에는 본문 대신 상관키와 cause만 남기도록 했습니다.
+- Jackson Streaming으로 판별 필드만 읽고 바로 skip
+- 로그에는 본문 대신 상관키와 cause만
+- 모든 경로에서 `try/finally`로 ack 보장
+- 상관키 null 방어로 검색 가능한 키 최소 하나 확보
 
-보조 흐름이면 실패해도 ack을 해야 하는데요,   
+보조 흐름이면 실패해도 ack을 해야 합니다.
 partition stall은 실패 한 건보다 훨씬 큰 장애를 만들기 때문입니다.
 
-모든 경로에서 ack을 보장하기 위해 `try/finally`를 사용했고,   
-상관키는 null 방어를 해서 검색 가능한 키가 최소 하나는 남도록 했습니다.
-
-빠르게 처리하는 게 아니라, **안 해도 되는 걸 안 하는 게** 이번 개선의 핵심이었습니다.
-
 다만 이건 consumer 쪽의 대응이고, 구조 자체의 문제는 남아 있습니다.
-하나의 토픽에 여러 서비스 메시지가 섞이는 구조는 producer 편의로 만들어진 것이고,
-그 비용을 consumer가 떠안는 형태입니다.
+하나의 토픽에 여러 서비스 메시지가 섞이는 구조는 producer 편의로 만들어진 것이고, 그 비용을 consumer가 떠안는 형태입니다.
+
 장기적으로는 도메인 단위 토픽 분리가 맞고, 이 개선은 그때까지의 버팀목입니다.
