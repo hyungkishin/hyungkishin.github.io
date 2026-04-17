@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Fri, 17 Apr 2026 09:05:18 GMT</lastBuildDate><item><title><![CDATA[누적 테이블 위에 '주간 랭킹'을 얹었을 때 생기는 거짓말]]></title><description><![CDATA[TL;DR…]]></description><link>https://hyungkishin.github.io/round10/</link><guid isPermaLink="false">https://hyungkishin.github.io/round10/</guid><pubDate>Fri, 17 Apr 2026 00:00:00 GMT</pubDate><content:encoded>&lt;blockquote&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Fri, 17 Apr 2026 09:43:18 GMT</lastBuildDate><item><title><![CDATA[누적 테이블 위에 '주간 랭킹'을 얹었을 때 생기는 거짓말]]></title><description><![CDATA[TL;DR…]]></description><link>https://hyungkishin.github.io/round10/</link><guid isPermaLink="false">https://hyungkishin.github.io/round10/</guid><pubDate>Fri, 17 Apr 2026 00:00:00 GMT</pubDate><content:encoded>&lt;blockquote&gt;
 &lt;p&gt;&lt;strong&gt;TL;DR&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;product_metrics&lt;/code&gt;는 날짜 컬럼이 없는 누적 테이블입니다. 그 위에 &quot;주간/월간 랭킹&quot;이라는 이름을 얹으면 이름과 실체가 어긋납니다. 이번 주차는 그 어긋남을 감추지 않고, 이름부터 바꾸는 쪽을 택했습니다.&lt;/p&gt;
 &lt;ul&gt;
@@ -197,7 +197,201 @@
 &lt;p&gt;10년 동안 반복해서 확인한 것을 두 줄로 줄이면 이렇습니다.&lt;/p&gt;
 &lt;p&gt;서비스는 기획으로 자라지 않습니다. 사용자가 쓰는 방식으로 진화합니다.
 AI는 일을 대신 해주는 도구가 아니라, 탐색의 속도를 올리는 도구입니다.&lt;/p&gt;
-&lt;p&gt;사장님에게 가까워질수록 기회가 보이고, AI를 많이 쓸수록 그 기회를 더 빨리 잡습니다. 다음 10년도 그 자리에서 이어가려 합니다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[오늘의 인기상품, 어제의 인기상품과 어떻게 구분할까?]]></title><description><![CDATA[TL;DR Kafka 이벤트를 Redis ZSET에 누적해서 일간 랭킹을 만들었어요. 구현은  한 줄이지만, 그 주변이 어려웠습니다. 키를 날짜로 어떻게 자를지 () 가중치는 왜 0.1 / 0.2 / 0.…]]></description><link>https://hyungkishin.github.io/round9/</link><guid isPermaLink="false">https://hyungkishin.github.io/round9/</guid><pubDate>Fri, 10 Apr 2026 00:00:00 GMT</pubDate><content:encoded>&lt;blockquote&gt;
+&lt;p&gt;사장님에게 가까워질수록 기회가 보이고, AI를 많이 쓸수록 그 기회를 더 빨리 잡습니다. 다음 10년도 그 자리에서 이어가려 합니다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[정상 흐름에서 안 보이는 것들]]></title><description><![CDATA[10주가 끝났다 60개가 넘는 커밋, 4개의 모듈, 12개의 도메인 Aggregate를 거쳤다.
+처음에는 회원가입 API 하나 만드는 데 일주일을 썼고, 마지막에는 Spring Batch Job을 설계하면서 "이 Writer가 Step…]]></description><link>https://hyungkishin.github.io/10/</link><guid isPermaLink="false">https://hyungkishin.github.io/10/</guid><pubDate>Fri, 17 Apr 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;10주가 끝났다&lt;/h2&gt;
+&lt;p&gt;60개가 넘는 커밋, 4개의 모듈, 12개의 도메인 Aggregate를 거쳤다.
+처음에는 회원가입 API 하나 만드는 데 일주일을 썼고, 마지막에는 Spring Batch Job을 설계하면서 &quot;이 Writer가 Step 재시작 시 rank를 몇 번부터 매길까&quot;를 고민하고 있었다.&lt;/p&gt;
+&lt;p&gt;돌아보면, 10주 전의 나와 지금의 나를 가르는 건 기술 스택의 차이가 아니다.
+&lt;strong&gt;&quot;이 코드가 정상 흐름 바깥에서 어떻게 깨지는가&quot;를 묻는 습관이 생겼는가의 차이다.&lt;/strong&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;1~3주차: &quot;왜 이렇게 나눠야 하는가&quot;를 몸으로 배운 시기&lt;/h2&gt;
+&lt;p&gt;1주차에 User 도메인을 만들면서 &lt;code class=&quot;language-text&quot;&gt;private constructor&lt;/code&gt; + &lt;code class=&quot;language-text&quot;&gt;companion object factory&lt;/code&gt;를 처음 썼다.
+&lt;code class=&quot;language-text&quot;&gt;User.register()&lt;/code&gt;는 &lt;code class=&quot;language-text&quot;&gt;persistenceId = null&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;User.reconstitute()&lt;/code&gt;는 &lt;code class=&quot;language-text&quot;&gt;persistenceId = Long&lt;/code&gt;.
+처음엔 &quot;그냥 생성자 public으로 열면 편한데 왜 이러나&quot; 싶었다.&lt;/p&gt;
+&lt;p&gt;코드가 늘어나면서 이유를 알았다.
+&lt;code class=&quot;language-text&quot;&gt;reconstitute()&lt;/code&gt;를 infrastructure Mapper에서만 호출하도록 ArchUnit으로 강제하니까, &quot;DB에서 올라온 객체&quot;와 &quot;새로 만든 객체&quot;가 타입 시스템 수준에서 분리됐다.
+save할 때 &lt;code class=&quot;language-text&quot;&gt;persistenceId == null&lt;/code&gt;이면 INSERT, 아니면 UPDATE라는 판단이 Mapper 안에서 자연스럽게 나왔다.
+이걸 강제하지 않으면 &quot;이 User는 이미 저장된 건가?&quot;라는 질문을 매번 런타임에서 해야 한다.&lt;/p&gt;
+&lt;p&gt;2주차 설계 문서에서 가장 오래 고민한 건 좋아요 멱등성이었다.
+애플리케이션에서 &quot;이미 좋아요 눌렀나&quot; 체크하는 방식 vs DB &lt;code class=&quot;language-text&quot;&gt;UNIQUE(user_id, product_id)&lt;/code&gt; 제약에 위임하는 방식.
+전자는 race condition에 취약하다. 동시에 두 요청이 들어오면 둘 다 &quot;아직 없네&quot;로 판단하고 INSERT한다.
+DB 제약은 두 번째 INSERT를 에러로 튕겨내니까 race condition이 원천 차단된다.&lt;/p&gt;
+&lt;p&gt;여기서 처음으로 &quot;정합성 보장을 어디에 위임할 것인가&quot;라는 질문을 만났다.
+이 질문은 3주차 재고 차감(&lt;code class=&quot;language-text&quot;&gt;UPDATE stock SET quantity = quantity - 1 WHERE quantity &gt;= 1&lt;/code&gt;)에서도, 6주차 결제 동시성에서도, 9주차 Redis ZSET 멱등성에서도 계속 돌아왔다.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;4주차: @Transactional 하나로 끝나지 않는다&lt;/h2&gt;
+&lt;p&gt;여기가 첫 번째 전환점이었다.&lt;/p&gt;
+&lt;p&gt;재고 차감에 &lt;code class=&quot;language-text&quot;&gt;@Transactional&lt;/code&gt;만 걸면 되는 줄 알았다.
+테스트도 통과했다.
+k6로 동시 50 요청을 보내는 순간, 재고 100개에서 150개가 빠졌다.
+Lost Update.&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;SELECT FOR UPDATE&lt;/code&gt;로 비관적 락을 걸면 해결되지만, 모든 재고 차감 요청이 직렬화된다.
+초당 처리량의 상한이 DB 락 대기 시간에 묶인다.&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;UPDATE stock SET quantity = quantity - :amount WHERE product_id = :id AND quantity &gt;= :amount&lt;/code&gt;로 갔다.
+DB 레벨 원자적 UPDATE.
+애플리케이션에서 &quot;현재 수량을 읽고 → 판단하고 → 차감&quot;하는 3단계를 DB가 단일 쿼리로 처리한다.
+이게 도메인 순수성을 깨뜨리는 선택이라는 걸 알고 있었다.
+Stock 도메인 객체가 자기 상태를 관리하지 않고, Repository가 직접 쿼리로 변경하니까.
+근데 동시성 정합성과 도메인 순수성 사이에서, 정합성을 택했다.&lt;/p&gt;
+&lt;p&gt;이 판단이 이후 모든 주차에 영향을 줬다.
+좋아요 카운트, 조회수, 주문수 — 경합이 빈번한 수치 데이터는 전부 Repository 레벨 원자적 UPDATE로 처리하는 패턴이 확립됐다.
+CLAUDE.md에 &quot;재고 차감/좋아요 카운트: 도메인 메서드가 아님, Repository 레벨 원자적 UPDATE로 처리&quot;라고 적었다.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;5~6주차: &quot;빨리 끊는 것&quot;이 &quot;기다리는 것&quot;보다 나을 때&lt;/h2&gt;
+&lt;p&gt;PG 연동에서 처음으로 외부 시스템의 장애가 내 서비스를 죽이는 경험을 했다.&lt;/p&gt;
+&lt;p&gt;PG 시뮬레이터의 응답을 3초로 설정하니, Tomcat 스레드 200개가 전부 PG 응답을 기다리며 묶였다.
+스레드가 묶이면 DB 커넥션도 같이 묶인다.
+PG가 느려진 건데 상품 조회 API까지 응답이 안 나간다.
+&lt;strong&gt;장애 전파&lt;/strong&gt;라는 걸 코드가 아니라 모니터링에서 목격한 순간이었다.&lt;/p&gt;
+&lt;p&gt;Resilience4j 서킷브레이커를 넣었다.
+처음에 failure-rate-threshold를 50%로 잡았다.
+PG의 평시 실패율이 40%대인 걸 모르고 넣었더니, 정상 운영 중에 서킷이 열렸다.
+CB는 &quot;PG가 죽었을 때만 열려야 한다&quot;가 아니라 &quot;PG의 평시 노이즈를 넘어서는 실패가 감지될 때 열려야 한다&quot;.
+평시 40%라면 threshold는 최소 60% 이상이어야 한다.
+70%로 올렸다. 근거는 &quot;평시 40% + 20% 마진&quot;.&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;minimumNumberOfCalls&lt;/code&gt;도 기본값 100에서 10으로 줄였다.
+100이면 100번 호출이 쌓이기 전까지 failure rate 계산 자체가 안 되므로, PG가 터져도 서킷이 안 열린다.
+10이면 10번째 호출 이후부터 판단이 시작된다.&lt;/p&gt;
+&lt;p&gt;POST 요청에 retry를 걸었다가 뺐다.
+결제 요청을 retry하면 이중 결제가 발생할 수 있다.
+PG가 실제로 처리했는데 응답만 늦은 경우, retry는 같은 결제를 두 번 시도하는 셈이다.
+GET은 retry해도 안전하지만 POST는 멱등하지 않으면 위험하다.
+이것도 &quot;retryable한 연산인가&quot;를 판단하는 연습이었다.&lt;/p&gt;
+&lt;p&gt;PG 타임아웃 시 주문을 FAILED로 찍었다가 고쳤다.
+타임아웃은 &quot;PG가 실패했다&quot;가 아니라 &quot;PG가 뭘 했는지 모른다&quot;다.
+PENDING으로 남기고 orderId 기반으로 PG에 상태를 다시 물어보는 복구 플로우를 추가했다.
+이 수정 하나로 &quot;타임아웃 ≠ 실패&quot;라는 분산 시스템의 핵심 원칙을 체득했다.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;7주차: 동기 호출을 끊으면 시스템이 숨을 쉰다&lt;/h2&gt;
+&lt;p&gt;두 번째 전환점.&lt;/p&gt;
+&lt;p&gt;주문 완료 시 재고 차감, 포인트 적립, 쿠폰 상태 변경, 알림 발송이 동기로 묶여 있었다.
+하나가 3초 걸리면 나머지가 전부 기다린다.
+알림 서버가 터지면 주문 자체가 실패한다.&lt;/p&gt;
+&lt;p&gt;Kafka를 넣고 이벤트로 분리하니, 각 컨슈머가 자기 속도로 처리한다.
+알림이 느려져도 주문은 완료된다.&lt;/p&gt;
+&lt;p&gt;근데 Kafka를 넣는 순간 새로운 문제가 줄줄이 따라왔다.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;이중 쓰기 문제.&lt;/strong&gt; DB에 주문을 저장하고 Kafka에 이벤트를 보내는데, DB 커밋은 됐는데 Kafka 전송이 실패하면? 이벤트가 유실된다.
+Outbox 패턴으로 해결했다. 이벤트를 Kafka에 직접 보내지 않고, DB의 outbox 테이블에 먼저 저장한다. 릴레이 스케줄러가 outbox를 polling해서 Kafka로 보낸다. DB 트랜잭션 안에서 주문 + outbox가 같이 커밋되니까 원자성이 보장된다.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Outbox 릴레이의 트랜잭션 범위.&lt;/strong&gt; 처음에는 SELECT FOR UPDATE + Kafka send + 상태 업데이트를 한 트랜잭션으로 묶었다. Kafka가 느려지면 DB 잠금 보유 시간이 수백 초가 된다.
+3단계로 쪼갰다. SELECT + SENDING 마킹 (짧은 트랜잭션) → Kafka 전송 (트랜잭션 밖) → 결과 반영 (별도 트랜잭션).
+그랬더니 SENDING 상태에서 서버가 죽으면 이벤트가 어디에도 안 잡히는 새 문제가 생겼다.
+5분 이상 SENDING에 머문 이벤트를 PENDING으로 되돌리는 복구 스케줄러를 추가했다.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;멱등성과 비즈니스 로직의 원자성.&lt;/strong&gt; INSERT-first 패턴으로 멱등성을 잡았는데, 코드 리뷰에서 event_handled INSERT와 비즈니스 로직이 다른 트랜잭션이라는 걸 지적받았다. 멱등 마킹은 커밋됐는데 비즈니스가 실패하면, 재전달이 와도 &quot;이미 처리됨&quot;으로 skip된다. 쿠폰이 발급되지 않았는데 재시도도 불가능. 구조적 결함이었다. 같은 트랜잭션으로 묶어서 같이 커밋되거나 같이 롤백되도록 수정했다.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;self-invocation 프록시 우회.&lt;/strong&gt; 같은 클래스 내부 호출이라 Spring AOP 프록시를 타지 않아서 &lt;code class=&quot;language-text&quot;&gt;@Transactional&lt;/code&gt;이 무효화되는 문제. 코드만 읽어서는 보이지 않는다. &quot;이 메서드에 어노테이션 붙어있으니까 되겠지&quot;라는 가정이 틀리는 순간.&lt;/p&gt;
+&lt;p&gt;한 가지를 해결하면 반드시 다른 문제가 따라왔다.
+이 주차에서 가장 많이 했던 생각은 &quot;이거 끝이 없구나&quot;가 아니라, **&quot;끝이 없는 게 분산 시스템의 본질&quot;**이라는 인정이었다.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;8주차: Redis ZSET으로 대기열을 만들다&lt;/h2&gt;
+&lt;p&gt;선착순 쿠폰 발급의 대기열을 Redis ZSET으로 구현했다.
+&lt;code class=&quot;language-text&quot;&gt;ZADD NX&lt;/code&gt;의 원자성 덕분에 분산 환경에서도 중복 진입이 차단된다.
+NX 옵션이 &quot;이미 있으면 무시&quot;라서, 10개의 서버 인스턴스에서 동시에 같은 유저가 요청해도 하나만 들어간다.&lt;/p&gt;
+&lt;p&gt;score에 타임스탬프를 넣으면 선착순 정렬이 자동으로 된다.
+&lt;code class=&quot;language-text&quot;&gt;ZRANGEBYSCORE&lt;/code&gt;로 &quot;score가 작은 순서대로(= 먼저 온 순서대로)&quot; 꺼내면 끝이다.&lt;/p&gt;
+&lt;p&gt;대기열 토큰 검증을 추가하면서 기존 API 테스트가 전부 깨졌다.
+토큰 없이 접근하면 401이 뜨니까.
+테스트 픽스처에 토큰 발급 과정을 넣어야 했다.
+&quot;기능을 추가하면 기존 테스트가 깨진다&quot;는 건 알고 있었지만, 인증/인가 같은 횡단 관심사가 추가되면 깨지는 범위가 테스트 전체라는 걸 체감했다.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;9주차: 코드 한 줄로 배운 것&lt;/h2&gt;
+&lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;LocalDate.now()&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;일간 랭킹을 Redis ZSET으로 구현하면서, 점수 누적 키를 &lt;code class=&quot;language-text&quot;&gt;ranking:all:{yyyyMMdd}&lt;/code&gt;로 잡았다.
+&lt;code class=&quot;language-text&quot;&gt;incrementScore&lt;/code&gt; 메서드에서 &lt;code class=&quot;language-text&quot;&gt;LocalDate.now()&lt;/code&gt;로 오늘 키를 만들었다.
+테스트 전부 녹색. 로컬에서는 이벤트 발생과 소비가 거의 동시니까 당연히 돌아간다.&lt;/p&gt;
+&lt;p&gt;PR 직전에 diff를 다시 읽다가 이 한 줄에서 멈췄다.
+이 &lt;code class=&quot;language-text&quot;&gt;now&lt;/code&gt;가 가리키는 게 &lt;strong&gt;소비 시점&lt;/strong&gt;이지 &lt;strong&gt;발생 시점&lt;/strong&gt;이 아니다.
+Kafka 컨슈머 랙이 한 시간 쌓이면, 어제 23:30 주문이 오늘 00:30에 소비되면서 오늘 키에 꽂힌다.
+어제 매출이 오늘 Top에 오르고, 어제 랭킹에는 그 주문이 누락된다.&lt;/p&gt;
+&lt;p&gt;평소에는 절대 안 보인다. 장애 복구 직후에만 드러나는 버그인데, 그때는 이미 ZSET에 잘못된 데이터가 쌓인 뒤다.
+이벤트의 &lt;code class=&quot;language-text&quot;&gt;occurredAt&lt;/code&gt;을 파싱해서 키를 만드는 방향으로 수정했다.&lt;/p&gt;
+&lt;p&gt;같은 주차에 N+1도 잡았다.
+&lt;code class=&quot;language-text&quot;&gt;productIds.map { findById(it) }&lt;/code&gt;는 문법적으로 자연스럽고, 테스트는 녹색이고, 로컬에선 빠르다.
+&quot;이 코드가 초당 50 요청을 받으면?&quot;이라는 질문을 안 하면 안 보인다.
+Top 20 조회에 DB 쿼리 21번. &lt;code class=&quot;language-text&quot;&gt;findAllByIds&lt;/code&gt; IN 쿼리로 바꿔서 3번으로 줄였다.&lt;/p&gt;
+&lt;p&gt;콜드 스타트 carry-over도 숫자를 끝까지 팠다.
+20%로 잡으면 어제 Top이 오늘도 Top에 계속 남아서 롱테일 방지가 무의미해진다.
+5%로 낮추면 자정 직후 랭킹이 사실상 비어 보인다.
+10%는 &quot;오늘 주문 한두 건만 와도 금방 추월당하는 수준&quot;이다.
+어제 score 42.7이었던 상품이 오늘 4.27로 시작하는데, 주문 10건(score 7.0)이면 밀려난다.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;10주차: 배치는 &quot;실패했을 때&quot;가 핵심이다&lt;/h2&gt;
+&lt;p&gt;Spring Batch로 주간/월간 MV를 적재했다.
+구현 자체는 어렵지 않았다. JdbcCursorItemReader로 product_metrics를 읽고, RankingWriter로 MV 테이블에 쓴다.&lt;/p&gt;
+&lt;p&gt;어려웠던 건 구현이 아니라 그 구현이 깨지는 시나리오를 상상하는 일이었다.&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;product_metrics&lt;/code&gt;가 누적 테이블이라 &quot;이번 주 랭킹&quot;이 만들어지지 않는다는 한계.
+누적 TOP 100을 &quot;주간 랭킹&quot;이라고 부르면 기획 사기다.
+이름이 실체를 반영하지 않는 순간, 시스템 전체가 거짓말을 시작한다.&lt;/p&gt;
+&lt;p&gt;Cleanup-Aggregate 2 Step 분리가 가용성을 포기한 설계라는 사실.
+Cleanup이 끝나고 Aggregate가 실패하면 유저는 빈 화면을 본다.
+&quot;틀린 데이터보다 빈 데이터가 낫다&quot;는 논리는 개발자 편의주의다.
+실무에서는 Shadow Table에 먼저 적재하고 RENAME TABLE로 무중단 교체하거나, append-only로 쌓고 최신 ranking_date를 조회한다.&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;currentRank&lt;/code&gt; 멤버 변수가 사실상 &quot;이 배치는 재시작을 지원하지 않는다&quot;는 선언이라는 사실.
+&lt;code class=&quot;language-text&quot;&gt;beforeStep()&lt;/code&gt;에서 0으로 초기화하면 정상 흐름에서는 돌아간다.
+chunk 5에서 실패하고 재시작하면 beforeStep이 다시 0을 박아넣어서, chunk 6의 첫 상품이 1위로 적재된다.
+ExecutionContext에 마지막 rank를 저장해야 진짜 재시작이 된다.&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;ORDER BY (계산 컬럼) DESC LIMIT 100&lt;/code&gt;이 대용량에서 Filesort 폭탄이라는 사실.
+인덱스가 없는 계산 컬럼으로 전체 정렬을 돌리면, 상품 100만 개일 때 DB CPU가 배치에 점유되어 다른 API까지 느려진다.&lt;/p&gt;
+&lt;p&gt;전부 정상 흐름에서는 안 보이는 것들이다.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;10주를 관통하는 하나의 질문&lt;/h2&gt;
+&lt;p&gt;돌아보면 매 주차마다 반복한 질문이 있다.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&quot;지금 동작하는 건 알겠는데, 이게 깨지는 조건은 뭐지?&quot;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;1주차에는 이 질문을 할 줄 몰랐다.
+&quot;User.register() 테스트가 녹색이다&quot;에서 끝났다.&lt;/p&gt;
+&lt;p&gt;4주차에 동시성 테스트를 돌리면서 처음으로 &quot;녹색인 코드가 프로덕션에서 터진다&quot;는 걸 봤다.
+재고 100개인데 150개가 빠지는 걸 보는 순간, &quot;테스트가 통과한다 ≠ 안전하다&quot;라는 전제가 깨졌다.&lt;/p&gt;
+&lt;p&gt;6주차에 PG 타임아웃을 FAILED로 처리했다가 &quot;타임아웃 ≠ 실패&quot;를 배웠다.
+&quot;응답이 안 왔다&quot;는 &quot;PG가 뭘 했는지 모른다&quot;이지 &quot;PG가 실패했다&quot;가 아니다.
+이 구분 하나를 못 하면 이중 결제가 발생하거나, 성공한 결제를 실패로 처리한다.&lt;/p&gt;
+&lt;p&gt;7주차에 멱등성 마킹과 비즈니스 로직이 다른 트랜잭션이라는 걸 리뷰에서 지적받았다.
+혼자서는 못 찾았을 결함이었다. &quot;멱등성을 넣었으니 안전하다&quot;는 가정이 틀리는 순간.&lt;/p&gt;
+&lt;p&gt;9주차에 &lt;code class=&quot;language-text&quot;&gt;LocalDate.now()&lt;/code&gt; 한 줄이 컨슈머 랙 상황에서 데이터를 오염시킨다는 걸 PR 직전에 발견했다.
+정상 흐름에서만 테스트하면 평생 안 잡히는 버그.&lt;/p&gt;
+&lt;p&gt;10주차에 &lt;code class=&quot;language-text&quot;&gt;currentRank&lt;/code&gt; 멤버 변수가 Step 재시작 시 초기화되어 rank가 꼬이는 걸 코드 리뷰에서 발견했다.&lt;/p&gt;
+&lt;p&gt;패턴이 보인다.
+&lt;strong&gt;정상 흐름은 늘 괜찮다. 깨지는 건 항상 비정상 경로에서다.&lt;/strong&gt;
+컨슈머 랙, 동시 요청, 타임아웃, Step 재시작, 배치 실패 후 재실행.
+이런 비정상 경로를 코드 작성 시점에 상상할 수 있느냐가, 10주 전의 나와 지금의 차이다.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;기술 스택이 아니라 사고 프레임워크가 바뀌었다&lt;/h2&gt;
+&lt;p&gt;Redis, Kafka, Resilience4j, Spring Batch.
+10주 동안 배운 기술은 많지만, 기술 자체는 문서를 읽으면 쓸 수 있다.&lt;/p&gt;
+&lt;p&gt;진짜 바뀐 건 이런 것들이다.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;&quot;정합성 보장을 어디에 위임할 것인가.&quot;&lt;/strong&gt;
+애플리케이션에서 체크할 것인가, DB 제약에 맡길 것인가, Redis 원자성에 기댈 것인가.
+매 주차마다 다른 답이 나왔지만, 질문은 같았다.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;&quot;이 시스템이 실패하면 어디까지 영향을 받는가.&quot;&lt;/strong&gt;
+PG 장애가 상품 조회까지 죽이는 것, Kafka 컨슈머 하나의 오류가 전체 배치를 멈추는 것, 배치 실패가 API 빈 화면을 만드는 것.
+장애의 &lt;strong&gt;전파 경로&lt;/strong&gt;를 추적하는 습관이 생겼다.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;&quot;이 코드는 작성자가 예상한 흐름에서만 동작하는가.&quot;&lt;/strong&gt;
+정상 흐름에서 테스트가 녹색인 건 최소 조건이지 충분 조건이 아니다.
+비정상 경로에서 뭐가 터지는지를 상상하는 게 설계다.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;아직 답을 못 찾은 것들&lt;/h2&gt;
+&lt;p&gt;완벽하게 해결한 건 하나도 없다. 매 주차마다 &quot;여기까지만 하고 넘어간다&quot;는 선을 그었고, 그 선 너머에 남은 숙제들이 쌓여 있다.&lt;/p&gt;
+&lt;p&gt;Outbox 릴레이와 API가 같은 커넥션 풀을 공유해서, 릴레이가 바쁘면 API가 느려진다.
+Redis ZSET이 날아가면 그날 랭킹 데이터를 복구할 방법이 없다.
+MV 적재 쿼리가 인덱스 없는 Filesort라서 대용량에서 DB를 죽인다.
+&lt;code class=&quot;language-text&quot;&gt;product_metrics&lt;/code&gt;에 날짜 컬럼이 없어서 진짜 구간 집계가 불가능하다.&lt;/p&gt;
+&lt;p&gt;이걸 &quot;부족하다&quot;고 쓰지 않겠다.
+각각이 다음 단계의 출발점이고, 왜 해결하지 않았는지의 근거가 있다.
+그 근거를 말할 수 있다는 것 자체가 10주 전에는 없었던 능력이다.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;끝이 아니라 시작점&lt;/h2&gt;
+&lt;p&gt;이 과정에서 가장 많이 배운 건 멘토의 리뷰와 동료의 피드백에서였다.
+혼자서 상상하지 못한 시나리오가 다른 사람의 한 줄 질문으로 드러났다.
+&quot;이 트랜잭션이 실패하면?&quot; &quot;이 타임아웃이 오면?&quot; &quot;이 데이터가 비어있으면?&quot;&lt;/p&gt;
+&lt;p&gt;설계는 혼자 하는 게 아니라, 내가 놓친 전제를 찾아내는 과정이다.
+10주 동안 그걸 60번 넘게 반복했다.&lt;/p&gt;
+&lt;p&gt;이커머스라는 하나의 시나리오 안에서 도메인 모델링, 동시성, 트랜잭션, 캐시, 서킷브레이커, 이벤트 드리븐, 대기열, 실시간 집계, 배치 적재까지.
+각각을 따로 배웠으면 &quot;아 그런 기술이 있구나&quot;로 끝났을 거다.
+하나의 서비스에서 연결해보니 왜 이 조합이 나오는지가 보인다.
+캐시를 넣으면 무효화 전략이 따라오고, 이벤트를 쓰면 멱등성이 따라오고, 배치를 넣으면 재시작 안전성이 따라온다.
+기술 하나가 독립적으로 존재하지 않는다.&lt;/p&gt;
+&lt;p&gt;10주 전의 나는 &quot;기능이 돌아간다&quot;에서 멈췄다.
+지금의 나는 &quot;이게 깨지는 조건은 뭐지?&quot;에서 시작한다.&lt;/p&gt;
+&lt;p&gt;그 차이가 전부다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[오늘의 인기상품, 어제의 인기상품과 어떻게 구분할까?]]></title><description><![CDATA[TL;DR Kafka 이벤트를 Redis ZSET에 누적해서 일간 랭킹을 만들었어요. 구현은  한 줄이지만, 그 주변이 어려웠습니다. 키를 날짜로 어떻게 자를지 () 가중치는 왜 0.1 / 0.2 / 0.…]]></description><link>https://hyungkishin.github.io/round9/</link><guid isPermaLink="false">https://hyungkishin.github.io/round9/</guid><pubDate>Fri, 10 Apr 2026 00:00:00 GMT</pubDate><content:encoded>&lt;blockquote&gt;
 &lt;p&gt;&lt;strong&gt;TL;DR&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;Kafka 이벤트를 Redis ZSET에 누적해서 일간 랭킹을 만들었어요. 구현은 &lt;code class=&quot;language-text&quot;&gt;ZINCRBY&lt;/code&gt; 한 줄이지만, 그 주변이 어려웠습니다.&lt;/p&gt;
 &lt;ul&gt;
