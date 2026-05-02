@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 540" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="920" height="540" fill="#0f172a"/>
+
+  <text x="460" y="36" fill="#e2e8f0" font-size="18" font-weight="600" text-anchor="middle">L1 + L2 + Pub/Sub invalidation 아키텍처</text>
+  <text x="460" y="58" fill="#64748b" font-size="12" text-anchor="middle">평소엔 L1에서 즉답, 새 배포·만료·핫패치 때만 L2/DB로 내려간다</text>
+
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+    <marker id="arrPub" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#a78bfa"/>
+    </marker>
+  </defs>
+
+  <!-- Caller -->
+  <rect x="60" y="100" width="160" height="64" rx="10" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+  <text x="140" y="128" fill="#38bdf8" font-size="13" font-weight="600" text-anchor="middle">Caller Service</text>
+  <text x="140" y="148" fill="#94a3b8" font-size="11" text-anchor="middle">findByYearAndKey()</text>
+
+  <!-- Pod1 with L1 -->
+  <rect x="280" y="84" width="280" height="180" rx="12" fill="#0b1220" stroke="#334155" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="420" y="104" fill="#475569" font-size="11" text-anchor="middle">pod (JVM)</text>
+
+  <rect x="300" y="120" width="240" height="56" rx="10" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+  <text x="420" y="142" fill="#10b981" font-size="13" font-weight="600" text-anchor="middle">L1 — Caffeine LoadingCache</text>
+  <text x="420" y="160" fill="#94a3b8" font-size="11" text-anchor="middle">expireAfterWrite 1m · maximumSize 4</text>
+
+  <rect x="300" y="190" width="240" height="56" rx="10" fill="#1e293b" stroke="#0ea5e9" stroke-width="1.2"/>
+  <text x="420" y="210" fill="#94a3b8" font-size="11" text-anchor="middle">L1 hit ratio target ≥ 99%</text>
+  <text x="420" y="230" fill="#64748b" font-size="11" text-anchor="middle">RTT 0 · parse 0</text>
+
+  <!-- L2 Redis -->
+  <rect x="620" y="120" width="240" height="68" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+  <text x="740" y="146" fill="#ef4444" font-size="13" font-weight="600" text-anchor="middle">L2 — Redis</text>
+  <text x="740" y="164" fill="#94a3b8" font-size="11" text-anchor="middle">master-data::category-rate::{year}</text>
+  <text x="740" y="180" fill="#64748b" font-size="11" text-anchor="middle">TTL 24h ± 1h jitter</text>
+
+  <!-- DB -->
+  <rect x="620" y="240" width="240" height="60" rx="10" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+  <text x="740" y="266" fill="#e2e8f0" font-size="13" font-weight="600" text-anchor="middle">RDB</text>
+  <text x="740" y="284" fill="#94a3b8" font-size="11" text-anchor="middle">SETNX lock 보유 pod 1대만 직격</text>
+
+  <!-- Arrows: Caller -> L1 -->
+  <line x1="220" y1="148" x2="296" y2="148" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="258" y="138" fill="#94a3b8" font-size="10" text-anchor="middle">read</text>
+
+  <!-- L1 -> L2 -->
+  <line x1="544" y1="148" x2="616" y2="148" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="580" y="138" fill="#94a3b8" font-size="10" text-anchor="middle">L1 miss</text>
+
+  <!-- L2 -> DB -->
+  <line x1="740" y1="192" x2="740" y2="236" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="800" y="218" fill="#94a3b8" font-size="10" text-anchor="middle">cold start (lock)</text>
+
+  <!-- Pub/Sub channel -->
+  <rect x="60" y="360" width="800" height="72" rx="10" fill="#1e293b" stroke="#a78bfa" stroke-width="2"/>
+  <text x="460" y="386" fill="#a78bfa" font-size="13" font-weight="600" text-anchor="middle">Pub/Sub channel — master-data::category-rate::invalidate</text>
+  <text x="460" y="406" fill="#94a3b8" font-size="11" text-anchor="middle">payload "{year}" 또는 "ALL" — 모든 pod의 listener가 L1.invalidate(year) 호출</text>
+  <text x="460" y="422" fill="#64748b" font-size="11" text-anchor="middle">메시지 손실해도 L1 TTL 1분 + reconnect 시 invalidateAll() 안전망</text>
+
+  <!-- Pub/Sub arrows -->
+  <line x1="420" y1="246" x2="420" y2="356" stroke="#a78bfa" stroke-width="2" marker-end="url(#arrPub)"/>
+  <text x="460" y="306" fill="#a78bfa" font-size="10">listener 수신 → invalidate</text>
+
+  <line x1="740" y1="304" x2="740" y2="356" stroke="#a78bfa" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrPub)"/>
+  <text x="780" y="338" fill="#a78bfa" font-size="10">admin DEL + PUBLISH</text>
+
+  <!-- Bottom note -->
+  <rect x="60" y="468" width="800" height="48" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="460" y="492" fill="#94a3b8" font-size="12" text-anchor="middle">L2 키와 스키마는 그대로 유지 — 마이그레이션 비용 0, rollback은 config flag 한 줄</text>
+  <text x="460" y="508" fill="#64748b" font-size="11" text-anchor="middle">L1 hit이 곧 hot path. RTT/parse 둘 다 0으로 떨어진다</text>
+</svg>

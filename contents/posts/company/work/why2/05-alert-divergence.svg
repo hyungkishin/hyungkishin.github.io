@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 600" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="920" height="600" fill="#0f172a"/>
+
+  <text x="460" y="36" fill="#e2e8f0" font-size="18" font-weight="600" text-anchor="middle">같은 뿌리에서 두 알림이 갈라지는 분기 + 자가증식 루프</text>
+
+  <defs>
+    <marker id="arrG5" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+    <marker id="arrR5" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444"/>
+    </marker>
+  </defs>
+
+  <!-- Root cause -->
+  <rect x="280" y="70" width="360" height="64" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+  <text x="460" y="96" fill="#ef4444" font-size="14" font-weight="600" text-anchor="middle">결함 1 / 3 발현 — 세션 덮어쓰기</text>
+  <text x="460" y="118" fill="#94a3b8" font-size="11" text-anchor="middle">Redis 의 인증 세션이 다른 세션으로 덮어쓰여진다</text>
+
+  <!-- Split arrows -->
+  <line x1="460" y1="134" x2="460" y2="158" stroke="#64748b" stroke-width="2"/>
+  <line x1="200" y1="158" x2="720" y2="158" stroke="#64748b" stroke-width="2"/>
+  <line x1="200" y1="158" x2="200" y2="178" stroke="#64748b" stroke-width="2" marker-end="url(#arrG5)"/>
+  <line x1="720" y1="158" x2="720" y2="178" stroke="#64748b" stroke-width="2" marker-end="url(#arrG5)"/>
+
+  <!-- Branch A: sync 5xx -->
+  <rect x="60" y="180" width="280" height="64" rx="10" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+  <text x="200" y="206" fill="#f59e0b" font-size="13" font-weight="600" text-anchor="middle">① sign 단계에서 즉시 5xx</text>
+  <text x="200" y="228" fill="#94a3b8" font-size="11" text-anchor="middle">게이트웨이가 동기 호출에서 실패 응답</text>
+
+  <line x1="200" y1="244" x2="200" y2="266" stroke="#64748b" stroke-width="2" marker-end="url(#arrG5)"/>
+
+  <rect x="60" y="270" width="280" height="80" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+  <text x="200" y="296" fill="#ef4444" font-size="13" font-weight="600" text-anchor="middle">"인증 처리 실패입니다."</text>
+  <text x="200" y="316" fill="#e2e8f0" font-size="11" text-anchor="middle">"다시 시도하세요"</text>
+  <text x="200" y="338" fill="#94a3b8" font-size="10" text-anchor="middle">사용자 화면 + 운영 알림 (sync)</text>
+
+  <!-- Branch B: async reject -->
+  <rect x="580" y="180" width="280" height="64" rx="10" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+  <text x="720" y="206" fill="#f59e0b" font-size="13" font-weight="600" text-anchor="middle">② sign 통과, 수집 단계에서 거절</text>
+  <text x="720" y="228" fill="#94a3b8" font-size="11" text-anchor="middle">SQS 비동기 수집에서 외부 거절</text>
+
+  <line x1="720" y1="244" x2="720" y2="266" stroke="#64748b" stroke-width="2" marker-end="url(#arrG5)"/>
+
+  <rect x="580" y="270" width="280" height="80" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+  <text x="720" y="296" fill="#ef4444" font-size="13" font-weight="600" text-anchor="middle">errorCode: INVALID_SESSION</text>
+  <text x="720" y="316" fill="#e2e8f0" font-size="11" text-anchor="middle">primaryAuth = COLLECT_FAIL</text>
+  <text x="720" y="338" fill="#94a3b8" font-size="10" text-anchor="middle">운영 알림 (async, retry 제외 정책 적용)</text>
+
+  <!-- Self-loop section -->
+  <line x1="200" y1="350" x2="200" y2="395" stroke="#ef4444" stroke-width="2" stroke-dasharray="4 3"/>
+  <line x1="720" y1="350" x2="720" y2="395" stroke="#ef4444" stroke-width="2" stroke-dasharray="4 3"/>
+  <line x1="200" y1="395" x2="720" y2="395" stroke="#ef4444" stroke-width="2" stroke-dasharray="4 3"/>
+  <line x1="460" y1="395" x2="460" y2="425" stroke="#ef4444" stroke-width="2" marker-end="url(#arrR5)"/>
+
+  <rect x="280" y="430" width="360" height="64" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="2" stroke-dasharray="4 3"/>
+  <text x="460" y="456" fill="#ef4444" font-size="13" font-weight="600" text-anchor="middle">사용자가 "다시 시도하세요" 그대로 따라함</text>
+  <text x="460" y="478" fill="#94a3b8" font-size="11" text-anchor="middle">→ 인증요청 버튼을 한 번 더 누른다</text>
+
+  <!-- Self-loop arrow back to root -->
+  <path d="M 280 462 L 30 462 L 30 102 L 280 102"
+        stroke="#ef4444" stroke-width="2" fill="none" stroke-dasharray="6 4" marker-end="url(#arrR5)"/>
+  <text x="20" y="280" fill="#ef4444" font-size="12" font-weight="600" transform="rotate(-90 20 280)" text-anchor="middle">자가증식 루프</text>
+
+  <!-- Bottom annotation -->
+  <text x="460" y="535" fill="#94a3b8" font-size="11" text-anchor="middle">가이드 메시지 자체가 결함 1 을 다시 트리거한다</text>
+  <text x="460" y="555" fill="#475569" font-size="10" text-anchor="middle">알림 카운트가 0 으로 수렴하지 않고 산발적으로 계속 찍히는 이유</text>
+  <text x="460" y="580" fill="#475569" font-size="10" font-style="italic" text-anchor="middle">사용자에게 보내는 문장 하나가 시스템의 결함 곡선을 만든다</text>
+</svg>

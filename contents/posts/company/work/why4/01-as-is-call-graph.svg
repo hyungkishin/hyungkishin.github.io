@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 540" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="920" height="540" fill="#0f172a"/>
+
+  <text x="460" y="36" fill="#e2e8f0" font-size="18" font-weight="600" text-anchor="middle">As-Is — 빨간 박스 3개가 한꺼번에 묶여 있다</text>
+  <text x="460" y="58" fill="#64748b" font-size="12" text-anchor="middle">1년 raw 풀스캔 + 3s timeout + silent skip</text>
+
+  <defs>
+    <marker id="arrA" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+    <marker id="arrErr" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444"/>
+    </marker>
+  </defs>
+
+  <!-- Tasklet -->
+  <rect x="60" y="100" width="200" height="68" rx="10" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+  <text x="160" y="128" fill="#38bdf8" font-size="13" font-weight="600" text-anchor="middle">Preparation Tasklet</text>
+  <text x="160" y="148" fill="#94a3b8" font-size="11" text-anchor="middle">parallelism 30</text>
+  <text x="160" y="162" fill="#64748b" font-size="11" text-anchor="middle">매일 0~8시</text>
+
+  <!-- 1. Raw fullscan (red) -->
+  <rect x="320" y="100" width="240" height="68" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+  <text x="440" y="124" fill="#ef4444" font-size="13" font-weight="600" text-anchor="middle">getStat(user, 1Y range)</text>
+  <text x="440" y="144" fill="#94a3b8" font-size="11" text-anchor="middle">1년치 raw 풀스캔</text>
+  <text x="440" y="160" fill="#ef4444" font-size="11" text-anchor="middle">▲ 빨간 박스 1</text>
+
+  <!-- 2. 3s timeout (red) -->
+  <rect x="620" y="100" width="240" height="68" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+  <text x="740" y="124" fill="#ef4444" font-size="13" font-weight="600" text-anchor="middle">withTimeout(3000)</text>
+  <text x="740" y="144" fill="#94a3b8" font-size="11" text-anchor="middle">일반 API용 timeout 가드</text>
+  <text x="740" y="160" fill="#ef4444" font-size="11" text-anchor="middle">▲ 빨간 박스 2</text>
+
+  <!-- arrows -->
+  <line x1="260" y1="134" x2="316" y2="134" stroke="#64748b" stroke-width="2" marker-end="url(#arrA)"/>
+  <line x1="560" y1="134" x2="616" y2="134" stroke="#64748b" stroke-width="2" marker-end="url(#arrA)"/>
+
+  <!-- External API -->
+  <rect x="620" y="220" width="240" height="60" rx="10" fill="#1e293b" stroke="#a78bfa" stroke-width="2"/>
+  <text x="740" y="246" fill="#a78bfa" font-size="13" font-weight="600" text-anchor="middle">External Data API</text>
+  <text x="740" y="266" fill="#94a3b8" font-size="11" text-anchor="middle">응답시간 가변 — 분 단위까지 가능</text>
+
+  <line x1="740" y1="170" x2="740" y2="216" stroke="#64748b" stroke-width="2" marker-end="url(#arrA)"/>
+
+  <!-- Timeout fail back -->
+  <path d="M 740 280 Q 740 320 540 320" stroke="#ef4444" stroke-width="2" stroke-dasharray="4 3" fill="none" marker-end="url(#arrErr)"/>
+  <text x="640" y="310" fill="#ef4444" font-size="11">3s 초과 → TimeoutException</text>
+
+  <!-- 3. silent skip (red) -->
+  <rect x="320" y="300" width="240" height="68" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+  <text x="440" y="324" fill="#ef4444" font-size="13" font-weight="600" text-anchor="middle">catch (Exception)</text>
+  <text x="440" y="344" fill="#94a3b8" font-size="11" text-anchor="middle">log.warn("skip") — 추적 불가</text>
+  <text x="440" y="360" fill="#ef4444" font-size="11" text-anchor="middle">▲ 빨간 박스 3</text>
+
+  <!-- silent loop back to next day -->
+  <path d="M 320 334 Q 100 334 100 200 Q 100 134 56 134" stroke="#ef4444" stroke-width="2" stroke-dasharray="4 3" fill="none"/>
+  <text x="80" y="240" fill="#ef4444" font-size="11" text-anchor="middle">다음날</text>
+  <text x="80" y="256" fill="#ef4444" font-size="11" text-anchor="middle">같은 모수</text>
+  <text x="80" y="272" fill="#ef4444" font-size="11" text-anchor="middle">같은 timeout</text>
+
+  <!-- Bottom note -->
+  <rect x="60" y="400" width="800" height="116" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="460" y="424" fill="#e2e8f0" font-size="13" font-weight="600" text-anchor="middle">셋이 묶여 있어 parallelism 튜닝으로는 풀리지 않는다</text>
+  <text x="460" y="448" fill="#94a3b8" font-size="11" text-anchor="middle">1년 raw 풀스캔이 3초 안에 끝날 가능성은 사실상 없다 → 일정 비율이 매일 timeout</text>
+  <text x="460" y="468" fill="#94a3b8" font-size="11" text-anchor="middle">silent skip이 추적을 막는다 → 다음 실행에서 같은 모수에 같은 실패 반복</text>
+  <text x="460" y="488" fill="#94a3b8" font-size="11" text-anchor="middle">며칠째 동일 사용자가 누락 — parallelism 30은 임시 봉합에 불과했다</text>
+</svg>

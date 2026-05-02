@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 480" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="920" height="480" fill="#0f172a"/>
+
+  <text x="460" y="36" fill="#e2e8f0" font-size="18" font-weight="600" text-anchor="middle">L1 vs L2 vs DB — 비유로 잡아두기</text>
+  <text x="460" y="58" fill="#64748b" font-size="12" text-anchor="middle">속도 차이가 1만 배. 어디까지 가는가에 따라 응답 시간이 결정된다</text>
+
+  <!-- L1 -->
+  <g transform="translate(60, 110)">
+    <rect x="0" y="0" width="260" height="280" rx="12" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+    <text x="130" y="32" fill="#10b981" font-size="14" font-weight="600" text-anchor="middle">L1 — 책상 메모장</text>
+
+    <rect x="20" y="56" width="220" height="42" rx="6" fill="#0f172a" stroke="#10b981" stroke-width="1"/>
+    <text x="130" y="80" fill="#94a3b8" font-size="11" text-anchor="middle">in-pod JVM 메모리 (Caffeine)</text>
+
+    <text x="130" y="124" fill="#e2e8f0" font-size="12" font-weight="600" text-anchor="middle">속도</text>
+    <text x="130" y="144" fill="#10b981" font-size="22" font-weight="600" text-anchor="middle">µs</text>
+    <text x="130" y="166" fill="#64748b" font-size="11" text-anchor="middle">~1만 배 빠름</text>
+
+    <text x="130" y="200" fill="#e2e8f0" font-size="12" font-weight="600" text-anchor="middle">공유 범위</text>
+    <text x="130" y="220" fill="#94a3b8" font-size="11" text-anchor="middle">그 pod 1대만</text>
+
+    <text x="130" y="252" fill="#475569" font-size="10" text-anchor="middle">재기동 시 사라짐</text>
+    <text x="130" y="266" fill="#475569" font-size="10" text-anchor="middle">cold 위험이 따라옴</text>
+  </g>
+
+  <!-- L2 -->
+  <g transform="translate(330, 110)">
+    <rect x="0" y="0" width="260" height="280" rx="12" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+    <text x="130" y="32" fill="#ef4444" font-size="14" font-weight="600" text-anchor="middle">L2 — 팀 공용 사물함</text>
+
+    <rect x="20" y="56" width="220" height="42" rx="6" fill="#0f172a" stroke="#ef4444" stroke-width="1"/>
+    <text x="130" y="80" fill="#94a3b8" font-size="11" text-anchor="middle">외부 Redis 서버</text>
+
+    <text x="130" y="124" fill="#e2e8f0" font-size="12" font-weight="600" text-anchor="middle">속도</text>
+    <text x="130" y="144" fill="#ef4444" font-size="22" font-weight="600" text-anchor="middle">1~5 ms</text>
+    <text x="130" y="166" fill="#64748b" font-size="11" text-anchor="middle">RTT + 페이로드 + parse</text>
+
+    <text x="130" y="200" fill="#e2e8f0" font-size="12" font-weight="600" text-anchor="middle">공유 범위</text>
+    <text x="130" y="220" fill="#94a3b8" font-size="11" text-anchor="middle">클러스터 전체 pod</text>
+
+    <text x="130" y="252" fill="#475569" font-size="10" text-anchor="middle">한 pod이 채우면</text>
+    <text x="130" y="266" fill="#475569" font-size="10" text-anchor="middle">다른 pod이 그걸 봄</text>
+  </g>
+
+  <!-- DB -->
+  <g transform="translate(600, 110)">
+    <rect x="0" y="0" width="260" height="280" rx="12" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+    <text x="130" y="32" fill="#e2e8f0" font-size="14" font-weight="600" text-anchor="middle">DB — 도서관 본서고</text>
+
+    <rect x="20" y="56" width="220" height="42" rx="6" fill="#0f172a" stroke="#64748b" stroke-width="1"/>
+    <text x="130" y="80" fill="#94a3b8" font-size="11" text-anchor="middle">RDB 원본</text>
+
+    <text x="130" y="124" fill="#e2e8f0" font-size="12" font-weight="600" text-anchor="middle">속도</text>
+    <text x="130" y="144" fill="#94a3b8" font-size="22" font-weight="600" text-anchor="middle">10~50 ms</text>
+    <text x="130" y="166" fill="#64748b" font-size="11" text-anchor="middle">진실 그 자체</text>
+
+    <text x="130" y="200" fill="#e2e8f0" font-size="12" font-weight="600" text-anchor="middle">접근 빈도</text>
+    <text x="130" y="220" fill="#94a3b8" font-size="11" text-anchor="middle">새 year + invalidate 직후만</text>
+
+    <text x="130" y="252" fill="#475569" font-size="10" text-anchor="middle">분산 lock으로</text>
+    <text x="130" y="266" fill="#475569" font-size="10" text-anchor="middle">DB hit 1회로 수렴</text>
+  </g>
+
+  <!-- Bottom note -->
+  <rect x="60" y="420" width="800" height="40" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="460" y="446" fill="#94a3b8" font-size="12" text-anchor="middle">L1만 두면 cold 위험. L2만 두면 매 요청 RTT 낭비. 둘을 같이 두면 평소엔 책상에서 끝난다</text>
+</svg>

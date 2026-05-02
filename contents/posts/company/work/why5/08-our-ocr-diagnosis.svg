@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 540" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="920" height="540" fill="#0f172a"/>
+
+  <text x="460" y="36" fill="#e2e8f0" font-size="18" font-weight="600" text-anchor="middle">외부 호출별 진단 매핑 — 같은 "느림", 다른 처방</text>
+  <text x="460" y="58" fill="#64748b" font-size="12" text-anchor="middle">증상이 같아 보여도 원인이 다르면 처방도 달라야 한다</text>
+
+  <!-- Case 1: S3 -->
+  <g transform="translate(40, 100)">
+    <rect x="0" y="0" width="280" height="380" rx="10" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+    <text x="140" y="30" fill="#10b981" font-size="14" font-weight="600" text-anchor="middle">S3 PutObject</text>
+    <text x="140" y="50" fill="#64748b" font-size="11" text-anchor="middle">cold start 케이스</text>
+
+    <!-- pattern -->
+    <g transform="translate(20, 70)">
+      <rect x="0" y="0" width="240" height="80" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+      <text x="120" y="22" fill="#94a3b8" font-size="11" font-weight="600" text-anchor="middle">측정 결과</text>
+      <text x="20" y="46" fill="#ef4444" font-size="12" font-family="ui-monospace, Menlo, monospace">1st: 5,001ms</text>
+      <text x="20" y="66" fill="#10b981" font-size="12" font-family="ui-monospace, Menlo, monospace">2nd: 887ms</text>
+    </g>
+
+    <!-- diagnosis -->
+    <g transform="translate(20, 170)">
+      <rect x="0" y="0" width="240" height="50" rx="6" fill="#0f172a" stroke="#10b981" stroke-width="1"/>
+      <text x="120" y="20" fill="#10b981" font-size="11" font-weight="600" text-anchor="middle">진단</text>
+      <text x="120" y="38" fill="#e2e8f0" font-size="11" text-anchor="middle">첫만 느림 → cold start</text>
+    </g>
+
+    <!-- action -->
+    <g transform="translate(20, 240)">
+      <rect x="0" y="0" width="240" height="120" rx="6" fill="#0f172a" stroke="#10b981" stroke-width="2"/>
+      <text x="120" y="22" fill="#10b981" font-size="11" font-weight="600" text-anchor="middle">처방</text>
+      <text x="20" y="46" fill="#94a3b8" font-size="11">1. timeout 5s → 30s</text>
+      <text x="20" y="66" fill="#94a3b8" font-size="11">2. 진짜 cold 시간 측정</text>
+      <text x="20" y="86" fill="#94a3b8" font-size="11">3. 5s+ 확정 시</text>
+      <text x="20" y="104" fill="#10b981" font-size="11" font-weight="600">   → Warmup 도입</text>
+    </g>
+  </g>
+
+  <!-- Case 2: External OCR API -->
+  <g transform="translate(340, 100)">
+    <rect x="0" y="0" width="280" height="380" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+    <text x="140" y="30" fill="#ef4444" font-size="14" font-weight="600" text-anchor="middle">외부 OCR API</text>
+    <text x="140" y="50" fill="#64748b" font-size="11" text-anchor="middle">outbound 차단 케이스</text>
+
+    <g transform="translate(20, 70)">
+      <rect x="0" y="0" width="240" height="80" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+      <text x="120" y="22" fill="#94a3b8" font-size="11" font-weight="600" text-anchor="middle">측정 결과</text>
+      <text x="20" y="46" fill="#ef4444" font-size="12" font-family="ui-monospace, Menlo, monospace">1st: 130ms RST</text>
+      <text x="20" y="66" fill="#ef4444" font-size="12" font-family="ui-monospace, Menlo, monospace">2nd: 130ms RST</text>
+    </g>
+
+    <g transform="translate(20, 170)">
+      <rect x="0" y="0" width="240" height="50" rx="6" fill="#0f172a" stroke="#ef4444" stroke-width="1"/>
+      <text x="120" y="20" fill="#ef4444" font-size="11" font-weight="600" text-anchor="middle">진단</text>
+      <text x="120" y="38" fill="#e2e8f0" font-size="11" text-anchor="middle">매번 같음 → 인프라 차단</text>
+    </g>
+
+    <g transform="translate(20, 240)">
+      <rect x="0" y="0" width="240" height="120" rx="6" fill="#0f172a" stroke="#ef4444" stroke-width="2"/>
+      <text x="120" y="22" fill="#ef4444" font-size="11" font-weight="600" text-anchor="middle">처방</text>
+      <text x="20" y="46" fill="#94a3b8" font-size="11">1. SRE 컨택</text>
+      <text x="20" y="66" fill="#94a3b8" font-size="11">2. ServiceEntry / SG / NAT</text>
+      <text x="20" y="86" fill="#94a3b8" font-size="11">3. Warmup 무관 (절대 못 풂)</text>
+      <text x="20" y="104" fill="#ef4444" font-size="11" font-weight="600">   → Warmup ✕</text>
+    </g>
+  </g>
+
+  <!-- Case 3: Internal proxy -->
+  <g transform="translate(640, 100)">
+    <rect x="0" y="0" width="240" height="380" rx="10" fill="#1e293b" stroke="#94a3b8" stroke-width="2"/>
+    <text x="120" y="30" fill="#e2e8f0" font-size="14" font-weight="600" text-anchor="middle">사내 프록시</text>
+    <text x="120" y="50" fill="#64748b" font-size="11" text-anchor="middle">정상 케이스</text>
+
+    <g transform="translate(20, 70)">
+      <rect x="0" y="0" width="200" height="80" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+      <text x="100" y="22" fill="#94a3b8" font-size="11" font-weight="600" text-anchor="middle">측정 결과</text>
+      <text x="20" y="46" fill="#10b981" font-size="12" font-family="ui-monospace, Menlo, monospace">1st: 정상</text>
+      <text x="20" y="66" fill="#10b981" font-size="12" font-family="ui-monospace, Menlo, monospace">2nd: 정상</text>
+    </g>
+
+    <g transform="translate(20, 170)">
+      <rect x="0" y="0" width="200" height="50" rx="6" fill="#0f172a" stroke="#94a3b8" stroke-width="1"/>
+      <text x="100" y="20" fill="#94a3b8" font-size="11" font-weight="600" text-anchor="middle">진단</text>
+      <text x="100" y="38" fill="#e2e8f0" font-size="11" text-anchor="middle">사내망이라 무관</text>
+    </g>
+
+    <g transform="translate(20, 240)">
+      <rect x="0" y="0" width="200" height="120" rx="6" fill="#0f172a" stroke="#94a3b8" stroke-width="2"/>
+      <text x="100" y="22" fill="#94a3b8" font-size="11" font-weight="600" text-anchor="middle">처방</text>
+      <text x="20" y="50" fill="#e2e8f0" font-size="11">현행 유지</text>
+      <text x="20" y="74" fill="#64748b" font-size="11">손대지 않음</text>
+    </g>
+  </g>
+
+  <!-- Bottom note -->
+  <g transform="translate(40, 500)">
+    <rect x="0" y="0" width="840" height="36" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+    <text x="420" y="22" fill="#94a3b8" font-size="12" text-anchor="middle">"Warmup이 다 풀어준다"는 가정은 위험. 외부 의존성별로 진단부터 분리하는 게 먼저다.</text>
+  </g>
+</svg>

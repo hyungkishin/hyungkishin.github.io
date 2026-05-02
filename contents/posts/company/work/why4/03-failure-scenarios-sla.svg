@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 560" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="920" height="560" fill="#0f172a"/>
+
+  <text x="460" y="36" fill="#e2e8f0" font-size="18" font-weight="600" text-anchor="middle">장애 시나리오 3개 — 24h 분산 적재로 자연 회복</text>
+  <text x="460" y="58" fill="#64748b" font-size="12" text-anchor="middle">A. 외부 API 일시 장애 / B. Pod 중간 죽음 / C. 모수 폭증</text>
+
+  <!-- A -->
+  <g transform="translate(40, 100)">
+    <rect x="0" y="0" width="280" height="380" rx="10" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+    <text x="140" y="28" fill="#f59e0b" font-size="13" font-weight="600" text-anchor="middle">A. 외부 API 일시 장애</text>
+    <text x="140" y="46" fill="#94a3b8" font-size="11" text-anchor="middle">응답 지연/오류 수분~수시간</text>
+
+    <rect x="20" y="74" width="240" height="30" rx="6" fill="#0f172a" stroke="#ef4444" stroke-width="1"/>
+    <text x="30" y="93" fill="#ef4444" font-size="11">Before</text>
+    <text x="250" y="93" fill="#ef4444" font-size="11" text-anchor="end">며칠째 같은 사용자 누락</text>
+
+    <text x="140" y="124" fill="#94a3b8" font-size="11" text-anchor="middle">3s timeout → silent skip</text>
+    <text x="140" y="140" fill="#94a3b8" font-size="11" text-anchor="middle">→ 다음날 또 timeout</text>
+
+    <rect x="20" y="158" width="240" height="30" rx="6" fill="#0f172a" stroke="#10b981" stroke-width="1"/>
+    <text x="30" y="177" fill="#10b981" font-size="11">After</text>
+    <text x="250" y="177" fill="#10b981" font-size="11" text-anchor="end">24h 안에 100% 적재</text>
+
+    <text x="140" y="208" fill="#94a3b8" font-size="11" text-anchor="middle">getStatForBatch (~10s 대기)</text>
+    <text x="140" y="224" fill="#94a3b8" font-size="11" text-anchor="middle">timeoutQueue 별도 추적</text>
+    <text x="140" y="240" fill="#94a3b8" font-size="11" text-anchor="middle">다음날 멱등 필터로 재처리</text>
+
+    <rect x="20" y="262" width="240" height="100" rx="6" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+    <text x="30" y="282" fill="#94a3b8" font-size="10">트레이드오프</text>
+    <text x="30" y="302" fill="#64748b" font-size="10">단건 처리 시간 ↑</text>
+    <text x="30" y="318" fill="#64748b" font-size="10">첫 적재 batch 10~30% 증가</text>
+    <text x="30" y="338" fill="#64748b" font-size="10">누락 0건이 더 비싸다</text>
+  </g>
+
+  <!-- B -->
+  <g transform="translate(330, 100)">
+    <rect x="0" y="0" width="260" height="380" rx="10" fill="#1e293b" stroke="#a78bfa" stroke-width="2"/>
+    <text x="130" y="28" fill="#a78bfa" font-size="13" font-weight="600" text-anchor="middle">B. Pod 중간 죽음</text>
+    <text x="130" y="46" fill="#94a3b8" font-size="11" text-anchor="middle">OOM · 운영자 kill · 배포 충돌</text>
+
+    <rect x="20" y="74" width="220" height="30" rx="6" fill="#0f172a" stroke="#ef4444" stroke-width="1"/>
+    <text x="30" y="93" fill="#ef4444" font-size="11">Before</text>
+    <text x="230" y="93" fill="#ef4444" font-size="11" text-anchor="end">처음부터 다시</text>
+
+    <text x="130" y="124" fill="#94a3b8" font-size="11" text-anchor="middle">8천 처리 후 죽음</text>
+    <text x="130" y="140" fill="#94a3b8" font-size="11" text-anchor="middle">→ 1만 모수 다시</text>
+
+    <rect x="20" y="158" width="220" height="30" rx="6" fill="#0f172a" stroke="#10b981" stroke-width="1"/>
+    <text x="30" y="177" fill="#10b981" font-size="11">After</text>
+    <text x="230" y="177" fill="#10b981" font-size="11" text-anchor="end">미처리 분량만 재처리</text>
+
+    <text x="130" y="208" fill="#94a3b8" font-size="11" text-anchor="middle">멱등 필터로 8천 skip</text>
+    <text x="130" y="224" fill="#94a3b8" font-size="11" text-anchor="middle">2천 명만 모수에 잡힘</text>
+    <text x="130" y="240" fill="#94a3b8" font-size="11" text-anchor="middle">재실행 비용 1/5</text>
+
+    <rect x="20" y="262" width="220" height="100" rx="6" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+    <text x="30" y="282" fill="#94a3b8" font-size="10">트레이드오프</text>
+    <text x="30" y="302" fill="#64748b" font-size="10">추가 쿼리 1회</text>
+    <text x="30" y="318" fill="#64748b" font-size="10">ID Set 메모리 ~4MB</text>
+    <text x="30" y="338" fill="#64748b" font-size="10">50만 미만이면 무리 없음</text>
+  </g>
+
+  <!-- C -->
+  <g transform="translate(600, 100)">
+    <rect x="0" y="0" width="280" height="380" rx="10" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+    <text x="140" y="28" fill="#10b981" font-size="13" font-weight="600" text-anchor="middle">C. 모수 폭증</text>
+    <text x="140" y="46" fill="#94a3b8" font-size="11" text-anchor="middle">신규 가입자 폭증 + 누적 지연</text>
+
+    <rect x="20" y="74" width="240" height="30" rx="6" fill="#0f172a" stroke="#ef4444" stroke-width="1"/>
+    <text x="30" y="93" fill="#ef4444" font-size="11">Before</text>
+    <text x="250" y="93" fill="#ef4444" font-size="11" text-anchor="end">8h 초과 → cron 겹침</text>
+
+    <text x="140" y="124" fill="#94a3b8" font-size="11" text-anchor="middle">단건 시간 평소보다 ↑</text>
+    <text x="140" y="140" fill="#94a3b8" font-size="11" text-anchor="middle">다음 cron과 충돌</text>
+
+    <rect x="20" y="158" width="240" height="30" rx="6" fill="#0f172a" stroke="#10b981" stroke-width="1"/>
+    <text x="30" y="177" fill="#10b981" font-size="11">After</text>
+    <text x="250" y="177" fill="#10b981" font-size="11" text-anchor="end">8h 안에 안전 종료</text>
+
+    <text x="140" y="208" fill="#94a3b8" font-size="11" text-anchor="middle">7h timebox로 강제 종료</text>
+    <text x="140" y="224" fill="#94a3b8" font-size="11" text-anchor="middle">다음날 cron이 이어 처리</text>
+    <text x="140" y="240" fill="#94a3b8" font-size="11" text-anchor="middle">24~48h 안에 100% 적재</text>
+
+    <rect x="20" y="262" width="240" height="100" rx="6" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+    <text x="30" y="282" fill="#94a3b8" font-size="10">트레이드오프</text>
+    <text x="30" y="302" fill="#64748b" font-size="10">단일 실행 100% 보장 X</text>
+    <text x="30" y="318" fill="#64748b" font-size="10">발송이 적재 후 익일이라</text>
+    <text x="30" y="338" fill="#64748b" font-size="10">SLA 기준선 합의 필요</text>
+  </g>
+
+  <!-- Bottom note -->
+  <rect x="40" y="500" width="840" height="40" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="460" y="525" fill="#94a3b8" font-size="12" text-anchor="middle">최소 합격선 = 멱등 필터 + 타임박스 + 자동 재실행 cron. 셋이면 SLA 보장</text>
+</svg>
