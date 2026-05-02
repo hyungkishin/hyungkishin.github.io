@@ -14,17 +14,19 @@ import Bio from "components/Bio"
 
 const ArticleButtonContainer = styled.div`
   display: flex;
-  justify-content: space-between;
+  gap: 16px;
   margin-bottom: 48px;
+
+  & > div {
+    flex: 1 1 0;
+    min-width: 0;
+  }
 
   @media (max-width: 768px) {
     margin-bottom: 80px;
     padding: 0 12.8px;
     flex-direction: column;
-
-    & > div:first-child {
-      margin-bottom: 12.8px;
-    }
+    gap: 12.8px;
   }
 `
 
@@ -56,22 +58,21 @@ const ArticleButtonWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: ${props => (props.right ? "flex-end" : "flex-start")};
-  padding: 1.5rem;
+  padding: 1.25rem 1.5rem;
   width: 100%;
-  max-width: 48%;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   border-radius: 12px;
   background-color: ${props => props.theme.colors.nextPostButtonBackground};
   color: ${props => props.theme.colors.text};
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid transparent;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid ${props => props.theme.colors.border};
 
   &:hover {
     background-color: ${props => props.theme.colors.bodyBackground};
     border-color: ${props => props.theme.colors.accent};
-    transform: translateY(-4px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
   }
 
   & ${ArrowFlexWrapper} {
