@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 560" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="920" height="560" fill="#0f172a"/>
+
+  <text x="460" y="36" fill="#e2e8f0" font-size="18" font-weight="600" text-anchor="middle">To-Be — 멱등 필터 + batch 전용 경로 + 분리 catch</text>
+  <text x="460" y="58" fill="#64748b" font-size="12" text-anchor="middle">단일 실행 100%를 포기하고 24h 분산 적재로 SLA 재정의</text>
+
+  <defs>
+    <marker id="arrToBe" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+    <marker id="arrOk" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981"/>
+    </marker>
+    <marker id="arrTimeout" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b"/>
+    </marker>
+  </defs>
+
+  <!-- Tasklet -->
+  <rect x="60" y="100" width="200" height="68" rx="10" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+  <text x="160" y="128" fill="#38bdf8" font-size="13" font-weight="600" text-anchor="middle">Preparation Tasklet</text>
+  <text x="160" y="148" fill="#94a3b8" font-size="11" text-anchor="middle">parallelism 30 + 7h timebox</text>
+  <text x="160" y="162" fill="#64748b" font-size="11" text-anchor="middle">매일 0~8시</text>
+
+  <!-- Idempotent filter (green) -->
+  <rect x="320" y="100" width="240" height="68" rx="10" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+  <text x="440" y="124" fill="#10b981" font-size="13" font-weight="600" text-anchor="middle">candidates − processed</text>
+  <text x="440" y="144" fill="#94a3b8" font-size="11" text-anchor="middle">findAllProcessedIds(year)</text>
+  <text x="440" y="160" fill="#10b981" font-size="11" text-anchor="middle">▲ 멱등 필터 5라인</text>
+
+  <!-- Batch dedicated call (blue) -->
+  <rect x="620" y="100" width="240" height="68" rx="10" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+  <text x="740" y="124" fill="#38bdf8" font-size="13" font-weight="600" text-anchor="middle">getStatForBatch(user, 1Y)</text>
+  <text x="740" y="144" fill="#94a3b8" font-size="11" text-anchor="middle">timeout 가드 없음</text>
+  <text x="740" y="160" fill="#38bdf8" font-size="11" text-anchor="middle">▲ 처리 SLA = batch 기준</text>
+
+  <line x1="260" y1="134" x2="316" y2="134" stroke="#10b981" stroke-width="2" marker-end="url(#arrOk)"/>
+  <line x1="560" y1="134" x2="616" y2="134" stroke="#64748b" stroke-width="2" marker-end="url(#arrToBe)"/>
+
+  <!-- External API -->
+  <rect x="620" y="220" width="240" height="60" rx="10" fill="#1e293b" stroke="#a78bfa" stroke-width="2"/>
+  <text x="740" y="246" fill="#a78bfa" font-size="13" font-weight="600" text-anchor="middle">External Data API</text>
+  <text x="740" y="266" fill="#94a3b8" font-size="11" text-anchor="middle">OkHttp 기본 ~10s 까지 대기</text>
+
+  <line x1="740" y1="170" x2="740" y2="216" stroke="#64748b" stroke-width="2" marker-end="url(#arrToBe)"/>
+
+  <!-- Split catch -->
+  <rect x="260" y="320" width="200" height="68" rx="10" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+  <text x="360" y="344" fill="#f59e0b" font-size="13" font-weight="600" text-anchor="middle">catch TimeoutException</text>
+  <text x="360" y="364" fill="#94a3b8" font-size="11" text-anchor="middle">timeoutQueue + counter</text>
+  <text x="360" y="380" fill="#64748b" font-size="11" text-anchor="middle">외부 장애 가시화</text>
+
+  <rect x="500" y="320" width="200" height="68" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+  <text x="600" y="344" fill="#ef4444" font-size="13" font-weight="600" text-anchor="middle">catch Exception</text>
+  <text x="600" y="364" fill="#94a3b8" font-size="11" text-anchor="middle">skipException 추적</text>
+  <text x="600" y="380" fill="#64748b" font-size="11" text-anchor="middle">데이터 결함 가시화</text>
+
+  <path d="M 700 280 Q 600 320 600 316" stroke="#ef4444" stroke-width="2" stroke-dasharray="4 3" fill="none"/>
+  <path d="M 700 280 Q 500 320 360 316" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4 3" fill="none"/>
+
+  <!-- Next day cron -->
+  <rect x="60" y="430" width="800" height="80" rx="10" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+  <text x="460" y="456" fill="#10b981" font-size="13" font-weight="600" text-anchor="middle">다음날 cron — 멱등 필터로 미처리 분량만 자동 재처리</text>
+  <text x="460" y="476" fill="#94a3b8" font-size="11" text-anchor="middle">timeoutQueue / skipException 잔여분 → 외부 API 정상화 후 자연 회복</text>
+  <text x="460" y="494" fill="#94a3b8" font-size="11" text-anchor="middle">24~48h 안에 100% 누적 적재 보장</text>
+</svg>

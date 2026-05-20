@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 460" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="920" height="460" fill="#0f172a"/>
+
+  <text x="460" y="36" fill="#e2e8f0" font-size="18" font-weight="600" text-anchor="middle">Cold start 시간 분해 — 첫 호출 5초의 내역</text>
+  <text x="460" y="58" fill="#64748b" font-size="12" text-anchor="middle">한 호출 안에 7가지 비용이 한꺼번에 누적된다</text>
+
+  <!-- Stacked bar -->
+  <g transform="translate(60, 110)">
+    <text x="0" y="-10" fill="#94a3b8" font-size="11">전체 5,001ms</text>
+
+    <!-- Bar segments (total width 800, total time ~5000ms) -->
+    <!-- JIT: 600ms = 96 -->
+    <rect x="0" y="0" width="96" height="60" fill="#ef4444"/>
+    <text x="48" y="36" fill="#0f172a" font-size="11" font-weight="700" text-anchor="middle">JIT</text>
+    <text x="48" y="80" fill="#ef4444" font-size="10" text-anchor="middle">~600ms</text>
+
+    <!-- TLS: 800ms = 128 -->
+    <rect x="96" y="0" width="128" height="60" fill="#f59e0b"/>
+    <text x="160" y="36" fill="#0f172a" font-size="11" font-weight="700" text-anchor="middle">TLS</text>
+    <text x="160" y="80" fill="#f59e0b" font-size="10" text-anchor="middle">~800ms</text>
+
+    <!-- DNS: 200ms = 32 -->
+    <rect x="224" y="0" width="32" height="60" fill="#a78bfa"/>
+    <text x="240" y="36" fill="#0f172a" font-size="10" font-weight="700" text-anchor="middle">DNS</text>
+    <text x="240" y="80" fill="#a78bfa" font-size="10" text-anchor="middle">~200ms</text>
+
+    <!-- TCP: 100ms = 16 -->
+    <rect x="256" y="0" width="16" height="60" fill="#38bdf8"/>
+    <text x="264" y="80" fill="#38bdf8" font-size="10" text-anchor="middle">TCP</text>
+
+    <!-- Class loading: 400ms = 64 -->
+    <rect x="272" y="0" width="64" height="60" fill="#10b981"/>
+    <text x="304" y="36" fill="#0f172a" font-size="11" font-weight="700" text-anchor="middle">Class</text>
+    <text x="304" y="80" fill="#10b981" font-size="10" text-anchor="middle">~400ms</text>
+
+    <!-- IRSA STS: 1500ms = 240 -->
+    <rect x="336" y="0" width="240" height="60" fill="#ec4899"/>
+    <text x="456" y="36" fill="#0f172a" font-size="13" font-weight="700" text-anchor="middle">IRSA STS</text>
+    <text x="456" y="80" fill="#ec4899" font-size="10" text-anchor="middle">~1,500ms</text>
+
+    <!-- Spring Lazy: 800ms = 128 -->
+    <rect x="576" y="0" width="128" height="60" fill="#8b5cf6"/>
+    <text x="640" y="36" fill="#0f172a" font-size="11" font-weight="700" text-anchor="middle">Spring Lazy</text>
+    <text x="640" y="80" fill="#8b5cf6" font-size="10" text-anchor="middle">~800ms</text>
+
+    <!-- Application: 600ms = 96 -->
+    <rect x="704" y="0" width="96" height="60" fill="#475569"/>
+    <text x="752" y="36" fill="#e2e8f0" font-size="11" font-weight="700" text-anchor="middle">App</text>
+    <text x="752" y="80" fill="#94a3b8" font-size="10" text-anchor="middle">~600ms</text>
+  </g>
+
+  <!-- Legend boxes -->
+  <g transform="translate(60, 240)">
+    <rect x="0" y="0" width="800" height="180" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+    <text x="20" y="26" fill="#e2e8f0" font-size="13" font-weight="600">각 단계가 풀리는 방법</text>
+
+    <!-- row 1 -->
+    <rect x="20"  y="44" width="14" height="14" fill="#ef4444"/>
+    <text x="42" y="56" fill="#94a3b8" font-size="11">JIT — Tiered Compilation, 호출 횟수 임계치 통과</text>
+
+    <rect x="420" y="44" width="14" height="14" fill="#f59e0b"/>
+    <text x="442" y="56" fill="#94a3b8" font-size="11">TLS — connection pool keep-alive 재사용</text>
+
+    <!-- row 2 -->
+    <rect x="20"  y="72" width="14" height="14" fill="#a78bfa"/>
+    <text x="42" y="84" fill="#94a3b8" font-size="11">DNS — JVM/OS 캐시 (TTL 주의)</text>
+
+    <rect x="420" y="72" width="14" height="14" fill="#38bdf8"/>
+    <text x="442" y="84" fill="#94a3b8" font-size="11">TCP — keep-alive로 연결 재사용</text>
+
+    <!-- row 3 -->
+    <rect x="20"  y="100" width="14" height="14" fill="#10b981"/>
+    <text x="42" y="112" fill="#94a3b8" font-size="11">Class loading — AppCDS / SharedArchiveFile</text>
+
+    <rect x="420" y="100" width="14" height="14" fill="#ec4899"/>
+    <text x="442" y="112" fill="#94a3b8" font-size="11">IRSA STS — 자격증명 캐시 (1시간 단위 갱신)</text>
+
+    <!-- row 4 -->
+    <rect x="20"  y="128" width="14" height="14" fill="#8b5cf6"/>
+    <text x="42" y="140" fill="#94a3b8" font-size="11">Spring Lazy — startup eager init / warmup hook</text>
+
+    <rect x="420" y="128" width="14" height="14" fill="#475569"/>
+    <text x="442" y="140" fill="#94a3b8" font-size="11">Application logic — 도메인 로직, 변하지 않음</text>
+
+    <text x="20" y="170" fill="#475569" font-size="11">※ 수치는 일반적인 Spring + JDK 21 + S3 호출 기준 예시. 환경에 따라 IRSA / Lazy 비중이 더 커질 수 있음.</text>
+  </g>
+</svg>

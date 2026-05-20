@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 600" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="920" height="600" fill="#0f172a"/>
+
+  <text x="460" y="36" fill="#e2e8f0" font-size="18" font-weight="600" text-anchor="middle">두 알림이 같은 뿌리에서 갈라지는 분기 + 자가증식 루프</text>
+  <text x="460" y="58" fill="#64748b" font-size="12" text-anchor="middle">사용자 메시지가 결함을 다시 트리거한다</text>
+
+  <defs>
+    <marker id="arrSplit" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+    <marker id="arrLoop" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444"/>
+    </marker>
+  </defs>
+
+  <rect x="320" y="92" width="280" height="68" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+  <text x="460" y="118" fill="#ef4444" font-size="13" font-weight="600" text-anchor="middle">뿌리 — 외부 인증 세션 덮어쓰기</text>
+  <text x="460" y="138" fill="#94a3b8" font-size="11" text-anchor="middle">시나리오 A (dedup 누락) / B (status reset)</text>
+  <text x="460" y="154" fill="#64748b" font-size="11" text-anchor="middle">한 워크플로우에 세션이 두 벌 만들어진다</text>
+
+  <line x1="380" y1="160" x2="200" y2="220" stroke="#64748b" stroke-width="2" marker-end="url(#arrSplit)"/>
+  <line x1="540" y1="160" x2="720" y2="220" stroke="#64748b" stroke-width="2" marker-end="url(#arrSplit)"/>
+
+  <text x="270" y="194" fill="#94a3b8" font-size="11">동기 거절</text>
+  <text x="650" y="194" fill="#94a3b8" font-size="11">비동기 거절</text>
+
+  <g transform="translate(60, 230)">
+    <rect x="0" y="0" width="320" height="190" rx="10" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+    <text x="160" y="28" fill="#f59e0b" font-size="13" font-weight="600" text-anchor="middle">분기 1 — sign API 동기 5xx</text>
+
+    <rect x="20" y="50" width="280" height="32" rx="6" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+    <text x="30" y="71" fill="#94a3b8" font-size="11">사용자 화면</text>
+    <text x="290" y="71" fill="#f59e0b" font-size="11" font-weight="600" text-anchor="end">"다시 시도하세요"</text>
+
+    <rect x="20" y="92" width="280" height="32" rx="6" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+    <text x="30" y="113" fill="#94a3b8" font-size="11">운영 알림</text>
+    <text x="290" y="113" fill="#f59e0b" font-size="11" font-weight="600" text-anchor="end">[ERROR] 인증 처리 실패</text>
+
+    <text x="160" y="148" fill="#94a3b8" font-size="11" text-anchor="middle">즉시 발생 — 사용자가 그 자리에서 봄</text>
+    <text x="160" y="168" fill="#64748b" font-size="11" text-anchor="middle">동기 호출 ExternalAuthClientException</text>
+  </g>
+
+  <g transform="translate(540, 230)">
+    <rect x="0" y="0" width="320" height="190" rx="10" fill="#1e293b" stroke="#a78bfa" stroke-width="2"/>
+    <text x="160" y="28" fill="#a78bfa" font-size="13" font-weight="600" text-anchor="middle">분기 2 — 수집 단계 INVALID_SESSION</text>
+
+    <rect x="20" y="50" width="280" height="32" rx="6" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+    <text x="30" y="71" fill="#94a3b8" font-size="11">사용자 화면</text>
+    <text x="290" y="71" fill="#a78bfa" font-size="11" font-weight="600" text-anchor="end">즉시 안 보임</text>
+
+    <rect x="20" y="92" width="280" height="32" rx="6" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+    <text x="30" y="113" fill="#94a3b8" font-size="11">운영 알림</text>
+    <text x="290" y="113" fill="#a78bfa" font-size="11" font-weight="600" text-anchor="end">errorCode INVALID_SESSION</text>
+
+    <text x="160" y="148" fill="#94a3b8" font-size="11" text-anchor="middle">sign 통과 후 비동기 수집 단계</text>
+    <text x="160" y="168" fill="#64748b" font-size="11" text-anchor="middle">자동 재시도 제외 대상</text>
+  </g>
+
+  <rect x="60" y="450" width="800" height="118" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+  <text x="460" y="478" fill="#ef4444" font-size="14" font-weight="600" text-anchor="middle">자가증식 루프 — 사용자 메시지가 결함을 다시 트리거</text>
+
+  <text x="460" y="506" fill="#94a3b8" font-size="12" text-anchor="middle">"다시 시도하세요" → 사용자가 인증요청 재클릭 또는 사전설문 재제출</text>
+  <text x="460" y="526" fill="#94a3b8" font-size="12" text-anchor="middle">→ 시나리오 A/B 재현 → 같은 결함 재발현 → 같은 메시지 재노출</text>
+  <text x="460" y="548" fill="#64748b" font-size="11" text-anchor="middle">알림 카운트가 0으로 수렴하지 않고 산발적으로 계속 찍히는 이유</text>
+
+  <path d="M 220 400 Q 90 430 90 480 Q 90 530 200 540" stroke="#ef4444" stroke-width="2" stroke-dasharray="6 4" fill="none" marker-end="url(#arrLoop)"/>
+</svg>

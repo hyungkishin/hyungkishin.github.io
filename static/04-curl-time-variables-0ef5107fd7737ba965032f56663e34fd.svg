@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 460" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="920" height="460" fill="#0f172a"/>
+
+  <text x="460" y="36" fill="#e2e8f0" font-size="18" font-weight="600" text-anchor="middle">curl -w 시간 변수 — 어느 단계에서 시간을 쓰는가</text>
+  <text x="460" y="58" fill="#64748b" font-size="12" text-anchor="middle">각 변수는 "0부터 ~까지의 누적 시간"이다</text>
+
+  <!-- Timeline base -->
+  <g transform="translate(80, 130)">
+    <line x1="0" y1="0" x2="760" y2="0" stroke="#475569" stroke-width="2"/>
+
+    <!-- Tick marks -->
+    <line x1="0"   y1="-6" x2="0"   y2="6" stroke="#475569" stroke-width="2"/>
+    <line x1="120" y1="-6" x2="120" y2="6" stroke="#475569" stroke-width="2"/>
+    <line x1="240" y1="-6" x2="240" y2="6" stroke="#475569" stroke-width="2"/>
+    <line x1="380" y1="-6" x2="380" y2="6" stroke="#475569" stroke-width="2"/>
+    <line x1="580" y1="-6" x2="580" y2="6" stroke="#475569" stroke-width="2"/>
+    <line x1="760" y1="-6" x2="760" y2="6" stroke="#475569" stroke-width="2"/>
+
+    <!-- Stage labels (above) -->
+    <text x="60"  y="-16" fill="#94a3b8" font-size="11" text-anchor="middle">DNS</text>
+    <text x="180" y="-16" fill="#94a3b8" font-size="11" text-anchor="middle">TCP</text>
+    <text x="310" y="-16" fill="#94a3b8" font-size="11" text-anchor="middle">TLS</text>
+    <text x="480" y="-16" fill="#94a3b8" font-size="11" text-anchor="middle">서버 처리</text>
+    <text x="670" y="-16" fill="#94a3b8" font-size="11" text-anchor="middle">응답 수신</text>
+
+    <!-- Variable bars (stacked horizontally below timeline) -->
+    <!-- time_namelookup -->
+    <rect x="0" y="30" width="120" height="22" rx="3" fill="#38bdf8"/>
+    <text x="60" y="46" fill="#0f172a" font-size="11" font-weight="600" text-anchor="middle">time_namelookup</text>
+
+    <!-- time_connect -->
+    <rect x="0" y="62" width="240" height="22" rx="3" fill="#a78bfa"/>
+    <text x="120" y="78" fill="#0f172a" font-size="11" font-weight="600" text-anchor="middle">time_connect (DNS + TCP)</text>
+
+    <!-- time_appconnect -->
+    <rect x="0" y="94" width="380" height="22" rx="3" fill="#f59e0b"/>
+    <text x="190" y="110" fill="#0f172a" font-size="11" font-weight="600" text-anchor="middle">time_appconnect (+ TLS handshake)</text>
+
+    <!-- time_starttransfer -->
+    <rect x="0" y="126" width="580" height="22" rx="3" fill="#10b981"/>
+    <text x="290" y="142" fill="#0f172a" font-size="11" font-weight="600" text-anchor="middle">time_starttransfer (+ TTFB, 첫 byte 도착)</text>
+
+    <!-- time_total -->
+    <rect x="0" y="158" width="760" height="22" rx="3" fill="#ef4444"/>
+    <text x="380" y="174" fill="#0f172a" font-size="11" font-weight="600" text-anchor="middle">time_total (+ 응답 수신 완료)</text>
+  </g>
+
+  <!-- Legend / interpretation -->
+  <g transform="translate(80, 360)">
+    <rect x="0" y="0" width="760" height="80" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+    <text x="20" y="24" fill="#e2e8f0" font-size="12" font-weight="600">진단 가이드</text>
+    <text x="20" y="44" fill="#94a3b8" font-size="11">• namelookup만 큼 → DNS 캐시 / sun.net.inetaddr.ttl 점검</text>
+    <text x="20" y="60" fill="#94a3b8" font-size="11">• appconnect - connect가 큼 → TLS handshake 비용 / connection pool 미사용</text>
+    <text x="400" y="44" fill="#94a3b8" font-size="11">• starttransfer - appconnect가 큼 → 서버 처리 시간 / 외부 API 자체 시간</text>
+    <text x="400" y="60" fill="#94a3b8" font-size="11">• total - starttransfer가 큼 → 응답 본문 다운로드 / 네트워크 대역폭</text>
+  </g>
+</svg>

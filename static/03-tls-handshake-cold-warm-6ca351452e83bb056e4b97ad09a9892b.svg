@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 520" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="920" height="520" fill="#0f172a"/>
+
+  <text x="460" y="36" fill="#e2e8f0" font-size="18" font-weight="600" text-anchor="middle">TLS Handshake — Cold vs Warm</text>
+  <text x="460" y="58" fill="#64748b" font-size="12" text-anchor="middle">실제로 흔한 건 session resumption보다 connection pool(keep-alive) 재사용이다</text>
+
+  <defs>
+    <marker id="tlsarr" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <!-- Cold panel -->
+  <g transform="translate(40, 90)">
+    <rect x="0" y="0" width="400" height="380" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+    <text x="200" y="30" fill="#ef4444" font-size="14" font-weight="600" text-anchor="middle">Cold — Full Handshake</text>
+    <text x="200" y="50" fill="#64748b" font-size="11" text-anchor="middle">처음 외부로 나갈 때 / connection pool에 없을 때</text>
+
+    <!-- Steps -->
+    <g transform="translate(20, 70)">
+      <rect x="0" y="0" width="360" height="36" rx="6" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+      <text x="14" y="22" fill="#e2e8f0" font-size="12" font-weight="600">1. DNS 질의</text>
+      <text x="346" y="22" fill="#94a3b8" font-size="11" text-anchor="end">~50~200ms</text>
+
+      <rect x="0" y="46" width="360" height="36" rx="6" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+      <text x="14" y="68" fill="#e2e8f0" font-size="12" font-weight="600">2. TCP 3-way handshake</text>
+      <text x="346" y="68" fill="#94a3b8" font-size="11" text-anchor="end">~1 RTT</text>
+
+      <rect x="0" y="92" width="360" height="36" rx="6" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+      <text x="14" y="114" fill="#e2e8f0" font-size="12" font-weight="600">3. ClientHello / ServerHello</text>
+      <text x="346" y="114" fill="#94a3b8" font-size="11" text-anchor="end">~1 RTT</text>
+
+      <rect x="0" y="138" width="360" height="36" rx="6" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+      <text x="14" y="160" fill="#e2e8f0" font-size="12" font-weight="600">4. 인증서 체인 검증</text>
+      <text x="346" y="160" fill="#94a3b8" font-size="11" text-anchor="end">CPU bound</text>
+
+      <rect x="0" y="184" width="360" height="36" rx="6" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+      <text x="14" y="206" fill="#e2e8f0" font-size="12" font-weight="600">5. 키 교환 (ECDHE)</text>
+      <text x="346" y="206" fill="#94a3b8" font-size="11" text-anchor="end">CPU bound</text>
+
+      <rect x="0" y="230" width="360" height="36" rx="6" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+      <text x="14" y="252" fill="#e2e8f0" font-size="12" font-weight="600">6. Finished — application data 시작</text>
+    </g>
+
+    <text x="200" y="360" fill="#ef4444" font-size="13" font-weight="600" text-anchor="middle">합계: ~수백 ms ~ 1초+</text>
+  </g>
+
+  <!-- Warm panel -->
+  <g transform="translate(480, 90)">
+    <rect x="0" y="0" width="400" height="380" rx="10" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+    <text x="200" y="30" fill="#10b981" font-size="14" font-weight="600" text-anchor="middle">Warm — Connection Reuse</text>
+    <text x="200" y="50" fill="#64748b" font-size="11" text-anchor="middle">connection pool에서 살아있는 connection 재사용 (keep-alive)</text>
+
+    <g transform="translate(20, 70)">
+      <rect x="0" y="0" width="360" height="36" rx="6" fill="#0f172a" stroke="#10b981" stroke-width="1" opacity="0.6"/>
+      <text x="14" y="22" fill="#475569" font-size="12" text-decoration="line-through">1. DNS 질의</text>
+      <text x="346" y="22" fill="#10b981" font-size="11" text-anchor="end">캐시 hit</text>
+
+      <rect x="0" y="46" width="360" height="36" rx="6" fill="#0f172a" stroke="#10b981" stroke-width="1" opacity="0.6"/>
+      <text x="14" y="68" fill="#475569" font-size="12" text-decoration="line-through">2. TCP 3-way handshake</text>
+      <text x="346" y="68" fill="#10b981" font-size="11" text-anchor="end">생략</text>
+
+      <rect x="0" y="92" width="360" height="36" rx="6" fill="#0f172a" stroke="#10b981" stroke-width="1" opacity="0.6"/>
+      <text x="14" y="114" fill="#475569" font-size="12" text-decoration="line-through">3. TLS handshake</text>
+      <text x="346" y="114" fill="#10b981" font-size="11" text-anchor="end">생략</text>
+
+      <rect x="0" y="138" width="360" height="36" rx="6" fill="#0f172a" stroke="#10b981" stroke-width="1" opacity="0.6"/>
+      <text x="14" y="160" fill="#475569" font-size="12" text-decoration="line-through">4. 인증서 검증</text>
+      <text x="346" y="160" fill="#10b981" font-size="11" text-anchor="end">생략</text>
+
+      <rect x="0" y="184" width="360" height="36" rx="6" fill="#0f172a" stroke="#10b981" stroke-width="1" opacity="0.6"/>
+      <text x="14" y="206" fill="#475569" font-size="12" text-decoration="line-through">5. 키 교환</text>
+      <text x="346" y="206" fill="#10b981" font-size="11" text-anchor="end">생략</text>
+
+      <rect x="0" y="230" width="360" height="36" rx="6" fill="#0f172a" stroke="#10b981" stroke-width="2"/>
+      <text x="14" y="252" fill="#10b981" font-size="12" font-weight="600">6. application data 즉시 전송</text>
+    </g>
+
+    <text x="200" y="360" fill="#10b981" font-size="13" font-weight="600" text-anchor="middle">합계: ~10ms 이내</text>
+  </g>
+
+  <!-- Bottom note -->
+  <g transform="translate(60, 480)">
+    <rect x="0" y="0" width="800" height="32" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+    <text x="400" y="20" fill="#94a3b8" font-size="12" text-anchor="middle">OkHttp / Apache HttpClient / JDK HttpClient는 connection pool 재사용이 기본 — session resumption은 그 위 옵션</text>
+  </g>
+</svg>

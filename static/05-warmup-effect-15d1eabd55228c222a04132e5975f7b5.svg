@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 460" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="920" height="460" fill="#0f172a"/>
+
+  <text x="460" y="36" fill="#e2e8f0" font-size="18" font-weight="600" text-anchor="middle">Warmup의 효과 — cold cost를 startup으로 옮긴다</text>
+  <text x="460" y="58" fill="#64748b" font-size="12" text-anchor="middle">유저가 떠안던 5초를 앱 시작 시점에 미리 깔아둔다</text>
+
+  <!-- Without warmup -->
+  <g transform="translate(40, 100)">
+    <rect x="0" y="0" width="400" height="160" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+    <text x="200" y="28" fill="#ef4444" font-size="13" font-weight="600" text-anchor="middle">Warmup 없음</text>
+
+    <!-- Timeline -->
+    <g transform="translate(20, 50)">
+      <line x1="0" y1="40" x2="360" y2="40" stroke="#475569" stroke-width="2"/>
+
+      <!-- Startup point -->
+      <circle cx="40" cy="40" r="6" fill="#10b981"/>
+      <text x="40" y="22" fill="#10b981" font-size="11" text-anchor="middle">앱 ready</text>
+
+      <!-- 1st user call (cold) -->
+      <rect x="120" y="14" width="140" height="52" rx="4" fill="#ef4444" opacity="0.9"/>
+      <text x="190" y="46" fill="#0f172a" font-size="13" font-weight="700" text-anchor="middle">1st 호출 5,001ms</text>
+      <text x="190" y="86" fill="#ef4444" font-size="11" text-anchor="middle">유저가 떠안음</text>
+
+      <!-- 2nd call -->
+      <rect x="280" y="32" width="40" height="16" rx="3" fill="#10b981"/>
+      <text x="300" y="86" fill="#10b981" font-size="11" text-anchor="middle">2nd 887ms</text>
+    </g>
+  </g>
+
+  <!-- With warmup -->
+  <g transform="translate(480, 100)">
+    <rect x="0" y="0" width="400" height="160" rx="10" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+    <text x="200" y="28" fill="#10b981" font-size="13" font-weight="600" text-anchor="middle">Warmup 적용</text>
+
+    <g transform="translate(20, 50)">
+      <line x1="0" y1="40" x2="360" y2="40" stroke="#475569" stroke-width="2"/>
+
+      <!-- Startup -->
+      <circle cx="40" cy="40" r="6" fill="#10b981"/>
+      <text x="40" y="22" fill="#10b981" font-size="11" text-anchor="middle">앱 ready</text>
+
+      <!-- Warmup runs in background -->
+      <rect x="50" y="14" width="100" height="52" rx="4" fill="#a78bfa" opacity="0.8"/>
+      <text x="100" y="46" fill="#0f172a" font-size="12" font-weight="700" text-anchor="middle">Warmup 5s</text>
+      <text x="100" y="86" fill="#a78bfa" font-size="11" text-anchor="middle">백그라운드</text>
+
+      <!-- 1st user call: warm -->
+      <rect x="200" y="32" width="50" height="16" rx="3" fill="#10b981"/>
+      <text x="225" y="86" fill="#10b981" font-size="11" text-anchor="middle">1st 320ms</text>
+
+      <!-- 2nd call -->
+      <rect x="280" y="32" width="40" height="16" rx="3" fill="#10b981"/>
+      <text x="300" y="86" fill="#10b981" font-size="11" text-anchor="middle">2nd 290ms</text>
+    </g>
+  </g>
+
+  <!-- Bottom: result table -->
+  <g transform="translate(60, 300)">
+    <rect x="0" y="0" width="800" height="130" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+
+    <text x="20" y="28" fill="#e2e8f0" font-size="12" font-weight="600">Warmup 코드 위치</text>
+    <text x="20" y="50" fill="#94a3b8" font-size="11" font-family="ui-monospace, Menlo, monospace">@Component class S3Warmup : ApplicationListener&lt;ApplicationReadyEvent&gt;</text>
+    <text x="20" y="68" fill="#94a3b8" font-size="11" font-family="ui-monospace, Menlo, monospace">→ CompletableFuture.runAsync { s3.warmupHeadBucket() }.orTimeout(10s)</text>
+
+    <text x="20" y="98" fill="#e2e8f0" font-size="12" font-weight="600">3가지 안전장치</text>
+    <text x="20" y="118" fill="#94a3b8" font-size="11">• 비동기 (startup 블로킹 0)   • timeout 10초   • 실패 무시 (warn 로그만)</text>
+  </g>
+</svg>
