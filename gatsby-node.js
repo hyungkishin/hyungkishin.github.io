@@ -97,6 +97,18 @@ exports.onCreateNode = ({ node, actions, getNode }) => {
       name: `slug`,
       value: newSlug,
     })
+
+    // fileAbsolutePath: .../contents/posts/<topDir>/<...>/index.md
+    // 첫 번째 디렉토리를 카테고리로 사용
+    const filePath = node.fileAbsolutePath || ""
+    const match = filePath.match(/\/contents\/posts\/([^/]+)\//)
+    const topDir = match ? match[1] : "etc"
+
+    createNodeField({
+      node,
+      name: `category`,
+      value: topDir,
+    })
   }
 }
 

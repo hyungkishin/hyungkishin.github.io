@@ -1,5 +1,5 @@
 ---
-title: "8h 안에 한 번에 끝낸다는 SLA 가정 자체가 문제였다 — 멱등 필터 5라인의 가치"
+title: "8h 안에 한 번에 끝낸다는 SLA 가정 자체가 문제였어요"
 date: 2026-05-02
 update: 2026-05-02
 tags:
@@ -14,85 +14,54 @@ tags:
 
 > **TL;DR**
 >
-> 매일 새벽 0~8시에 모수 50만짜리 알림 발송 배치를 돌리고 있었다.
-> 운영 timeout이 자주 떴고, 같은 사용자가 며칠째 누락되는 보고가 들어왔다.
+> 매일 새벽 0~8시에 모수 50만짜리 알림 발송 배치를 돌리고 있었어요.  
+> 운영 timeout이 자주 떴고, 같은 사용자가 며칠째 누락된다는 보고가 들어왔습니다.
 >
-> 처음 이틀은 parallelism 튜닝이었다. 30 → 50 → 30 → 다시 50.
-> 한쪽 누르면 다른 쪽이 튀어나오는 구조라 천장에 부딪혔다.
+> 처음 이틀은 parallelism 튜닝이었어요.  
+> 30 -> 50 -> 30 -> 다시 50.  
+> 한쪽 누르면 다른 쪽이 튀어나오는 구조였습니다.
 >
-> 결국 풀린 건 **SLA 정의 자체를 의심한 다음**이었다.
-> "8h 안에 한 번에 100%"가 아니라 "24h 안에 누적 100%"로 가정을 바꾸니, 멱등 필터 5라인으로 풀이가 끝났다.
+> 결국 풀린 건 **SLA 정의 자체를 의심한 다음**이었어요.  
+> "8h 안에 한 번에 100%"가 아니라 "24h 안에 누적 100%"로 가정을 바꾸니, 멱등 필터 5라인으로 풀이가 끝났습니다.
 
 ---
 
-## SLA 가정을 의심할것
+## 8h 윈도우 안에 다 안 끝났어요
 
-배치 설계할 때 가장 먼저 박는 가정이 보통 "운영 윈도우 안에 한 번에 끝낸다" 다.  
-이게 운영 1년이 지나면 SLA의 천장이 된다는 점.
-
-| 잘못 들 수 있는 가정 | 더 안전한 가정 |
-|---|---|
-| 단일 실행 8h 안에 100% 적재 | 24h 안에 100% 누적 적재 |
-| 외부 API timeout 3초면 충분 | batch 처리 SLA ≠ 일반 API SLA |
-| `catch (Exception)` 으로 묶으면 안전 | 외부 의존 장애 / 데이터 결함은 분리 catch |
-
-이 가정 셋이 같이 들어가야 운영 1~2년 뒤 모수가 늘어도 안 깨진다.
-
----
-
-## 1. 문제 — 8h 윈도우 안에 다 안 끝남
-
-배치가 운영 윈도우(0~8시)를 점점 자주 넘기고 있었다.
+배치가 운영 윈도우(0~8시)를 점점 자주 넘기고 있었습니다.  
 parallelism 30으로 평소 2~3시간이면 끝나는데, 어느 날부터 8시간 넘김.
 
-같은 사용자가 며칠째 누락된다는 보고가 따로.
+같은 사용자가 며칠째 누락된다는 보고가 따로 들어왔어요.
 
 ---
 
-## 2. 처음 이틀 — parallelism 튜닝의 천장
+## parallelism 30 -> 50, 그래서?
 
-<div class="attempts">
+"동시 처리량을 늘리면 끝나겠지." 단순한 가설이었습니다.
 
-<div class="attempt">
+50으로 올렸더니 외부 API rate limit 걸렸어요.  
+429 에러가 누적.
 
-### parallelism 30 → 50
+다시 30으로 내렸습니다.  
+처리 속도는 줄었지만 8h 안에 들어가긴 했어요.
 
-"동시 처리량을 늘리면 끝나겠지." 단순한 가설.
+그 다음 달엔 또 못 끝냈어요.  
+모수가 슬슬 늘고 있었습니다.
 
-50으로 올렸더니 **외부 API rate limit** 걸림. 429 에러가 누적.
+> "3초 timeout이 너무 짧은 거 아닐까?"
 
-</div>
+근데 timeout을 늘리면 단건 처리 시간이 늘어 전체 실행 시간이 더 길어집니다.  
+parallelism과 충돌이었어요.
 
-<div class="attempt">
+여기까지 이틀쯤. 한쪽 누르면 다른 쪽이 튀어나오는 구조였습니다.
 
-### parallelism 50 → 30 → 다시 30 유지
+---
 
-다시 30으로 내림. 처리 속도는 줄었지만 8h 안에 들어가긴 함.
+## 천장의 정체를 분해해봤어요
 
-근데 그 다음 달엔 또 못 끝냄.  
-모수가 슬슬 늘고 있었다.
+![As-Is, 빨간 박스 3개](./01-as-is-call-graph.svg)
 
-</div>
-
-<div class="attempt">
-
-### timeout 늘리기?
-
-"3초가 너무 짧은 거 아닌가?" 라는 의심.  
-근데 timeout을 늘리면 단건 처리 시간이 늘어 전체 실행 시간이 더 길어진다.  
-parallelism과 충돌.
-
-</div>
-
-</div>
-
-여기까지 이틀쯤. 한쪽 누르면 다른 쪽이 튀어나오는 구조.
-
-### 천장의 정체를 분해
-
-![As-Is — 빨간 박스 3개](./01-as-is-call-graph.svg)
-
-배치 한 건의 호출 경로를 분해했다.
+배치 한 건의 호출 경로를 분해해봤습니다.
 
 | # | 코드 위치 | 결함 |
 |---|---|---|
@@ -102,41 +71,42 @@ parallelism과 충돌.
 
 이 셋이 묶여 있는 동안엔
 
-- 1년치 raw 응답이 3초 안에 들어올 가능성은 사실상 없음 → **일정 비율이 매일 timeout**
-- silent skip은 추적을 막음 → 다음 실행에서 같은 사용자가 같은 timeout
-- parallelism은 단건 timeout 횟수만 줄일 뿐, 같은 사람 누락 패턴은 그대로
+- 1년치 raw 응답이 3초 안에 들어올 가능성은 사실상 없습니다. 일정 비율이 매일 timeout이 됩니다.
+- silent skip은 추적을 막아요. 다음 실행에서 같은 사용자가 같은 timeout을 또 맞습니다.
+- parallelism은 단건 timeout 횟수만 줄일 뿐이에요. 같은 사람 누락 패턴은 그대로입니다.
 
-여기서 멈췄다.  
-> parallelism으로는 안 풀린다.
+여기서 멈췄어요.
+
+> *parallelism으로는 안 풀린다.*
 
 ---
 
-## 3. 가정을 바꾸니 풀이가 바뀌었다
+## "8h 안에 100%"가 진짜 SLA인가요?
 
-질문을 다시 했다.
-**"단일 실행 8h 안에 100%"가 진짜 SLA인가?**
+질문을 다시 했습니다.  
+"단일 실행 8h 안에 100%" 가 진짜 SLA인지.
 
-확인해보니:
+확인해보니
+
 - 알림 발송은 적재 다음 날 새벽
-- 적재가 24h 안에만 끝나면 발송 SLA는 안 깨진다
+- 적재가 24h 안에만 끝나면 발송 SLA는 안 깨짐
 
-**"24h 안에 100% 누적 적재"** 로 SLA를 재정의하면 풀이가 완전히 달라진다.
+"24h 안에 100% 누적 적재"로 SLA를 재정의하면 풀이가 완전히 달라집니다.
 
-데이터가 N-1년 immutable이라는 도메인 특성을 이용 — 한 번 처리한 사용자는 다시 처리 안 해도 된다.
+데이터가 N-1년 immutable이라는 도메인 특성에서 풀이가 나왔어요.  
+한 번 처리한 사용자는 다시 처리 안 해도 됩니다.
 
 ---
 
-## 4. 해결 — 멱등 필터 + batch 전용 호출 + 분리 catch
+## 멱등 필터 5라인이었습니다
 
-![To-Be — 멱등 필터 + batch 전용 호출 + 분리 catch](./02-to-be-call-graph.svg)
-
-### 멱등 필터 — 5라인
+![To-Be, 멱등 필터 + batch 전용 호출 + 분리 catch](./02-to-be-call-graph.svg)
 
 ```kotlin
 fun execute(): RepeatStatus {
     val candidateIds = candidateReader.findActiveUserIds(targetYear)
     val processed   = materialRepo.findAllProcessedIds(targetYear)
-    val pendingIds  = candidateIds - processed   // ← 멱등 필터
+    val pendingIds  = candidateIds - processed   // 멱등 필터
 
     log.info("targetYear={} candidates={} processed={} pending={}",
         targetYear, candidateIds.size, processed.size, pendingIds.size)
@@ -148,15 +118,15 @@ fun execute(): RepeatStatus {
 }
 ```
 
-`candidateIds - processed` 한 줄.
+`candidateIds - processed` 한 줄이었어요.
 
-장애 시나리오에서 어떻게 풀리는지:
+장애 시나리오에서 어떻게 풀리는지 봤습니다.
 
 | 시나리오 | Before | After |
 |---|---|---|
-| Pod 죽음 (8천/1만 처리 후) | 1만 다시 = 8h SLA 위협 | 2천만 모수 = 1/5 비용 |
+| Pod 죽음 (1만 중 8천 처리 후) | 1만 처음부터 다시 (100% 부담) | 남은 2천만 추가 처리 (20% 부담) |
 | 외부 API 일시 장애 | 매일 같은 사용자 timeout | 다음날 미처리 분량만 자동 재처리 |
-| 모수 폭증 | 8h 초과 → cron 겹침 | 7h timebox → 다음날 이어서 |
+| 모수 폭증 | 8h 초과로 cron 겹침 | 7h timebox 후 다음날 이어서 |
 
 추가 비용은 쿼리 1회 + ID Set 메모리 ~4MB.
 
@@ -164,39 +134,45 @@ fun execute(): RepeatStatus {
 CREATE INDEX idx_material_processed ON campaign_material (target_year, processed_at);
 ```
 
-**여기서 잃는 것:**
-"단일 실행 100% 보장"을 포기한다.
-운영팀과 "발송은 적재 후 익일 새벽" 룰을 합의해야 한다.
-발송 일정이 적재와 같은 날이면 24h 분산 못 씀 — 이 SLA 재정의는 발송 일정에 의존한다.
+> **포기한 것**: "단일 실행 100% 보장." 운영팀과 "발송은 적재 후 익일 새벽" 룰을 합의해야 했어요.
 
-### batch 전용 호출 경로
+발송 일정이 적재와 같은 날이면 24h 분산을 못 씁니다.  
+이 SLA 재정의는 발송 일정에 의존하는 답이었어요.
 
-`getStatForBatch`가 dead code로 정의만 돼 있었다. 와이어링만 추가.
+---
+
+## batch 전용 호출 경로를 따로 뒀어요
+
+`getStatForBatch`가 dead code로 정의만 돼 있었어요. 와이어링만 추가했습니다.
 
 ```kotlin
 class ExternalDataProvider(private val client: ExternalClient) {
-    // 일반 API — 사용자 화면 보고 있어서 3초 안에 답해야 함
+    // 일반 API: 사용자 화면 보고 있어서 3초 안에 답해야 함
     suspend fun getStat(userId: Long, range: DateRange): List<Record> =
         withTimeout(3_000) { client.fetch(userId, range) }
 
-    // batch — timeout 가드 없음 (OkHttp 기본 ~10s 까지 대기)
+    // batch: timeout 가드 없음 (OkHttp 기본 ~10s 까지 대기)
     suspend fun getStatForBatch(userId: Long, range: DateRange): List<Record> =
         client.fetch(userId, range)
 }
 ```
 
-같은 함수 두 벌. `withTimeout(3000)` 한 줄이 다름.
+같은 함수 두 벌. `withTimeout(3000)` 한 줄이 다릅니다.
 
-**핵심: 응답시간 SLA(일반 API) ≠ 처리 SLA(batch).**
-batch에선 누락이 응답시간보다 비싸다.
+> 여기서 잡아둘 invariant: 응답시간 SLA(일반 API) ≠ 처리 SLA(batch).
 
-**여기서 잃는 것:**
-첫 적재 batch 전체 시간이 10~30% 증가 가능 (단건 처리 시간 ↑).
-누락 0건이 더 비싸다고 봐서 감수했지만, 모수가 100만 넘어가면 이 트레이드오프 다시 봐야 한다.
+batch에선 누락이 응답시간보다 비싸요.
 
-### timeout 분리 catch
+> **포기한 것**: 첫 적재 batch 전체 시간이 10~30% 늘 수 있습니다. 단건 처리 시간이 길어진 결과.
 
-silent skip을 두 갈래로 나눔.
+누락 0건이 더 비싸다고 봐서 감수했어요.  
+모수가 100만 넘어가면 이 트레이드오프 다시 봐야 합니다.
+
+---
+
+## timeout을 분리해서 catch 했습니다
+
+silent skip을 두 갈래로 나눴어요.
 
 ```kotlin
 chunk.forEach { userId ->
@@ -205,7 +181,7 @@ chunk.forEach { userId ->
     } catch (e: TimeoutException) {
         timeoutQueue.add(userId)
         externalApiTimeoutCounter.increment()
-        log.warn("timeout userId={} — will be retried tomorrow", userId)
+        log.warn("timeout userId={}, will be retried tomorrow", userId)
     } catch (e: Exception) {
         skipException.put(userId, e)
         log.error("skip userId={} cause={}", userId, e.javaClass.simpleName)
@@ -213,10 +189,10 @@ chunk.forEach { userId ->
 }
 ```
 
-- `timeoutQueue` → 외부 API 장애 시그널
-- `skipException` → 데이터 결함 시그널
+- `timeoutQueue` 는 외부 API 장애 시그널
+- `skipException` 은 데이터 결함 시그널
 
-대응이 다른 두 알림.
+대응이 다른 두 알림이 되었어요.
 
 ```promql
 sum(rate(external_api_timeout_total[5m]))
@@ -226,40 +202,41 @@ sum(rate(batch_processed_total[5m])) > 0.05
 
 ---
 
-## 5. 결과 — 시나리오 회복
+## 시나리오 회복
 
-![장애 시나리오 3개 — 24h 안에 자연 회복](./03-failure-scenarios-sla.svg)
+![장애 시나리오 3개, 24h 안에 자연 회복](./03-failure-scenarios-sla.svg)
 
 | 시나리오 | Before | After |
 |---|---|---|
 | A. 외부 API 일시 장애 | 며칠째 같은 사용자 누락 | 24h 안에 100% 적재 |
 | B. Pod 중간 죽음 | 처음부터 다시 | 미처리 분량만 재처리 |
-| C. 모수 폭증 | 8h 초과 → cron 겹침 | 7h timebox → 다음날 이어서 |
+| C. 모수 폭증 | 8h 초과로 cron 겹침 | 7h timebox 후 다음날 이어서 |
 
-**최소 합격선: 멱등 필터 + 7h 타임박스 + 자동 재실행 cron.**
-셋만 있으면 시나리오 B/C 의 24h SLA 보장.
+최소 합격선은 셋이었어요.  
+멱등 필터 + 7h 타임박스 + 자동 재실행 cron.  
+이 셋만 있으면 시나리오 B와 C의 24h SLA가 보장됩니다.
 
 ---
 
 ## 안 푼 것 / 애매했던 결정들
 
-- **단일 실행 100% 포기** — 운영팀 합의 받았지만 솔직히 모든 PM이 동의한 건 아니다. "왜 한 번에 다 못 하나" 라는 질문이 분기 회의에서 또 나온다
-- **closed-year stat 경로 강제** — 닫힌 연도는 stat 테이블 활용 시 1차 적재 부하 자체 감소. 호환성 전수 검증 부담으로 후순위로 미뤘는데, 이게 진짜 답일 가능성이 큼
-- **OkHttp `connectTimeout`/`readTimeout` 명시 부재** — 환경마다 다르게 잡혀 있을 수 있음. 환경 일관성 + 무한 대기 가드 차원에서 명시해야 함
-- **모수 정의 합의** — 활성/휴면/신규 가입 컷오프 운영팀 합의 대기
+- **단일 실행 100% 포기**: 운영팀 합의 받았지만 솔직히 모든 PM이 동의한 건 아니에요. "왜 한 번에 다 못 하나" 라는 질문이 분기 회의에서 또 나옵니다.
+- **closed-year stat 경로 강제**: 닫힌 연도는 stat 테이블을 직접 읽으면 1차 적재 부하가 줄어듭니다. 호환성 전수 검증 부담으로 후순위로 미뤘는데, 이게 진짜 답일 가능성이 커요.
+- **OkHttp `connectTimeout`/`readTimeout` 명시 부재**: 환경마다 다르게 잡혀 있을 수 있어요. 환경 일관성 + 무한 대기 가드 차원에서 명시해야 합니다.
+- **모수 정의 합의**: 활성/휴면/신규 가입 컷오프 운영팀 합의 대기 중.
 
 ---
 
 ## 메모
 
-parallelism 만 만지고 있었다.
-30 → 50 → 30 → 50. 운영 윈도우 들어가면 안도, 못 들어가면 다시 내리고.
+parallelism만 만지고 있었어요.  
+30 -> 50 -> 30 -> 50. 운영 윈도우 들어가면 안도, 못 들어가면 다시 내리고.
 
-가정을 바꾼 건 어느 한 시점의 결정이 아니었다.
-"왜 같은 사용자가 며칠째 누락되지?" 라는 질문이 어느 날 떠올랐고, parallelism으론 그 질문이 안 풀린다는 게 보였다.
+가정을 바꾼 건 어느 한 시점의 결정이 아니었습니다.  
+"왜 같은 사용자가 며칠째 누락되지?" 라는 질문이 어느 날 떠올랐고, parallelism으론 그 질문이 안 풀린다는 게 보였어요.
 
-그제서야 SLA 정의 자체를 다시 읽었다.
-발송 일정이 익일 새벽이라는 사실을 처음 안 것도 그때.
-"24h 안에 누적"이 가능한 도메인이라는 걸 코드보다 운영 일정에서 먼저 본 자리.
+그제서야 SLA 정의 자체를 다시 읽었습니다.  
+발송 일정이 익일 새벽이라는 사실을 처음 안 것도 그때였어요.  
+"24h 안에 누적" 이 가능한 도메인이라는 걸, 코드보다 운영 일정에서 먼저 본 자리였습니다.
 
-코드 답이 운영 정책에 의존하는 케이스가 있다는 걸 늦게 알았다.
+코드 답이 운영 정책에 의존하는 케이스가 있다는 걸 늦게 알았어요.

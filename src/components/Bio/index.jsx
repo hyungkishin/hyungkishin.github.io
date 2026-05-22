@@ -18,34 +18,41 @@ import { description, author, links } from "../../../blog-config"
 const BioWrapper = styled.div`
   display: flex;
   align-items: center;
+  gap: 20px;
 
   @media (max-width: 768px) {
-    padding: 0 15px;
+    padding: 0 8px;
+    gap: 16px;
   }
 `
 
 const Profile = styled.div`
   flex: 0 0 auto;
-  margin-right: 16px;
-  width: 128px;
-  height: 128px;
+  width: 112px;
+  height: 112px;
   border-radius: 999px;
   background-image: url(${ProfileImage});
   background-size: cover;
   background-position: center;
+
+  @media (max-width: 768px) {
+    width: 88px;
+    height: 88px;
+  }
 `
 
 const Author = styled.div`
-  margin-bottom: 4.8px;
+  margin-bottom: 6px;
   font-size: 24px;
   font-weight: 700;
+  letter-spacing: -0.01em;
   color: ${props => props.theme.colors.text};
 `
 
 const Description = styled.div`
-  margin-bottom: 11.2px;
-  line-height: 1.5;
-  font-size: 16px;
+  margin-bottom: 14px;
+  line-height: 1.6;
+  font-size: 15.5px;
   color: ${props => props.theme.colors.secondaryText};
 `
 

@@ -68,6 +68,7 @@
     "build": "gatsby build",
     "develop": "gatsby develop",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "lint:tone": "node scripts/tone-guard.mjs",
     "start": "npm run develop",
     "serve": "gatsby serve",
     "clean": "gatsby clean",

@@ -224,7 +224,7 @@ DOMParser 를 쓸 수 없었다.
 ---
 ## 라이브러리 도입 결정
 
-cheerio — DOM 파싱의 사실상 업계 표준 
+cheerio: DOM 파싱의 사실상 업계 표준 
 
 AMP 변환의 핵심은 Google GuideLine 에 허용되지 않는 HTML 태그를 파싱해서 변형하거나 제거하는 작업이 필연적인데,  
 이때 cheerio는 서버 사이드에서 jQuery처럼 HTML을 다룰 수 있는 경량 라이브러리로, 아래 작업들을 편하게 처리할 수 있었다.
@@ -241,7 +241,7 @@ $("img").each(...);    // 이미지 태그 변환
 > - ( 훨씬 무겁고, DOM 구현이 브라우저 수준이지만, cheerio보다 느림 )  
 > 단순한 조작에는 cheerio가 가장 적합하다.  
 
-isTag (from domhandler) — 안정성 있는 노드 필터링  
+isTag (from domhandler): 안정성 있는 노드 필터링  
 
 모든 DOM 노드가 태그는 아니기 때문에, cheerio("*").each(...) 루프를 돌릴 때는 노드 타입 검사를 해줘야 한다.  
 이때 isTag()를 사용하면 안정적으로 태그 여부를 확인할 수 있다.  

@@ -4,6 +4,11 @@ import reset from "styled-reset"
 const GlobalStyles = createGlobalStyle`
   ${reset}
 
+  html, body {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
   body {
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
     background: ${props => props.theme.colors.bodyBackground};

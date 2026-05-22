@@ -12,7 +12,7 @@ import Header from "./Header"
 import Body from "./Body"
 import Footer from "./Footer"
 
-const Layout = ({ children }) => {
+const Layout = ({ children, wide = false }) => {
   const dispatch = useDispatch()
   const { theme } = useSelector(state => state.theme)
 
@@ -42,7 +42,7 @@ const Layout = ({ children }) => {
     <ThemeProvider theme={theme === "light" ? light : dark}>
       <GlobalStyles />
       <Header toggleTheme={toggleTheme} />
-      <Body>{children}</Body>
+      <Body wide={wide}>{children}</Body>
       <Footer />
     </ThemeProvider>
   )

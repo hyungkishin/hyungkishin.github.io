@@ -53,7 +53,7 @@ const TagsPage = ({ data }) => {
   }, [query])
 
   return (
-    <Layout>
+    <Layout wide>
       <SEO title={title} description={description} url={siteUrl} />
 
       <TagListWrapper>
@@ -107,6 +107,7 @@ export const pageQuery = graphql`
         excerpt(pruneLength: 200, truncate: true)
         fields {
           slug
+          category
         }
         frontmatter {
           date(formatString: "MMMM DD, YYYY")
