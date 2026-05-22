@@ -5,117 +5,96 @@ import { Link } from "gatsby"
 import { categoryOf } from "utils/categoryRules"
 
 const Wrapper = styled(Link)`
-  display: grid;
-  grid-template-columns: 6px 1fr;
-  gap: 28px;
-  align-items: stretch;
+  display: block;
   margin-top: 32px;
-  padding: 32px 32px 32px 26px;
-  border-radius: 16px;
-  background: ${(props) => props.theme.colors.cardBackground};
-  border: 1px solid ${(props) => props.theme.colors.cardBorder};
+  padding: 40px 0 44px;
+  border-bottom: 1px solid ${(props) => props.theme.colors.border};
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.15s ease;
+  transition: opacity 0.15s ease;
 
-  &:hover {
-    border-color: ${(props) => props.theme.colors.cardBorderHover};
+  &:hover h1 {
+    color: ${(props) => props.theme.colors.accent};
   }
 
   @media (max-width: 768px) {
-    grid-template-columns: 4px 1fr;
-    gap: 18px;
-    padding: 24px 22px 24px 18px;
+    padding: 28px 0 32px;
   }
 `
 
-const AccentBar = styled.div`
-  background: ${(props) => props.accent};
-  border-radius: 2px;
-`
-
-const Body = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  min-width: 0;
-`
-
-const TopRow = styled.div`
+const Eyebrow = styled.div`
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  margin-bottom: 18px;
   font-size: 12.5px;
+  font-weight: 500;
   color: ${(props) => props.theme.colors.tertiaryText};
 `
 
-const CategoryLabel = styled.span`
-  font-weight: 700;
+const Category = styled.span`
+  color: ${(props) => props.theme.colors.accent};
+  font-weight: 600;
   letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: ${(props) => props.accent};
+`
+
+const Sep = styled.span`
+  color: ${(props) => props.theme.colors.mutedText};
 `
 
 const HeroTitle = styled.h1`
-  margin: 0;
-  font-size: 30px;
+  margin: 0 0 16px;
+  font-size: 44px;
   font-weight: 700;
-  line-height: 1.3;
-  letter-spacing: -0.02em;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
   color: ${(props) => props.theme.colors.text};
   word-break: keep-all;
   overflow-wrap: break-word;
+  transition: color 0.15s ease;
 
   @media (max-width: 768px) {
-    font-size: 24px;
-    line-height: 1.35;
+    font-size: 30px;
+    line-height: 1.22;
   }
 `
 
 const HeroExcerpt = styled.p`
   margin: 0;
-  font-size: 15.5px;
-  line-height: 1.7;
+  font-size: 16.5px;
+  line-height: 1.65;
   color: ${(props) => props.theme.colors.secondaryText};
   word-break: keep-all;
   overflow-wrap: break-word;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-`
-
-const TagText = styled.span`
-  color: ${(props) => props.theme.colors.tertiaryText};
+  max-width: 720px;
 `
 
 const Hero = ({ post }) => {
   if (!post) return null
-  const { title, date, tags } = post.frontmatter
+  const { title, date } = post.frontmatter
   const { excerpt } = post
   const { slug, category: topDir } = post.fields
   const category = categoryOf(topDir)
-  const accent = category?.accent || "#3182f6"
 
   return (
     <Wrapper to={slug}>
-      <AccentBar accent={accent} />
-      <Body>
-        <TopRow>
-          {category && (
-            <CategoryLabel accent={accent}>{category.label}</CategoryLabel>
-          )}
-          {category && <span>·</span>}
-          <span>{date}</span>
-        </TopRow>
-        <HeroTitle>{title}</HeroTitle>
-        <HeroExcerpt>{excerpt}</HeroExcerpt>
-        {tags && tags.length > 0 && (
-          <TopRow>
-            <TagText>{tags.slice(0, 4).join(", ")}</TagText>
-          </TopRow>
+      <Eyebrow>
+        <span>Latest</span>
+        {category && (
+          <>
+            <Sep>·</Sep>
+            <Category>{category.label}</Category>
+          </>
         )}
-      </Body>
+        <Sep>·</Sep>
+        <span>{date}</span>
+      </Eyebrow>
+      <HeroTitle>{title}</HeroTitle>
+      <HeroExcerpt>{excerpt}</HeroExcerpt>
     </Wrapper>
   )
 }

@@ -1,151 +1,171 @@
-// Toss-inspired neutral scale
-const NEUTRAL_900 = "#191f28" // 가장 짙은 텍스트
-const NEUTRAL_700 = "#4e5968" // secondary 본문
-const NEUTRAL_600 = "#6b7684"
-const NEUTRAL_500 = "#8b95a1" // tertiary, meta
-const NEUTRAL_400 = "#b0b8c1"
-const NEUTRAL_300 = "#d1d6db"
-const NEUTRAL_200 = "#e5e8eb" // border
-const NEUTRAL_150 = "#eef0f2" // soft divider
-const NEUTRAL_100 = "#f2f4f6" // background tint
-const NEUTRAL_50 = "#f9fafb"
-const NEUTRAL_0 = "#ffffff"
+// Linear / Vercel inspired — 개발자 블로그 톤
+// 핵심: 흰 배경, 큰 sans-serif, 한 가지 accent, 미니멀
 
-const PRIMARY = "#3182f6" // Toss blue
-const PRIMARY_DARK = "#5b9cff" // dark mode primary (밝게)
+// ---- Accent (light/dark 공유) ----
+const ACCENT = "#2563eb"           // 차분한 indigo blue
+const ACCENT_HOVER = "#1d4ed8"
 
-const DARK_BG_900 = "#17171c"
-const DARK_BG_800 = "#1f2027"
-const DARK_BG_700 = "#262830"
-const DARK_BORDER = "#2c2e36"
-const DARK_BORDER_SOFT = "#23252d"
+// ---- Light ----
+const LIGHT_BG = "#ffffff"
+const LIGHT_BG_SOFT = "#fafafa"
+const LIGHT_CARD = "#ffffff"
+const LIGHT_BORDER = "#e5e5e5"
+const LIGHT_BORDER_SOFT = "#ededed"
+const LIGHT_DIVIDER = "#ededed"
+
+const LIGHT_TEXT = "#0a0a0a"
+const LIGHT_TEXT_BODY = "#404040"
+const LIGHT_TEXT_MUTED = "#737373"
+const LIGHT_TEXT_FAINT = "#a3a3a3"
+
+// ---- Dark (Linear / Vercel 류 차콜 톤) ----
+const DARK_BG = "#0a0a0a"
+const DARK_BG_SOFT = "#141414"
+const DARK_BORDER = "#27272a"
+const DARK_BORDER_SOFT = "#1f1f23"
+const DARK_DIVIDER = "#1f1f23"
+
+const DARK_TEXT = "#fafafa"
+const DARK_TEXT_BODY = "#d4d4d4"
+const DARK_TEXT_MUTED = "#a3a3a3"
+const DARK_TEXT_FAINT = "#737373"
+
+const DARK_ACCENT = "#60a5fa"      // dark mode 에서 더 잘 보이는 blue
 
 export const light = {
   name: "light",
   colors: {
-    bodyBackground: NEUTRAL_0,
-    text: NEUTRAL_900,
-    secondaryText: NEUTRAL_700,
-    tertiaryText: NEUTRAL_500,
-    mutedText: NEUTRAL_400,
-    hoveredLinkText: NEUTRAL_0,
-    border: NEUTRAL_200,
-    activatedBorder: NEUTRAL_600,
-    background: NEUTRAL_50,
-    cardBackground: NEUTRAL_0,
-    cardBorder: NEUTRAL_150,
-    cardBorderHover: NEUTRAL_300,
-    seriesCardBackground: NEUTRAL_50,
-    dividerSoft: NEUTRAL_150,
-    chipBackground: NEUTRAL_100,
-    chipText: NEUTRAL_700,
-    icon: NEUTRAL_600,
-    divider: NEUTRAL_150,
+    bodyBackground: LIGHT_BG,
+    text: LIGHT_TEXT,
+    secondaryText: LIGHT_TEXT_BODY,
+    tertiaryText: LIGHT_TEXT_MUTED,
+    mutedText: LIGHT_TEXT_FAINT,
+    hoveredLinkText: LIGHT_BG,
+    border: LIGHT_BORDER,
+    activatedBorder: LIGHT_TEXT_MUTED,
+    background: LIGHT_BG_SOFT,
+    cardBackground: LIGHT_CARD,
+    cardBorder: LIGHT_BORDER_SOFT,
+    cardBorderHover: LIGHT_BORDER,
+    seriesCardBackground: LIGHT_BG_SOFT,
+    dividerSoft: LIGHT_DIVIDER,
+    chipBackground: LIGHT_BG_SOFT,
+    chipText: LIGHT_TEXT_BODY,
+    icon: LIGHT_TEXT_BODY,
+    divider: LIGHT_DIVIDER,
     headerBackground: "rgba(255, 255, 255, 0.92)",
-    headerShadow: "rgba(15, 23, 42, 0.04)",
-    inlineCodeBackground: NEUTRAL_100,
-    inlineCodeBackgroundDarker: NEUTRAL_200,
-    tagBackground: NEUTRAL_100,
-    selectedTagBackground: PRIMARY,
-    hoveredTagBackground: NEUTRAL_150,
-    hoveredSelectedTagBackground: "#1b6bd9",
-    nextPostButtonBackground: NEUTRAL_50,
-    hoveredNextPostButtonBackground: NEUTRAL_100,
-    seriesBackground: NEUTRAL_50,
-    tagText: NEUTRAL_700,
-    selectedTagText: NEUTRAL_0,
-    spinner: PRIMARY,
-    scrollTrack: NEUTRAL_50,
-    scrollHandle: NEUTRAL_300,
-    blockQuoteBorder: PRIMARY,
-    blockQuoteBackground: NEUTRAL_50,
-    textFieldBorder: NEUTRAL_200,
-    textFieldActivatedBorder: PRIMARY,
-    tableBackground: NEUTRAL_50,
-    accent: PRIMARY,
+    headerShadow: "rgba(0, 0, 0, 0.04)",
+    inlineCodeBackground: LIGHT_BG_SOFT,
+    inlineCodeBackgroundDarker: LIGHT_BORDER,
+    tagBackground: LIGHT_BG_SOFT,
+    selectedTagBackground: ACCENT,
+    hoveredTagBackground: LIGHT_BORDER_SOFT,
+    hoveredSelectedTagBackground: ACCENT_HOVER,
+    nextPostButtonBackground: LIGHT_BG_SOFT,
+    hoveredNextPostButtonBackground: LIGHT_BORDER_SOFT,
+    seriesBackground: LIGHT_BG_SOFT,
+    tagText: LIGHT_TEXT_BODY,
+    selectedTagText: LIGHT_BG,
+    spinner: ACCENT,
+    scrollTrack: LIGHT_BG_SOFT,
+    scrollHandle: LIGHT_BORDER,
+    blockQuoteBorder: ACCENT,
+    blockQuoteBackground: LIGHT_BG_SOFT,
+    textFieldBorder: LIGHT_BORDER,
+    textFieldActivatedBorder: ACCENT,
+    tableBackground: LIGHT_BG_SOFT,
+    accent: ACCENT,
     inlineCode: "#d6336c",
     zoomBackground: "rgba(255, 255, 255, 0.95)",
-    tldrBackground: "#fff8e1",
-    tldrBorder: "#f59e0b",
-    tldrText: "#78350f",
-    calloutNoteBackground: "#eef2ff",
-    calloutNoteBorder: "#6366f1",
-    calloutNoteText: "#3730a3",
-    calloutWarnBackground: "#fffbeb",
-    calloutWarnBorder: "#f59e0b",
-    calloutWarnText: "#92400e",
-    calloutGoodBackground: "#ecfdf5",
-    calloutGoodBorder: "#10b981",
-    calloutGoodText: "#065f46",
+    tldrBackground: "#fefce8",
+    tldrBorder: "#eab308",
+    tldrText: "#713f12",
+    calloutNoteBackground: "#eff6ff",
+    calloutNoteBorder: ACCENT,
+    calloutNoteText: "#1e3a8a",
+    calloutWarnBackground: "#fefce8",
+    calloutWarnBorder: "#eab308",
+    calloutWarnText: "#713f12",
+    calloutGoodBackground: "#f0fdf4",
+    calloutGoodBorder: "#22c55e",
+    calloutGoodText: "#14532d",
     calloutDangerBackground: "#fef2f2",
     calloutDangerBorder: "#ef4444",
-    calloutDangerText: "#991b1b",
-    codeLangBadgeBackground: "#e2e8f0",
-    codeLangBadgeText: "#475569",
+    calloutDangerText: "#7f1d1d",
+    codeLangBadgeBackground: LIGHT_BG_SOFT,
+    codeLangBadgeText: LIGHT_TEXT_BODY,
+    accentMustard: ACCENT,
+    accentTerracotta: ACCENT,
+    accentForest: ACCENT,
+    accentNavy: ACCENT,
   },
 }
 
 export const dark = {
   name: "dark",
   colors: {
-    bodyBackground: DARK_BG_900,
-    text: "#f5f6f7",
-    secondaryText: "#c9cdd2",
-    tertiaryText: "#9aa3a8",
-    mutedText: "#6b7280",
-    hoveredLinkText: DARK_BG_900,
+    bodyBackground: DARK_BG,
+    text: DARK_TEXT,
+    secondaryText: DARK_TEXT_BODY,
+    tertiaryText: DARK_TEXT_MUTED,
+    mutedText: DARK_TEXT_FAINT,
+    hoveredLinkText: DARK_BG,
     border: DARK_BORDER,
-    activatedBorder: "#d1d6db",
-    background: DARK_BG_800,
-    cardBackground: DARK_BG_800,
+    activatedBorder: DARK_TEXT_MUTED,
+    background: DARK_BG_SOFT,
+    cardBackground: DARK_BG,
     cardBorder: DARK_BORDER_SOFT,
     cardBorderHover: DARK_BORDER,
-    seriesCardBackground: DARK_BG_700,
-    dividerSoft: DARK_BORDER_SOFT,
-    chipBackground: DARK_BG_700,
-    chipText: "#c9cdd2",
-    icon: "#b0b8c1",
-    divider: DARK_BORDER,
-    headerBackground: "rgba(23, 23, 28, 0.92)",
-    headerShadow: "rgba(0, 0, 0, 0.3)",
-    inlineCodeBackground: DARK_BG_700,
+    seriesCardBackground: DARK_BG_SOFT,
+    dividerSoft: DARK_DIVIDER,
+    chipBackground: DARK_BG_SOFT,
+    chipText: DARK_TEXT_BODY,
+    icon: DARK_TEXT_BODY,
+    divider: DARK_DIVIDER,
+    headerBackground: "rgba(10, 10, 10, 0.92)",
+    headerShadow: "rgba(0, 0, 0, 0.4)",
+    inlineCodeBackground: DARK_BG_SOFT,
     inlineCodeBackgroundDarker: DARK_BORDER,
-    tagBackground: DARK_BG_700,
-    selectedTagBackground: PRIMARY_DARK,
-    hoveredTagBackground: "#2f323c",
-    hoveredSelectedTagBackground: "#7ab0ff",
+    tagBackground: DARK_BG_SOFT,
+    selectedTagBackground: DARK_ACCENT,
+    hoveredTagBackground: DARK_BORDER,
+    hoveredSelectedTagBackground: "#93c5fd",
     nextPostButtonBackground: "rgba(255, 255, 255, 0.04)",
     hoveredNextPostButtonBackground: "rgba(255, 255, 255, 0.08)",
-    seriesBackground: DARK_BG_700,
-    tagText: "#d1d6db",
-    selectedTagText: NEUTRAL_0,
-    spinner: PRIMARY_DARK,
-    scrollTrack: DARK_BG_900,
+    seriesBackground: DARK_BG_SOFT,
+    tagText: DARK_TEXT_BODY,
+    selectedTagText: DARK_BG,
+    spinner: DARK_ACCENT,
+    scrollTrack: DARK_BG,
     scrollHandle: DARK_BORDER,
-    blockQuoteBorder: PRIMARY_DARK,
-    blockQuoteBackground: DARK_BG_700,
+    blockQuoteBorder: DARK_ACCENT,
+    blockQuoteBackground: DARK_BG_SOFT,
     textFieldBorder: DARK_BORDER,
-    textFieldActivatedBorder: PRIMARY_DARK,
-    tableBackground: DARK_BG_700,
-    accent: PRIMARY_DARK,
-    inlineCode: "#ff922b",
-    zoomBackground: "rgba(23, 23, 28, 0.95)",
-    tldrBackground: "#3b2e10",
-    tldrBorder: "#f59e0b",
-    tldrText: "#fcd34d",
-    calloutNoteBackground: "#1e1f3a",
-    calloutNoteBorder: "#818cf8",
-    calloutNoteText: "#c7d2fe",
-    calloutWarnBackground: "#3b2e10",
-    calloutWarnBorder: "#fbbf24",
+    textFieldActivatedBorder: DARK_ACCENT,
+    tableBackground: DARK_BG_SOFT,
+    accent: DARK_ACCENT,
+    inlineCode: "#fb7185",
+    zoomBackground: "rgba(10, 10, 10, 0.95)",
+    tldrBackground: "#422006",
+    tldrBorder: "#eab308",
+    tldrText: "#fde68a",
+    calloutNoteBackground: "#172554",
+    calloutNoteBorder: DARK_ACCENT,
+    calloutNoteText: "#bfdbfe",
+    calloutWarnBackground: "#422006",
+    calloutWarnBorder: "#eab308",
     calloutWarnText: "#fde68a",
-    calloutGoodBackground: "#0f2e22",
-    calloutGoodBorder: "#34d399",
-    calloutGoodText: "#a7f3d0",
-    calloutDangerBackground: "#3b1414",
-    calloutDangerBorder: "#f87171",
+    calloutGoodBackground: "#14532d",
+    calloutGoodBorder: "#22c55e",
+    calloutGoodText: "#bbf7d0",
+    calloutDangerBackground: "#450a0a",
+    calloutDangerBorder: "#ef4444",
     calloutDangerText: "#fecaca",
-    codeLangBadgeBackground: DARK_BORDER,
-    codeLangBadgeText: "#adb5bd",
+    codeLangBadgeBackground: DARK_BG_SOFT,
+    codeLangBadgeText: DARK_TEXT_BODY,
+    accentMustard: DARK_ACCENT,
+    accentTerracotta: DARK_ACCENT,
+    accentForest: DARK_ACCENT,
+    accentNavy: DARK_ACCENT,
   },
 }

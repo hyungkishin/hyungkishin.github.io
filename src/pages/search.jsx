@@ -37,7 +37,7 @@ const Search = ({ data }) => {
   )
 
   return (
-    <Layout>
+    <Layout wide>
       <SEO title={title} description={description} url={siteUrl} />
       <SearchWrapper>
         <Title size="sm">
@@ -61,9 +61,11 @@ export const pageQuery = graphql`
   query {
     allMarkdownRemark(sort: { fields: [frontmatter___date], order: DESC }) {
       nodes {
+        id
         excerpt(pruneLength: 200, truncate: true)
         fields {
           slug
+          category
         }
         frontmatter {
           date(formatString: "MMMM DD, YYYY")

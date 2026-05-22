@@ -14,22 +14,22 @@ const TagLink = styled.div`
   margin-bottom: 10px;
   border-radius: 8px;
   background-color: ${props =>
-    props.selected
+    props.$selected
       ? props.theme.colors.selectedTagBackground
       : props.theme.colors.tagBackground};
   color: ${props =>
-    props.selected
+    props.$selected
       ? props.theme.colors.selectedTagText
       : props.theme.colors.tagText};
   text-decoration: none;
   font-size: 13.5px;
   font-weight: 500;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid ${props => (props.selected ? "transparent" : props.theme.colors.border)};
+  border: 1px solid ${props => (props.$selected ? "transparent" : props.theme.colors.border)};
 
   &:hover {
     background-color: ${props =>
-      props.selected
+      props.$selected
         ? props.theme.colors.hoveredSelectedTagBackground
         : props.theme.colors.hoveredTagBackground};
     transform: translateY(-2px);
@@ -65,7 +65,7 @@ const TagList = ({ tagList, count, selected }) => {
             selected === tag.fieldValue ? "/tags" : `/tags?q=${tag.fieldValue}`
           }
         >
-          <TagLink selected={tag.fieldValue === selected}>
+          <TagLink $selected={tag.fieldValue === selected}>
             {spaceToDash(tag.fieldValue)} ({tag.totalCount})
           </TagLink>
         </Link>

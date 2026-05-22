@@ -4,7 +4,7 @@ import styled from "styled-components"
 import SEO from "components/SEO"
 import filter from "lodash/filter"
 
-import { graphql, navigate } from "gatsby"
+import { graphql } from "gatsby"
 
 import queryString from "query-string"
 
@@ -68,18 +68,7 @@ const TagsPage = ({ data }) => {
           </Title>
         )}
 
-        <TagList
-          count
-          tagList={tags}
-          selected={selected}
-          onClick={tag => {
-            console.log(tag, selected)
-            if (tag === selected) {
-              navigate("/tags")
-              alert("zz")
-            } else setSelected(tag)
-          }}
-        />
+        <TagList count tagList={tags} selected={selected} />
       </TagListWrapper>
 
       <VerticleSpace size={32} />
@@ -104,6 +93,7 @@ export const pageQuery = graphql`
         totalCount
       }
       nodes {
+        id
         excerpt(pruneLength: 200, truncate: true)
         fields {
           slug

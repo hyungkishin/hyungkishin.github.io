@@ -9,10 +9,10 @@ const RelativeWrapper = styled.div`
 
 const Wrapper = styled.aside`
   position: absolute;
-  left: calc(100% + 32px);
+  left: calc(100% + 40px);
   top: 0;
   width: 200px;
-  font-size: 14.5px;
+  font-size: 13.5px;
 
   @media (max-width: 1400px) {
     display: none;
@@ -20,12 +20,12 @@ const Wrapper = styled.aside`
 `
 
 const Title = styled.div`
-  margin-bottom: 16px;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 11.5px;
+  font-weight: 600;
   letter-spacing: 0.08em;
-  color: ${(props) => props.theme.colors.tertiaryText};
   text-transform: uppercase;
+  color: ${(props) => props.theme.colors.tertiaryText};
+  margin-bottom: 18px;
 `
 
 const TagList = styled.ul`
@@ -35,10 +35,11 @@ const TagList = styled.ul`
 `
 
 const Tag = styled.li`
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   color: ${(props) => props.theme.colors.secondaryText};
   cursor: pointer;
-  transition: color 0.2s;
+  transition: color 0.15s;
+  font-size: 13.5px;
 
   &:hover {
     color: ${(props) => props.theme.colors.text};

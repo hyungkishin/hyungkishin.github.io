@@ -1,35 +1,49 @@
+const ACCENT = "#2563eb"
+
+// slug 가 full path 형태 (예: /company/work/why1/, /roopers/will/one-week/) 이므로
+// pattern 은 마지막 segment 만 검사하도록 작성.
 export const SERIES_RULES = [
   {
     id: "why",
     name: "why",
     tagline: "사고가 어디서 시작됐는지 짚어보는 글",
-    pattern: /^\/why\d+\/$/,
+    pattern: /\/why\d+\/$/,
     sortKey: (slug) => parseInt(slug.match(/why(\d+)/)[1], 10),
-    accent: "#6366f1",
+    accent: ACCENT,
   },
   {
     id: "phase",
     name: "frontend performance",
     tagline: "CMS 기반 뉴스 사이트 성능 최적화 단계",
-    pattern: /^\/phase\d+\/$/,
+    pattern: /\/phase\d+\/$/,
     sortKey: (slug) => parseInt(slug.match(/phase(\d+)/)[1], 10),
-    accent: "#10b981",
+    accent: ACCENT,
   },
   {
     id: "round",
     name: "roopers round",
     tagline: "결제 시스템을 13주에 걸쳐 다시 만든 기록",
-    pattern: /^\/round\d+\/$/,
+    pattern: /\/round\d+\/$/,
     sortKey: (slug) => parseInt(slug.match(/round(\d+)/)[1], 10),
-    accent: "#f59e0b",
+    accent: ACCENT,
   },
   {
     id: "will",
     name: "roopers will",
     tagline: "주차별 회고",
-    slugs: ["/one-week/", "/two-week/", "/seven-week/", "/will10/"],
-    sortOrder: ["/one-week/", "/two-week/", "/seven-week/", "/will10/"],
-    accent: "#ec4899",
+    slugs: [
+      "/roopers/will/one-week/",
+      "/roopers/will/two-week/",
+      "/roopers/will/seven-week/",
+      "/roopers/will/will10/",
+    ],
+    sortOrder: [
+      "/roopers/will/one-week/",
+      "/roopers/will/two-week/",
+      "/roopers/will/seven-week/",
+      "/roopers/will/will10/",
+    ],
+    accent: ACCENT,
   },
 ]
 

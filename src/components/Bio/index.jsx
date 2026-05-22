@@ -45,14 +45,14 @@ const Author = styled.div`
   margin-bottom: 6px;
   font-size: 24px;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
   color: ${props => props.theme.colors.text};
 `
 
 const Description = styled.div`
   margin-bottom: 14px;
   line-height: 1.6;
-  font-size: 15.5px;
+  font-size: 15px;
   color: ${props => props.theme.colors.secondaryText};
 `
 
@@ -77,10 +77,10 @@ const LinksWrapper = styled.div`
   }
 `
 
-const Link = ({ link, children }) => {
+const Link = ({ link, label, children }) => {
   if (!link) return null
   return (
-    <a href={link} target="_blank" rel="noreferrer">
+    <a href={link} target="_blank" rel="noreferrer" aria-label={label}>
       {children}
     </a>
   )
@@ -96,25 +96,25 @@ const Bio = () => {
         <Author>@{author}</Author>
         <Description>{description}</Description>
         <LinksWrapper>
-          <Link link={github}>
+          <Link link={github} label="GitHub">
             <FaGithub />
           </Link>
-          <Link link={kaggle}>
+          <Link link={kaggle} label="Kaggle">
             <FaKaggle />
           </Link>
-          <Link link={instagram}>
+          <Link link={instagram} label="Instagram">
             <FaInstagram />
           </Link>
-          <Link link={facebook}>
+          <Link link={facebook} label="Facebook">
             <FaFacebook />
           </Link>
-          <Link link={linkedIn}>
+          <Link link={linkedIn} label="LinkedIn">
             <FaLinkedin />
           </Link>
-          <Link link={email}>
+          <Link link={email} label="Email">
             <FaEnvelope />
           </Link>
-          <Link link={etc}>
+          <Link link={etc} label="Website">
             <FaLink />
           </Link>
         </LinksWrapper>

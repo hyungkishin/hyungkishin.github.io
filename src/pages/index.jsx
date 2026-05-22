@@ -7,6 +7,7 @@ import SEO from "components/SEO"
 import Bio from "components/Bio"
 import Hero from "components/Hero"
 import CategoryFilter from "components/CategoryFilter"
+import SeriesShowcase from "components/SeriesShowcase"
 import PostList from "components/PostList"
 import SideTagList from "components/SideTagList"
 import Divider from "components/Divider"
@@ -25,12 +26,19 @@ const BlogIndex = ({ data }) => {
 
   const [selectedCategory, setSelectedCategory] = useState("all")
 
-  // 히어로용 최신 일반 글 (시리즈 글 제외)
+  // 카테고리에 맞춰 Hero 글 (시리즈 글 제외한 최신 일반 글)
   const heroPost = useMemo(() => {
-    return posts.find((post) => !matchSeries(post.fields.slug))
-  }, [posts])
+    const candidates = posts.filter((post) => !matchSeries(post.fields.slug))
+    if (selectedCategory === "all") {
+      return candidates[0]
+    }
+    return candidates.find((post) => {
+      const cat = categoryOf(post.fields.category)
+      return cat && cat.id === selectedCategory
+    })
+  }, [posts, selectedCategory])
 
-  // 카테고리별 카운트
+  // 카테고리별 카운트 (시리즈 글 포함, 전체 글 기준)
   const counts = useMemo(() => {
     const result = { __total: posts.length }
     posts.forEach((post) => {
@@ -48,7 +56,7 @@ const BlogIndex = ({ data }) => {
     )
   }
 
-  const showHero = selectedCategory === "all"
+  const showSeriesShowcase = selectedCategory === "all"
 
   return (
     <Layout wide>
@@ -57,16 +65,18 @@ const BlogIndex = ({ data }) => {
       <Bio />
       <Divider />
       <SideTagList tags={tags} postCount={posts.length} />
-      {showHero && <Hero post={heroPost} />}
       <CategoryFilter
         selected={selectedCategory}
         onSelect={setSelectedCategory}
         counts={counts}
       />
+      {heroPost && <Hero post={heroPost} />}
+      {showSeriesShowcase && <SeriesShowcase posts={posts} />}
       <PostList
         postList={posts}
-        excludeSlug={showHero && heroPost ? heroPost.fields.slug : null}
+        excludeSlug={heroPost ? heroPost.fields.slug : null}
         categoryFilter={selectedCategory}
+        hideSeriesPosts={selectedCategory === "all"}
       />
     </Layout>
   )
@@ -87,6 +97,7 @@ export const pageQuery = graphql`
         totalCount
       }
       nodes {
+        id
         excerpt(pruneLength: 200, truncate: true)
         fields {
           slug

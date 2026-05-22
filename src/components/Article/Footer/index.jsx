@@ -57,7 +57,7 @@ const Arrow = styled.div`
 const ArticleButtonWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: ${props => (props.right ? "flex-end" : "flex-start")};
+  align-items: ${props => (props.$right ? "flex-end" : "flex-start")};
   padding: 1.25rem 1.5rem;
   width: 100%;
   font-size: 1.05rem;
@@ -76,15 +76,15 @@ const ArticleButtonWrapper = styled.div`
   }
 
   & ${ArrowFlexWrapper} {
-    flex-direction: ${props => (props.right ? "row-reverse" : "row")};
+    flex-direction: ${props => (props.$right ? "row-reverse" : "row")};
   }
 
   & ${ArticleButtonTextWrapper} {
-    align-items: ${props => (props.right ? "flex-end" : "flex-start")};
+    align-items: ${props => (props.$right ? "flex-end" : "flex-start")};
   }
 
   & ${Arrow} {
-    ${props => (props.right ? "margin-left: 12px" : "margin-right: 12px")};
+    ${props => (props.$right ? "margin-left: 12px" : "margin-right: 12px")};
     color: ${props => props.theme.colors.accent};
   }
 
@@ -126,13 +126,13 @@ const SpinnerWrapper = styled.div`
 `
 
 const HiddenWrapper = styled.div`
-  height: ${props => (props.isHidden ? "0px" : "auto")};
-  overflow: ${props => (props.isHidden ? "hidden" : "auto")};
+  height: ${props => (props.$isHidden ? "0px" : "auto")};
+  overflow: ${props => (props.$isHidden ? "hidden" : "auto")};
 `
 
 const ArticleButton = ({ right, children, onClick }) => {
   return (
-    <ArticleButtonWrapper right={right} onClick={onClick}>
+    <ArticleButtonWrapper $right={right} onClick={onClick}>
       <ArrowFlexWrapper>
         <Arrow>{right ? <BiRightArrowAlt /> : <BiLeftArrowAlt />}</Arrow>
         <ArticleButtonTextWrapper>
@@ -169,7 +169,7 @@ const Comment = () => {
   return (
     <>
       {spinner && <Spinner />}
-      <HiddenWrapper isHidden={spinner}>
+      <HiddenWrapper $isHidden={spinner}>
         <Giscus
           id="comments"
           repo={giscus.repo}

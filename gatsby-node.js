@@ -89,18 +89,18 @@ exports.onCreateNode = ({ node, actions, getNode }) => {
   const { createNodeField } = actions
 
   if (node.internal.type === `MarkdownRemark`) {
+    const filePath = node.fileAbsolutePath || ""
+    // createFilePath가 contents/posts 이후 경로를 반환.
+    // 예: contents/posts/company/work/why1/index.md → /company/work/why1/
     const slug = createFilePath({ node, getNode })
-    const newSlug = `/${slug.split("/").reverse()[1]}/`
 
     createNodeField({
       node,
       name: `slug`,
-      value: newSlug,
+      value: slug,
     })
 
-    // fileAbsolutePath: .../contents/posts/<topDir>/<...>/index.md
     // 첫 번째 디렉토리를 카테고리로 사용
-    const filePath = node.fileAbsolutePath || ""
     const match = filePath.match(/\/contents\/posts\/([^/]+)\//)
     const topDir = match ? match[1] : "etc"
 

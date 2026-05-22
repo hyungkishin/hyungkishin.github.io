@@ -11,21 +11,20 @@ import {
   FaTags,
   FaRss,
   FaSearch,
-  FaListUl,
   FaUserAlt,
 } from "react-icons/fa"
 
 const HeaderWrapper = styled.header`
   display: block;
   position: fixed;
-  top: ${props => (props.isHidden ? -60 : 0)}px;
+  top: ${props => (props.$isHidden ? -60 : 0)}px;
   left: 0;
   right: 0;
   padding: 16px;
   background-color: ${props => props.theme.colors.headerBackground};
   box-shadow: 0 0 8px ${props => props.theme.colors.headerShadow};
   backdrop-filter: blur(5px);
-  opacity: ${props => (props.isHidden ? 0 : 1)};
+  opacity: ${props => (props.$isHidden ? 0 : 1)};
   transition: top 0.5s, opacity 0.5s;
   z-index: 999;
 
@@ -37,8 +36,10 @@ const HeaderWrapper = styled.header`
 const Inner = styled.div`
   display: flex;
   justify-content: space-between;
-  max-width: 760px;
+  align-items: center;
+  max-width: 1080px;
   margin: 0 auto;
+  padding: 0 16px;
 
   @media (max-width: 768px) {
     padding: 0 20px;
@@ -80,12 +81,27 @@ const Menu = styled.div`
   }
 `
 
-const ToggleWrapper = styled.div`
+const ToggleWrapper = styled.button`
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
   width: 20px;
   height: 24px;
   margin-right: 15px;
   overflow: hidden;
   box-sizing: border-box;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${(props) => props.theme.colors.accent};
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
 `
 
 const IconRail = styled.div`
@@ -94,7 +110,7 @@ const IconRail = styled.div`
   flex-direction: column;
   justify-content: space-between;
   height: 40px;
-  top: ${props => (props.theme === "light" ? "-19px" : "0px")};
+  top: ${props => (props.$mode === "light" ? "-19px" : "0px")};
   transition: top 0.4s;
 
   & > svg {
@@ -102,11 +118,11 @@ const IconRail = styled.div`
   }
 
   & > svg:first-child {
-    opacity: ${props => (props.theme === "light" ? 0 : 1)};
+    opacity: ${props => (props.$mode === "light" ? 0 : 1)};
   }
 
   & > svg:last-child {
-    opacity: ${props => (props.theme === "dark" ? 0 : 1)};
+    opacity: ${props => (props.$mode === "dark" ? 0 : 1)};
   }
 `
 
@@ -140,31 +156,32 @@ const Header = ({ toggleTheme }) => {
   }, [])
 
   return (
-    <HeaderWrapper isHidden={hidden}>
+    <HeaderWrapper $isHidden={hidden}>
       <Inner>
         <BlogTitle>
           <Link to="/">{title}</Link>
         </BlogTitle>
         <Menu>
-          <ToggleWrapper>
-            <IconRail theme={theme.name}>
-              <FaSun onClick={toggleTheme} />
-              <FaMoon onClick={toggleTheme} />
+          <ToggleWrapper
+            onClick={toggleTheme}
+            type="button"
+            aria-label={theme.name === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            <IconRail $mode={theme.name}>
+              <FaSun />
+              <FaMoon />
             </IconRail>
           </ToggleWrapper>
-          <Link to="/tags">
+          <Link to="/tags" aria-label="Tags">
             <FaTags />
           </Link>
-          <Link to="/series">
-            <FaListUl />
-          </Link>
-          <Link to="/resume">
+          <Link to="/resume" aria-label="Resume">
             <FaUserAlt />
           </Link>
-          <Link to="/rss.xml">
+          <Link to="/rss.xml" aria-label="RSS Feed">
             <FaRss />
           </Link>
-          <Link to="/search">
+          <Link to="/search" aria-label="Search">
             <FaSearch style={{ marginRight: 0 }} />
           </Link>
         </Menu>

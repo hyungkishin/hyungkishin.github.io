@@ -6,27 +6,25 @@ const Wrapper = styled.div`
   margin-top: 32px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
 `
 
 const Row = styled(Link)`
   display: grid;
-  grid-template-columns: 48px 1fr auto;
+  grid-template-columns: 56px 1fr auto;
   align-items: start;
-  gap: 18px;
-  padding: 22px 24px;
-  border-radius: 16px;
-  background: ${(props) => props.theme.colors.cardBackground};
-  border: 1px solid ${(props) => props.theme.colors.cardBorder};
+  gap: 24px;
+  padding: 24px 4px;
+  border-bottom: 1px solid ${(props) => props.theme.colors.dividerSoft};
   text-decoration: none;
   color: inherit;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition: opacity 0.15s ease;
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-    border-color: ${(props) => props.theme.colors.cardBorderHover};
+  &:first-child {
+    border-top: 1px solid ${(props) => props.theme.colors.dividerSoft};
+  }
+
+  &:hover h2 {
+    color: ${(props) => props.theme.colors.accent};
   }
 
   @media (max-width: 600px) {
@@ -34,38 +32,34 @@ const Row = styled(Link)`
     grid-template-areas:
       "num title"
       "num excerpt"
-      "num tags"
-      ".   date";
-    gap: 6px 14px;
-    padding: 18px 18px;
+      "num date";
+    gap: 4px 14px;
+    padding: 20px 4px;
   }
 `
 
-const Number = styled.div`
-  grid-row: span 2;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  background: ${(props) => props.accent}15;
-  color: ${(props) => props.accent};
+const Numeral = styled.div`
+  grid-row: span 3;
+  font-size: 24px;
   font-weight: 700;
-  font-size: 15px;
-  letter-spacing: 0;
+  line-height: 1;
+  color: ${(props) => props.theme.colors.tertiaryText};
+  padding-top: 4px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 
   @media (max-width: 600px) {
     grid-area: num;
     grid-row: span 1;
+    font-size: 18px;
   }
 `
 
 const Body = styled.div`
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  min-width: 0;
 
   @media (max-width: 600px) {
     grid-column: span 1;
@@ -74,22 +68,24 @@ const Body = styled.div`
 
 const Title = styled.h2`
   margin: 0;
-  font-size: 17px;
+  font-size: 20px;
   font-weight: 700;
-  line-height: 1.45;
-  letter-spacing: -0.01em;
+  line-height: 1.35;
+  letter-spacing: -0.015em;
   color: ${(props) => props.theme.colors.text};
   word-break: keep-all;
   overflow-wrap: break-word;
+  transition: color 0.15s ease;
 
   @media (max-width: 600px) {
     grid-area: title;
+    font-size: 18px;
   }
 `
 
 const Excerpt = styled.p`
   margin: 0;
-  font-size: 14px;
+  font-size: 14.5px;
   line-height: 1.65;
   color: ${(props) => props.theme.colors.secondaryText};
   word-break: keep-all;
@@ -104,67 +100,51 @@ const Excerpt = styled.p`
   }
 `
 
-const TagRow = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 4px;
-
-  @media (max-width: 600px) {
-    grid-area: tags;
-  }
-`
-
-const TagChip = styled.span`
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 5px;
-  background: ${(props) => props.theme.colors.chipBackground};
-  color: ${(props) => props.theme.colors.chipText};
-  font-size: 11.5px;
-  font-weight: 500;
-`
-
-const DateText = styled.div`
-  align-self: start;
+const Meta = styled.div`
   font-size: 12.5px;
-  letter-spacing: 0.02em;
   color: ${(props) => props.theme.colors.tertiaryText};
-  white-space: nowrap;
-  padding-top: 4px;
+  margin-top: 2px;
 
   @media (max-width: 600px) {
     grid-area: date;
-    padding-top: 6px;
   }
 `
 
-const truncateExcerpt = (excerpt, maxLength = 120) => {
+const DateText = styled.div`
+  font-size: 13px;
+  color: ${(props) => props.theme.colors.tertiaryText};
+  white-space: nowrap;
+  padding-top: 6px;
+
+  @media (max-width: 600px) {
+    display: none;
+  }
+`
+
+const truncateExcerpt = (excerpt, maxLength = 130) => {
   if (!excerpt) return ""
   if (excerpt.length <= maxLength) return excerpt
   return excerpt.slice(0, maxLength).trimEnd() + "…"
 }
 
-const SeriesPostList = ({ posts, accent = "#3182f6" }) => {
+const SeriesPostList = ({ posts }) => {
   return (
     <Wrapper>
       {posts.map((post, idx) => {
         const { title, date, tags } = post.frontmatter
         const { slug } = post.fields
         const { excerpt } = post
+        const rowKey = post.id || slug
         return (
-          <Row key={slug} to={slug}>
-            <Number accent={accent}>{String(idx + 1).padStart(2, "0")}</Number>
+          <Row key={rowKey} to={slug}>
+            <Numeral>{String(idx + 1).padStart(2, "0")}</Numeral>
             <Body>
               <Title>{title}</Title>
               <Excerpt>{truncateExcerpt(excerpt)}</Excerpt>
-              {tags && tags.length > 0 && (
-                <TagRow>
-                  {tags.slice(0, 4).map((tag) => (
-                    <TagChip key={tag}>{tag}</TagChip>
-                  ))}
-                </TagRow>
-              )}
+              <Meta>
+                {date}
+                {tags && tags.length > 0 && ` · ${tags.slice(0, 3).join(", ")}`}
+              </Meta>
             </Body>
             <DateText>{date}</DateText>
           </Row>

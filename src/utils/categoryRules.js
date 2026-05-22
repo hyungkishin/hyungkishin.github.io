@@ -1,5 +1,5 @@
 // 폴더명 → 카테고리 그룹 매핑
-// 토스의 Engineering/Design/Product 처럼 3~4개로 묶음
+// 차별은 텍스트로. 컬러는 한 가지 accent만 사용.
 const TOP_DIR_TO_GROUP = {
   backend: "engineering",
   frontend: "engineering",
@@ -10,11 +10,13 @@ const TOP_DIR_TO_GROUP = {
   books: "reading",
 }
 
+const ACCENT = "#2563eb"
+
 export const CATEGORY_GROUPS = [
-  { id: "engineering", label: "engineering", accent: "#3182f6" },
-  { id: "work", label: "work", accent: "#6366f1" },
-  { id: "roopers", label: "roopers", accent: "#f59e0b" },
-  { id: "reading", label: "reading", accent: "#10b981" },
+  { id: "engineering", label: "engineering", accent: ACCENT },
+  { id: "work", label: "work", accent: ACCENT },
+  { id: "roopers", label: "roopers", accent: ACCENT },
+  { id: "reading", label: "reading", accent: ACCENT },
 ]
 
 export const categoryOf = (topDir) => {
