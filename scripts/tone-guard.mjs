@@ -67,8 +67,8 @@ const banned = [
   ["streamline", "어떤 단계를 제거했는지 써라."],
   ["delve", "AI-writing tell."],
   ["landscape", "vague survey framing 금지."],
-  ["여러분", "round6는 친근한 호명을 쓰지 않는다."],
-  ["독자분들", "round6는 친근한 호명을 쓰지 않는다."]
+  ["여러분", "week6는 친근한 호명을 쓰지 않는다."],
+  ["독자분들", "week6는 친근한 호명을 쓰지 않는다."]
 ];
 
 const sectionRegex = /^##\s+(.+)$/gm;
@@ -164,7 +164,7 @@ if (sections.length < 3) {
   warnings.push({
     type: "section-depth",
     phrase: "##",
-    guidance: "round6 톤은 보통 3개 이상의 결정 섹션이 필요하다."
+    guidance: "week6 톤은 보통 3개 이상의 결정 섹션이 필요하다."
   });
 }
 

@@ -6,7 +6,7 @@ const TOP_DIR_TO_GROUP = {
   devops: "engineering",
   "data-base": "engineering",
   company: "work",
-  roopers: "roopers",
+  "e-commerce": "e-commerce",
   books: "reading",
 }
 
@@ -15,7 +15,7 @@ const ACCENT = "#2563eb"
 export const CATEGORY_GROUPS = [
   { id: "engineering", label: "engineering", accent: ACCENT },
   { id: "work", label: "work", accent: ACCENT },
-  { id: "roopers", label: "roopers", accent: ACCENT },
+  { id: "e-commerce", label: "e-commerce", accent: ACCENT },
   { id: "reading", label: "reading", accent: ACCENT },
 ]
 
