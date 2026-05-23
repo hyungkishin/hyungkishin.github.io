@@ -291,19 +291,19 @@ Docker는 멀쩡한데 Testcontainers만 Docker를 못 찾겠다고 합니다.</
 테스트가 아니어도 컨테이너가 뜨고, 병렬 테스트에서 리소스 충돌 위험이 있으며, Bean lifecycle과 무관하게 외부 리소스를 점유할 수 있습니다.</p>
 <p>구조가 의심스러우니까, 이게 원인이라고 믿고 싶었습니다.</p>
 <p>그래서 AI에게 말했습니다.</p>
-<p><code class="language-text">Q: 테스트 인프라의 제어권이 모듈 경계를 넘어가고 있는 것 같은데 맞아?</code>
-<code class="language-text">A: 네 맞습니다, @TestConfiguration + @Import 방식으로 명시적으로 로딩하도록 변경하겠습니다.</code></p>
-<p>환경 체크가 아닌 코드 레벨에서 접근을 시작한 순간, 운전대를 빼앗겼습니다.</p>
+<p><code class="language-text">Q: 테스트 인프라의 제어권이 모듈 경계를 넘어가고 있는 것 같은데 맞아?</code></p>
+<p><code class="language-text">A: 네 맞습니다, @TestConfiguration + @Import 방식으로 명시적으로 로딩하도록 변경하겠습니다.</code></p>
+<p>환경 체크가 아닌 코드 레벨에서 접근을 시작한 순간, 제기랄 운전대를 빼앗겼습니다.</p>
 <p><figure class='gatsby-resp-image-figure' style='margin-bottom: 1rem;'>
     <span class='gatsby-resp-image-wrapper' style='position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 653px; '>
       <span class='gatsby-resp-image-background-image' style="padding-bottom: 58.42105263157894%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAAAsTAAALEwEAmpwYAAACyElEQVR42iWSyW4UZxSFyz3UPE9df3VXuXoy7WBs0yBwnLYwIBnaBtuJQCBhJyhSREQWUcg2jxAp6yyzTV4juzzUl+ticVTzV+fcc7WmDDk/PeJi/RVpURAXJdmoJlZDfnz3kvNnRxysHrK9s2C2GDOsSqIsxY1C7CAQhXhJRlio9jttXAZcngnw+SFpOWRQN+T1poBH/Pz+a85OjuTFEfN5Q7WpKFRBIsAojQUct1AnFGgckymFNq0CXl0cc/jgDmVTU03H7Z/yeswHcfjpp2+ZbG+Li4QkTxioVKApQeSJfPwowBMFaUI2HKHN6pCX6xXj8Y3linIyJa82icThu9dr/vzjNy4vT2nGpTjxUKXEi326uk7P0HF8Dz+OCFMZQ5ygbdUxBwe75IMYJTA1m1NO53hZwXdX5/z37z/88vE9z+/P2duqSNMQ13fomgIUmY7dAk3XlWsDbVL6NJMRaR6IuwnFZMZQFKkRr795xt9//c7Vi8dcHe9xd1YSRi5pFgjIxLCtFqhbJl3j8w+0pnCJxV2SeQxnU0aLBbUolXKOH33Jx+/f8ODOjMuHC5rcQ3d0SRMxKCKcwG5jd41+C+yafWlZOQJMWmBYKqKqYSCRfVWxWh1ycXbcjuTpcouRiojzSEpJpGW/BXTNXhu/b1kYjotWFzZhHstQXVRTicubGW6RScu7yyVPH61Y7u9LKTWpJOlbfSxP4or6lkHf1tHtm+NnaWVqSeUBbmBy64tN7t7fYb5zm8XePnvLe9yW81QS5MMCVZdYviklOO3R8GRuTo++Y0h8F90VYBoaGL4t9B5+4pMNMrIsIxFIJvsWSlk3Hy0P73H9wzW3dheyj+JU7m1YG3TMjqyLKyvlsGFuoBlOl54lEmDH6sgCe/LQxA4tTi/WvL1+w5OTxzxZn/Dh10/k4wmGa7bvdpwOTuy1cN2VWTod/geJDEN1Yva3/wAAAABJRU5ErkJggg=='); background-size: cover; display: block;"></span>
-  <img class='gatsby-resp-image-image' alt='...' title='' src='/static/5c53c5f1d565283d322ed551672bc7d8/ffe7f/image-1.png' srcset='/static/5c53c5f1d565283d322ed551672bc7d8/08678/image-1.png 190w,
+  <img class='gatsby-resp-image-image' alt='하지말랬잖아!!@@@@@' title='' src='/static/5c53c5f1d565283d322ed551672bc7d8/ffe7f/image-1.png' srcset='/static/5c53c5f1d565283d322ed551672bc7d8/08678/image-1.png 190w,
 /static/5c53c5f1d565283d322ed551672bc7d8/2edd7/image-1.png 380w,
 /static/5c53c5f1d565283d322ed551672bc7d8/ffe7f/image-1.png 653w' sizes='(max-width: 653px) 100vw, 653px' style='width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;' loading='lazy' decoding='async'>
     </span>
-    <figcaption class='gatsby-resp-image-figcaption'>...</figcaption>
+    <figcaption class='gatsby-resp-image-figcaption'>하지말랬잖아!!@@@@@</figcaption>
   </figure></p>
-<h2>운전대를 넘겼어요</h2>
+<h2>난 핸들이 뽑힌 8t 트럭</h2>
 <p>클선생(Claude)은 성실했습니다.<br>
 내가 "코드 문제"라는 전제를 제공하자, 그 전제 안에서 할 수 있는 모든 것을 시도했습니다.</p>
 <ul>
@@ -321,27 +321,24 @@ Docker는 멀쩡한데 Testcontainers만 Docker를 못 찾겠다고 합니다.</
 <p>돌이켜보면 이 시점에서 이미 이상 신호가 있었습니다.</p>
 <p>수정 한 번으로 끝나지 않고 꼬리에 꼬리를 무는 수정이 이어진다면,</p>
 <p>전제 자체를 의심했어야 했습니다.</p>
-<blockquote>
-<p>하지만 저는 ... 예</p>
-</blockquote>
 <p><figure class='gatsby-resp-image-figure' style='margin-bottom: 1rem;'>
     <span class='gatsby-resp-image-wrapper' style='position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 574px; '>
       <span class='gatsby-resp-image-background-image' style="padding-bottom: 50%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAKCAYAAAC0VX7mAAAACXBIWXMAAAsTAAALEwEAmpwYAAACbklEQVR42jWS22oTURSGJ3M+ZSYzmaQ5txlb2yY2adpqEaxStCfBA1GxFWtBqYgoVRFFKaJYVDyAN16J4L0P4SP4SJ8rsV4sBtbe/zf/Xv9STFfF9R10XUVVlWEZlkGxXGZEqpAEhxVTHxsjF0XYrotm6mQGGkNDt3UMR8e0TZQB0Mu62J6JLQe+b+F6NkHgEAskPdKkUsozUkqYne1QrZZwHAfLMglzWcLQH0Ib1Ty5wEWxXA0364hLm6xAo8gnG/jEORfL0Yb98Ykm7ZkpttZOMZ8WyScRI4WY2U6L9ZUl0YSEYsK2rEOgiNysuBJ3uZxHIH+tlmIatQKFfEAUh5xeWuTR1VXqeY8kCfE9l3Zrgr17W9y4tsH1/hr9C+dQbNcYAj0BhofAUmWEejVhcqJO2mxQLkZUywlznWl5roXtGDiew9KpBfaf3WPv/jZ3dq5wa/OiOBwcupZckBnKE2NxND/XEXeJwKr05mboTY8zWi4SxDGegAb3dZlbGGap1Sqsry3z6uVj9h7elVAsHUvSGYRj2gq5vE9XZtOoFcWtj+vanDnRZfPyOo20SZo2qFaKEqCFaYrOsjnW6fLh/Vs+fXqPohkZDFsTmDZcnyjJM9Nts3xmURJ3aLUn6S72aLWOcPtmn+9fX5OO1shkFHHqDIGVxhhfPh7w88c3lMxg97QMmqbKLurSUBht1lmY7w6/l5dPsL9xkkKU5d2bZ/z5/Yv+xlmKEpphaWRUlUB2c3d3h6dPHoheAP9LVTMoisLU1CSrq2eZP94jLYY8TyNOd6V3foXPBy/YvbNNb6GLIyHq5j/NsfZRtrcu8RdjzRLCoWJoCQAAAABJRU5ErkJggg=='); background-size: cover; display: block;"></span>
-  <img class='gatsby-resp-image-image' alt='아..아..' title='' src='/static/d28ae1cb17ddf332fb2305e914722841/312c2/image-2.png' srcset='/static/d28ae1cb17ddf332fb2305e914722841/08678/image-2.png 190w,
+  <img class='gatsby-resp-image-image' alt='글렀다...@@@' title='' src='/static/d28ae1cb17ddf332fb2305e914722841/312c2/image-2.png' srcset='/static/d28ae1cb17ddf332fb2305e914722841/08678/image-2.png 190w,
 /static/d28ae1cb17ddf332fb2305e914722841/2edd7/image-2.png 380w,
 /static/d28ae1cb17ddf332fb2305e914722841/312c2/image-2.png 574w' sizes='(max-width: 574px) 100vw, 574px' style='width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;' loading='lazy' decoding='async'>
     </span>
-    <figcaption class='gatsby-resp-image-figcaption'>아..아..</figcaption>
+    <figcaption class='gatsby-resp-image-figcaption'>글렀다...@@@</figcaption>
   </figure></p>
-<h2>BOM을 믿으라고@</h2>
+<h2>Spring 가라사대. BOM을 믿으라</h2>
 <p><figure class='gatsby-resp-image-figure' style='margin-bottom: 1rem;'>
     <span class='gatsby-resp-image-wrapper' style='position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 626px; '>
       <span class='gatsby-resp-image-background-image' style="padding-bottom: 46.8421052631579%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAAAsTAAALEwEAmpwYAAABk0lEQVR42j1SSW4bQQycm6b3fWRZwhjGRIlPueQU52YYif2H/P8blSJHyoEAm0uxiuwppAAfPHwMao5+rgXL6YS2DMY8zusFz9cvOD2eUFtD7QOpNjxvG15/vep7PDC3HDEJiA0Oxjs4+m10HB+OGEtDKRHGzvjz8Y7Pz98ovaN1xltFqRWXpyccL2eElBjj8Fwxzd4SzCpoyhF9VPRe0BqLijC2eHm54u/HT3z/tmpzoqpckio5OPaSSKIfcsEkYCK7tExWHWM0lWkZz5nsvcG6nvH24yu2c4VLkezSTdVOZnYGnvFAm0qlQwAXHYMekSxFapA3LXLY3RrZ11aUgAw0BLJUkHJGKpn5gSllr7JmNyuboHKiNogvuUpGC8FkJTJUaxnXHNezXTcs3LvIngyTO5hVRiL3LtlRlsgQxoONOSf+iL0uMbbXOu4y7z3cJ3dodJIAKMgNWAYVFlZeVRhLjbzXx0UPErlfYStMD/awy6dNdxABNjdQScoOKw8lO3W3ASK5Mdb4pbIcRnvMfzXS9w8khdZWI0/qSwAAAABJRU5ErkJggg=='); background-size: cover; display: block;"></span>
-  <img class='gatsby-resp-image-image' alt='아직도 정신 못 차리는 거냐구@@@' title='' src='/static/a41a873e87158ec9ffce7fef4934de67/ce661/image-5.png' srcset='/static/a41a873e87158ec9ffce7fef4934de67/08678/image-5.png 190w,
+  <img class='gatsby-resp-image-image' alt='ㅎ ㅏ 이 X끼...' title='' src='/static/a41a873e87158ec9ffce7fef4934de67/ce661/image-5.png' srcset='/static/a41a873e87158ec9ffce7fef4934de67/08678/image-5.png 190w,
 /static/a41a873e87158ec9ffce7fef4934de67/2edd7/image-5.png 380w,
 /static/a41a873e87158ec9ffce7fef4934de67/ce661/image-5.png 626w' sizes='(max-width: 626px) 100vw, 626px' style='width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;' loading='lazy' decoding='async'>
     </span>
-    <figcaption class='gatsby-resp-image-figcaption'>아직도 정신 못 차리는 거냐구@@@</figcaption>
+    <figcaption class='gatsby-resp-image-figcaption'>ㅎ ㅏ 이 X끼...</figcaption>
   </figure></p>
 <p>코드 수정으로 해결이 안 되니, 다음 수순으로 docker-java를 수동 업그레이드했습니다.</p>
 <div class="gatsby-highlight" data-language="kotlin"><pre class="language-kotlin"><code class="language-kotlin"><span class="token comment">// 추가된 docker-java 의존성</span>
@@ -357,21 +354,21 @@ BOM이 관리하는 버전을 신뢰했어야 했습니다.</p>
 <p><figure class='gatsby-resp-image-figure' style='margin-bottom: 1rem;'>
     <span class='gatsby-resp-image-wrapper' style='position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 471px; '>
       <span class='gatsby-resp-image-background-image' style="padding-bottom: 61.578947368421055%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAAAsTAAALEwEAmpwYAAADZUlEQVR42g2SWVOTBxiF80t60zodO8UBrQgFpghYCFJIwiYJiwmLDURICklIRAgRCWGLhVh2CY0QUZBURXAolaVFRUFcRmXHDkMAC5X2qldPv4sz5+555z3niGwXz3G7sYgZVxnTPRXc6G1k4+11tlbG2d+dZ2ezn+0/n7O/vc7LuWEU0pP0tVTwbN7L7DMvu7637O2s8Ne24L4lRCadnDJTHqVGDRWVxdQ7rLxf8vC373c++NbYXBtjf2ee//5d4emTu/QZkunOj8OilnLZlsP60iT/7L3h4MNj9n0TiHIzxORmxaKQx6LKScJgyGVjtZ+Pe084+Ojj3cIDrtXn0ucspLepiIVmDaPmdNKCDmPQyTjY8LK9eIvNVy7eP29FFC8OITE+jERJBJK4CNSqeJZeuNgS3p2ZGUYpCyI18ku0OWLqCsQMmxRYJSfQJIcx0GHgsdeGt93ESJeBAacW0alvAkiICSbmVJCgE2SmROCsz8darkZ5OpjokC/QqmLR5ksxywKplh1H9a0fdWVnWH3awty9WsY8Vh7dqeFarRrR4UOfcPTIZ/j7HcL/yOfERBwjKyWYQkkgPo+ZLn0SClk46XHHMQjA/KQQ9Oo4irLC6apT8oe3iu21IWbHm7lqVSIyaxLR5yVgKpCh/15KzYVMVPII8qL82fWUM1WZhSTMj/SYoyRHB2DUplFuyEApHGwwp7A8183irIuHAzW8fuhE9OJ+HcuTP7E4eZX1R21sLXTTXn0OjTiQHlUUzeknCQ/4lIRwf9SZMWiUpylRRlOWHclEv4W95UF2V4d4M9PJ9JAd0fQvjcx4G5jureD1qINXv/5IxwUFLp2ENoOManU0cnEAhfJQSrOjMAkgveJrbgutv5tu5+XoFRYeNDHituJu1CGautXAmDDq3itGXA4TPXXncRhTGWkzMuQspssip7wwFYsmAct5CTlJYUJ+sfw22Mg9jw23s5SbHeWM37Bx312FaKKviql+O3ZzphC2lOzEUIrPRnJJK0OdEY++UEmJTs1Fsw7pd2LOpkkoKyngkklYgu4Mpep4LCVyhq/bufuzAHTbi7jZZOZOZyUOfSKa1FCUcV/Rak6l05bLZaEkufgYnbU5tDhKsBvTcNvy8LaaGHSauF7/A51V+XiajHTbi/gfQ4hpHNkgBRkAAAAASUVORK5CYII='); background-size: cover; display: block;"></span>
-  <img class='gatsby-resp-image-image' alt='주인. 여기서 자면 끝나는 거야 :)' title='' src='/static/e032ce9a7fc8202e4d06827016e76594/27c0d/image-3.png' srcset='/static/e032ce9a7fc8202e4d06827016e76594/08678/image-3.png 190w,
+  <img class='gatsby-resp-image-image' alt='아차 싶을때가 제일 늦은거임' title='' src='/static/e032ce9a7fc8202e4d06827016e76594/27c0d/image-3.png' srcset='/static/e032ce9a7fc8202e4d06827016e76594/08678/image-3.png 190w,
 /static/e032ce9a7fc8202e4d06827016e76594/2edd7/image-3.png 380w,
 /static/e032ce9a7fc8202e4d06827016e76594/27c0d/image-3.png 471w' sizes='(max-width: 471px) 100vw, 471px' style='width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;' loading='lazy' decoding='async'>
     </span>
-    <figcaption class='gatsby-resp-image-figcaption'>주인. 여기서 자면 끝나는 거야 :)</figcaption>
+    <figcaption class='gatsby-resp-image-figcaption'>아차 싶을때가 제일 늦은거임</figcaption>
   </figure></p>
 <p>docker-java 업그레이드도 효과가 없었습니다.<br>
 이쯤 되면 의심해야 할 것은 코드가 아니라 전제였는데요,<br>
 저와 클선생은 이미 너무 깊이 와 있었습니다..</p>
-<p>코드 전반에 걸쳐 Testcontainers 설정 방식을 통일하기 시작했습니다.<br>
-<code class="language-text">@TestConfiguration</code>, <code class="language-text">@Container</code>, <code class="language-text">System.setProperty</code>, <code class="language-text">withReuse(true)</code>, testFixtures 방식이 혼재되어 있었고, 이걸 <code class="language-text">@Container + @DynamicPropertySource</code> 하나로 단일화하려 했습니다.</p>
-<p>좋은 취지인 것은 압니다.<br>
-Testcontainers 패턴은 프로젝트 내에서 단일화하는 것이 맞습니다.<br>
-하지만 지금 이 시점에서 해야 할 일은 아니었습니다.</p>
-<p>원래 문제는 "Docker 환경을 못 찾겠다"였는데,<br>
+<p>코드 전반에 걸쳐 Testcontainers 설정 방식을 통일하기 시작했습니다.</p>
+<p><code class="language-text">@TestConfiguration</code>, <code class="language-text">@Container</code>, <code class="language-text">System.setProperty</code>,  <code class="language-text">withReuse(true)</code>, testFixtures 방식이 혼재되어 있었고,</p>
+<p>이걸  <code class="language-text">@Container + @DynamicPropertySource</code> 하나로 단일화하려 했습니다.</p>
+<p>좋은 취지인 것은 알지만, Testcontainers 패턴은 프로젝트 내에서 단일화하는 것이 맞습니다.</p>
+<p>하지만 지금 이 시점에서 해야 할 일은 아니였다는점.</p>
+<p>이게 문제는 "Docker 환경을 못 찾겠다"였는데,<br>
 어느새 "Testcontainers 설정 구조 전체 리팩토링"을 하고 있었습니다.</p>
 <blockquote>
 <p>변경된 파일: 22 files changed.
@@ -385,13 +382,13 @@ Testcontainers 패턴은 프로젝트 내에서 단일화하는 것이 맞습니
 <p><figure class='gatsby-resp-image-figure' style='margin-bottom: 1rem;'>
     <span class='gatsby-resp-image-wrapper' style='position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 760px; '>
       <span class='gatsby-resp-image-background-image' style="padding-bottom: 46.31578947368421%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAABYlAAAWJQFJUiTwAAAChklEQVR42iWS3U+SARjFX1sXtTZLpokiCKgo+JFGfiGKCi9+4SuiYyh+pRYqihaJKShpmR9pGlqu0ppurdpqXXTV6rarblrX/gP9Fb/e6uJs5+Y5O885R6h1tDI+PYsmt4gaqx27zYmlugFLcRXNlkZsjRJVMtIzteSaytAXVZChN5FtKsfpGWJl54RbywlCsXVMZitCpbWRQHCacwoVhkIzoqONepuDojIr167WUlJYwWWl+p9ghsbAlbJq7FIvpTYXNU1eog9fEl7ew+0ZIDlVhXD2goK/UGYb6XC56ZI6qZVdiu29tLn7MRhKyM8rpLy0AmWmHm2OkeGbk/iDMQKRDcLxBOOza7RKflmjAOG8IhOFKpfK8loGfT5iwQCHiX3m1w6ZmYnxajXCVmSK6NANlsamuJSSTlJSEqnpWXQPzxDfPeF6KM7UwiPKrU6Ei0oduvwy7HUifd4efJKHpYkJ4msHDI6GGZFc7IfD7N2Z42B+EYdVJEW+EQQB39AEK4k3BOc2mIztyFH0IyjUBrL0hdRZGnBLXjnwYnTqHHyDIfoDMdTpOYjmOp5FFnm9uESn6EKh1Msuz+DpCzAWWZOxzvjdTdx9QYRkpRZNTjGWKhtOsR2VzM3GUvyjs/JLEYxGMy1ON4erG/Q2u0hJ05CmzkPyDhOMbrOw/oJQdIvQ/CbeoZn/DjW5JVRX1iE6O1BqTRTIE2rqGqG6xY9TGqC+uRtR6mF1+4Dog102nr9n/+0X7j99x72dY4ILW0wvPaFfLkpIkQtR6UyY5Q05miQuawrQ6ozUS4M0+6ewe0axtfnxjdzm+89Tfp3+5uPXHxx9+MbeyWfij4/ZPfpEbPuEvuAifwDyj17GdXQwDwAAAABJRU5ErkJggg=='); background-size: cover; display: block;"></span>
-  <img class='gatsby-resp-image-image' alt='해가 떠버렸다구@@' title='' src='/static/cb79d3049ef573593ef1e4d7bc6ec3ad/efd7b/image-6.png' srcset='/static/cb79d3049ef573593ef1e4d7bc6ec3ad/08678/image-6.png 190w,
+  <img class='gatsby-resp-image-image' alt='문제는 무슨, 이미 해가 떠버렸다구@@' title='' src='/static/cb79d3049ef573593ef1e4d7bc6ec3ad/efd7b/image-6.png' srcset='/static/cb79d3049ef573593ef1e4d7bc6ec3ad/08678/image-6.png 190w,
 /static/cb79d3049ef573593ef1e4d7bc6ec3ad/2edd7/image-6.png 380w,
 /static/cb79d3049ef573593ef1e4d7bc6ec3ad/efd7b/image-6.png 760w,
 /static/cb79d3049ef573593ef1e4d7bc6ec3ad/dc896/image-6.png 1140w,
 /static/cb79d3049ef573593ef1e4d7bc6ec3ad/7daeb/image-6.png 1386w' sizes='(max-width: 760px) 100vw, 760px' style='width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;' loading='lazy' decoding='async'>
     </span>
-    <figcaption class='gatsby-resp-image-figcaption'>해가 떠버렸다구@@</figcaption>
+    <figcaption class='gatsby-resp-image-figcaption'>문제는 무슨, 이미 해가 떠버렸다구@@</figcaption>
   </figure></p>
 <p>해가 뜨고 나서야 정신을 차렸습니다.<br>
 처음으로 돌아가서, 이번에는 환경부터 확인했습니다.</p>
