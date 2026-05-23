@@ -112,15 +112,6 @@ const Body = ({ html }) => {
 
       <TextToSpeech />
 
-      <PostTopAdWrapper>
-        <GoogleAdvertise
-          client="ca-pub-2692445439426078"
-          slot="2295339271"
-          format="auto"
-          responsive="true"
-        />
-      </PostTopAdWrapper>
-
       <StyledMarkdown
         id="article-body"
         dangerouslySetInnerHTML={{ __html: html }}

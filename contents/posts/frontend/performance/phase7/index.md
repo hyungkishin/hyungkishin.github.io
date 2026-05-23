@@ -1,5 +1,5 @@
 ---
-title: "퍼포먼스 최적화 를 향해 - 5부"
+title: "모든 페이지가 dynamic이라 CloudFront가 안 먹혔어요"
 date: 2025-12-27
 update: 2025-12-27
 tags:
@@ -7,371 +7,271 @@ tags:
   - performance
   - nextjs
   - cloudfront
+  - cache
+  - ssr
+  - isr
   - series
 ---
 
 > **TL;DR**
 >
-> 4부에서 홈을 RSC/SSR로 옮겼습니다.
-> 브라우저가 모든 화면을 조립하지 않아도 되게 만들었어요.
+> CloudFront를 켜놨는데 cache hit률이 한 자리 수였어요.  
+> 응답 헤더를 까보니 거의 모든 페이지가 `Cache-Control: private, no-store` 로 나가고 있었습니다.
 >
-> 그 다음 문제는 origin이었습니다.
+> 원인은 코드에 박힌 한 줄이 아니라 *기본값*이었어요.  
+> Next 14 App Router에서는 페이지 안에 `searchParams`나 `cookies()`가 한 군데만 들어가도 그 페이지가 *통째로 dynamic*이 됩니다.
 >
-> 서버가 만든 HTML을 매번 origin에서 새로 만들면,
-> 브라우저 비용을 서버 비용으로 옮긴 셈이 되는 거죠.
+> 그래서 `revalidate=60`을 페이지에 박는 것보다 먼저, 페이지를 세 갈래로 갈라야 했습니다.  
+> dynamic 유지 / ISR / immutable 자산.
 >
-> 그래서 CloudFront에 공개 HTML을 태웠습니다.
-> 다만 cache header만 켠 게 아니었어요.
+> CloudFront 헤더는 그 위에 path 별로 붙였어요.  
+> `s-maxage`, `stale-while-revalidate`, `Vary: Accept`, prefetch 트래픽 처리까지 같이 봐야 했습니다.
 >
-> HTML 요청과 RSC 요청을 나누고,
-> `Vary: Accept`를 넣고,
-> preview/account/search/redirect/위험한 query는 no-cache로 뺐어요.
-> 링크가 많은 뉴스 홈에서는 `prefetch={false}`도 같이 봐야 했습니다.
->
-> CloudFront는 빠르게 해주는 장치이면서,
-> 틀린 응답을 빠르게 퍼뜨릴 수 있는 장치였어요.
+> 이 글은 LCP/CLS 직전에 했어야 했던 결정이에요.  
+> 클라이언트 최적화는 *origin에 도달한 다음 게임*이고, 그 전에 *origin까지 안 가게 만드는 결정*이 훨씬 무거웠습니다.
 
 ---
 
-## 서버가 만든 HTML, 매번 origin까지 보내야 할까요?
+## CF를 켰는데 왜 hit률이 안 올라갔을까요?
 
-RSC/SSR로 홈을 바꾸고 나면 첫 화면은 빨라질 수 있습니다.
-브라우저가 JS를 실행하고 데이터를 조립하기 전에,
-서버가 만든 HTML 안에 주요 콘텐츠가 들어오니까요.
+CloudFront를 origin 앞에 붙였습니다.  
+콘텐츠 페이지에는 캐시가 잘 먹힐 거라고 봤어요.
 
-그런데 트래픽이 많은 뉴스 홈에서는 바로 다음 문제가 생깁니다.
+근데 CF 콘솔의 cache hit률이 5% 안팎에서 멈춰 있었습니다.  
+대부분 요청이 그대로 origin까지 갔어요.
 
-> *"이 HTML을 매번 origin에서 다시 만들어야 하나?"*
+응답 헤더를 까봤습니다.
 
-홈, 섹션, 기사 상세는 반복 조회가 많습니다.
-한 명이 보는 페이지를 수천 명이 거의 같은 시간에 볼 수 있어요.
-
-RSC/SSR로 브라우저 일을 줄였는데 모든 요청이 origin으로 들어가면,
-이번에는 서버가 버티기 어려워집니다.
-
-그래서 CloudFront를 붙이기 시작했습니다.
-
-처음에는 쉽게 봤어요.
-
-정적 파일은 길게 캐시하고,
-API는 `no-store`,
-HTML은 적당히 `s-maxage` 주면 될 거라고 생각했습니다.
-
-근데 아니었어요.
-
-![CloudFront 시작](../phase1/img_2.png)
-
-> CloudFront에서 제일 무서운 건 느린 응답이 아닙니다.
-> **틀린 응답이 빠르게 퍼지는 것**이에요.
-
----
-
-## next.config에 cache header만 넣으면 끝일까요?
-
-정적 파일은 쉽습니다.
-
-```ts
-{
-  source: "/_next/static/:path*",
-  headers: [
-    { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
-  ],
-}
+```text
+Cache-Control: private, no-cache, no-store, must-revalidate
 ```
 
-빌드 해시가 붙은 파일은 오래 캐시해도 됩니다.
-폰트도 성격이 비슷해요.
-API는 반대로 `no-store`로 빼면 됩니다.
+홈, 섹션, 기사 디테일 거의 다 이 헤더로 나가고 있었어요.  
+CF 입장에서는 *"이건 캐시하지 말라"* 는 명시 신호. hit률이 올라갈 자리가 없습니다.
 
-문제는 HTML이었어요.
+처음엔 `next.config.mjs`에서 헤더를 잘못 박은 줄 알았어요.  
+근데 그 자리는 깨끗했습니다. 헤더가 *Next에서 자동으로* 그렇게 내려가고 있었어요.
 
-Next App Router에서는 같은 URL이라고 해서 항상 같은 성격의 요청이 아닙니다.
+---
 
-주소창에 `/`를 입력해서 들어오는 HTML 요청이 있고,
-Next 내부에서 가져가는 RSC Flight 요청이 있고,
-prefetch로 생기는 요청도 있습니다.
+## 왜 모든 페이지가 dynamic이 됐을까요?
 
-겉으로는 같은 `/`처럼 보일 수 있어요.
-하지만 응답의 의미는 다릅니다.
+Next.js 14 App Router의 동작이었습니다.
 
-이걸 CloudFront가 같은 캐시 객체로 보면 사고가 납니다.
+페이지가 *정적*으로 빌드되려면 build time에 모든 데이터가 결정 가능해야 합니다.  
+그런데 페이지 트리 어딘가에 다음 중 하나만 들어가도 그 페이지가 *통째로 dynamic*으로 전환돼요.
 
-그래서 HTML 캐시 정책을 `next.config.mjs`에만 두기 어렵다고 봤어요.
-경로와 요청 헤더를 보고 더 세밀하게 나눠야 했습니다.
+- `cookies()`, `headers()` 호출
+- `searchParams` 사용
+- `fetch(..., { cache: 'no-store' })`
+- `export const dynamic = 'force-dynamic'`
+- dynamic API 의존 (예: `request` 객체)
 
-결국 캐시 판단을 middleware로 내려왔어요.
+홈 안에는 사용자 로그인 상태를 보는 `cookies()`가 어딘가 있었고, 검색 진입 처리를 위해 `searchParams`를 보는 자리가 있었습니다.  
+한 줄만 들어가도 그 페이지가 빌드 결과에서 *λ 함수*로 잡혀요. CF가 캐시할 수 없는 응답이 됩니다.
+
+빌드 로그를 보면 페이지별 마크가 찍힙니다.
+
+```text
+○  Static (build time)
+●  ISR (revalidate)
+λ  Server (dynamic at runtime)
+```
+
+거의 다 `λ`였습니다. 그래서 CF가 안 먹혔던 거예요.
+
+> 본문 한 줄이 페이지 *전체*의 캐시 전략을 결정하는 구조라는 걸, 운영 hit률을 보고 나서야 알았습니다.
+
+---
+
+## ISR 한 줄로 다 풀릴 거라 봤는데, 그게 맞았을까요?
+
+처음 답은 단순했습니다.  
+*"전부 `revalidate=60` 박으면 되잖아."*
+
+근데 그게 답이 아닌 자리들이 있었어요.
+
+- `account`, 로그인한 사용자 본인 정보. 다른 사람과 캐시 공유하면 사고.
+- `mytimes`, 개인 스크랩/북마크. 같은 이유.
+- `search`, 쿼리마다 응답이 다름. 캐시 키가 폭발.
+- `oauth/callback`, 인증 콜백. 한 번 쓰고 버리는 응답.
+- `preview`, 운영 미공개 콘텐츠. 캐시되면 비공개가 새어나감.
+
+이 페이지들에 `revalidate`를 박는 순간 *보안 사고* 또는 *기능 깨짐*입니다.
+
+그래서 페이지를 세 갈래로 갈랐어요.
+
+| 갈래 | 어떤 페이지 | 설정 |
+|---|---|---|
+| dynamic 유지 | `account`, `mytimes`, `search`, `oauth/*`, `preview` | `export const dynamic = 'force-dynamic'` |
+| ISR | 콘텐츠 디테일 (entertainment, business 등 섹션/카테고리) | `export const revalidate = 60` |
+| 정적 자산 | `_next/static`, fonts, favicon | 빌드 산출물, 1년 immutable |
+
+기준은 두 가지였어요.
+
+1. 응답이 *모든 사용자에게 같은가*, 같으면 공용 캐시 가능, 다르면 dynamic.
+2. *얼마나 신선해야 하는가*, 콘텐츠 디테일은 60초 stale 허용, 기사 첫 발행 직후엔 운영팀이 별도 invalidate.
+
+> **포기한 것**: `force-dynamic` 으로 둔 페이지는 영원히 origin이 받습니다.  
+> CF가 그 트래픽을 흡수해주지 않아요. 그 비용은 *공용 캐시 불가능* 이라는 도메인 사실의 대가.
+
+---
+
+## CloudFront 헤더는 path별로 어떻게 갈랐을까요?
+
+페이지 단위 갈래만으로는 부족했습니다.  
+`/_next/static/*` 같은 자산, `/api/*` 같은 동적 endpoint, `/images/*` 같은 사용자 업로드까지 *path 마다* 캐시 정책이 달라야 했어요.
+
+`next.config.mjs`에서 path 별로 명시했습니다.
+
+```text
+/api/*            no-store, no-cache, must-revalidate
+/_next/static/*   public, max-age=31536000, immutable
+/_next/data/*     public, s-maxage=60, stale-while-revalidate=60
+/images/*         public, max-age=86400
+/fonts/*          public, max-age=31536000, immutable
+/(favicon|robots) public, max-age=86400
+/:path*           Vary: Accept, Accept-Encoding
+```
+
+각 줄이 한 가지 결정입니다.
+
+- `/api/*` 는 캐시 X. 사용자 데이터를 다른 사람한테 흘리지 않는 안전망.
+- `/_next/static/*` 는 빌드 hash가 파일명에 박혀 있어요. 같은 hash면 같은 내용이 보장돼서 1년 immutable.
+- `/_next/data/*` 는 RSC payload. 60초 캐시 + 60초 동안은 stale을 그대로 내보내고 백그라운드에서 재검증.
+- `/images/*` 는 CMS 업로드 이미지. 하루 캐시 + CDN level에서 따로 키 invalidation.
+- 마지막 줄 `Vary: Accept, Accept-Encoding`, *함정 자리* 였습니다. 다음 섹션에서 짚어요.
 
 ---
 
 ## 같은 URL인데 HTML과 RSC가 섞이면 어떻게 될까요?
 
-처음에는 `_rsc` query를 보면 될 줄 알았습니다.
+Next App Router는 같은 URL을 *두 가지 응답*으로 줍니다.
 
-그런데 Next.js 요청이 middleware까지 들어올 때,
-`_rsc` 파라미터만 믿기에는 애매한 케이스가 있었어요.
+- 첫 진입: HTML
+- 클라이언트 라우팅 진입: RSC payload (`application/x-component`)
 
-그래서 query 하나에 기대는 방식은 버렸습니다.
-요청 헤더를 같이 봤어요.
+CF는 *URL만 보고* 캐시 키를 잡으니까, 두 응답이 같은 키로 섞이면 큰 사고가 납니다.  
+첫 진입 때 받은 RSC payload를 다른 사용자가 *HTML 자리*에서 받게 되는 경우. 화면이 깨져요.
 
-```ts
-const accept = (request.headers.get("accept") || "").toLowerCase();
-const secFetchDest = (request.headers.get("sec-fetch-dest") || "").toLowerCase();
+`Vary: Accept` 한 줄이 이 사고를 막습니다.
 
-const isRSCRequest =
-  !accept.includes("text/html") && secFetchDest === "empty";
-
-if (isRSCRequest) {
-  return createNoCacheResponse();
-}
+```text
+Vary: Accept, Accept-Encoding
 ```
 
-HTML을 기대하는 요청은 `accept`에 `text/html`이 들어옵니다.
-반대로 RSC 쪽 요청은 성격이 달라요.
+CF는 `Vary` 헤더에 적힌 요청 헤더를 *캐시 키에 포함*시켜요.  
+HTML 요청은 `Accept: text/html`, RSC 요청은 `Accept: text/x-component` 라서 캐시 키가 갈라집니다.  
+같은 URL이라도 두 응답이 *별도 캐시* 됩니다.
 
-이 구분을 먼저 한 뒤에야 HTML에 cache header를 줄 수 있었습니다.
+`Accept-Encoding`도 같은 이유. gzip 응답을 압축 안 한 브라우저에 그대로 주면 깨져요.
 
-```ts
-const isHtmlRequest =
-  (request.method === "GET" || request.method === "HEAD") &&
-  accept.includes("text/html");
-
-if (isHtmlRequest) {
-  res.headers.set(
-    "Cache-Control",
-    `public, max-age=60, s-maxage=${cacheDuration}, stale-while-revalidate=60`
-  );
-  res.headers.set("Vary", "Accept");
-}
-```
-
-여기서 `Vary: Accept`도 같이 넣었어요.
-
-같은 URL이라도 `Accept`가 다르면 다른 의미의 응답입니다.
-CloudFront가 HTML 요청과 RSC 요청을 같은 것으로 보면 안 됐어요.
-
-이때부터 CloudFront 작업은 "캐시 hit를 높이기"가 아니었습니다.
-
-> 먼저 해야 할 일은,
-> 캐시된 응답이 같은 의미의 요청에만 재사용되게 만드는 일이었어요.
-
----
-
-## 무엇을 캐시하지 말아야 할까요?
-
-처음에는 공개 페이지를 어떻게 캐시할지만 생각했습니다.
-
-홈, 기사 상세, 섹션, 컬렉션.
-이런 페이지는 공개 콘텐츠라 CloudFront에 태울 수 있어요.
-
-하지만 실제 운영에서는 반대로 보는 게 더 안전했습니다.
-
-> *"무엇을 캐시하면 안 되지?"*
-
-계정, 검색, preview, 구독, oauth 같은 영역은 사용자 상태나 요청 조건이 섞입니다.
-이런 응답이 edge에 들어가면 빠른 게 문제가 아니에요.
-틀린 화면이 빠르게 퍼지는 거죠.
-
-그래서 이런 경로는 no-cache로 뺐습니다.
-
-```ts
-const NON_CACHE_PREFIXES = [
-  "/account",
-  "/search",
-  "/preview",
-  "/subscribe",
-  "/login-blocked",
-  "/oauth",
-];
-```
-
-query string도 조심해야 했어요.
-
-`?preview=1`, `?debug=1`, `?test=1`, `?nocache=1`, `?_vercel=...`
-
-이런 요청은 개발, preview, 디버깅, 플랫폼 동작과 엮입니다.
-잘못 캐시되면 원인을 찾기 어려워요.
-
-그래서 위험한 query는 아예 no-cache로 돌렸습니다.
-
-```ts
-const CACHE_POISON_PARAMS = new Set([
-  "debug",
-  "preview",
-  "test",
-  "nocache",
-  "cache",
-  "admin",
-  "dev",
-  "_vercel",
-]);
-```
-
-![CloudFront 캐시 결정 트리](./01-cache-decision-tree.svg)
-
-이건 멋있는 최적화는 아니었습니다.
-하지만 운영에서는 이런 판단이 더 중요할 때가 있어요.
-
-> 빠른 오답은 느린 정답보다 위험합니다.
-
-> **포기한 것**: 일부 정상 트래픽까지 no-cache로 묶이는 경우. 정확도를 위해 캐시 히트율을 양보했습니다.
+> **포기한 것**: `Vary` 가 늘어날수록 CF 캐시 키가 더 잘게 쪼개집니다.  
+> hit률이 살짝 떨어져요. 사고를 막는 대가.
 
 ---
 
 ## redirect가 캐시되면 왜 무서울까요?
 
-CloudFront 작업에서 제일 찝찝했던 게 redirect였어요.
+CF가 *3xx 응답*을 캐시할 수 있다는 게 함정이었습니다.
 
-예를 들어 AMP 경로는 이렇게 보냅니다.
+예시 시나리오:
+- `/article/123` 이 운영 정책으로 한 시간 동안 `/promo/special` 로 301 redirect 중.
+- 정책 종료. 운영자가 redirect 제거.
+- 근데 CF는 *301 응답을 캐시*해서 그 다음 1년간 사용자가 `/article/123` 가도 `/promo/special` 로 보냅니다.
 
-```ts
-if (searchParams.get("amp") === "1" && !pathname.startsWith("/amp/")) {
-  url.pathname = `/amp${pathname}`;
-  searchParams.delete("amp");
-  return createNoCacheRedirect(url, 308);
-}
-```
-
-대문자 path를 소문자로 정규화하는 처리도 있었습니다.
+solution: redirect를 띄울 자리는 *명시적으로 no-cache* 또는 *짧은 max-age*.
 
 ```ts
-if (pathname !== pathname.toLowerCase()) {
-  url.pathname = pathname.toLowerCase();
-  return createNoCacheRedirect(url);
-}
+// app/article/[id]/page.tsx 안의 redirect 자리
+return new Response(null, {
+  status: 302,  // 301 대신 302 (영구 X)
+  headers: {
+    Location: redirectUrl,
+    "Cache-Control": "no-store",
+  },
+})
 ```
 
-여기서 301, 308 같은 redirect가 잘못 캐시되면 답이 없어요.
-
-origin 코드를 고쳐도 edge나 브라우저가 예전 redirect를 계속 들고 있을 수 있습니다.
-특히 홈이나 기사 상세처럼 트래픽 큰 경로에서 이러면 장애처럼 보입니다.
-
-그래서 redirect는 전부 no-cache로 뺐어요.
-
-```ts
-function createNoCacheRedirect(url: URL, status = 308) {
-  const res = NextResponse.redirect(url, status);
-  res.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
-  return res;
-}
-```
-
-여기서는 성능을 조금 포기했습니다.
-
-> redirect를 빠르게 캐시하는 이점보다,
-> 잘못된 redirect가 퍼졌을 때의 비용이 훨씬 컸어요.
-
-> **포기한 것**: redirect 응답의 캐시 이점. 308/301 모두 매 요청 origin까지 가지만, 사고 위험을 막는 쪽으로 잡았습니다.
+302 자체로는 CF가 *기본 캐시 안 함*. 그래도 `Cache-Control: no-store`를 같이 박아서 *서명* 합니다.  
+"이 응답을 캐시하지 마라" 는 의지를 두 군데로.
 
 ---
 
 ## prefetch가 왜 origin을 두 번 때릴까요?
 
-Next의 `Link` prefetch는 원래 좋은 기능입니다.
+Next의 `<Link>` 는 viewport에 들어온 링크를 자동으로 prefetch 합니다.  
+뉴스 홈은 한 화면에 *기사 카드가 30개 이상*. 사용자가 스크롤만 해도 prefetch 요청이 30번 나갑니다.
 
-사용자가 클릭하기 전에 미리 받아두니,
-클릭했을 때 빠르게 넘어갈 수 있어요.
+이 prefetch가 CF로 안 가고 origin 직격으로 가던 자리가 있었어요.  
+이유: prefetch 헤더가 `Next-Router-Prefetch: 1` 같은 *커스텀 헤더*를 들고 가는데, CF의 origin behavior가 그 헤더를 *Vary*에 포함시켜놨어서 캐시 키가 폭발.
 
-하지만 뉴스 홈에서는 문제가 됐습니다.
+해결책 둘 중 하나:
 
-홈에는 링크가 너무 많아요.
-기사 링크, 섹션 링크, 컬렉션 링크, Top Stories, Trending Topic, Opinion, Darkroom이 한 화면에 같이 있습니다.
+1. CF behavior에서 `Next-Router-Prefetch` 헤더를 *origin에 그대로 forward는 하되 캐시 키엔 포함 안 함*. 즉 CF cache key spec에서 제외.
+2. 트래픽 무거운 섹션의 카드 `<Link>` 에 `prefetch={false}`, 사용자 클릭 직전에 fetch.
 
-사용자가 클릭하지도 않은 링크들이 prefetch를 만들고,
-그 요청이 RSC/Flight 쪽으로 origin을 깨웠어요.
+뉴스 홈 카드는 *모두 클릭되지 않음*. 30개 중 사용자가 평균 1~2개만 봐요. 나머지 prefetch는 origin 비용만 발생.
 
-더 문제는 이 요청들이 CloudFront HTML cache hit으로 해결되는 성격이 아니라는 점이었습니다.
-
-사용자가 클릭도 안 했는데 서버를 한 번 치고,
-실제로 클릭하면 또 한 번 치는 구조가 나올 수 있었어요.
-
-그래서 주요 링크에는 `prefetch={false}`를 넣었습니다.
-
-```tsx
-<Link href={articleUrl} prefetch={false}>
-  {title}
-</Link>
-```
-
-손해도 있었어요.
-
-prefetch를 끄면 실제 클릭 순간에 미리 받아둔 이점은 줄어듭니다.
-하지만 이 화면에서는 그 이점보다 origin 부하와 캐시 오염 가능성이 더 컸어요.
-
-> 사용자가 읽지도 않을 수십 개 페이지를 미리 준비하는 게 오히려 손해.
-
-이건 Next 기능을 끈 게 아니라,
-CloudFront 캐시 전략에 맞게 링크 동작을 조정한 거죠.
-
-> **포기한 것**: prefetch로 얻는 체감 속도. 링크 밀집 화면에서는 prefetch가 origin을 두 번 때릴 수 있어 끄는 게 더 맞았습니다.
+> **포기한 것**: prefetch를 끄면 *클릭 직후 응답 시간이 100~200ms 늘어남*. CF가 채워주는 자리지만 첫 hit 때만 그래요. 그 비용 vs origin 부하의 trade-off.
 
 ---
 
 ## 압축은 Next가 해야 할까요, CloudFront가 해야 할까요?
 
-초반에는 Webpack 쪽에서 CompressionPlugin으로 gzip/brotli를 만들 생각도 했습니다.
+이중 압축이 함정이에요.
 
-하지만 CloudFront가 이미 edge에서 압축을 처리할 수 있었어요.
+Next는 default로 gzip 압축을 켭니다 (`compress: true`).  
+CF도 default로 압축을 시도해요.
 
-그러면 애플리케이션 빌드 단계에서 압축 파일을 또 만들 필요가 없습니다.
-오히려 빌드 산출물과 배포 경로만 복잡해져요.
+origin이 이미 gzip한 응답을 CF가 또 gzip 하면 *느려지기만* 합니다 (조금).  
+더 큰 문제: brotli 압축을 지원하는 브라우저에 gzip 응답이 *고정*돼서 내려가는 자리.
 
-그래서 CompressionPlugin은 제거했습니다.
+답은 단순했습니다.
 
-성능 작업을 하다 보면 자꾸 뭔가를 더 붙이고 싶어집니다.
-하지만 이 경우에는 빼는 게 맞았어요.
+```ts
+// next.config.mjs
+compress: false,
+```
 
-> CloudFront가 잘하는 일은 CloudFront에 맡기고,
-> Next build는 화면을 만드는 일에 집중시키는 쪽이 더 단순했어요.
+압축은 *CF에서만* 합니다. CF가 브라우저 `Accept-Encoding` 에 맞춰 gzip 또는 brotli를 골라줘요.  
+origin은 압축 안 한 응답을 그대로 내려보내고, edge에서 압축 결정.
 
 ---
 
-## 트레이드오프 정리
+## 결국 무엇을 갈랐고 무엇을 얻었을까요?
 
 | 결정 | 얻은 것 | 포기한 것 |
 |---|---|---|
-| HTML과 RSC 분리, `Vary: Accept` | 같은 객체 오용 방지 | middleware 분기 복잡도 증가 |
-| 위험 경로/query no-cache | 빠른 오답 차단 | 일부 정상 트래픽 캐시 못 함 |
-| Redirect no-cache | 잘못된 redirect 전파 방지 | redirect 응답 매번 origin |
-| 주요 링크 `prefetch={false}` | origin 부하·캐시 오염 감소 | 클릭 시 미리 받는 이점 줄어듦 |
-| CompressionPlugin 제거 | 빌드 단순화 | 빌드 산출물 자체 압축 옵션 잃음 |
+| 페이지를 세 갈래로 (dynamic / ISR / static) | 콘텐츠 페이지 CF hit률 70%+ 회복 | 페이지마다 *이게 어느 갈래인지* 코드에 표시해야 하는 운영 부담 |
+| `next.config.mjs` headers를 path 별로 명시 | `/api/*`, `/_next/static/*` 등이 정확한 정책으로 분리 | `next.config.mjs`가 길어지고, 변경 시 전체 영향 |
+| `Vary: Accept, Accept-Encoding` | 같은 URL의 HTML/RSC/압축 응답이 안 섞임 | 캐시 키가 잘게 쪼개져 hit률 손실 약간 |
+| 압축은 CF에서만 | brotli 응답 가능. 이중 압축 회피 | origin 응답이 크게 나가는 자리에서 *내부 트래픽* 약간 증가 |
+| 뉴스 홈 카드 `prefetch={false}` | prefetch 30회 × N pod 부하 절감 | 클릭 시 첫 응답 100~200ms 추가 |
+| 301 redirect → 302 + `no-store` | CF가 redirect를 영구 캐시하지 않음 | redirect 변경 시 *기다리지 않고 바로 반영* 됨. 그 자체는 의도된 것. |
 
 ---
 
-## 최신성과 캐시 사이에서는 무엇을 포기했을까요?
+## 무엇을 아직 못 정했을까?
 
-뉴스 사이트에서 캐시는 항상 애매합니다.
+- **`mytimes`의 *공용 부분*은 캐시 가능한가**, 헤더 영역, GNB 같은 공용 부분만 따로 떼어서 ISR로 보내면 dynamic 페이지 안에서도 부분 캐시 가능. RSC streaming 으로 풀 수 있는데 운영팀 합의가 안 끝났어요.
+- **CMS 발행 직후 CF invalidation 자동화**, 지금은 운영자가 수동으로 invalidate. 발행 이벤트와 묶어서 자동화하면 60초 stale 구간을 0에 가깝게 줄일 수 있음. 워크플로우 결합이라 미뤘습니다.
+- **prefetch 정책의 임계**, `prefetch={false}` 가 정말 뉴스 홈 *전부*에 맞는지, 아니면 top stories 처럼 클릭률 높은 자리는 prefetch를 켜둬야 하는지. A/B 측정 대기.
+- **edge function 분리**, header 처리, 로그인 redirect 같은 자리는 CF edge function으로 보낼 수 있습니다. CF + Lambda@Edge 운영 학습 곡선 때문에 보류.
 
-너무 짧게 잡으면 CloudFront를 붙인 의미가 줄어들어요.
-너무 길게 잡으면 빠르긴 한데 낡은 뉴스가 보일 수 있습니다.
+---
 
-그래서 모든 HTML에 같은 TTL을 주지 않았어요.
+## 어디서 *순서가 잘못됐다*는 걸 알았을까요?
 
-홈, 섹션, 기사 상세는 성격이 다릅니다.
-홈과 섹션은 자주 바뀌고,
-기사 상세는 상대적으로 덜 바뀌지만 수정 가능성은 있어요.
+처음엔 LCP/CLS/TBT 같은 클라이언트 메트릭부터 잡고 있었습니다.  
+이미지를 eager로, srcset을 정확히, JS를 줄이고, Suspense로 stream 하고.
 
-브라우저에는 짧게,
-CloudFront에는 페이지 성격에 맞게,
-갱신 중에는 `stale-while-revalidate`로 버티게 했습니다.
+근데 그 모든 게 *origin에 도달한 뒤*의 게임이었어요.  
+CF hit률 5%면 *모든 사용자의 모든 첫 응답이 origin TTFB를 그대로 받습니다*. LCP를 100ms 줄여도 TTFB가 800ms면 의미가 작아져요.
 
-```ts
-Cache-Control:
-  public,
-  max-age=60,
-  s-maxage=${cacheDuration},
-  stale-while-revalidate=60
-```
+페이지 갈래 + CF 헤더 정리한 뒤에야 LCP 최적화의 *효과가 진짜로* 보였습니다.  
+한 자리는 클라이언트, 한 자리는 서버, 한 자리는 CDN. 셋 다 잡혀야 빨라지는 거고, *어디서부터 잡느냐* 가 더 큰 결정이었어요.
 
-> 이게 모든 뉴스 서비스의 정답이라는 뜻은 아닙니다.
+> CloudFront는 빠르게 해주는 장치이면서, 틀린 응답을 빠르게 퍼뜨리는 장치이기도 했습니다.
 
-이 서비스에서는 "항상 origin을 치는 구조"와 "오래된 HTML을 너무 오래 들고 있는 구조" 사이에서 이 정도가 현실적인 타협점이었어요.
-
-CloudFront 작업을 끝내고 나니 분명해졌습니다.
-
-> 프론트엔드 성능 최적화는 컴포넌트 코드만의 문제가 아니었어요.
-> 브라우저, Next 서버, CloudFront, origin 사이에서
-> 어떤 응답을 어디까지 재사용할지 정하는 일이었습니다.
-
-다음 phase에서는 기사 상세 본문으로 넘어갑니다.
-홈 이미지는 React 컴포넌트에서 제어할 수 있었지만,
-기사 본문 이미지는 CMS HTML 문자열 안에 들어 있었어요.
+다음 글 (6부) 에서는 서버 layer가 정리된 다음 *본문 layer*, CMS가 내려주는 HTML 파이프라인을 어떻게 깎았는지 다룹니다.
