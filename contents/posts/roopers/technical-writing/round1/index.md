@@ -39,15 +39,15 @@ Docker는 멀쩡한데 Testcontainers만 Docker를 못 찾겠다고 합니다.
 
 그래서 AI에게 말했습니다.
 
-`Q: 테스트 인프라의 제어권이 모듈 경계를 넘어가고 있는 것 같은데 맞아?`
+`Q: 테스트 인프라의 제어권이 모듈 경계를 넘어가고 있는 것 같은데 맞아?`  
+
 `A: 네 맞습니다, @TestConfiguration + @Import 방식으로 명시적으로 로딩하도록 변경하겠습니다.`
 
-환경 체크가 아닌 코드 레벨에서 접근을 시작한 순간, 운전대를 빼앗겼습니다.
+환경 체크가 아닌 코드 레벨에서 접근을 시작한 순간, 제기랄 운전대를 빼앗겼습니다.
 
-![...](image-1.png)
+![하지말랬잖아!!@@@@@](image-1.png)
 
-
-## 운전대를 넘겼어요
+## 난 핸들이 뽑힌 8t 트럭
 
 클선생(Claude)은 성실했습니다.  
 내가 "코드 문제"라는 전제를 제공하자, 그 전제 안에서 할 수 있는 모든 것을 시도했습니다.  
@@ -71,14 +71,11 @@ Docker는 멀쩡한데 Testcontainers만 Docker를 못 찾겠다고 합니다.
 
 전제 자체를 의심했어야 했습니다.
 
-> 하지만 저는 ... 예
+![글렀다...@@@](image-2.png)
 
-![아..아..](image-2.png)
+## Spring 가라사대. BOM을 믿으라
 
-
-## BOM을 믿으라고@
-
-![아직도 정신 못 차리는 거냐구@@@](image-5.png)
+![ㅎ ㅏ 이 X끼...](image-5.png)
 
 코드 수정으로 해결이 안 되니, 다음 수순으로 docker-java를 수동 업그레이드했습니다.
 
@@ -98,23 +95,25 @@ Spring Boot는 Dependency Management BOM을 통해 testcontainers, docker-java, 
 사실 이런 버전 문제는 `context7에서 현재 버전과 일치하는 버전으로 체크 부탁해`라고 요청하면 끝이었습니다.  
 BOM이 관리하는 버전을 신뢰했어야 했습니다.  
 
-
 ## 22 files changed, AM 5시
 
-![주인. 여기서 자면 끝나는 거야 :)](image-3.png)
+![아차 싶을때가 제일 늦은거임](image-3.png)
 
 docker-java 업그레이드도 효과가 없었습니다.  
 이쯤 되면 의심해야 할 것은 코드가 아니라 전제였는데요,   
 저와 클선생은 이미 너무 깊이 와 있었습니다..
 
 코드 전반에 걸쳐 Testcontainers 설정 방식을 통일하기 시작했습니다.  
-`@TestConfiguration`, `@Container`, `System.setProperty`, `withReuse(true)`, testFixtures 방식이 혼재되어 있었고, 이걸 `@Container + @DynamicPropertySource` 하나로 단일화하려 했습니다.
 
-좋은 취지인 것은 압니다.  
-Testcontainers 패턴은 프로젝트 내에서 단일화하는 것이 맞습니다.  
-하지만 지금 이 시점에서 해야 할 일은 아니었습니다.  
+`@TestConfiguration`, `@Container`, `System.setProperty`,  `withReuse(true)`, testFixtures 방식이 혼재되어 있었고, 
 
-원래 문제는 "Docker 환경을 못 찾겠다"였는데,   
+이걸  `@Container + @DynamicPropertySource` 하나로 단일화하려 했습니다.
+
+좋은 취지인 것은 알지만, Testcontainers 패턴은 프로젝트 내에서 단일화하는 것이 맞습니다.  
+
+하지만 지금 이 시점에서 해야 할 일은 아니였다는점.
+
+이게 문제는 "Docker 환경을 못 찾겠다"였는데,   
 어느새 "Testcontainers 설정 구조 전체 리팩토링"을 하고 있었습니다.  
 
 > 변경된 파일: 22 files changed.
@@ -127,7 +126,7 @@ Testcontainers 패턴은 프로젝트 내에서 단일화하는 것이 맞습니
 
 ## 진짜 원인은 뭐였을까?
 
-![해가 떠버렸다구@@](image-6.png)
+![문제는 무슨, 이미 해가 떠버렸다구@@](image-6.png)
 
 해가 뜨고 나서야 정신을 차렸습니다.  
 처음으로 돌아가서, 이번에는 환경부터 확인했습니다.  
