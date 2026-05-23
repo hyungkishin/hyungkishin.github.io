@@ -19,10 +19,6 @@ const Row = styled(Link)`
   color: inherit;
   transition: opacity 0.15s ease;
 
-  &:first-child {
-    border-top: 1px solid ${(props) => props.theme.colors.dividerSoft};
-  }
-
   &:hover h2 {
     color: ${(props) => props.theme.colors.accent};
   }
