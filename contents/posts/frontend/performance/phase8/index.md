@@ -1,5 +1,5 @@
 ---
-title: "본문 layer는 왜 마지막 자리였을까요"
+title: "퍼포먼스 최적화 를 향해 - 6부"
 date: 2025-12-28
 update: 2025-12-28
 tags:
@@ -7,339 +7,392 @@ tags:
   - performance
   - nextjs
   - image
-  - cms
-  - cheerio
   - series
 ---
 
-> **TL;DR**
->
-> 5부에서 CloudFront가 안 먹혔던 이유를 잡고, 페이지를 dynamic/ISR/static 세 갈래로 갈랐어요.  
-> 그 다음에야 *본문 layer*를 손볼 수 있었습니다.
->
-> 본문은 React 컴포넌트가 아니었어요.  
-> CMS 에디터가 만든 HTML 문자열이었습니다.  
-> `OptimizedImage` 같은 props로 의도를 전달할 자리가 없었어요.
->
-> 그래서 SSR 단계에서 CMS HTML을 Cheerio로 한 번 읽었습니다.  
-> 첫 번째 본문 이미지는 LCP 후보로 올리고, 두 번째 이후는 lazy로 내리고, `data-resolved-width/height` 는 `aspect-ratio` 로 바꿨어요.
->
-> 템플릿별로 `BASIC`, `WIDE`, `DARKROOM` 이미지 정책도 갈랐습니다.  
-> JSDOM은 무거워서 Cheerio/slim으로 옮겼고, iframe 깨짐 때문에 `xmlMode: false`를 명시했어요.
->
-> 본문 layer는 *마지막 자리* 였습니다.  
-> 그 위 layer들이 다 잡힌 다음 마지막으로 손봐야 효과가 보였어요.
+## 들어가며
+5부까지 오면서 홈 화면은 어느 정도 정리됐다.
 
----
+상단 이미지는 `OptimizedImage` 로 제어할 수 있었고,  
+RSC 로 첫 화면 HTML 도 더 빨리 내려줄 수 있었고,  
+CloudFront 로 공개 HTML 을 edge 에 태우는 구조도 잡았다.
 
-## 왜 본문이 마지막 자리였을까요?
+그런데 기사 상세로 들어가면 이야기가 또 달라졌다.
 
-성능 최적화는 *어디부터 손대느냐* 가 결정의 절반입니다.  
-시리즈를 거치면서 그 순서가 점점 명확해졌어요.
-
-1. *비즈니스*, 뉴스 도메인에서 성능 = 검색 노출 = 광고 수익 (1부)
-2. *AMP*, 모바일 검색 진입 (2부)
-3. *진단*, 뭘 측정하고 뭘 풀지 갈래 (3부)
-4. *클라이언트 layer*, CLS / FCP / TBT / LCP 디테일 (4~5부)
-5. *렌더링 경계*, 서버 컴포넌트로 클라이언트 JS 비용 옮기기 (6부 = 현 phase6)
-6. *서버 / CDN layer*, CloudFront가 안 먹혔던 이유 (7부 = 현 phase7)
-7. **본문 layer**, *지금 이 자리*
-
-본문 이미지를 *먼저* 손봤다면 그 효과가 안 보였을 거예요.  
-CF hit률이 5%면 본문 이미지 우선순위를 아무리 올려도 *origin TTFB* 가 LCP를 깎아먹습니다.  
-서버/CDN 잡힌 다음에야 클라이언트 layer 효과가 진짜로 측정됐고, 본문 layer는 그 위에 마지막 칠처럼 얹혔어요.
-
----
-
-## 본문 이미지가 컴포넌트가 아닌 이유는 뭘까요?
-
-홈 이미지는 React 컴포넌트였습니다.
+홈 이미지는 React 컴포넌트다.
 
 ```tsx
 <OptimizedImage isLCP withSkeleton={false} />
 ```
 
-props 한 줄로 의도를 전달할 수 있었어요.  
-LCP 후보면 `isLCP`, skeleton 깜빡임이 거슬리면 `withSkeleton={false}`.
+이런 식으로 props 를 넘기면 된다.
 
-기사 본문은 달랐습니다.  
-운영팀이 CMS 에디터에서 작성한 *HTML 문자열* 이 그대로 내려와요.
+근데 기사 본문 이미지는 props 로 제어할 수 있는 컴포넌트가 아니었다.
+
+CMS 에디터에서 내려온 HTML 문자열 안에 `<img>` 가 박혀 있었다.
 
 ```html
-<p>본문 첫 문단입니다.</p>
-<img src="https://cdn.koreatimes.co.kr/.../article1.jpg" alt="..." />
-<p>두 번째 문단.</p>
-<img src="https://cdn.koreatimes.co.kr/.../article2.jpg" alt="..." />
-<iframe src="https://www.youtube.com/embed/..." />
+<div class="editor-img-box">
+  <img
+    src="https://newsimg.example.com/sample.jpg"
+    data-resolved-width="1200"
+    data-resolved-height="800"
+  />
+  <div class="caption">...</div>
+</div>
 ```
 
-이 HTML에는 *props가 없어요*. `<img>` 가 그대로 들어가 있고, 어떤 이미지가 LCP 후보인지, 어떤 이미지를 lazy로 내려야 하는지 표현할 자리가 없습니다.
+이걸 보고 처음 든 생각은 이거였다.
 
-CMS 에디터 자체를 바꾸자는 옵션도 있었지만, 운영팀 워크플로우가 거기에 묶여 있었어요.  
-*렌더링 시점에 HTML을 한 번 읽고 손보는* 쪽이 빠른 답이었습니다.
+> 아. 여긴 컴포넌트 최적화로 안 되겠구나.
+
+![또 시작](../phase1/img_2.png)
 
 ---
 
-## CMS HTML을 그대로 렌더링하면 뭐가 터질까요?
+## CMS HTML 은 그냥 렌더링하면 안 됐다
 
-`dangerouslySetInnerHTML` 로 그대로 박으면 다음이 다 깨졌어요.
+기사 본문은 에디터에서 만든 HTML 이다.
 
-| 자리 | 무엇이 깨졌나 |
-|---|---|
-| 첫 번째 본문 이미지 | LCP 후보인데 평범한 `<img>` 로 잡혀서 우선순위 낮음 |
-| 두 번째 이후 이미지 | 모두 즉시 로드. lazy 처리 안 됨. |
-| 모든 이미지 | `width`/`height` 없으면 CLS 발생 |
-| iframe 임베드 | `width`/`height` 없으면 fold 아래 영역까지 CLS 영향 |
-| 광고 코드 | 본문 가운데에 광고가 끼어들어 CLS |
+이미지도 있고, caption 도 있고, iframe 도 있고, float 이미지도 있고, 가끔 이상한 wrapper 도 들어온다.
 
-그래서 SSR 단계에서 CMS HTML을 한 번 *읽어서 손본* 다음 렌더링하기로 했습니다.
+이걸 그대로 렌더링하면 편하긴 하다.
 
-처음엔 JSDOM으로 갔어요.  
-브라우저랑 가장 비슷한 동작이라서 안전할 거라고 봤습니다.  
-근데 SSR 매 요청마다 JSDOM 인스턴스를 만들면 *서버 메모리 + 시간* 부담이 컸어요.
+근데 성능 관점에서는 문제가 많았다.
 
-> 서버 SSR에서는 *JSDOM = 정답* 이 아니었습니다.  
-> 브라우저 호환성이 아니라 *HTML 파싱 + 변형* 만 필요한 자리였어요.
+- 첫 번째 본문 이미지가 LCP 후보일 수 있다.
+- width/height 정보가 없으면 CLS 가 난다.
+- 두 번째 이후 이미지는 lazy 로 내려야 한다.
+- basic, wide, darkroom 템플릿마다 적정 이미지 너비가 다르다.
+- 기존 query string 이 붙은 이미지 URL 은 다시 정리해야 한다.
+- Instagram iframe 같은 외부 요소도 높이를 잡아줘야 한다.
 
-Cheerio (slim) 로 옮겼습니다.
+즉, CMS HTML 은 화면에 넣기 전에 한 번 가공해야 했다.
+
+그래서 기사 본문 처리 파이프라인을 만들었다.
 
 ```ts
-import { load } from "cheerio/slim"
+export function processDefaultContent(props: ProcessContentProps): ProcessContentReturn {
+  const { contents, featuredImage, imageSizeData, pageType, templateType } = props;
 
-const $ = load(html, { xmlMode: false })
-$("img").each((idx, el) => {
-  const $img = $(el)
-  if (idx === 0) {
-    $img.attr("loading", "eager")
-    $img.attr("fetchpriority", "high")
-  } else {
-    $img.attr("loading", "lazy")
-    $img.attr("fetchpriority", "low")
-  }
-})
-return $.html()
-```
+  const $ = load(contents, { xmlMode: false, decodeEntities: false }, false);
 
-`xmlMode: false` 가 한 줄 같지만 함정 자리였어요. 다음 섹션에서 짚습니다.
+  removeWriterElement($);
 
----
+  const extractedSize = extractFeaturedImageSize($, featuredImage);
+  const finalImageSize = imageSizeData || extractedSize;
 
-## 첫 번째 본문 이미지는 왜 따로 봐야 했을까요?
+  const images = extractImages($);
 
-CMS 본문 렌더링은 *기사 디테일 페이지의 LCP 후보 자리*입니다.
+  processAllContainers($, pageType, templateType);
+  processInstagramIframes($);
+  processAllImages($, pageType, templateType);
 
-뉴스 사용자는 *기사 디테일 → 본문 → 첫 이미지* 순으로 시선이 이동해요.  
-그 첫 이미지가 LCP를 결정합니다.
+  const featuredImageProps = buildFeaturedImageProps(
+    featuredImage,
+    finalImageSize,
+    pageType,
+    templateType
+  );
 
-근데 CMS HTML에서 첫 이미지는 *그냥 평범한 `<img>`* 였어요.  
-브라우저가 이걸 LCP 후보로 *늦게* 인지합니다.
-
-세 줄로 처리했습니다.
-
-```ts
-$("img").first()
-  .attr("loading", "eager")
-  .attr("fetchpriority", "high")
-  .attr("decoding", "sync")
-```
-
-- `loading="eager"`, lazy 안 함. 첫 이미지는 항상 받음.
-- `fetchpriority="high"`, 같은 우선순위 이미지 중 *먼저* 받음.
-- `decoding="sync"`, 받은 다음 *즉시 디코딩*. 다른 작업으로 미루지 않음.
-
-> **포기한 것**: 광고/iframe이 첫 번째 본문 요소면 첫 `<img>` 가 *fold 아래* 일 수도 있어요. 그래도 eager로 받습니다. 본문 트래픽 패턴에서 그 케이스는 5% 미만.
-
----
-
-## BASIC, WIDE, DARKROOM 이미지는 같은 크기로 받아도 될까요?
-
-본문 이미지는 *템플릿* 마다 렌더링 폭이 달랐습니다.
-
-| 템플릿 | 본문 폭 | 적정 이미지 폭 |
-|---|---|---|
-| BASIC | 760px | 760 / 1440 (2x) |
-| WIDE | 100vw (최대 1440) | 1440 / 2560 (2x) |
-| DARKROOM (포토 갤러리) | 100vw (최대 2560) | 2560 / 3840 (2x) |
-
-같은 CDN 이미지 URL에 `?w=` 파라미터로 폭을 지정할 수 있었어요.  
-템플릿별로 다른 `srcset` + `sizes` 를 박았습니다.
-
-```ts
-const buildSrcSet = (cdnUrl: string, template: Template) => {
-  const widths = TEMPLATE_WIDTHS[template]  // BASIC: [760, 1440], WIDE: [1440, 2560], ...
-  return widths.map((w) => `${cdnUrl}?w=${w} ${w}w`).join(", ")
+  return {
+    processedContents: $.html(),
+    images,
+    featuredImageProps,
+    featuredImageSize: extractedSize,
+  };
 }
 ```
 
-DARKROOM에 BASIC 폭 이미지를 박으면 모바일 사용자는 *4배 큰 이미지*를 받습니다.  
-모바일 트래픽이 70%인 환경에서 큰 손해.
+여기서 중요한 건 HTML 문자열을 그냥 치환한 게 아니라는 점이다.
 
-> **포기한 것**: 템플릿이 추가될 때마다 `TEMPLATE_WIDTHS` 에 항목 추가하는 운영 부담. CMS에서 자동 추론은 못 했어요.
+Cheerio 로 DOM 처럼 읽고, 필요한 것만 바꿨다.
 
 ---
 
-## width와 height는 왜 같이 박아야 했을까요?
+## 첫 번째 이미지는 다르게 봤다
 
-CLS 잡으려면 *이미지 받기 전에* 차지할 공간이 정해져 있어야 합니다.  
-브라우저가 이미지 metadata 받기 전엔 *그 자리가 빈 곳* 으로 시작해요. 이미지 도착 후 *밀어내기* 가 발생하면 CLS 폭발.
+기사 상세에서 첫 번째 본문 이미지는 LCP 후보가 될 수 있다.
 
-`<img>` 의 `width`/`height` 속성이 있으면 브라우저가 *aspect ratio* 를 계산해서 미리 자리를 잡아둡니다.
+그래서 모든 이미지를 같은 규칙으로 처리하면 안 됐다.
 
-CMS HTML에는 이미지 메타가 `data-resolved-width="800" data-resolved-height="500"` 같이 *data attribute로만* 들어가 있었어요.  
-브라우저는 이걸 안 봅니다.
+첫 번째 이미지는 `fetchpriority="high"` 와 `loading="eager"` 를 주고,  
+두 번째 이후 이미지는 `loading="lazy"` 로 내려야 했다.
 
-Cheerio 단계에서 변환했습니다.
+테스트도 이 기준으로 잡았다.
 
 ```ts
-$("img").each((_, el) => {
-  const $img = $(el)
-  const w = $img.attr("data-resolved-width")
-  const h = $img.attr("data-resolved-height")
-  if (w && h) {
-    $img.attr("width", w)
-    $img.attr("height", h)
-    $img.css("aspect-ratio", `${w} / ${h}`)
+it("첫 번째 이미지에 fetchpriority=high를 설정해야 한다", () => {
+  const result = processDefaultContent({
+    contents: `<img src="https://example.com/image.jpg" />`,
+    pageType: ARTICLE_DETAIL_PAGE_TYPE.DEFAULT,
+  });
+
+  expect(result.processedContents).toContain('fetchpriority="high"');
+  expect(result.processedContents).toContain('loading="eager"');
+});
+
+it("두 번째 이후 이미지는 lazy loading을 설정해야 한다", () => {
+  const result = processDefaultContent({
+    contents: `
+      <img src="https://example.com/image1.jpg" />
+      <img src="https://example.com/image2.jpg" />
+    `,
+    pageType: ARTICLE_DETAIL_PAGE_TYPE.DEFAULT,
+  });
+
+  expect(result.processedContents).toContain('loading="lazy"');
+});
+```
+
+이게 없으면 누군가 나중에 본문 처리 로직을 건드리다가  
+첫 번째 이미지까지 lazy 로 밀어버릴 수 있다.
+
+홈에서 겪었던 문제를 기사 상세에서 또 반복하고 싶지 않았다.
+
+---
+
+## 템플릿마다 이미지 크기가 달랐다
+
+기사 상세는 레이아웃이 하나가 아니었다.
+
+기본 기사, 와이드 기사, 다크룸 기사에서 이미지가 차지하는 폭이 다르다.
+그러면 같은 원본 이미지를 같은 width 로 요청하면 안 된다.
+
+그래서 이미지 정책을 따로 뺐다.
+
+```ts
+export const IMAGE_POLICY = {
+  BASIC: {
+    pc: 728,
+    mobile: 728,
+    mobileQuery: 673,
+  },
+  WIDE: {
+    pc: 1288,
+    mobile: 728,
+    mobileQuery: 673,
+  },
+  DARKROOM: {
+    pc: 1600,
+    mobile: 728,
+    mobileQuery: 673,
+  },
+} as const;
+```
+
+처음에는 단순히 큰 이미지를 주면 화질이 좋아질 거라고 생각하기 쉽다.
+
+근데 그러면 모바일에서 필요 이상으로 큰 이미지를 받을 수 있다.
+반대로 너무 작은 이미지를 주면 PC 에서 화질이 깨진다.
+
+그래서 템플릿 타입과 페이지 타입을 보고 정책을 고르게 했다.
+
+```ts
+export function resolvePolicy(pageType?: ArticleDetailPageType, templateType?: ArticleViewTemplateType): Policy {
+  if (pageType && PAGE_TYPE_MAP[pageType]) {
+    return IMAGE_POLICY[PAGE_TYPE_MAP[pageType]!];
   }
-})
+
+  if (templateType && TEMPLATE_TYPE_MAP[templateType]) {
+    return IMAGE_POLICY[TEMPLATE_TYPE_MAP[templateType]!];
+  }
+
+  return IMAGE_POLICY.BASIC;
+}
 ```
 
-`aspect-ratio` 까지 같이 박으면 브라우저가 *반응형* 환경에서도 정확히 그 비율로 자리를 잡습니다.  
-이미지가 실제로 도착하기 *전에* CSS가 비율로 박스를 그려둬요. CLS 0.
+여기서도 예외가 있었다.
 
-> **포기한 것**: data attribute가 없는 옛 기사들. CMS 마이그레이션 전 글들은 비율 모름. 그 자리는 *기본 비율 16:9 가정*. 가끔 어긋나서 작은 CLS가 발생하지만 1%대.
-
----
-
-## JSDOM이 편한데, 왜 Cheerio로 바꿨을까요?
-
-JSDOM은 *브라우저 환경 전체* 를 흉내냅니다.  
-DOM API 거의 다 지원하고, querySelector 도 정확.
-
-근데 SSR 매 요청마다 JSDOM 인스턴스를 만드는 게 *서버 비용*이었어요.
-
-|  | JSDOM | Cheerio (slim) |
-|---|---|---|
-| 인스턴스 생성 시간 | 50~150ms | 1~5ms |
-| 메모리 | ~50MB | ~2MB |
-| DOM API | 거의 다 | querySelector + 변형만 |
-| 브라우저 호환성 | 매우 높음 | 낮음 (그래도 본문 HTML엔 충분) |
-
-본문 HTML 파싱은 *querySelector + 속성 변형* 만 필요했어요.  
-JSDOM의 100% 브라우저 호환성은 *과한 비용* 이었습니다.
+원본 이미지가 정책보다 작은데 억지로 1288, 1600 을 요청하면 의미가 없다.
+그냥 원본 크기를 써야 한다.
 
 ```ts
-import { load } from "cheerio/slim"
+export function calculateImageConfig(originalWidth: number | null, policy: Policy): ImageConfig {
+  const needsMobileSource = policy.pc !== policy.mobile;
+
+  if (!originalWidth) {
+    return {
+      pcWidth: policy.pc,
+      mobileWidth: policy.mobile,
+      isSmall: false,
+      needsMobileSource,
+    };
+  }
+
+  if (originalWidth <= policy.mobile) {
+    return {
+      pcWidth: originalWidth,
+      mobileWidth: originalWidth,
+      isSmall: true,
+      needsMobileSource: false,
+    };
+  }
+
+  if (originalWidth <= policy.pc) {
+    return {
+      pcWidth: originalWidth,
+      mobileWidth: policy.mobile,
+      isSmall: true,
+      needsMobileSource,
+    };
+  }
+
+  return {
+    pcWidth: policy.pc,
+    mobileWidth: policy.mobile,
+    isSmall: false,
+    needsMobileSource,
+  };
+}
 ```
 
-`/slim` 은 옛 jQuery slim 같이 *DOM 조작에 필요한 핵심만* 포함. translation/i18n/parser 보조 모듈 제외.
+이미지 최적화라고 해서 무조건 줄이거나 무조건 키우는 게 아니었다.
 
-SSR 매 요청 당 본문 처리 시간이 *100ms → 3ms* 로 떨어졌어요. origin response time 자체가 짧아짐.
+원본 크기, 기사 템플릿, 모바일 분기를 같이 봐야 했다.
 
 ---
 
-## xmlMode: false 가 왜 그렇게 중요했을까요?
+## picture 로 바꾸고, aspect-ratio 를 넣었다
 
-Cheerio는 default가 `xmlMode: false` 인데, 안전망 차원에서 *명시*했어요.
+본문 이미지에는 `data-resolved-width`, `data-resolved-height` 가 들어오는 경우가 있었다.
 
-문제는 iframe.
+이 값이 있으면 그냥 버리면 안 된다.
+CLS 를 막는 데 쓸 수 있다.
 
-```html
-<iframe src="https://www.youtube.com/embed/..."></iframe>
-```
-
-`xmlMode: true` 인 경우 Cheerio가 이 iframe을 *self-closing* 으로 잘못 해석할 수 있어요.
-
-```html
-<!-- 잘못된 출력 -->
-<iframe src="..." />
-```
-
-`<iframe />` 은 HTML spec 에서 *self-close 안 됨*. 브라우저가 이걸 보면 *그 다음 본문 전체를 iframe 안쪽으로* 잡아버립니다. 본문이 통째로 사라져요.
+그래서 가공 과정에서 `aspect-ratio` 를 넣었다.
 
 ```ts
-const $ = load(html, { xmlMode: false })
+it("data-resolved-width와 height가 있으면 aspect-ratio를 설정해야 한다", () => {
+  const result = processDefaultContent({
+    contents: `<img src="https://example.com/image.jpg" data-resolved-width="800" data-resolved-height="600" />`,
+    pageType: ARTICLE_DETAIL_PAGE_TYPE.DEFAULT,
+  });
+
+  expect(result.processedContents).toContain("aspect-ratio: 800 / 600");
+});
 ```
 
-이 한 줄을 명시해서 *HTML mode 로 강제*. iframe이 정상적으로 닫히고, 그 다음 본문이 안 깨집니다.
-
-> **포기한 것**: 없음. 명시만 하면 끝. 단지 *이게 함정인 줄을 모르고* 한 번 운영에서 본문 깨짐 사고가 있었습니다.
-
----
-
-## 테스트를 왜 이렇게 많이 깔았을까요?
-
-CMS HTML은 *운영팀이 만든다*는 사실이 가장 큰 변수였어요.
-
-- 운영자가 새 템플릿을 만들면 *모르는 markup*이 본문에 들어옴
-- 외부 임베드 (트위터, 인스타그램, 유튜브)가 추가되면 *예상 못 한 self-close 자리*가 늘어남
-- CMS 마이그레이션 진행 중이라 *옛 기사와 새 기사*가 다른 markup
-
-테스트가 없으면 *운영팀 한 명의 새 markup* 이 *전체 본문 렌더링 사고*로 번질 수 있었습니다.
+그리고 wide, darkroom 같은 템플릿은 모바일 source 를 따로 둬야 했다.
 
 ```ts
-// __tests__/articleHtml.test.ts
-describe("article body transform", () => {
-  it("첫 이미지는 eager + fetchpriority high", () => {
-    const out = transform(`<p>x</p><img src="a"/><img src="b"/>`)
-    expect(out).toContain('loading="eager"')
-    expect(out).toContain('fetchpriority="high"')
-  })
-  it("iframe이 self-close로 깨지지 않는다", () => {
-    const out = transform(`<iframe src="x"></iframe><p>after</p>`)
-    expect(out).toContain("<p>after</p>")
-  })
-  it("data-resolved-width 가 width/height/aspect-ratio 로 변환된다", () => {
-    const out = transform(`<img data-resolved-width="800" data-resolved-height="500"/>`)
-    expect(out).toMatch(/width="800"/)
-    expect(out).toMatch(/aspect-ratio:\s*800\s*\/\s*500/)
-  })
-})
+it("WIDE 템플릿은 673px 이하에서 728px source를 가져야 한다", () => {
+  const result = processDefaultContent({
+    contents: largeImageHTML,
+    pageType: ARTICLE_DETAIL_PAGE_TYPE.DEFAULT,
+    templateType: ARTICLE_VIEW_TEMPLATE_TYPE.WIDE,
+  });
+
+  expect(result.processedContents).toContain('media="(max-width: 673px)"');
+  expect(result.processedContents).toContain("srcset=");
+  expect(result.processedContents).toContain("?w=728");
+});
 ```
 
-테스트 10개 안팎인데, 운영 사고 *3건* 을 막았어요.
+이렇게 해서 본문 이미지를 그냥 `<img>` 로 두지 않고,
+필요한 경우 `<picture>` 구조로 감쌌다.
 
-> **포기한 것**: 새 외부 임베드가 들어오면 *그 변형* 에 대한 새 테스트가 추가돼야 합니다. 운영 변경 따라가는 비용.
+처음에는 코드가 조금 귀찮아졌다.
 
----
+근데 이 귀찮음은 필요했다.
 
-## 결국 무엇을 갈랐고 무엇을 얻었을까요?
-
-| 결정 | 얻은 것 | 포기한 것 |
-|---|---|---|
-| SSR 단계에서 CMS HTML 변형 | 본문 LCP/CLS 컨트롤 | SSR 시간에 본문 처리 비용 (Cheerio로 3ms 수준) |
-| 첫 이미지 eager + fetchpriority + decoding sync | 기사 디테일 LCP 안정화 | 광고/iframe이 첫 자리일 때 fold 밖 이미지를 받음 |
-| 템플릿별 srcset / sizes (BASIC / WIDE / DARKROOM) | 모바일 트래픽에서 4x 큰 이미지 안 받음 | 템플릿 추가될 때마다 운영 등록 |
-| data attribute → width/height/aspect-ratio | CLS 0 수준 | 옛 기사 (data 없음) 는 16:9 가정 |
-| JSDOM → Cheerio/slim | 본문 처리 100ms → 3ms | 일부 브라우저 호환성 잃음 (본문 HTML 범위 안에선 영향 없음) |
-| `xmlMode: false` 명시 | iframe self-close 사고 안 남 | 명시만 하면 끝 |
-| 테스트 10개 안팎 | 운영팀 새 markup 들어와도 사고 안 남 | 새 임베드 들어올 때 테스트 추가 비용 |
+CMS 에디터에서 내려오는 HTML 은 매번 사람이 손으로 맞춰줄 수 없다.
+렌더링 전에 한 번 정리해두지 않으면, 기사마다 다른 성능 문제가 계속 튀어나온다.
 
 ---
 
-## 무엇을 아직 못 정했을까?
+## JSDOM 에서 Cheerio 로 바꾼 이유
 
-- **CMS 에디터에서 LCP 후보를 명시할 수 있게**, 지금은 *첫 이미지 = LCP* 라고 가정. 운영자가 *대표 이미지* 를 별도 지정하면 더 정확함. CMS 변경 작업이라 미뤘어요.
-- **이미지 placeholder (LQIP)**, 본문 첫 이미지에 base64 blur placeholder를 박으면 LCP 인식이 더 빨라질 가능성. CMS에서 placeholder 생성하는 파이프라인이 필요해서 보류.
-- **외부 임베드 lazy frame**, 트위터/인스타 임베드는 *각자 자기 JS*를 로드. 본문 첫 진입 시 차단 가능. lazy iframe 또는 IntersectionObserver로 풀 수 있는데 운영 사고 우려로 미뤘습니다.
-- **AMP 본문에서도 같은 파이프라인**, 지금 본문 변형은 일반 페이지에만. AMP는 별도 markup 룰이 있어서 분기 필요.
+처음부터 Cheerio 로 간 건 아니었다.
+
+본문 HTML 을 다루려다 보면 JSDOM 을 떠올리기 쉽다.
+브라우저 DOM 처럼 다룰 수 있으니까 편하다.
+
+근데 서버 렌더링 경로에서 매번 기사 본문을 처리해야 한다면 얘기가 다르다.
+
+JSDOM 은 기능이 많은 만큼 무겁다.
+그리고 standalone 빌드나 서버 환경에서 불필요한 의존성이 따라붙을 수 있었다.
+
+그래서 결국 Cheerio, 그것도 `cheerio/slim` 쪽으로 옮겼다.
+
+```ts
+const $ = load(contents, { xmlMode: false, decodeEntities: false }, false);
+```
+
+여기서 `xmlMode: false` 도 일부러 넣었다.
+
+한 번은 iframe 이 self-closing 처럼 처리되면서 HTML 쪽에서 이상하게 나오는 문제가 있었다.
+HTML 의 iframe 은 void element 가 아니라서 `<iframe />` 처럼 닫히면 안 된다.
+
+이런 건 성능 최적화 글에 안 어울릴 정도로 사소해 보이는데,
+실제 본문 렌더링에서는 바로 화면 문제로 이어진다.
+
+그래서 파서는 가볍게 가져가되, HTML 모드로 명시했다.
 
 ---
 
-## 어디서 본문이 *마지막 자리* 라는 걸 알았을까요?
+## 테스트를 꽤 촘촘히 둔 이유
 
-처음엔 본문 이미지를 *제일 먼저* 손봤어요.  
-LCP가 빨개서 본문 첫 이미지에 `fetchpriority="high"` 박았고, lazy 처리도 했습니다.
+이 작업은 눈으로만 확인하면 위험했다.
 
-근데 Lighthouse 숫자가 거의 안 움직였어요.
+기사 본문 HTML 은 케이스가 너무 많다.
 
-원인은 *그 위 layer* 였습니다.  
-- CSR이 데이터 받고 *조립한 뒤* 에야 이미지 URL이 생겼고
-- CF hit률 5%라 origin TTFB가 800ms+ 였고
-- JS 번들이 무거워 main thread가 막혔어요
+- 이미지가 하나만 있는 기사
+- 이미지가 여러 개인 기사
+- 원본 이미지가 정책보다 작은 기사
+- wide 템플릿
+- darkroom 템플릿
+- 기존 query string 이 붙은 이미지
+- width/height 정보가 없는 이미지
+- iframe 이 섞인 기사
 
-본문 이미지를 *완벽하게* 손봐도, 그 이미지가 *어떤 layer 안*에 있느냐가 더 큰 결정이었어요.
+그래서 테스트를 많이 뒀다.
 
-서버/CDN/렌더링 layer 다 잡힌 다음 본문을 손봤더니 그제야 숫자가 움직였습니다.  
-순서가 *뒤집혔던 자리*. 그게 phase 시리즈 전체에서 가장 큰 교훈이었어요.
+`?w=` 가 붙는지, 기존 query string 이 제거되는지,  
+BASIC 은 728px 로 가는지, WIDE 는 1288px 로 가는지,  
+DARKROOM 은 원본이 더 작으면 원본 크기를 쓰는지 확인했다.
 
-> 성능 최적화는 *어디서 시작하느냐* 가 *무엇을 고치느냐* 보다 큰 결정.
+```ts
+it("기존 쿼리스트링은 제거되어야 한다", () => {
+  const result = processDefaultContent({
+    contents: `<img src="https://example.com/image.jpg?existing=param" />`,
+    pageType: ARTICLE_DETAIL_PAGE_TYPE.DEFAULT,
+  });
+
+  expect(result.processedContents).not.toContain("existing=param");
+});
+```
+
+이 테스트들이 없으면 나중에 누가 리팩터링하다가  
+LCP, CLS, 모바일 이미지 정책을 한 번에 깨뜨릴 수 있다.
+
+퍼포먼스 작업은 한 번 좋아졌다고 끝나는 게 아니다.
+좋아진 상태를 유지할 장치가 있어야 한다.
+
+---
+
+## 마무리
+
+홈에서는 이미지 컴포넌트를 고치면 됐다.
+
+하지만 기사 상세에서는 CMS HTML 문자열을 렌더링 전에 바꿔야 했다.
+
+첫 번째 이미지는 LCP 후보로 보고,  
+두 번째 이후 이미지는 lazy 로 내리고,  
+width/height 가 있으면 `aspect-ratio` 로 CLS 를 막고,  
+템플릿마다 `BASIC`, `WIDE`, `DARKROOM` 이미지 정책을 다르게 적용했다.
+
+그리고 JSDOM 대신 Cheerio 로 바꿔서 서버 처리 비용도 줄였다.
+
+이 단계까지 오니 성능 최적화가 진짜 귀찮은 일이 됐다.
+
+처음에는 번들 줄이고 이미지 lazy 하면 될 줄 알았다.
+근데 실제 서비스에서는 홈, 기사 상세, CMS, 광고, CloudFront, RSC, Google 검색 요구사항이 다 엮인다.
+
+하나만 고치면 끝나는 게 아니라,
+각 영역에서 "처음 보여야 하는 것", "늦어도 되는 것", "캐시해도 되는 것", "절대 캐시하면 안 되는 것"을 계속 나눠야 했다.
+
+그래도 여기까지 오면서 확실해진 건 있다.
+
+프론트엔드 성능 최적화는 Lighthouse 점수를 맞추는 일이 아니라,
+사용자가 실제로 보는 화면이 언제, 어떤 순서로, 얼마나 안정적으로 완성되는지 계속 쪼개서 보는 일이다.

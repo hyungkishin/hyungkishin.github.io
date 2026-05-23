@@ -1,7 +1,7 @@
 ---
 title: "이력서"
-date: 2026-01-18
-update: 2026-01-18
+date: 2000-01-18
+update: 2000-01-18
 tags:
   - resume
 ---
