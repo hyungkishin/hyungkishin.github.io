@@ -87,7 +87,7 @@ const SeriesDetail = ({ rule, posts }) => {
 
   return (
     <>
-      <BackLink to="/series/">← series</BackLink>
+      <BackLink to="/">← home</BackLink>
       <Header>
         <Eyebrow>Series · {sorted.length}편</Eyebrow>
         <Title>{rule.name}</Title>

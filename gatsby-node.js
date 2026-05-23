@@ -1,12 +1,12 @@
 const { createFilePath } = require(`gatsby-source-filesystem`)
-const _ = require("lodash")
+const { SERIES_RULES } = require("./src/utils/seriesRules")
 
 exports.createPages = async ({ graphql, actions, reporter }) => {
   const { createPage } = actions
 
   const postTemplate = require.resolve(`./src/templates/Post.jsx`)
-  const seriesTemplate = require.resolve(`./src/templates/Series.jsx`)
   const resumeTemplate = require.resolve(`./src/templates/Resume.jsx`)
+  const seriesIndexTemplate = require.resolve(`./src/templates/SeriesIndex.jsx`)
 
   const result = await graphql(`
     {
@@ -18,9 +18,6 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
           id
           fields {
             slug
-          }
-          frontmatter {
-            series
           }
         }
       }
@@ -41,17 +38,8 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
   }
 
   const posts = result.data.postsRemark.nodes
-  const series = _.reduce(
-    posts,
-    (acc, cur) => {
-      const seriesName = cur.frontmatter.series
-      if (seriesName && !_.includes(acc, seriesName))
-        return [...acc, seriesName]
-      return acc
-    },
-    []
-  )
 
+  // 각 글 페이지 생성
   if (posts.length > 0) {
     posts.forEach((post, index) => {
       const previousPostId = index === 0 ? null : posts[index - 1].id
@@ -63,7 +51,6 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
         component: isResume ? resumeTemplate : postTemplate,
         context: {
           id: post.id,
-          series: post.frontmatter.series,
           previousPostId,
           nextPostId,
         },
@@ -71,18 +58,17 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
     })
   }
 
-  if (series.length > 0) {
-    series.forEach(singleSeries => {
-      const path = `/series/${_.replace(singleSeries, /\s/g, "-")}`
-      createPage({
-        path,
-        component: seriesTemplate,
-        context: {
-          series: singleSeries,
-        },
-      })
+  // 시리즈 인덱스 페이지 생성 (부모 디렉토리 URL)
+  SERIES_RULES.forEach((rule) => {
+    if (!rule.indexSlug) return
+    createPage({
+      path: rule.indexSlug,
+      component: seriesIndexTemplate,
+      context: {
+        seriesId: rule.id,
+      },
     })
-  }
+  })
 }
 
 exports.onCreateNode = ({ node, actions, getNode }) => {

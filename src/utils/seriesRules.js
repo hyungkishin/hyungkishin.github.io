@@ -1,12 +1,12 @@
 const ACCENT = "#2563eb"
 
-// slug 가 full path 형태 (예: /company/work/why1/, /roopers/will/one-week/) 이므로
-// pattern 은 마지막 segment 만 검사하도록 작성.
-export const SERIES_RULES = [
+// 시리즈 = 부모 디렉토리. 시리즈 URL = 그 디렉토리 path.
+const SERIES_RULES = [
   {
     id: "why",
     name: "why",
     tagline: "사고가 어디서 시작됐는지 짚어보는 글",
+    indexSlug: "/company/work/",
     pattern: /\/why\d+\/$/,
     sortKey: (slug) => parseInt(slug.match(/why(\d+)/)[1], 10),
     accent: ACCENT,
@@ -15,6 +15,7 @@ export const SERIES_RULES = [
     id: "phase",
     name: "frontend performance",
     tagline: "CMS 기반 뉴스 사이트 성능 최적화 단계",
+    indexSlug: "/frontend/performance/",
     pattern: /\/phase\d+\/$/,
     sortKey: (slug) => parseInt(slug.match(/phase(\d+)/)[1], 10),
     accent: ACCENT,
@@ -23,6 +24,7 @@ export const SERIES_RULES = [
     id: "round",
     name: "roopers round",
     tagline: "결제 시스템을 13주에 걸쳐 다시 만든 기록",
+    indexSlug: "/roopers/technical-writing/",
     pattern: /\/round\d+\/$/,
     sortKey: (slug) => parseInt(slug.match(/round(\d+)/)[1], 10),
     accent: ACCENT,
@@ -31,6 +33,7 @@ export const SERIES_RULES = [
     id: "will",
     name: "roopers will",
     tagline: "주차별 회고",
+    indexSlug: "/roopers/will/",
     slugs: [
       "/roopers/will/one-week/",
       "/roopers/will/two-week/",
@@ -47,17 +50,20 @@ export const SERIES_RULES = [
   },
 ]
 
-export const matchSeries = (slug) =>
+const matchSeries = (slug) =>
   SERIES_RULES.find((rule) => {
     if (rule.pattern && rule.pattern.test(slug)) return true
     if (rule.slugs && rule.slugs.includes(slug)) return true
     return false
   })
 
-export const findSeriesById = (id) =>
+const findSeriesById = (id) =>
   SERIES_RULES.find((rule) => rule.id === id)
 
-export const sortSeriesPosts = (rule, posts) =>
+const findSeriesByIndexSlug = (slug) =>
+  SERIES_RULES.find((rule) => rule.indexSlug === slug)
+
+const sortSeriesPosts = (rule, posts) =>
   [...posts].sort((a, b) => {
     const slugA = a.fields.slug
     const slugB = b.fields.slug
@@ -73,3 +79,11 @@ export const sortSeriesPosts = (rule, posts) =>
     }
     return new Date(a.frontmatter.date) - new Date(b.frontmatter.date)
   })
+
+module.exports = {
+  SERIES_RULES,
+  matchSeries,
+  findSeriesById,
+  findSeriesByIndexSlug,
+  sortSeriesPosts,
+}

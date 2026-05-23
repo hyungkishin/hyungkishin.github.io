@@ -137,9 +137,9 @@ const SeriesShowcase = ({ posts }) => {
       </Header>
       <Grid>
         {series.map(({ rule, items, latestDate }) => {
-          const firstSlug = items[0]?.fields.slug || "/"
+          const target = rule.indexSlug || items[0]?.fields.slug || "/"
           return (
-            <Card key={rule.id} to={firstSlug}>
+            <Card key={rule.id} to={target}>
               <Eyebrow>
                 <span>{rule.id}</span>
                 <Count>· {items.length}편</Count>
