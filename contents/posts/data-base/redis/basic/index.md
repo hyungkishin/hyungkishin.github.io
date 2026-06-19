@@ -6,5 +6,5 @@ tags:
   - Redis
 ---
 
-## Redis 를 활용한 분산 lock
+## Redis 로 구현하는 분산 lock
 
