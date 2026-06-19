@@ -74,8 +74,11 @@ yarn-error.log
 # idea
 .idea*
 
-# claude
+# claude — rules 디렉토리만 추적, 나머지(settings.local 등)는 ignore
 .claude*
+!.claude/
+.claude/*
+!.claude/rules/
 
 # codex
 .codex*

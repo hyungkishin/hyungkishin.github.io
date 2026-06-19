@@ -294,6 +294,70 @@ for (const rel of referencedSvgs) {
   }
 }
 
+// ─────────────────────────────────────────────────────────────
+// 한국어 AI 티 (번역투·관용구·리듬) — .claude/rules/ai-tell-taxonomy.md
+// im-not-ai(Humanize KR, MIT) 분류 체계 기반. prose(코드 마스킹)에서 검사.
+// ─────────────────────────────────────────────────────────────
+
+// (1) 하드 금지: 한국어 필자가 거의 안 쓰는 결정적 AI 티(S1). 라인별 error.
+const aiTellHard = [
+  [/되어지|되어졌|지게\s*됩?니다|지게\s*된다/g, "A-8 이중피동", "능동 또는 단일 피동으로 ('판단되어진다' → '판단된다')."],
+  [/가지고\s*있/g, "A-7 가지고있다", "형용사·동사로 환원 ('경쟁력을 가지고 있다' → '경쟁력이 강하다')."],
+  [/혁신적|획기적|압도적|막강한|폭발적|파격적|대대적|전례\s*없는/g, "D-4 hype어휘", "구체 수치·사실로. 마케팅 톤."],
+  [/시사하는\s*바가\s*크|주목할\s*만하/g, "D-2 과장관용구", "구체 결론으로 바꾸거나 삭제."]
+];
+for (const [regex, id, guidance] of aiTellHard) {
+  for (const match of prose.matchAll(regex)) {
+    errors.push({ type: `ai-tell:${id}`, line: lineNumber(prose, match.index), phrase: match[0].trim(), guidance });
+  }
+}
+
+// (2) 밀도 경고: 한 번은 자연스럽지만 문서당 임계 초과면 AI 티. warn.
+const sentenceCount = (prose.match(/[.!?]/g) || []).length || 1;
+const aiTellDensity = [
+  [/(를|을)\s*통(해|하여|한)/g, "A-2 ~를통해", 3, "'~로 / ~해서 / ~함으로써'로 분산."],
+  [/에\s*대[해한](?:서)?/g, "A-1 ~에대해", 3, "목적격 조사로 직결 ('X에 대해 논의' → 'X를 논의')."],
+  [/에\s*의[해한]/g, "A-9 ~에의해", 2, "행위자를 주어로 ('AI에 의해 생성' → 'AI가 만든')."],
+  [/수\s*있(다|습니다|는|을|었)/g, "G-1 ~수있다", 10, "단언 가능한 곳은 단언으로 ('높일 수 있다' → '높인다')."],
+  [/[가-힣]적\s+[가-힣]/g, "F-5 ~적N체인", 5, "구체 명사·동사로 풀기 ('구조적 변화' → '구조가 바뀐다')."],
+  [/것이다\.|것입니다\.|것이었다\.|것이죠\./g, "I-1 것이다종결", 3, "확정 서술로 ('크다는 것이다' → '크다')."],
+  [/^(또한|즉|게다가|나아가|아울러|더욱이)\b/gm, "H-1 문두접속사", 3, "문장 내용으로 흐름을 잡아라. 대부분 삭제."]
+];
+for (const [regex, id, threshold, guidance] of aiTellDensity) {
+  const matches = [...prose.matchAll(regex)];
+  if (matches.length > threshold) {
+    const linesHit = matches.slice(0, 8).map((m) => lineNumber(prose, m.index)).join(",");
+    warnings.push({
+      type: `ai-tell:${id}`,
+      line: lineNumber(prose, matches[0].index),
+      phrase: `${matches.length}회 (임계 ${threshold})`,
+      guidance: `${guidance} (L${linesHit}${matches.length > 8 ? "..." : ""})`
+    });
+  }
+}
+
+// (3) C-11 연결어미 뒤 쉼표 — KatFish 단일 최강 분리도(인간 4% vs AI 20%, 4.84배).
+// 앞 글자를 포함해 활용 어미를 잡되, 명사 나열 쉼표("텍스트, 광고, 캐시")는 오탐이라 제외.
+const endingCommaAll = [...prose.matchAll(/[가-힣](고|며|지만|면서|는데|아서|어서|거나|든지|도록)\s*,/g)];
+const endingComma = endingCommaAll.filter((m) => {
+  const tail = prose.slice(m.index + m[0].length, m.index + m[0].length + 12);
+  const head = prose.slice(Math.max(0, m.index - 12), m.index);
+  const listAfter = /^\s*[가-힣]{1,6}\s*,/.test(tail); // 뒤에 "또항목," → 나열
+  const listBefore = /,\s*[가-힣]{0,8}$/.test(head); // 앞에 "항목," → 나열 중간
+  return !(listAfter || listBefore);
+});
+if (endingComma.length > 0) {
+  const rate = ((endingComma.length / sentenceCount) * 100).toFixed(1);
+  const linesHit = endingComma.slice(0, 12).map((m) => lineNumber(prose, m.index)).join(",");
+  const sev = endingComma.length >= 6 ? "강한 신호" : "주의";
+  warnings.push({
+    type: "ai-tell:C-11 연결어미뒤쉼표",
+    line: lineNumber(prose, endingComma[0].index),
+    phrase: `${endingComma.length}회 / ${rate}% (${sev})`,
+    guidance: `연결어미 뒤 쉼표 제거 또는 마침표로 끊기. AI 티 최강 신호. (L${linesHit}${endingComma.length > 12 ? "..." : ""})`
+  });
+}
+
 for (const item of errors) {
   console.log(`error:${item.line}: ${item.type}: "${item.phrase}" - ${item.guidance}`);
 }
