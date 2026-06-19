@@ -1,5 +1,5 @@
 ---
-title: "퍼포먼스 최적화 를 향해 - 5부"
+title: "성능 최적화를 향해 - 5부"
 date: 2025-12-27
 update: 2025-12-27
 tags:
@@ -11,10 +11,20 @@ tags:
   - series
 ---
 
-## 들어가며
+> **TL;DR**
+>
+> 홈을 RSC/SSR로 옮기자 브라우저 작업은 줄었다.
+> 하지만 HTML이 매번 origin에서 생성되면 TTFB가 남고 LCP 작업의 효과도 작게 보였다.
+>
+> CloudFront를 붙였지만 `private, no-store`와 dynamic route 때문에 hit률이 한 자리수였다.
+> 공개 콘텐츠, 개인화 페이지, RSC payload, redirect, prefetch, 압축 정책을 분리하면서 캐시 가능한 응답만 edge에 태웠다.
+
+---
+
+## 서버가 매번 HTML을 만들면 무엇이 달라졌나?
 4부에서 홈을 RSC/SSR 쪽으로 옮겼다.
 
-브라우저가 화면을 통째로 조립하지 않아도 되게 만들었고,  
+브라우저가 화면을 통째로 조립하지 않아도 되게 만들었고  
 첫 화면 HTML 안에 메인 기사들이 들어오게 됐다.
 
 근데 그게 끝이 아니었다.
@@ -38,7 +48,7 @@ tags:
 
 ---
 
-## CloudFront 가 안 먹히고 있었다
+## CloudFront는 왜 안 먹혔나?
 
 응답 헤더를 까봤다.
 
@@ -71,7 +81,7 @@ Next 가 *자동으로* 그 헤더를 박고 있었다.
 
 ---
 
-## 한 줄이 페이지 전체를 dynamic 으로 만들었다
+## 어떤 한 줄이 페이지 전체를 dynamic으로 만들었나?
 
 Next 14 App Router 가 좀 까다로웠다.
 
@@ -82,7 +92,7 @@ Next 14 App Router 가 좀 까다로웠다.
 - `fetch(..., { cache: 'no-store' })`
 - `export const dynamic = 'force-dynamic'`
 
-홈 안에 로그인 상태를 확인하는 `cookies()` 가 어딘가 있었고,  
+홈 안에 로그인 상태를 확인하는 `cookies()` 가 어딘가 있었고  
 검색 진입 처리하는 자리에 `searchParams` 가 있었다.
 
 한 줄.  
@@ -94,7 +104,7 @@ Next 14 App Router 가 좀 까다로웠다.
 
 ---
 
-## ISR 한 줄로 다 풀릴 거라 봤다
+## ISR 한 줄로 끝낼 수 있었나?
 
 처음엔 답이 단순해 보였다.
 
@@ -131,9 +141,12 @@ export const revalidate = 60
 `force-dynamic` 으로 둔 페이지는 영원히 origin 이 받는다.  
 그건 어쩔 수 없다. 공용 캐시 못 하는 자리니까.
 
+포기한 것: 모든 페이지를 60초 ISR로 묶는 방식.
+대신 개인화/인증/preview는 origin으로 보내고 공개 콘텐츠만 공유 캐시에 올렸다.
+
 ---
 
-## CloudFront 헤더는 path 별로 갈라야 했다
+## CloudFront 헤더는 왜 path별로 갈랐나?
 
 페이지 단위 갈래만으로는 부족했다.
 
@@ -161,7 +174,7 @@ export const revalidate = 60
 
 ---
 
-## 같은 URL 인데 응답이 두 개였다
+## 같은 URL에서 응답이 두 개면 어떻게 되나?
 
 Next App Router 는 같은 URL 을 두 가지 응답으로 준다.
 
@@ -196,12 +209,12 @@ hit률이 살짝 떨어진다.
 
 ---
 
-## redirect 가 캐시되는 자리도 있었다
+## redirect도 캐시될 수 있나?
 
 이건 한 번 운영에서 부딪혔다.
 
 기사 하나가 정책으로 한 시간만 다른 URL 로 301 redirect 되고 있었다.  
-정책 끝나서 redirect 제거했는데, 다음 1년 동안 그 자리 사용자가 계속 옛 redirect 로 가더라.
+정책 끝나서 redirect 제거했는데 다음 1년 동안 그 자리 사용자가 계속 옛 redirect 로 가더라.
 
 CF 가 *301 응답을 캐시* 하고 있었다.
 
@@ -226,7 +239,7 @@ return new Response(null, {
 
 ---
 
-## prefetch 가 origin 을 30번씩 때리고 있었다
+## prefetch가 왜 origin을 30번씩 때렸나?
 
 Next 의 `<Link>` 는 viewport 에 들어온 링크를 자동으로 prefetch 한다.
 
@@ -269,7 +282,7 @@ origin 이 이미 gzip 한 응답을 CF 가 또 gzip 하면 의미가 없다.
 brotli 압축을 지원하는 브라우저에 *gzip 응답이 고정*돼서 내려간다.  
 edge 단에서 더 좋은 압축으로 바꿔주지 못한다.
 
-답은 단순했다.
+선택은 단순했다.
 
 ```ts
 // next.config.mjs
@@ -288,7 +301,7 @@ origin 은 압축 안 한 응답을 그대로 내려보낸다.
 이번 phase 정리하면서 한 가지가 명확해졌다.
 
 3부, 4부에서 LCP 잡으려고 한 작업들 (eager, fetchPriority, srcset, sizes, RSC 전환) 이  
-*다 의미 있었는데, CF 가 안 먹히는 상태에선 효과가 잘 안 보였다*.
+*다 의미 있었는데 CF 가 안 먹히는 상태에선 효과가 잘 안 보였다*.
 
 CF hit률 5% 면 모든 첫 응답이 origin TTFB 를 그대로 받는다.  
 LCP 100ms 줄여도 TTFB 800ms 면 점수가 안 움직인다.
@@ -305,7 +318,7 @@ LCP 100ms 줄여도 TTFB 800ms 면 점수가 안 움직인다.
 
 ---
 
-## 다음 phase
+## 다음 문제
 
 이제 서버, CDN, 렌더링 경계까지 다 잡혔다.
 
@@ -314,6 +327,6 @@ LCP 100ms 줄여도 TTFB 800ms 면 점수가 안 움직인다.
 본문이 React 컴포넌트가 아니다.  
 CMS 에디터에서 만든 *HTML 문자열* 이 그대로 내려온다.
 
-`OptimizedImage` 같은 props 로 의도를 전달할 수가 없었다.
+공통 이미지 컴포넌트 props 로 의도를 전달할 수가 없었다.
 
 다음 phase 에서는 그 본문 HTML 을 어떻게 가공했는지 정리한다.
