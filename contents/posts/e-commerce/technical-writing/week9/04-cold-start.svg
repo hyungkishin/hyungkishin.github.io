@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 500" font-family="system-ui, -apple-system, sans-serif">
   <rect width="920" height="500" fill="#0f172a"/>
 
-  <text x="460" y="36" fill="#e2e8f0" font-size="18" font-weight="600" text-anchor="middle">콜드 스타트 — 자정을 넘기는 순간, 랭킹은 비어있다</text>
+  <text x="460" y="36" fill="#e2e8f0" font-size="18" font-weight="600" text-anchor="middle">콜드 스타트: 자정을 넘기는 순간, 랭킹은 비어있다</text>
   <text x="460" y="58" fill="#64748b" font-size="12" text-anchor="middle">23:50에 전일 Top 500 × 10%를 익일 키로 미리 복사해둔다</text>
 
   <!-- Yesterday -->
