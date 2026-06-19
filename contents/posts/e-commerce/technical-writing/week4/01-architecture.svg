@@ -56,5 +56,5 @@
 
   <!-- ===== Fallback Box ===== -->
   <rect x="230" y="470" width="260" height="35" rx="10" fill="#0f3460" stroke="#3b82f6" stroke-width="1.5" filter="url(#shadow)"/>
-  <text x="360" y="493" font-size="12" font-weight="700" fill="#93c5fd" text-anchor="middle">FallbackService — SMS 대체 발송</text>
+  <text x="360" y="493" font-size="12" font-weight="700" fill="#93c5fd" text-anchor="middle">FallbackService: SMS 대체 발송</text>
 </svg>
