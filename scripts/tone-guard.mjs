@@ -214,8 +214,7 @@ for (const { start, end } of streakReports) {
 }
 
 const softSignals = [
-  ["TL;DR", "글 상단에 TL;DR 블록이 보이지 않는다."],
-  ["포기한 것", "트레이드오프 인용구가 한 번도 없다."],
+  // 절충형: TL;DR·"포기한 것" 강제 제거(토스·velog 둘 다 안 씀). 코드 evidence만 유지.
   ["```", "기술 글이라면 코드/설정/다이어그램 evidence 블록이 필요하다."]
 ];
 for (const [needle, guidance] of softSignals) {
@@ -241,14 +240,7 @@ for (const title of weakSections) {
   });
 }
 
-const hasQuestionSection = sections.some((title) => /[?？]|까$|까요$|왜|어떻게|얼마나/.test(title));
-if (sections.length > 0 && !hasQuestionSection) {
-  warnings.push({
-    type: "missing-question-section",
-    phrase: "decision question",
-    guidance: "섹션 제목 중 절반 이상은 의문형이어야 한다."
-  });
-}
+// 절충형: 질문형 섹션 강제 제거. 토스는 질문형 제목을 안 쓰고 velog는 쓴다 — 스타일 선택이지 규칙이 아니다.
 
 const svgPathRegex = /!\[[^\]]*\]\(([^)]+\.svg)\)|src=["']([^"']+\.svg)["']/g;
 const referencedSvgs = new Set();
@@ -346,15 +338,33 @@ const endingComma = endingCommaAll.filter((m) => {
   const listBefore = /,\s*[가-힣]{0,8}$/.test(head); // 앞에 "항목," → 나열 중간
   return !(listAfter || listBefore);
 });
-if (endingComma.length > 0) {
+// 절충형: 6회 미만 만연체는 정상(velog 좋은 글도 씀). 6회 이상 "강한 신호"만 잡는다.
+if (endingComma.length >= 6) {
   const rate = ((endingComma.length / sentenceCount) * 100).toFixed(1);
   const linesHit = endingComma.slice(0, 12).map((m) => lineNumber(prose, m.index)).join(",");
-  const sev = endingComma.length >= 6 ? "강한 신호" : "주의";
+  const sev = "강한 신호";
   warnings.push({
     type: "ai-tell:C-11 연결어미뒤쉼표",
     line: lineNumber(prose, endingComma[0].index),
     phrase: `${endingComma.length}회 / ${rate}% (${sev})`,
     guidance: `연결어미 뒤 쉼표 제거 또는 마침표로 끊기. AI 티 최강 신호. (L${linesHit}${endingComma.length > 12 ? "..." : ""})`
+  });
+}
+
+// 절충형 신규: 사람 목소리(경험·반문·구어) 측정. 빼는 규칙만으론 기계적 AI 톤을 못 거른다.
+const voiceSignals = [
+  /거든요|인데요|더라고요|니까요|잖아요|네요|군요/g, // 구어 종결
+  /까요\?|나요\?|을까\?|ㄹ까\?/g, // 반문
+  /제가|저는|내가|나는|직접\s/g // 1인칭 경험
+];
+let voiceHits = 0;
+for (const re of voiceSignals) voiceHits += (prose.match(re) || []).length;
+if (sections.length >= 3 && voiceHits < 3) {
+  warnings.push({
+    type: "voice-missing",
+    line: null,
+    phrase: `목소리 ${voiceHits}건`,
+    guidance: "경험·반문·구어가 거의 없다. '제가 겪은~', '~거든요', '~할까요?' 같은 사람 목소리를 넣어라."
   });
 }
 
