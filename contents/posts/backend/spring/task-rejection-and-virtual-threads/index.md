@@ -29,7 +29,7 @@ tags:
 
 - 배치가 2,100건 상태 전이를 만들었다
 - 리스너 3개가 fan-out 되어 6,300 태스크가 단일 executor로 몰렸다
-- 큐가 거부했고, 5,235건이 영구 유실되었다
+- 큐가 거부했다. 5,235건이 영구 유실되었다
 
 회고에서 안 본 것이 있었어요.
 
@@ -111,7 +111,7 @@ final void reject(Runnable command) {
 - `workQueue.offer()` 실패 (= 큐가 가득 참)
 - `addWorker(command, false)` 실패 (= `maxPoolSize` 도달)
 
-세 조건이 동시에 만족되어야 reject. 하나라도 비면 거부 안 됨. 우리 사고 자리는: `corePoolSize`/`maxPoolSize`가 작고, `queueCapacity`가 빨리 차서 세 조건이 동시에 만족.
+세 조건이 동시에 만족되어야 reject. 하나라도 비면 거부 안 됨. 우리 사고 자리는: `corePoolSize`/`maxPoolSize`가 작은 데다 `queueCapacity`가 빨리 차서 세 조건이 동시에 만족.
 
 거부 = 예외를 던진다. 그게 전부다.
 호출 코드에서 잡지 않으면 그 작업은 **사라진다.** 멱등 재시도 없으면 영구 유실.
@@ -248,9 +248,9 @@ private void invokeListener(ApplicationListener<?> listener, ApplicationEvent ev
 - **정합성 깨짐**
 
 회고에서 5,235건이 사라진 자리는 **옵션 B**.
-DB의 `EXPIRED_AUTO` 상태 전이는 commit됐고, 그 뒤의 `@Async` 리스너 호출에서 큐 거부 -> 호출자(트랜잭션 밖)가 잡지 않으니 stack trace 한 줄로 끝.
+DB의 `EXPIRED_AUTO` 상태 전이는 commit됐다. 그 뒤의 `@Async` 리스너 호출에서 큐 거부 -> 호출자(트랜잭션 밖)가 잡지 않으니 stack trace 한 줄로 끝.
 
-`AsyncUncaughtExceptionHandler`는 이 흐름에 **개입하지 않는다.** 그게 도달하려면 task가 실행되고 있어야 하는데, 거부는 실행 전.  
+`AsyncUncaughtExceptionHandler`는 이 흐름에 **개입하지 않는다.** 그게 도달하려면 task가 실행되고 있어야 한다. 거부는 실행 전이다.  
 handler를 아무리 잘 설정해도 이 자리는 못 잡는다.
 
 **진짜 자리는 두 군데:**
@@ -349,7 +349,7 @@ protected void onLimitReached() {
 ```
 
 `Semaphore`가 아니다. `ReentrantLock` + `Condition.await()`.
-효과는 동등하지만 **잡는 자리는 다르다**: Semaphore는 `acquire()`가 막고, 여기는 `Condition.await()`이 막는다.
+효과는 동등하지만 **잡는 자리는 다르다**: Semaphore는 `acquire()`가 막는다. 여기는 `Condition.await()`이 막는다.
 
 ### 정리
 
@@ -395,7 +395,7 @@ JDK 21+ Virtual Thread
 - blocking이 끝나면 VT는 다시 schedule되어 carrier 위에 mount
 
 `concurrencyLimit`의 `Condition.await()`도 Loom의 instrumentation 대상.
-caller가 막히면 그 caller의 VT는 unmount되고, carrier는 다른 일을 한다.
+caller가 막히면 그 caller의 VT는 unmount된다. carrier는 다른 일을 한다.
 
 ### 변태 디깅: 무엇이 unmount를 가능하게 하는가
 
@@ -413,7 +413,7 @@ VT가 blocking을 만났을 때 carrier에서 unmount되려면: 그 blocking 지
 **Pin 되는 자리 (carrier 못 풀어줌):**
 - `synchronized` 블록 / 메서드 (JVM 모니터 락)
 - JNI native call 안의 blocking
-- `Object.wait()`도 `synchronized` 안에서 호출되면 monitor 점유 상태로 wait -> 사실상 pinned
+- `Object.wait()`도 `synchronized` 안에서 호출되면 monitor 점유 상태로 wait -> 실제로 pinned
 
 ### 왜 synchronized는 pin하고 ReentrantLock은 안 하나
 
@@ -421,7 +421,7 @@ VT가 blocking을 만났을 때 carrier에서 unmount되려면: 그 blocking 지
 
 `synchronized`는 JVM 레벨 모니터 락이다. JVM이 carrier thread의 OS thread에 락 ownership을 새긴다: `monitorenter` / `monitorexit`. 바이트코드가 OS thread를 점유.  
 
-VT가 unmount되려면 carrier에서 분리되어야 하는데, 분리되면 OS thread가 가진 모니터 락 ownership이 깨짐. 그래서 Loom은 분리를 포기하고 carrier를 그대로 점유한 채 wait: 이게 "pin".
+VT가 unmount되려면 carrier에서 분리되어야 한다. 분리되면 OS thread가 가진 모니터 락 ownership이 깨짐. 그래서 Loom은 분리를 포기하고 carrier를 그대로 점유한 채 wait: 이게 "pin".
 
 `ReentrantLock`은 `AbstractQueuedSynchronizer`(AQS) 기반으로 Java 레벨에서 구현.  
 락 대기는 결국 `LockSupport.park(this)` 호출.  
@@ -536,7 +536,7 @@ VM이 unmount 못 하는 프레임:
 2. **JNI native frame**: native call 안에서는 Java VM이 스택을 저장 못 함.
 3. **Class initializer (`<clinit>`)**: 초기화 중 yield하면 클래스 로딩 깨짐.
 
-대부분의 운영 환경에서 1번이 압도적. third-party 라이브러리(JDBC 드라이버, HTTP 클라이언트)가 `synchronized`를 쓰면 거기서 pin.
+대부분의 운영 환경에서 1번이 거의 전부다. third-party 라이브러리(JDBC 드라이버, HTTP 클라이언트)가 `synchronized`를 쓰면 거기서 pin.
 
 ### Pin 감지: JFR과 -Djdk.tracePinnedThreads
 
@@ -629,7 +629,7 @@ Spring 6.0 이하 + VT 조합에서는 이 전략이 **반쯤만** 성립한다 
 
 Slack 기준으로 안전한 concurrency
 - 목표 throughput 0.8 req/s (rate limit 80%)
-- p50 200ms -> `concurrency = 0.8 × 0.2 = 0.16` -> **사실상 1**
+- p50 200ms -> `concurrency = 0.8 × 0.2 = 0.16` -> **현실적으로 1**
 
 Amplitude 기준 안전 concurrency
 - 목표 throughput 800 req/s
@@ -667,7 +667,7 @@ val slackBucket = Bucket.builder()
 
 이게 회고의 "안 푼 것"에 들어간 이유.
 숫자 자체보다 **숫자의 근거가 측정이어야 한다**는 게 핵심.
-P0(Outbox) 머지 전에는 50으로 가지만, 실측 + API별 분리 후 재산정해야 한다.
+P0(Outbox) 머지 전에는 50으로 간다. 실측 + API별 분리 후 재산정해야 한다.
 
 ---
 

@@ -45,9 +45,9 @@ fun main() {
   - 서버개발
   - e.g ) 모바일 앱, 프론트 js, 안드로이드
 
-### 기업의 개선점
+### 기업 도입 사례
 - google 의 경우 npe 를 33% 절감 함
-- 그로인해 사용자 환경은 크게 향상 시켰다.
+- 그로인해 npe 로 인한 사용자 측 크래시가 그만큼 줄었다.
 
 ### 코틀린 타임라인
 - 2016년 2월 코틀린 1.0 릴리즈
@@ -73,7 +73,7 @@ fun main() {
 
 ![img.png](img.png)
 
-- java 에서 체크드 익셉션은 무조건 try catch 로 감싸줘야 하거나 throw 라는 키워드로 예외를 전파하지 않으면 컴파일 에러가 발생.
+- java 에서 체크드 익셉션은 try catch 로 감싸거나 throw 키워드로 예외를 전파하지 않으면 컴파일 에러가 발생한다.
 ```java
 try {
     Thread.slepp(1);
@@ -98,7 +98,7 @@ val i: Int = 0;
 val str: String = i.toString();
 ```
 
-- 코틀린의 레퍼런스 타입은 최적화된 방식으로 컴파일 한다.
+- 코틀린의 레퍼런스 타입은 컴파일 시 가능한 경우 원시 타입으로 변환된다.
 ```kotlin
 int i = 0;
 String str = String.valueOf(i);
@@ -140,7 +140,7 @@ val animalSound: String = if ("호랑이" == animal) "어흥" : "야홍";
 ---
 
 ### 세미콜론
-- 자바는 무조건 ; 세미콜론이 붙지만 코틀린은 안붙는다.
+- 자바는 문장 끝에 ; 세미콜론이 붙지만 코틀린은 안붙는다.
 ```java
 Boolean isAdmin = userService.isAdmin(userId);
 ```
