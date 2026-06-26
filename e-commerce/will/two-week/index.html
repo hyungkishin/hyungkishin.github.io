@@ -287,19 +287,19 @@ data-styled.g53[id="Footer__HiddenWrapper-sc-1d9k77a-9"]{content:"ZwedX,"}/*!sc*
 </blockquote>
 <hr>
 <h2>TL;DR</h2>
-<p>좋아요 멱등성은 애플리케이션이 아닌 DB 제약에 위임했고,<br>
+<p>좋아요 멱등성은 애플리케이션이 아닌 DB 제약에 위임했다.<br>
 재고 차감은 현재 요구 수준에서 검증 일관성을 보장하기 위해 이중 방어를 적용했다.<br>
 경합이 빈번한 수치 데이터는 도메인 객체가 아닌 저장소 계층에서 원자적으로 변경하도록 분리했다.</p>
 <p>ERD에서는 다음 세 가지를 가장 오래 고민했다.</p>
 <ul>
 <li>주문 이력의 독립성을 위해 FK를 제거할 것인가</li>
 <li>운영 상태와 삭제 상태를 분리할 것인가</li>
-<li>기술적 시점과 비즈니스 시점을 구분할 것인가</li>
+<li>기록 시점과 비즈니스 시점을 구분할 것인가</li>
 </ul>
 <p>핵심 목표는 기능 구현이 아니라<br>
 <strong>요구사항을 안정적인 구조로 번역하는 능력</strong>을 확보하는 것이었다.</p>
 <hr>
-<h2>1. 좋아요 멱등성 — 조회 후 삽입을 포기한 이유</h2>
+<h2>1. 좋아요 멱등성: 조회 후 삽입을 포기한 이유</h2>
 <p>좋아요 기능은 자연스럽게 다음과 같은 흐름으로 설계되기 쉽다.</p>
 <div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text">1. 이미 좋아요했는지 조회
 2. 없으면 INSERT
@@ -307,10 +307,10 @@ data-styled.g53[id="Footer__HiddenWrapper-sc-1d9k77a-9"]{content:"ZwedX,"}/*!sc*
 <p>단일 요청 환경에서는 문제가 없다.<br>
 하지만 동시 요청이 들어오면 경쟁 조건이 발생한다.</p>
 <p>두 트랜잭션이 동시에 조회하면 모두 “존재하지 않음”을 확인하고<br>
-동시에 INSERT를 시도하게 된다. 결국 하나는 UNIQUE 제약에 의해 실패하고,<br>
+동시에 INSERT를 시도하게 된다. 결국 하나는 UNIQUE 제약에 의해 실패하고<br>
 예외 처리를 통해 멱등성을 보완해야 한다.</p>
 <p>이 문제를 피하기 위해 조회 단계를 제거하고<br>
-DB의 원자적 제약을 직접 활용했다.</p>
+DB의 원자적 제약을 직접 썼다.</p>
 <div class="gatsby-highlight" data-language="sql"><pre class="language-sql"><code class="language-sql"><span class="token keyword">INSERT</span> <span class="token keyword">INTO</span> likes <span class="token punctuation">(</span>user_id<span class="token punctuation">,</span> product_id<span class="token punctuation">)</span>
 <span class="token keyword">ON</span> CONFLICT <span class="token punctuation">(</span>user_id<span class="token punctuation">,</span> product_id<span class="token punctuation">)</span> <span class="token keyword">DO</span> NOTHING</code></pre></div>
 <p>이 방식의 장점은 명확하다.</p>
@@ -320,17 +320,17 @@ DB의 원자적 제약을 직접 활용했다.</p>
 <li>멱등성 보장 주체를 DB로 이동</li>
 <li>애플리케이션 로직 단순화</li>
 </ul>
-<p>취소 또한 동일한 원칙을 적용했다.<br>
-SELECT 없이 DELETE를 수행하고, 영향 받은 행 수로 결과를 판단한다.</p>
+<p>취소도 동일한 원칙을 적용했다.<br>
+SELECT 없이 DELETE를 수행하고 영향 받은 행 수로 결과를 판단한다.</p>
 <p>카운트 변경 역시 DB에서 처리한다.</p>
 <div class="gatsby-highlight" data-language="sql"><pre class="language-sql"><code class="language-sql"><span class="token keyword">UPDATE</span> product
 <span class="token keyword">SET</span> like_count <span class="token operator">=</span> GREATEST<span class="token punctuation">(</span>like_count <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span></code></pre></div>
 <p>상품 존재 확인 이후 Soft Delete가 발생하는 경합 상황은 허용했다.<br>
-좋아요는 고빈도 연산이며, 해당 시점에 존재했던 상품에 대한 행위 자체는<br>
+좋아요는 고빈도 연산이다. 해당 시점에 존재했던 상품에 대한 행위 자체는<br>
 유효한 비즈니스 이벤트로 볼 수 있다.</p>
 <p>이를 막기 위해 상품에 락을 거는 것은 비용 대비 이득이 낮다고 판단했다.</p>
 <hr>
-<h2>2. 재고 차감 — 정합성과 비용 사이의 균형</h2>
+<h2>2. 재고 차감: 정합성과 비용 사이의 균형</h2>
 <p>재고 차감 전략은 다음 두 가지로 나뉜다.</p>
 <h3>A. 조건부 UPDATE만 사용</h3>
 <div class="gatsby-highlight" data-language="sql"><pre class="language-sql"><code class="language-sql"><span class="token keyword">UPDATE</span> product
@@ -356,8 +356,8 @@ DB가 원자적으로 처리하기 때문이다.</p>
 </ul>
 <p>이 과정 중 다른 트랜잭션이 재고를 변경하면<br>
 애플리케이션이 판단한 상태와 실제 상태가 달라질 수 있다.</p>
-<p>조건부 UPDATE는 최종 방어선이지만,<br>
-검증 시점과 변경 시점 사이의 일관성까지 보장하지는 않는다.</p>
+<p>조건부 UPDATE는 최종 방어선이지만 검증 시점과 변경 시점 사이의<br>
+일관성까지 보장하지는 않는다.</p>
 <p>현재 서비스는 다음 조건을 가진다고 가정했다.</p>
 <ul>
 <li>단일 RDB</li>
@@ -424,12 +424,12 @@ FK는 장기적으로 제약이 된다.</p>
 <p><strong>status</strong></p>
 <ul>
 <li>운영 상태 (노출 여부 등)</li>
-<li>가역적 변경 가능</li>
+<li>언제든 되돌릴 수 있음</li>
 </ul>
 <p><strong>deleted_at</strong></p>
 <ul>
 <li>삭제 표시</li>
-<li>비가역적 상태</li>
+<li>한번 찍히면 되돌릴 수 없음</li>
 </ul>
 <p>운영 제어와 데이터 생명주기를 하나의 필드로 표현하면<br>
 의도와 상태 해석이 모호해진다.</p>
@@ -437,7 +437,7 @@ FK는 장기적으로 제약이 된다.</p>
 분리하는 것이 안전하다.</p>
 <hr>
 <h3>4-3. ordered_at과 created_at의 분리</h3>
-<p>created_at은 레코드 생성 시점을 나타내는 기술적 필드다.<br>
+<p>created_at은 레코드가 만들어진 시점을 나타내는 필드다.<br>
 ordered_at은 비즈니스 이벤트 발생 시점이다.</p>
 <p>현재는 동일할 수 있지만, 다음 상황에서는 분리된다.</p>
 <ul>
@@ -458,7 +458,7 @@ ordered_at은 비즈니스 이벤트 발생 시점이다.</p>
 <li>도메인이 인프라 책임을 침범하고 있지 않은가</li>
 <li>데이터가 장기적으로 독립적으로 존재할 수 있는가</li>
 </ul>
-<p>또한 모든 결정에는 전제가 있다.<br>
+<p>그리고 모든 결정에는 전제가 있다.<br>
 서비스 규모와 요구사항이 바뀌면 현재의 선택은 재평가될 수 있다.</p>
 <p>그래서 문제를 미리 다 풀려고 하기보다<br>
 <strong>문제가 생겼을 때 안전하게 전환할 수 있는 구조</strong>를 만드는 것을 목표로 했다.</p>
