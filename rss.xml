@@ -1,4 +1,317 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Fri, 26 Jun 2026 08:51:11 GMT</lastBuildDate><item><title><![CDATA[체크아웃 리팩터링은 컴포넌트 분리가 아니라 금액 모델링부터였습니다]]></title><description><![CDATA[TL;DR…]]></description><link>https://hyungkishin.github.io/frontend/e-commerce/checkout-modeling/</link><guid isPermaLink="false">https://hyungkishin.github.io/frontend/e-commerce/checkout-modeling/</guid><pubDate>Fri, 26 Jun 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;&lt;strong&gt;TL;DR&lt;/strong&gt;&lt;/p&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Fri, 03 Jul 2026 08:14:24 GMT</lastBuildDate><item><title><![CDATA[상품 목록 리팩터링은 500줄을 줄이는 일이 아니었습니다]]></title><description><![CDATA[TL;DR 상품 목록 화면을 처음 열었을 때 제일 먼저 보인 건 긴 컴포넌트였습니다.
+필터, 검색, 정렬, 페이지네이션, API 호출, 로딩과 에러 처리, localStorage…]]></description><link>https://hyungkishin.github.io/frontend/e-commerce/product-list-boundary/</link><guid isPermaLink="false">https://hyungkishin.github.io/frontend/e-commerce/product-list-boundary/</guid><pubDate>Fri, 03 Jul 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;&lt;strong&gt;TL;DR&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;상품 목록 화면을 처음 열었을 때 제일 먼저 보인 건 긴 컴포넌트였습니다.
+필터, 검색, 정렬, 페이지네이션, API 호출, 로딩과 에러 처리, localStorage 동기화까지 한 파일에 들어 있었습니다.&lt;/p&gt;
+&lt;p&gt;하지만 이번 리팩터링의 목표를 &quot;파일을 작게 만들기&quot;로 잡으면 방향이 틀어진다고 봤습니다.
+500줄을 100줄짜리 파일 다섯 개로 나눠도, 어디서 데이터를 가져오고 어디서 상태가 바뀌는지 모르면 읽기 쉬워진 게 아니니까요.&lt;/p&gt;
+&lt;p&gt;그래서 먼저 읽는 순서를 잡았습니다.
+화면은 컴포넌트에서 읽습니다.
+동작은 훅에서 읽고 API 계약은 서비스에서 봅니다.
+계산은 유틸에 둡니다.&lt;/p&gt;
+&lt;h2&gt;왜 긴 컴포넌트보다 읽는 순서가 먼저였을까요?&lt;/h2&gt;
+&lt;p&gt;긴 컴포넌트는 불편합니다.
+그런데 길다는 사실만으로 나쁜 코드는 아닙니다.
+더 위험한 건 한 파일 안에서 여러 변경 이유가 서로 섞여 있는 상태입니다.&lt;/p&gt;
+&lt;p&gt;상품 목록 화면에는 이런 변경 이유가 같이 있었습니다.
+카테고리 필터 정책이 바뀔 수 있습니다.
+검색어가 URL에 남아야 할 수도 있습니다.
+서버의 API query 이름도 바뀝니다.
+위시리스트 저장 방식도 언젠가는 바뀝니다.
+상품 카드의 배지 기준도 마찬가지고요.&lt;/p&gt;
+&lt;p&gt;이걸 한 파일에서 모두 처리하면 수정할 때마다 같은 파일을 열게 됩니다.
+문제는 파일을 여는 횟수가 아니라, 읽는 동안 계속 관심사가 바뀐다는 점입니다.
+필터 상태를 보다가 갑자기 fetch를 읽습니다.
+그러다 카드 배지 계산으로 넘어가고, 다시 localStorage를 보게 됩니다.&lt;/p&gt;
+&lt;p&gt;그래서 처음 질문은 이렇게 잡았습니다.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;이 코드를 몇 줄로 줄일까가 아니라, 어떤 질문을 어디서 답하게 만들까?&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;이 질문을 기준으로 나누니 분리 단위가 조금 선명해졌습니다.
+UI는 화면을 보여줍니다.
+Hook에서는 상태 변경 흐름을 봅니다.
+Service에는 서버와의 계약이 남습니다.
+Utils는 입력을 출력으로 바꾸는 작은 규칙을 맡습니다.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;포기한 것&lt;/strong&gt;: 줄 수만 줄이는 리팩터링을 버렸습니다.
+파일이 작아져도 읽는 순서가 생기지 않으면 같은 문제를 다른 파일로 옮긴 것뿐이라고 봤습니다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;API 호출은 왜 페이지에서 빠져야 했을까요?&lt;/h2&gt;
+&lt;p&gt;페이지 컴포넌트 안에 &lt;code class=&quot;language-text&quot;&gt;fetch&lt;/code&gt;가 있으면 처음에는 편합니다.
+필터 상태를 바로 읽어서 URLSearchParams를 만듭니다.
+응답을 받은 뒤 &lt;code class=&quot;language-text&quot;&gt;products&lt;/code&gt;와 &lt;code class=&quot;language-text&quot;&gt;totalCount&lt;/code&gt;를 setState 하면 됩니다.&lt;/p&gt;
+&lt;p&gt;문제는 API 계약이 화면 코드에 박힌다는 점입니다.
+&lt;code class=&quot;language-text&quot;&gt;category&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;sort&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;q&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;page&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;size&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;minPrice&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;inStock&lt;/code&gt; 같은 query 이름을 페이지가 모두 알게 됩니다.
+나중에 서버 query 이름이 바뀌면 화면 컴포넌트를 열어야 합니다.
+에러 메시지 형식이 바뀌어도 같은 파일을 봐야 하고요.&lt;/p&gt;
+&lt;p&gt;그래서 API 호출은 &lt;code class=&quot;language-text&quot;&gt;productService&lt;/code&gt;로 뺐습니다.
+페이지는 상품을 가져오는 방법을 모릅니다.
+그냥 &lt;code class=&quot;language-text&quot;&gt;useProducts&lt;/code&gt;가 돌려준 서버 상태를 읽습니다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;ts&quot;&gt;&lt;pre class=&quot;language-ts&quot;&gt;&lt;code class=&quot;language-ts&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;const&lt;/span&gt; productService &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;token keyword&quot;&gt;async&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;getProducts&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;params&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; GetProductsParams&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;Promise&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;&amp;lt;&lt;/span&gt;ProductListResponse&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;const&lt;/span&gt; searchParams &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;token class-name&quot;&gt;URLSearchParams&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+      category&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; params&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;category&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+      sort&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; params&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;sortBy&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+      q&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; params&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;searchQuery&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+      page&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;params&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;page&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+      size&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;params&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;pageSize&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;params&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;inStockOnly&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+      searchParams&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&apos;inStock&apos;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&apos;true&apos;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;token keyword&quot;&gt;const&lt;/span&gt; response &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;await&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;fetch&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token template-string&quot;&gt;&lt;span class=&quot;token template-punctuation string&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;/api/products?&lt;/span&gt;&lt;span class=&quot;token interpolation&quot;&gt;&lt;span class=&quot;token interpolation-punctuation punctuation&quot;&gt;${&lt;/span&gt;searchParams&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;toString&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token interpolation-punctuation punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token template-punctuation string&quot;&gt;`&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;!&lt;/span&gt;response&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;ok&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;token keyword&quot;&gt;throw&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;token class-name&quot;&gt;Error&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token template-string&quot;&gt;&lt;span class=&quot;token template-punctuation string&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;API 호출 실패 (status: &lt;/span&gt;&lt;span class=&quot;token interpolation&quot;&gt;&lt;span class=&quot;token interpolation-punctuation punctuation&quot;&gt;${&lt;/span&gt;response&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;status&lt;span class=&quot;token interpolation-punctuation punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token template-punctuation string&quot;&gt;`&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; response&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;이렇게 나누고 나니 테스트도 쉬워졌습니다.
+페이지 전체를 렌더링하지 않아도 됩니다.
+API query contract는 서비스 테스트에서 바로 확인됩니다.
+재고 필터가 클라이언트에서만 적용되던 문제도 여기서 잡았습니다.
+&lt;code class=&quot;language-text&quot;&gt;inStockOnly&lt;/code&gt;가 true면 API 요청에 &lt;code class=&quot;language-text&quot;&gt;inStock=true&lt;/code&gt;가 들어갑니다.
+훅에서는 서버 응답을 다시 필터링하지 않습니다.&lt;/p&gt;
+&lt;p&gt;이 판단은 사소해 보이지만 중요했습니다.
+클라이언트에서 한 번 더 필터링하면 목록은 맞아 보일 수 있습니다.
+하지만 &lt;code class=&quot;language-text&quot;&gt;totalCount&lt;/code&gt;는 서버 기준입니다.
+그 순간 페이지네이션과 목록이 어긋납니다.
+보이는 목록만 맞아서는 부족했습니다.
+목록, 총 개수, 페이지 수가 같은 기준을 봐야 했습니다.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;포기한 것&lt;/strong&gt;: 페이지 안에서 query를 바로 만드는 편함을 버렸습니다.
+대신 서버와의 계약을 service 한 곳에서 읽게 했습니다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;Hook은 어디까지 책임져야 했을까요?&lt;/h2&gt;
+&lt;p&gt;처음에는 &lt;code class=&quot;language-text&quot;&gt;useProductListPage&lt;/code&gt; 같은 큰 훅 하나로 빼는 선택도 가능했습니다.
+그렇게 하면 페이지 컴포넌트는 더 짧아집니다.
+하지만 큰 컴포넌트가 큰 훅으로 이동할 뿐이면 리팩터링이라고 부르기 어렵습니다.&lt;/p&gt;
+&lt;p&gt;그래서 훅은 한 문장으로 설명되는 단위까지만 나눴습니다.&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;useProducts&lt;/code&gt;는 상품 목록 서버 상태를 관리합니다.
+loading, error, products, totalCount, stale response 방지, refetch가 같이 움직입니다.&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;useProductFilters&lt;/code&gt;에는 필터 상태와 필터 변경 시 페이지를 1로 되돌리는 규칙을 뒀습니다.
+카테고리, 가격, 정렬, 검색어, 재고 토글은 모두 목록 조건이라는 같은 축에 있습니다.&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;useProductPagination&lt;/code&gt;은 현재 페이지와 페이지 번호 계산을 맡습니다.
+API 응답 구조는 모릅니다.
+totalCount와 pageSize만 받아서 화면이 쓸 pageNumbers를 돌려줍니다.&lt;/p&gt;
+&lt;p&gt;위시리스트와 최근 본 상품은 별도 훅으로 뺐습니다.
+localStorage 동기화가 있기 때문입니다.
+브라우저 저장소는 React 밖의 외부 시스템입니다.
+페이지 컴포넌트가 try/catch로 저장소 실패까지 알 필요는 없다고 봤습니다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;ts&quot;&gt;&lt;pre class=&quot;language-ts&quot;&gt;&lt;code class=&quot;language-ts&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;const&lt;/span&gt; productsQuery &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;useProducts&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+  category&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+  sortBy&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+  searchQuery&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+  page&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+  pageSize&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token constant&quot;&gt;PAGE_SIZE&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+  minPrice&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+  maxPrice&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+  inStockOnly&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;여기서 페이지가 하는 일은 조합입니다.
+필터 상태와 페이지 상태를 읽어 서버 상태 훅에 넘깁니다.
+이 정도 조합은 페이지에 남겼습니다.
+모든 연결까지 밖으로 빼면 오히려 &quot;이 화면이 어떻게 움직이는지&quot;를 찾기 어려워지기 때문입니다.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;포기한 것&lt;/strong&gt;: 페이지를 빈 껍데기처럼 만드는 선택을 버렸습니다.
+페이지는 여러 훅과 UI 컴포넌트를 조합하는 책임을 가져도 된다고 봤습니다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;파생값은 상태로 들고 있지 않았나요?&lt;/h2&gt;
+&lt;p&gt;상품 목록에는 파생값이 많습니다.
+할인율, 품절 여부, 품절 임박, 무료배송, BEST, NEW 같은 값이 전부 상품 데이터에서 다시 계산됩니다.&lt;/p&gt;
+&lt;p&gt;이 값들을 상태로 들면 동기화할 대상이 늘어납니다.
+상품 데이터가 바뀌었는데 배지 상태가 같이 바뀌지 않으면 UI는 틀린 말을 하게 됩니다.&lt;/p&gt;
+&lt;p&gt;그래서 상품 규칙은 &lt;code class=&quot;language-text&quot;&gt;productRules&lt;/code&gt;라는 순수 함수로 뺐습니다.
+React를 모르는 함수로 만들면 테스트하기 쉽습니다.
+컴포넌트에서 계산 의도도 더 잘 보입니다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;ts&quot;&gt;&lt;pre class=&quot;language-ts&quot;&gt;&lt;code class=&quot;language-ts&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;isAlmostSoldOut&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;product&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt; stock&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;number&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; product&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;stock &lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; product&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;stock &lt;span class=&quot;token operator&quot;&gt;&amp;lt;=&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;5&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;token keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;isBestSeller&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;product&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt; rating&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;number&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt; reviewCount&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;number&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; product&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;rating &lt;span class=&quot;token operator&quot;&gt;&gt;=&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;4.5&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; product&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;reviewCount &lt;span class=&quot;token operator&quot;&gt;&gt;=&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;100&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;카드 컴포넌트는 이 함수를 호출해서 렌더링합니다.
+여기서 조금 고민했습니다.
+상품 카드가 &lt;code class=&quot;language-text&quot;&gt;productRules&lt;/code&gt;를 import하면 UI 컴포넌트가 도메인 규칙을 아는 것처럼 보일 수 있습니다.&lt;/p&gt;
+&lt;p&gt;그래도 이번 단계에서는 허용했습니다.
+카드 안에서만 쓰는 표시 규칙이고 계산 자체는 순수 함수로 빠져 있기 때문입니다.
+나중에 같은 배지 규칙을 다른 화면에서도 쓰게 되면 그때 별도 view model을 만들면 됩니다.
+지금 만들면 미리 만든 추상화입니다.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;포기한 것&lt;/strong&gt;: 배지 표시용 view model을 미리 만드는 선택을 미뤘습니다.
+아직 재사용 지점이 없어서 &lt;code class=&quot;language-text&quot;&gt;ProductCard&lt;/code&gt;와 순수 함수 조합으로 충분하다고 판단했습니다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;URL 상태는 왜 따로 다뤘을까요?&lt;/h2&gt;
+&lt;p&gt;목록 화면에서 필터와 검색어와 페이지는 단순한 UI 상태가 아니었습니다.
+새로고침해도 유지되어야 합니다.
+URL을 공유해도 같은 화면이 떠야 하고요.
+그렇다면 이 값들은 URL 상태입니다.&lt;/p&gt;
+&lt;p&gt;처음에는 상태가 바뀔 때마다 페이지에서 직접 &lt;code class=&quot;language-text&quot;&gt;URLSearchParams&lt;/code&gt;를 만져도 됩니다.
+하지만 읽는 규칙과 쓰는 규칙이 흩어지면 금방 어긋납니다.
+예를 들어 읽을 때는 &lt;code class=&quot;language-text&quot;&gt;sort&lt;/code&gt;를 보는데 쓸 때는 &lt;code class=&quot;language-text&quot;&gt;sortBy&lt;/code&gt;로 쓰면 공유 링크가 깨집니다.
+&lt;code class=&quot;language-text&quot;&gt;inStock&lt;/code&gt;도 마찬가지입니다.&lt;/p&gt;
+&lt;p&gt;그래서 URL 읽기와 쓰기를 한 파일에 모았습니다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;ts&quot;&gt;&lt;pre class=&quot;language-ts&quot;&gt;&lt;code class=&quot;language-ts&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;readProductListSearchParams&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;
+  params&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; URLSearchParams&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; ProductListUrlState &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+    filters&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+      category&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;readCategory&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;params&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&apos;category&apos;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+      searchQuery&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; params&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&apos;q&apos;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;??&lt;/span&gt; &lt;span class=&quot;token constant&quot;&gt;DEFAULT_FILTERS&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;searchQuery&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+      sortBy&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;readSortBy&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;params&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&apos;sort&apos;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+      minPrice&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;readPositiveNumber&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;params&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&apos;minPrice&apos;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+      maxPrice&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;readPositiveNumber&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;params&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&apos;maxPrice&apos;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+      inStockOnly&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; params&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&apos;inStock&apos;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&apos;true&apos;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+    page&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;readPositivePage&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;params&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&apos;page&apos;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+  &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;여기서는 방어도 같이 했습니다.
+잘못된 category나 sort가 들어오면 기본값으로 돌립니다.
+음수 page도 1로 돌립니다.
+가격도 숫자가 아니면 빈 필터로 봅니다.&lt;/p&gt;
+&lt;p&gt;나중에 실제로 하나 더 걸렸습니다.
+입력창에서 비정상 문자열이 들어오면 &lt;code class=&quot;language-text&quot;&gt;Number(value)&lt;/code&gt;가 &lt;code class=&quot;language-text&quot;&gt;NaN&lt;/code&gt;을 만들 수 있었습니다.
+URL parser는 방어하고 있었는데, 사용자가 직접 입력하는 경로는 방어하지 못한 거죠.
+그래서 필터 훅에도 같은 기준을 넣었습니다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;ts&quot;&gt;&lt;pre class=&quot;language-ts&quot;&gt;&lt;code class=&quot;language-ts&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;parsePriceFilter&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;value&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;number&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&apos;&apos;&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;value &lt;span class=&quot;token operator&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&apos;&apos;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&apos;&apos;&lt;/span&gt;
+  &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+
+  &lt;span class=&quot;token keyword&quot;&gt;const&lt;/span&gt; parsed &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;Number&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;value&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+
+  &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; Number&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;isFinite&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;parsed&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; parsed &lt;span class=&quot;token operator&quot;&gt;&gt;=&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;?&lt;/span&gt; parsed &lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&apos;&apos;&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;이건 작은 버그처럼 보여도 실제로는 API query까지 전파됩니다.
+&lt;code class=&quot;language-text&quot;&gt;minPrice=NaN&lt;/code&gt;이 서버로 나가면 필터 결과가 전부 비어 보일 수 있습니다.
+테스트를 추가하고 나니 이런 입력 경로가 더 잘 보였습니다.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;포기한 것&lt;/strong&gt;: URL과 입력값을 각각 대충 처리하는 편함을 버렸습니다.
+같은 의미의 값은 같은 기준으로 정규화해야 한다고 봤습니다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;에러 화면에서 새로고침 버튼은 왜 부족했을까요?&lt;/h2&gt;
+&lt;p&gt;API가 실패했을 때 처음 구현은 &lt;code class=&quot;language-text&quot;&gt;window.location.reload()&lt;/code&gt;였습니다.
+눈으로 보면 다시 시도 버튼처럼 보입니다.
+실제로는 페이지 전체를 다시 로드합니다.&lt;/p&gt;
+&lt;p&gt;이 방식은 서버 상태 훅을 만든 의미와 맞지 않았습니다.
+상품 조회가 실패했다면 같은 조건으로 상품 조회만 다시 하면 됩니다.
+문서, 번들, React 앱 전체를 다시 시작할 필요는 없습니다.&lt;/p&gt;
+&lt;p&gt;그래서 &lt;code class=&quot;language-text&quot;&gt;useProducts&lt;/code&gt;가 &lt;code class=&quot;language-text&quot;&gt;refetch&lt;/code&gt;를 반환하게 했습니다.
+에러 화면의 버튼은 이 함수를 호출합니다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;ts&quot;&gt;&lt;pre class=&quot;language-ts&quot;&gt;&lt;code class=&quot;language-ts&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+  products&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+  totalCount&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+  isLoading&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+  error&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+  hasLoaded&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+  &lt;span class=&quot;token function-variable function&quot;&gt;refetch&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;=&gt;&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;setRefetchKey&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;key&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;=&gt;&lt;/span&gt; key &lt;span class=&quot;token operator&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;처음에는 refetch만 넣으면 끝이라고 생각했습니다.
+그런데 한 가지 엣지가 더 있었습니다.
+URL에 &lt;code class=&quot;language-text&quot;&gt;page=999&lt;/code&gt;가 들어온 상태에서 totalCount가 24라면 실제 마지막 페이지는 2입니다.
+이때는 성공 응답을 받은 뒤 page를 2로 보정해야 합니다.&lt;/p&gt;
+&lt;p&gt;문제는 totalCount의 초기값이 0이라는 점이었습니다.
+응답이 오기 전에 totalPages가 1로 계산되면 page를 너무 빨리 1로 내려버릴 수 있습니다.
+그래서 &lt;code class=&quot;language-text&quot;&gt;hasLoaded&lt;/code&gt;를 두고 성공 응답 이후에만 page 범위를 보정했습니다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;tsx&quot;&gt;&lt;pre class=&quot;language-tsx&quot;&gt;&lt;code class=&quot;language-tsx&quot;&gt;&lt;span class=&quot;token function&quot;&gt;useEffect&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;=&gt;&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;productsQuery&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;hasLoaded &lt;span class=&quot;token operator&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; page &lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt; pageInfo&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;totalPages&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;token function&quot;&gt;changePage&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;pageInfo&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;totalPages&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;changePage&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; page&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; pageInfo&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;totalPages&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; productsQuery&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;hasLoaded&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;이 부분은 테스트가 아니었으면 놓쳤을 가능성이 큽니다.
+처음엔 out-of-range page만 보정하려고 했습니다.
+그 보정이 에러 재시도 테스트를 깨뜨렸습니다.
+두 동작이 서로 건드리는 지점을 테스트가 알려준 셈입니다.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;포기한 것&lt;/strong&gt;: 실패하면 전체 새로고침하는 단순한 선택을 버렸습니다.
+서버 상태 훅이 책임지는 범위 안에서 다시 요청하도록 했습니다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;UI 컴포넌트는 어디까지 나눴을까요?&lt;/h2&gt;
+&lt;p&gt;마지막으로 UI를 나눴습니다.
+처음부터 UI를 나누지 않은 이유는 간단합니다.
+API 호출, URL 상태, localStorage 동기화, 파생 계산이 한곳에 섞여 있었습니다.
+그 상태에서 UI만 쪼개면 문제를 가릴 수 있다고 봤습니다.&lt;/p&gt;
+&lt;p&gt;상태와 통신 경계를 먼저 정한 뒤에 UI를 나누니 기준이 생겼습니다.&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;ProductFilterPanel&lt;/code&gt;은 필터 UI만 봅니다.
+&lt;code class=&quot;language-text&quot;&gt;ProductToolbar&lt;/code&gt;에는 검색, 정렬, 보기 모드 UI가 있습니다.
+&lt;code class=&quot;language-text&quot;&gt;ProductGrid&lt;/code&gt;에서는 목록과 빈 상태를 처리합니다.
+&lt;code class=&quot;language-text&quot;&gt;ProductCard&lt;/code&gt;는 상품 하나를 그립니다.
+페이지 버튼은 &lt;code class=&quot;language-text&quot;&gt;ProductPagination&lt;/code&gt;이 맡습니다.&lt;/p&gt;
+&lt;p&gt;페이지는 이렇게 읽힙니다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;tsx&quot;&gt;&lt;pre class=&quot;language-tsx&quot;&gt;&lt;code class=&quot;language-tsx&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;token class-name&quot;&gt;ProductFilterPanel&lt;/span&gt;&lt;/span&gt;
+  &lt;span class=&quot;token attr-name&quot;&gt;categories&lt;/span&gt;&lt;span class=&quot;token script language-javascript&quot;&gt;&lt;span class=&quot;token script-punctuation punctuation&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token constant&quot;&gt;CATEGORIES&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;
+  &lt;span class=&quot;token attr-name&quot;&gt;category&lt;/span&gt;&lt;span class=&quot;token script language-javascript&quot;&gt;&lt;span class=&quot;token script-punctuation punctuation&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;category&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;
+  &lt;span class=&quot;token attr-name&quot;&gt;minPrice&lt;/span&gt;&lt;span class=&quot;token script language-javascript&quot;&gt;&lt;span class=&quot;token script-punctuation punctuation&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;minPrice&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;
+  &lt;span class=&quot;token attr-name&quot;&gt;maxPrice&lt;/span&gt;&lt;span class=&quot;token script language-javascript&quot;&gt;&lt;span class=&quot;token script-punctuation punctuation&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;maxPrice&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;
+  &lt;span class=&quot;token attr-name&quot;&gt;inStockOnly&lt;/span&gt;&lt;span class=&quot;token script language-javascript&quot;&gt;&lt;span class=&quot;token script-punctuation punctuation&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;inStockOnly&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;
+  &lt;span class=&quot;token attr-name&quot;&gt;onCategoryChange&lt;/span&gt;&lt;span class=&quot;token script language-javascript&quot;&gt;&lt;span class=&quot;token script-punctuation punctuation&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;handleCategoryChange&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;
+  &lt;span class=&quot;token attr-name&quot;&gt;onMinPriceChange&lt;/span&gt;&lt;span class=&quot;token script language-javascript&quot;&gt;&lt;span class=&quot;token script-punctuation punctuation&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;filters&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;changeMinPrice&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;
+  &lt;span class=&quot;token attr-name&quot;&gt;onMaxPriceChange&lt;/span&gt;&lt;span class=&quot;token script language-javascript&quot;&gt;&lt;span class=&quot;token script-punctuation punctuation&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;filters&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;changeMaxPrice&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;
+  &lt;span class=&quot;token attr-name&quot;&gt;onInStockToggle&lt;/span&gt;&lt;span class=&quot;token script language-javascript&quot;&gt;&lt;span class=&quot;token script-punctuation punctuation&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;filters&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;changeInStockOnly&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;
+  &lt;span class=&quot;token attr-name&quot;&gt;onResetFilters&lt;/span&gt;&lt;span class=&quot;token script language-javascript&quot;&gt;&lt;span class=&quot;token script-punctuation punctuation&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;handleResetFilters&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;/&gt;&lt;/span&gt;&lt;/span&gt;
+
+&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;token class-name&quot;&gt;ProductToolbar&lt;/span&gt;&lt;/span&gt;
+  &lt;span class=&quot;token attr-name&quot;&gt;searchQuery&lt;/span&gt;&lt;span class=&quot;token script language-javascript&quot;&gt;&lt;span class=&quot;token script-punctuation punctuation&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;searchQuery&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;
+  &lt;span class=&quot;token attr-name&quot;&gt;sortBy&lt;/span&gt;&lt;span class=&quot;token script language-javascript&quot;&gt;&lt;span class=&quot;token script-punctuation punctuation&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;sortBy&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;
+  &lt;span class=&quot;token attr-name&quot;&gt;sortOptions&lt;/span&gt;&lt;span class=&quot;token script language-javascript&quot;&gt;&lt;span class=&quot;token script-punctuation punctuation&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token constant&quot;&gt;SORT_OPTIONS&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;
+  &lt;span class=&quot;token attr-name&quot;&gt;viewMode&lt;/span&gt;&lt;span class=&quot;token script language-javascript&quot;&gt;&lt;span class=&quot;token script-punctuation punctuation&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;viewMode&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;
+  &lt;span class=&quot;token attr-name&quot;&gt;onSearchChange&lt;/span&gt;&lt;span class=&quot;token script language-javascript&quot;&gt;&lt;span class=&quot;token script-punctuation punctuation&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;filters&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;changeSearchQuery&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;
+  &lt;span class=&quot;token attr-name&quot;&gt;onSortChange&lt;/span&gt;&lt;span class=&quot;token script language-javascript&quot;&gt;&lt;span class=&quot;token script-punctuation punctuation&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;filters&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;changeSortBy&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;
+  &lt;span class=&quot;token attr-name&quot;&gt;onViewModeChange&lt;/span&gt;&lt;span class=&quot;token script language-javascript&quot;&gt;&lt;span class=&quot;token script-punctuation punctuation&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;setViewMode&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;/&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;이 정도면 페이지가 비어 있지는 않습니다.
+하지만 읽는 순서는 생겼습니다.
+상태와 서버 조회를 보고 싶으면 위쪽 훅 조합을 보면 됩니다.
+필터 UI가 궁금하면 &lt;code class=&quot;language-text&quot;&gt;ProductFilterPanel&lt;/code&gt;로 가면 됩니다.
+상품 카드 배지와 가격 표시가 궁금하면 &lt;code class=&quot;language-text&quot;&gt;ProductCard&lt;/code&gt;로 가면 되고요.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;포기한 것&lt;/strong&gt;: &lt;code class=&quot;language-text&quot;&gt;Badge&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;PriceArea&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;RatingArea&lt;/code&gt;까지 전부 쪼개는 선택은 하지 않았습니다.
+지금은 재사용보다 탐색 비용이 더 커진다고 봤습니다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;테스트는 무엇을 증명해야 했을까요?&lt;/h2&gt;
+&lt;p&gt;이번 리팩터링에서 테스트는 &quot;컴포넌트를 나눠도 렌더링된다&quot;를 확인하는 데서 끝나면 부족했습니다.
+실제로 위험했던 건 사용자가 눈으로 바로 못 보는 흐름이었습니다.&lt;/p&gt;
+&lt;p&gt;URL에서 초기 상태를 읽는지 확인했습니다.
+검색어에 &lt;code class=&quot;language-text&quot;&gt;.&lt;/code&gt; 같은 정규식 특수문자가 들어와도 깨지지 않아야 합니다.
+API 실패 뒤에는 전체 새로고침 없이 재요청해야 합니다.
+URL page가 결과 범위를 벗어나면 마지막 페이지로 보정되어야 합니다.
+가격 입력이 &lt;code class=&quot;language-text&quot;&gt;NaN&lt;/code&gt;으로 전파되지 않는지도 훅 테스트로 잠갔습니다.&lt;/p&gt;
+&lt;p&gt;마지막 검증은 단순했습니다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;bash&quot;&gt;&lt;pre class=&quot;language-bash&quot;&gt;&lt;code class=&quot;language-bash&quot;&gt;&lt;span class=&quot;token function&quot;&gt;pnpm&lt;/span&gt; &lt;span class=&quot;token builtin class-name&quot;&gt;test&lt;/span&gt;
+&lt;span class=&quot;token function&quot;&gt;pnpm&lt;/span&gt; lint
+&lt;span class=&quot;token function&quot;&gt;pnpm&lt;/span&gt; build&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;테스트는 24개까지 늘었습니다.
+숫자가 중요한 건 아닙니다.
+다만 &quot;어디를 고쳤는지&quot;보다 &quot;무엇이 다시 깨지면 안 되는지&quot;가 남았다는 점이 중요했습니다.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;포기한 것&lt;/strong&gt;: 스냅샷으로 렌더링 결과를 크게 고정하는 선택을 하지 않았습니다.
+이번 변경에서 중요한 건 DOM 모양 전체가 아니라 상태와 서버 요청의 계약이었습니다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;결국 좋은 분리는 어디서 느껴질까요?&lt;/h2&gt;
+&lt;p&gt;이 리팩터링 뒤에도 코드가 완벽해진 건 아닙니다.
+&lt;code class=&quot;language-text&quot;&gt;ProductCard&lt;/code&gt; 안에는 아직 작은 표시 덩어리들이 남아 있습니다.
+실제 서비스라면 React Query 같은 서버 상태 도구를 검토할 순간도 올 겁니다.&lt;/p&gt;
+&lt;p&gt;하지만 지금 단계에서는 일부러 하지 않았습니다.
+단일 목록 화면 하나에서 캐싱과 invalidate 전략까지 들고 오면, 이번 문제보다 도구 설명이 더 커집니다.
+먼저 손으로 서버 상태의 경계를 만들어 보는 게 맞다고 봤습니다.&lt;/p&gt;
+&lt;p&gt;좋은 분리는 파일 개수에서 느껴지지 않았습니다.
+질문이 생겼을 때 어디를 열어야 하는지가 빨리 떠오르는 쪽에 가까웠습니다.&lt;/p&gt;
+&lt;p&gt;API query가 궁금하면 service를 봅니다.
+필터가 page를 왜 1로 돌리는지 궁금하면 filter hook으로 갑니다.
+URL 공유 링크가 왜 유지되는지는 URL util에 남겨뒀습니다.
+상품 카드의 배지 기준은 product rules와 card에서 확인합니다.&lt;/p&gt;
+&lt;p&gt;이번 리팩터링을 한 줄로 줄이면 이렇습니다.
+500줄을 작게 자른 게 아니라, 읽는 순서를 만들었습니다.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;포기한 것&lt;/strong&gt;: 모든 문제를 한 번에 끝내는 선택.
+대신 지금 화면에서 실제로 변경 이유가 갈라지는 지점만 나눴습니다.&lt;/p&gt;
+&lt;/blockquote&gt;</content:encoded></item><item><title><![CDATA[체크아웃 리팩터링은 컴포넌트 분리가 아니라 금액 모델링부터였습니다]]></title><description><![CDATA[TL;DR…]]></description><link>https://hyungkishin.github.io/frontend/e-commerce/checkout-modeling/</link><guid isPermaLink="false">https://hyungkishin.github.io/frontend/e-commerce/checkout-modeling/</guid><pubDate>Fri, 26 Jun 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;&lt;strong&gt;TL;DR&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;체크아웃 화면을 처음 봤을 때는 긴 컴포넌트가 문제처럼 보였습니다.
 상품, 배송지, 쿠폰, 포인트, 결제 수단, 약관이 한 파일에 몰려 있었으니까요.&lt;/p&gt;
 &lt;p&gt;그런데 코드를 따라가 보니 더 불편한 지점이 있었습니다.
@@ -193,6 +506,37 @@ Context를 넣으면 금액 계산의 출처가 더 잘 보이는 게 아니라 
 &lt;p&gt;&lt;strong&gt;포기한 것&lt;/strong&gt;: props 전달을 줄이는 선택을 포기했습니다.
 대신 결제 금액이 어디서 만들어지고 어디로 흘러가는지 남겼습니다.&lt;/p&gt;
 &lt;/blockquote&gt;
+&lt;h2&gt;멘토링에서 기준이 더 또렷해졌습니다&lt;/h2&gt;
+&lt;p&gt;이 판단을 멘토링에서 다시 물어봤습니다.
+질문은 &lt;code class=&quot;language-text&quot;&gt;OrderLine&lt;/code&gt; union을 어디까지 키워도 되는지였습니다.
+카드 즉시할인, 부분취소, 무료배송 쿠폰이 들어오면 같은 union을 계속 늘려도 되는지 궁금했어요.&lt;/p&gt;
+&lt;p&gt;답은 컴포넌트를 먼저 보지 말라는 쪽에 가까웠습니다.
+먼저 모델링부터 찢고, 그 다음에 TypeScript 패턴으로 닫는 순서였습니다.
+&lt;code class=&quot;language-text&quot;&gt;ts-pattern&lt;/code&gt; 같은 도구는 그 뒤의 선택지에 가까웠고요.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;모델링이 먼저고, 분기 표현은 그 다음입니다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;이 말이 꽤 오래 남았습니다.
+저는 &lt;code class=&quot;language-text&quot;&gt;OrderLineRow&lt;/code&gt;의 switch가 늘어나는지만 보고 있었습니다.
+더 먼저 봐야 할 건 금액 라인의 생명주기였어요.
+상품 금액, 배송비, 쿠폰, 포인트, 회원 할인은 지금은 한 화면에서 같이 보입니다.
+하지만 부분취소가 들어오면 이야기가 달라집니다.&lt;/p&gt;
+&lt;p&gt;부분취소는 단순한 할인 라인이 아닙니다.
+이미 결제된 금액에서 나중에 되돌아오는 금액입니다.
+계산 시점도 달라집니다.
+사용자에게 보여줘야 하는 문구도 달라지고요.
+이런 경우라면 &lt;code class=&quot;language-text&quot;&gt;OrderLine&lt;/code&gt; union을 하나 더 늘리는 선택부터 의심해야겠다고 봤습니다.
+계산 모델과 표시 모델을 나눌 차례일 수 있겠죠.&lt;/p&gt;
+&lt;p&gt;멘토링에서 확인한 금액 계산 기준도 같았습니다.
+계산은 React를 몰라야 합니다.
+입력만 받고 같은 입력에는 같은 출력을 돌려줘야 하죠.
+화면은 계산식을 몰라도 됩니다.&lt;/p&gt;
+&lt;p&gt;그래서 &lt;code class=&quot;language-text&quot;&gt;checkoutModel&lt;/code&gt;로 뺀 선택은 파일 정리가 아니었습니다.
+화면이 결제 공식을 모르게 만드는 작업에 가까웠어요.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;포기한 것&lt;/strong&gt;: 모든 금액 라인을 하나의 union에 계속 밀어 넣는 선택을 정답으로 두지 않았어요.
+계산 규칙과 노출 규칙이 따로 바뀌기 시작하면 표시 모델을 분리할 준비가 필요하다고 봤습니다.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;h2&gt;검증은 숫자부터 봤습니다&lt;/h2&gt;
 &lt;p&gt;리팩터링이 무섭게 느껴지는 이유는 간단합니다.
 코드는 예뻐졌는데 금액이 바뀌면 안 되니까요.&lt;/p&gt;
@@ -227,8 +571,10 @@ assert&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span cla
 UI는 그 모델을 소비하게 했고요.&lt;/p&gt;
 &lt;p&gt;아직 남은 것도 있습니다.
 카드 즉시할인, 부분 취소, 무료배송 쿠폰이 들어오면 지금의 union을 그대로 키울지 다시 나눌지 봐야 합니다.
-그때는 계산 모델과 표시 모델을 한 번 더 분리할지도 모릅니다.&lt;/p&gt;
-&lt;p&gt;지금 단계에서는 거기까지 가지 않았습니다.
+그때는 계산 모델과 표시 모델을 한 번 더 분리할지도 모르겠습니다.
+멘토링을 지나고 보니 기준은 조금 더 선명해졌어요.
+계산 규칙과 노출 규칙이 따로 움직이는 순간입니다.&lt;/p&gt;
+&lt;p&gt;지금 단계에서는 거기까지 가지 않았어요.
 아직 오지 않은 요구사항까지 먼저 추상화하면, 지금 읽어야 할 코드가 다시 흐려질 것 같았습니다.&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;&lt;strong&gt;포기한 것&lt;/strong&gt;: 미래의 모든 결제 케이스를 담는 구조를 만들지 않았습니다.
