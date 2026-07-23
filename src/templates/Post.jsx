@@ -12,6 +12,7 @@ const Post = ({ data }) => {
   const { previous, next, seriesList } = data
 
   const { title, description, date, update, tags, series } = post.frontmatter
+  const { isoDate, isoUpdate } = post.frontmatter
   const { slug } = post.fields
 
   let filteredSeries = []
@@ -33,7 +34,15 @@ const Post = ({ data }) => {
 
   return (
     <Layout>
-      <SEO title={title} description={description} url={`${siteUrl}${slug}`} />
+      <SEO
+        title={title}
+        description={description || post.excerpt}
+        url={`${siteUrl}${slug}`}
+        type="article"
+        datePublished={isoDate}
+        dateModified={isoUpdate || isoDate}
+        tags={tags}
+      />
       <Article>
         <Article.Header
           title={title}
@@ -73,6 +82,8 @@ export const pageQuery = graphql`
         title
         date(formatString: "MMMM DD, YYYY")
         update(formatString: "MMMM DD, YYYY")
+        isoDate: date
+        isoUpdate: update
         tags
         series
       }

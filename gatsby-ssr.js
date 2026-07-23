@@ -4,4 +4,7 @@
  * See: https://www.gatsbyjs.com/docs/ssr-apis/
  */
 
-// You can delete this file if you're not using it
+// 모든 페이지 <html>에 한국어 lang을 박아 검색·AI 크롤러가 언어를 정확히 인식하게 한다.
+exports.onRenderBody = ({ setHtmlAttributes }) => {
+  setHtmlAttributes({ lang: "ko" })
+}
