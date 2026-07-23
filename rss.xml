@@ -1,4 +1,615 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Tue, 21 Jul 2026 06:03:26 GMT</lastBuildDate><item><title><![CDATA[셀렉트를 세 벌 그렸지만 로직은 한 벌만 짰습니다]]></title><description><![CDATA[TL;DR 프로젝트 환경이 통째로 바뀌었습니다.
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Thu, 23 Jul 2026 05:31:50 GMT</lastBuildDate><item><title><![CDATA[대시보드는 초록불, 그런데 알림은 안 갔습니다]]></title><description><![CDATA[TL;DR 에러율 0%, P95 112ms, 컨슈머 지연…]]></description><link>https://hyungkishin.github.io/backend/observability/reading-metrics/</link><guid isPermaLink="false">https://hyungkishin.github.io/backend/observability/reading-metrics/</guid><pubDate>Wed, 22 Jul 2026 00:00:00 GMT</pubDate><content:encoded>&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;TL;DR&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;에러율 0%, P95 112ms, 컨슈머 지연 0. 계기 세 개가 전부 초록불인데 그날 알림은 안 갔습니다.&lt;/p&gt;
+&lt;p&gt;지표를 오래 쳐다본다고 답이 나오지는 않았어요.&lt;br&gt;
+계기가 언제 거짓말하는지를 알아야 지표가 읽혔습니다.&lt;br&gt;
+한 알림 파이프라인을 쫓으며 배운, 지표 읽는 법 여덟 가지를 적습니다. 숫자는 전부 실제 관측치입니다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;style&gt;
+.metric-fig,.fig-defs{
+  --fig-surface:#ffffff;--fig-ink:#0f172a;--fig-ink2:#334155;--fig-muted:#94a3b8;
+  --fig-grid:#eef2f7;--fig-baseline:#d0d7e2;--fig-hair:#e6eaf1;--fig-zone:#f1f5fb;
+  --c-blue:#2f6fed;--c-blueink:#1d4ed8;--c-orange:#f97316;--c-orangeink:#c2410c;
+  --c-green:#16a34a;--c-greenink:#15803d;--c-red:#ef4444;--c-redink:#b91c1c;
+  --c-amber:#f59e0b;--c-amberink:#b45309;--c-violet:#8b5cf6;--c-violetink:#6d28d9;--c-slate:#cbd5e1;
+}
+@media (prefers-color-scheme: dark){
+  .metric-fig,.fig-defs{
+    --fig-surface:#121317;--fig-ink:#f2f5fa;--fig-ink2:#cbd5e1;--fig-muted:#697588;
+    --fig-grid:#20242d;--fig-baseline:#2d323c;--fig-hair:#252a33;--fig-zone:#181b21;
+    --c-blue:#5b9bff;--c-blueink:#93c5fd;--c-orange:#fb923c;--c-orangeink:#fdba74;
+    --c-green:#34d399;--c-greenink:#6ee7b7;--c-red:#f87171;--c-redink:#fca5a5;
+    --c-amber:#fbbf24;--c-amberink:#fcd34d;--c-violet:#a78bfa;--c-violetink:#c4b5fd;--c-slate:#3a4150;
+  }
+}
+.metric-fig{
+  margin:2.4em 0;border:1px solid var(--fig-hair);border-radius:18px;background:var(--fig-surface);
+  padding:20px 22px 12px;overflow:hidden;
+  box-shadow:0 1px 2px rgba(2,6,23,.05),0 14px 40px rgba(2,6,23,.09);
+}
+@media (prefers-color-scheme: dark){.metric-fig{box-shadow:0 1px 2px rgba(0,0,0,.4),0 18px 46px rgba(0,0,0,.5)}}
+.metric-fig svg{width:100%;height:auto;display:block;max-width:100%}
+.metric-fig svg text{font-family:ui-monospace,&quot;SF Mono&quot;,&quot;JetBrains Mono&quot;,Menlo,monospace}
+.metric-fig .cap-head{display:flex;justify-content:space-between;align-items:baseline;gap:14px;margin-bottom:6px}
+.metric-fig .cap-tag{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--fig-muted);
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.metric-fig .cap-tag b{color:var(--c-blueink);font-weight:600}
+.metric-fig figcaption{font-size:13.5px;color:var(--fig-muted);line-height:1.6;padding:14px 2px 8px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.metric-fig figcaption b{color:var(--fig-ink2);font-weight:600}
+@media (prefers-reduced-motion: reduce){.metric-fig svg animate,.metric-fig svg animateMotion,.metric-fig svg animateTransform{display:none}}
+&lt;/style&gt;
+&lt;svg class=&quot;fig-defs&quot; width=&quot;0&quot; height=&quot;0&quot; aria-hidden=&quot;true&quot; focusable=&quot;false&quot; style=&quot;position:absolute;width:0;height:0&quot;&gt;
+  &lt;defs&gt;
+    &lt;filter id=&quot;fx-glow&quot; x=&quot;-60%&quot; y=&quot;-60%&quot; width=&quot;220%&quot; height=&quot;220%&quot;&gt;
+      &lt;feGaussianBlur stdDeviation=&quot;3&quot; result=&quot;b&quot;/&gt;
+      &lt;feMerge&gt;&lt;feMergeNode in=&quot;b&quot;/&gt;&lt;feMergeNode in=&quot;SourceGraphic&quot;/&gt;&lt;/feMerge&gt;
+    &lt;/filter&gt;
+    &lt;filter id=&quot;fx-soft&quot; x=&quot;-40%&quot; y=&quot;-40%&quot; width=&quot;180%&quot; height=&quot;180%&quot;&gt;
+      &lt;feDropShadow dx=&quot;0&quot; dy=&quot;1.5&quot; stdDeviation=&quot;2.5&quot; flood-color=&quot;#0f172a&quot; flood-opacity=&quot;0.14&quot;/&gt;
+    &lt;/filter&gt;
+  &lt;/defs&gt;
+&lt;/svg&gt;
+&lt;h2&gt;왜 초록불인데 알림이 안 갔을까?&lt;/h2&gt;
+&lt;p&gt;한 학부모가 문의를 넣기 전까지, 아무 지표도 그 사실을 말해주지 않았어요.&lt;/p&gt;
+&lt;p&gt;그날 정오 배치의 발송 로그는 &quot;전송 성공 634건&quot;이었습니다.&lt;br&gt;
+그런데 실제로 도착한 건 453건. 나머지 180건, 그러니까 28%가 사라졌어요.&lt;/p&gt;
+&lt;p&gt;어떻게 이게 가능했을까요.&lt;br&gt;
+발송 코드가 응답 상태를 확인하기 전에 &quot;성공&quot;을 먼저 찍고 있었습니다.&lt;/p&gt;
+&lt;p&gt;벤더는 HTTP 200을 주면서 본문에 &lt;code class=&quot;language-text&quot;&gt;{&quot;code&quot;:2000,&quot;description&quot;:&quot;The to field is required&quot;}&lt;/code&gt;를 담아 돌려줬어요.&lt;br&gt;
+수신번호가 비었다는 뜻입니다.&lt;br&gt;
+200만 보고 성공 처리한 코드는 이 400급 실패를 전부 삼켰습니다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;mermaid&quot;&gt;&lt;pre class=&quot;language-mermaid&quot;&gt;&lt;code class=&quot;language-mermaid&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;flowchart&lt;/span&gt; TD
+    A&lt;span class=&quot;token text string&quot;&gt;[&quot;컨슈머가 메시지 소비&quot;]&lt;/span&gt; &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; B&lt;span class=&quot;token text string&quot;&gt;[&quot;벤더에 발송 요청&quot;]&lt;/span&gt;
+    B &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; C&lt;span class=&quot;token text string&quot;&gt;{&quot;응답이 200인가?&quot;}&lt;/span&gt;
+    C &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt;&lt;span class=&quot;token label property&quot;&gt;|&quot;200&quot;|&lt;/span&gt; D&lt;span class=&quot;token text string&quot;&gt;[&quot;code 1000 저장 : 진짜 성공&quot;]&lt;/span&gt;
+    C &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt;&lt;span class=&quot;token label property&quot;&gt;|&quot;비200 or 예외&quot;|&lt;/span&gt; E&lt;span class=&quot;token text string&quot;&gt;[&quot;catch로 삼킴 : null 반환&quot;]&lt;/span&gt;
+    D &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; F&lt;span class=&quot;token text string&quot;&gt;[&quot;ack 커밋&quot;]&lt;/span&gt;
+    E &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; F
+    F &lt;span class=&quot;token arrow operator&quot;&gt;--&gt;&lt;/span&gt; G&lt;span class=&quot;token text string&quot;&gt;[&quot;둘 다 성공으로 집계&quot;]&lt;/span&gt;
+
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; A &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#f1f5f9&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;stroke&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#cbd5e1&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#1f2937&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; B &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#f1f5f9&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;stroke&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#cbd5e1&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#1f2937&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; C &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#fef3c7&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;stroke&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#fcd34d&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#92400e&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; D &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#d1fae5&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;stroke&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#6ee7b7&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#065f46&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; E &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#fee2e2&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;stroke&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#fca5a5&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#991b1b&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; F &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#e5e7eb&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;stroke&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#d1d5db&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#4b5563&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;style&lt;/span&gt; G &lt;span class=&quot;token style&quot;&gt;&lt;span class=&quot;token property&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#fee2e2&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;stroke&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#fca5a5&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;token property&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;#991b1b&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;figure class=&quot;metric-fig&quot;&gt;
+  &lt;div class=&quot;cap-head&quot;&gt;&lt;span class=&quot;cap-tag&quot;&gt;&quot;success&quot; log vs real delivery&lt;/span&gt;&lt;span class=&quot;cap-tag&quot;&gt;noon batch · 636&lt;/span&gt;&lt;/div&gt;
+  &lt;svg viewBox=&quot;0 0 640 222&quot; role=&quot;img&quot; aria-label=&quot;성공 로그 634건이 실제 발송 453건과 은폐된 실패 180건으로 갈라진다&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;
+    &lt;defs&gt;
+      &lt;linearGradient id=&quot;g-log&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;0&quot; y2=&quot;1&quot;&gt;&lt;stop offset=&quot;0&quot; stop-color=&quot;var(--fig-baseline)&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;var(--fig-baseline)&quot; stop-opacity=&quot;0.5&quot;/&gt;&lt;/linearGradient&gt;
+      &lt;linearGradient id=&quot;g-good&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;0&quot; y2=&quot;1&quot;&gt;&lt;stop offset=&quot;0&quot; stop-color=&quot;var(--c-green)&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;var(--c-green)&quot; stop-opacity=&quot;0.55&quot;/&gt;&lt;/linearGradient&gt;
+      &lt;linearGradient id=&quot;g-bad&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;0&quot; y2=&quot;1&quot;&gt;&lt;stop offset=&quot;0&quot; stop-color=&quot;var(--c-red)&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;var(--c-red)&quot; stop-opacity=&quot;0.6&quot;/&gt;&lt;/linearGradient&gt;
+      &lt;pattern id=&quot;p-hatch&quot; width=&quot;7&quot; height=&quot;7&quot; patternTransform=&quot;rotate(45)&quot; patternUnits=&quot;userSpaceOnUse&quot;&gt;
+        &lt;rect width=&quot;7&quot; height=&quot;7&quot; fill=&quot;var(--c-red)&quot;/&gt;&lt;line x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;0&quot; y2=&quot;7&quot; stroke=&quot;var(--fig-surface)&quot; stroke-width=&quot;2.4&quot; opacity=&quot;0.55&quot;/&gt;
+      &lt;/pattern&gt;
+    &lt;/defs&gt;
+    &lt;line x1=&quot;60&quot; y1=&quot;186&quot; x2=&quot;584&quot; y2=&quot;186&quot; stroke=&quot;var(--fig-baseline)&quot; stroke-width=&quot;1.4&quot;/&gt;
+    &lt;rect x=&quot;64&quot; y=&quot;46&quot; width=&quot;120&quot; height=&quot;140&quot; rx=&quot;7&quot; fill=&quot;url(#g-log)&quot;/&gt;
+    &lt;path d=&quot;M184 108 C 300 108, 320 130, 452 133&quot; fill=&quot;none&quot; stroke=&quot;var(--c-green)&quot; stroke-width=&quot;1.6&quot; opacity=&quot;0.5&quot; stroke-dasharray=&quot;4 4&quot;/&gt;
+    &lt;path d=&quot;M184 108 C 300 108, 320 62, 452 60&quot; fill=&quot;none&quot; stroke=&quot;var(--c-red)&quot; stroke-width=&quot;1.8&quot; stroke-dasharray=&quot;5 4&quot;&gt;
+      &lt;animate attributeName=&quot;stroke-dashoffset&quot; values=&quot;18;0&quot; dur=&quot;1.1s&quot; repeatCount=&quot;indefinite&quot;/&gt;
+    &lt;/path&gt;
+    &lt;rect x=&quot;452&quot; y=&quot;186&quot; width=&quot;120&quot; rx=&quot;7&quot; fill=&quot;url(#g-good)&quot;&gt;
+      &lt;animate attributeName=&quot;height&quot; values=&quot;0;102.6;102.6;0&quot; keyTimes=&quot;0;0.35;0.9;1&quot; dur=&quot;6.5s&quot; calcMode=&quot;spline&quot; keySplines=&quot;0.4 0 0.15 1;0 0 1 1;0.4 0 0.15 1&quot; repeatCount=&quot;indefinite&quot;/&gt;
+      &lt;animate attributeName=&quot;y&quot; values=&quot;186;83.4;83.4;186&quot; keyTimes=&quot;0;0.35;0.9;1&quot; dur=&quot;6.5s&quot; calcMode=&quot;spline&quot; keySplines=&quot;0.4 0 0.15 1;0 0 1 1;0.4 0 0.15 1&quot; repeatCount=&quot;indefinite&quot;/&gt;
+    &lt;/rect&gt;
+    &lt;rect x=&quot;452&quot; y=&quot;186&quot; width=&quot;120&quot; rx=&quot;7&quot; fill=&quot;url(#p-hatch)&quot; filter=&quot;url(#fx-glow)&quot;&gt;
+      &lt;animate attributeName=&quot;height&quot; values=&quot;0;40.7;40.7;0&quot; keyTimes=&quot;0;0.55;0.9;1&quot; dur=&quot;6.5s&quot; calcMode=&quot;spline&quot; keySplines=&quot;0.4 0 0.15 1;0 0 1 1;0.4 0 0.15 1&quot; repeatCount=&quot;indefinite&quot;/&gt;
+      &lt;animate attributeName=&quot;y&quot; values=&quot;186;40.7;40.7;186&quot; keyTimes=&quot;0;0.55;0.9;1&quot; dur=&quot;6.5s&quot; calcMode=&quot;spline&quot; keySplines=&quot;0.4 0 0.15 1;0 0 1 1;0.4 0 0.15 1&quot; repeatCount=&quot;indefinite&quot;/&gt;
+    &lt;/rect&gt;
+    &lt;text x=&quot;124&quot; y=&quot;122&quot; text-anchor=&quot;middle&quot; fill=&quot;var(--fig-ink)&quot; font-size=&quot;26&quot; font-weight=&quot;800&quot; letter-spacing=&quot;-0.02em&quot;&gt;634&lt;/text&gt;
+    &lt;text x=&quot;124&quot; y=&quot;142&quot; text-anchor=&quot;middle&quot; fill=&quot;var(--fig-muted)&quot; font-size=&quot;10.5&quot; letter-spacing=&quot;0.06em&quot;&gt;LOG &quot;SUCCESS&quot;&lt;/text&gt;
+    &lt;g font-size=&quot;12&quot;&gt;
+      &lt;text x=&quot;124&quot; y=&quot;36&quot; text-anchor=&quot;middle&quot; fill=&quot;var(--fig-muted)&quot; font-weight=&quot;600&quot; letter-spacing=&quot;0.02em&quot;&gt;로그가 말하는 성공&lt;/text&gt;
+      &lt;text x=&quot;512&quot; y=&quot;36&quot; text-anchor=&quot;middle&quot; fill=&quot;var(--fig-muted)&quot; font-weight=&quot;600&quot; letter-spacing=&quot;0.02em&quot;&gt;실제 도착&lt;/text&gt;
+      &lt;text x=&quot;580&quot; y=&quot;139&quot; fill=&quot;var(--c-greenink)&quot; font-weight=&quot;700&quot;&gt;453 · 71%&lt;/text&gt;
+      &lt;text x=&quot;580&quot; y=&quot;63&quot; fill=&quot;var(--c-redink)&quot; font-weight=&quot;700&quot;&gt;180 · 28% 은폐&lt;/text&gt;
+    &lt;/g&gt;
+  &lt;/svg&gt;
+  &lt;figcaption&gt;로그가 말하는 &quot;성공 634&quot; 안에서 &lt;b&gt;180건(28%)&lt;/b&gt;이 갈라져 나온다. 빗금이 삼켜진 실패다. 성공 로그의 분모가 처음부터 틀렸던 셈이다.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p&gt;근원은 위쪽에 있었습니다.&lt;br&gt;
+회원 서비스가 숫자 없는 전화번호를 &lt;code class=&quot;language-text&quot;&gt;null&lt;/code&gt;이 아니라 빈 문자열로 저장했어요.&lt;br&gt;
+아래쪽의 &lt;code class=&quot;language-text&quot;&gt;== null&lt;/code&gt; 가드는 빈 문자열을 통과시킵니다.&lt;/p&gt;
+&lt;p&gt;약 12%의 사용자가 빈 번호를 달고 파이프라인을 지나갔어요.&lt;br&gt;
+그 끝에서 조용히 400으로 튕겼습니다.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;에러율 0%는 정상이 아닐 수 있습니다. 삼킴 코드는 에러 지표를 조작합니다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;포기한 것&lt;/strong&gt;: &quot;성공 로그 카운트&quot;에 대한 신뢰. 이제 성공은 &lt;code class=&quot;language-text&quot;&gt;HTTP 200 + 벤더 code 1000&lt;/code&gt;까지 확인해야 성공입니다. 그 전에 찍힌 로그는 전부 다시 세야 했어요.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;여기서부터 지표 하나하나를 다시 의심하기 시작했습니다.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;평균이 P95보다 크면 무엇을 의심해야 할까?&lt;/h2&gt;
+&lt;p&gt;알림이 느리다는 신고가 들어왔습니다.&lt;br&gt;
+트레이스를 하나 열었더니 건당 3초, 또 하나는 4분 30초.&lt;/p&gt;
+&lt;p&gt;&quot;만성 지연이구나&quot; 하고 벤더를 의심했어요.&lt;br&gt;
+그런데 1주치를 집계해 보니 이야기가 달랐습니다.&lt;/p&gt;
+&lt;p&gt;한 핸들러의 평균은 148ms인데 P95는 112ms였어요.&lt;br&gt;
+평균이 P95보다 큽니다.&lt;/p&gt;
+&lt;p&gt;이건 소수의 초대형 이상치가 평균만 끌어올렸다는 신호입니다.&lt;br&gt;
+꼬리는 얇습니다. 대부분의 요청은 100ms 안쪽으로 멀쩡히 끝나고 있었어요.&lt;/p&gt;
+&lt;figure class=&quot;metric-fig&quot;&gt;
+  &lt;div class=&quot;cap-head&quot;&gt;&lt;span class=&quot;cap-tag&quot;&gt;latency distribution&lt;/span&gt;&lt;span class=&quot;cap-tag&quot;&gt;&lt;b&gt;1 week&lt;/b&gt; · n=31.7k&lt;/span&gt;&lt;/div&gt;
+  &lt;svg viewBox=&quot;0 0 640 250&quot; role=&quot;img&quot; aria-label=&quot;지연 분포. 대부분 110ms 근처에 몰려 있고 4분 30초의 얇은 꼬리가 평균을 끌어올린다&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;
+    &lt;defs&gt;
+      &lt;linearGradient id=&quot;g-dist&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;0&quot; y2=&quot;1&quot;&gt;
+        &lt;stop offset=&quot;0&quot; stop-color=&quot;var(--c-blue)&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;var(--c-blue)&quot; stop-opacity=&quot;0.5&quot;/&gt;
+      &lt;/linearGradient&gt;
+      &lt;linearGradient id=&quot;g-dist-tail&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;0&quot; y2=&quot;1&quot;&gt;
+        &lt;stop offset=&quot;0&quot; stop-color=&quot;var(--c-red)&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;var(--c-red)&quot; stop-opacity=&quot;0.55&quot;/&gt;
+      &lt;/linearGradient&gt;
+    &lt;/defs&gt;
+    &lt;g stroke=&quot;var(--fig-grid)&quot; stroke-width=&quot;1&quot;&gt;
+      &lt;line x1=&quot;44&quot; y1=&quot;40&quot; x2=&quot;612&quot; y2=&quot;40&quot;/&gt;&lt;line x1=&quot;44&quot; y1=&quot;92&quot; x2=&quot;612&quot; y2=&quot;92&quot;/&gt;
+      &lt;line x1=&quot;44&quot; y1=&quot;144&quot; x2=&quot;612&quot; y2=&quot;144&quot;/&gt;
+    &lt;/g&gt;
+    &lt;line x1=&quot;44&quot; y1=&quot;196&quot; x2=&quot;612&quot; y2=&quot;196&quot; stroke=&quot;var(--fig-baseline)&quot; stroke-width=&quot;1.4&quot;/&gt;
+    &lt;g fill=&quot;url(#g-dist)&quot;&gt;
+      &lt;rect x=&quot;47&quot;  y=&quot;196&quot; width=&quot;30&quot; height=&quot;0&quot; rx=&quot;3.5&quot;&gt;&lt;animate attributeName=&quot;height&quot; values=&quot;0;6&quot;   dur=&quot;0.8s&quot; begin=&quot;0.05s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.4 0 0.15 1&quot; fill=&quot;freeze&quot;/&gt;&lt;animate attributeName=&quot;y&quot; values=&quot;196;190&quot; dur=&quot;0.8s&quot; begin=&quot;0.05s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.4 0 0.15 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/rect&gt;
+      &lt;rect x=&quot;82&quot;  y=&quot;196&quot; width=&quot;30&quot; height=&quot;0&quot; rx=&quot;3.5&quot;&gt;&lt;animate attributeName=&quot;height&quot; values=&quot;0;18&quot;  dur=&quot;0.8s&quot; begin=&quot;0.11s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.4 0 0.15 1&quot; fill=&quot;freeze&quot;/&gt;&lt;animate attributeName=&quot;y&quot; values=&quot;196;178&quot; dur=&quot;0.8s&quot; begin=&quot;0.11s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.4 0 0.15 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/rect&gt;
+      &lt;rect x=&quot;117&quot; y=&quot;196&quot; width=&quot;30&quot; height=&quot;0&quot; rx=&quot;3.5&quot;&gt;&lt;animate attributeName=&quot;height&quot; values=&quot;0;52&quot;  dur=&quot;0.8s&quot; begin=&quot;0.17s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.4 0 0.15 1&quot; fill=&quot;freeze&quot;/&gt;&lt;animate attributeName=&quot;y&quot; values=&quot;196;144&quot; dur=&quot;0.8s&quot; begin=&quot;0.17s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.4 0 0.15 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/rect&gt;
+      &lt;rect x=&quot;152&quot; y=&quot;196&quot; width=&quot;30&quot; height=&quot;0&quot; rx=&quot;3.5&quot;&gt;&lt;animate attributeName=&quot;height&quot; values=&quot;0;116&quot; dur=&quot;0.8s&quot; begin=&quot;0.23s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.4 0 0.15 1&quot; fill=&quot;freeze&quot;/&gt;&lt;animate attributeName=&quot;y&quot; values=&quot;196;80&quot;  dur=&quot;0.8s&quot; begin=&quot;0.23s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.4 0 0.15 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/rect&gt;
+      &lt;rect x=&quot;187&quot; y=&quot;196&quot; width=&quot;30&quot; height=&quot;0&quot; rx=&quot;3.5&quot;&gt;&lt;animate attributeName=&quot;height&quot; values=&quot;0;172&quot; dur=&quot;0.8s&quot; begin=&quot;0.29s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.4 0 0.15 1&quot; fill=&quot;freeze&quot;/&gt;&lt;animate attributeName=&quot;y&quot; values=&quot;196;24&quot;  dur=&quot;0.8s&quot; begin=&quot;0.29s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.4 0 0.15 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/rect&gt;
+      &lt;rect x=&quot;222&quot; y=&quot;196&quot; width=&quot;30&quot; height=&quot;0&quot; rx=&quot;3.5&quot;&gt;&lt;animate attributeName=&quot;height&quot; values=&quot;0;144&quot; dur=&quot;0.8s&quot; begin=&quot;0.35s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.4 0 0.15 1&quot; fill=&quot;freeze&quot;/&gt;&lt;animate attributeName=&quot;y&quot; values=&quot;196;52&quot;  dur=&quot;0.8s&quot; begin=&quot;0.35s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.4 0 0.15 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/rect&gt;
+      &lt;rect x=&quot;257&quot; y=&quot;196&quot; width=&quot;30&quot; height=&quot;0&quot; rx=&quot;3.5&quot;&gt;&lt;animate attributeName=&quot;height&quot; values=&quot;0;80&quot;  dur=&quot;0.8s&quot; begin=&quot;0.41s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.4 0 0.15 1&quot; fill=&quot;freeze&quot;/&gt;&lt;animate attributeName=&quot;y&quot; values=&quot;196;116&quot; dur=&quot;0.8s&quot; begin=&quot;0.41s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.4 0 0.15 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/rect&gt;
+      &lt;rect x=&quot;292&quot; y=&quot;196&quot; width=&quot;30&quot; height=&quot;0&quot; rx=&quot;3.5&quot;&gt;&lt;animate attributeName=&quot;height&quot; values=&quot;0;38&quot;  dur=&quot;0.8s&quot; begin=&quot;0.47s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.4 0 0.15 1&quot; fill=&quot;freeze&quot;/&gt;&lt;animate attributeName=&quot;y&quot; values=&quot;196;158&quot; dur=&quot;0.8s&quot; begin=&quot;0.47s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.4 0 0.15 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/rect&gt;
+      &lt;rect x=&quot;327&quot; y=&quot;196&quot; width=&quot;30&quot; height=&quot;0&quot; rx=&quot;3.5&quot;&gt;&lt;animate attributeName=&quot;height&quot; values=&quot;0;16&quot;  dur=&quot;0.8s&quot; begin=&quot;0.53s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.4 0 0.15 1&quot; fill=&quot;freeze&quot;/&gt;&lt;animate attributeName=&quot;y&quot; values=&quot;196;180&quot; dur=&quot;0.8s&quot; begin=&quot;0.53s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.4 0 0.15 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/rect&gt;
+      &lt;rect x=&quot;362&quot; y=&quot;196&quot; width=&quot;30&quot; height=&quot;0&quot; rx=&quot;3.5&quot;&gt;&lt;animate attributeName=&quot;height&quot; values=&quot;0;7&quot;   dur=&quot;0.8s&quot; begin=&quot;0.59s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.4 0 0.15 1&quot; fill=&quot;freeze&quot;/&gt;&lt;animate attributeName=&quot;y&quot; values=&quot;196;189&quot; dur=&quot;0.8s&quot; begin=&quot;0.59s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.4 0 0.15 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/rect&gt;
+    &lt;/g&gt;
+    &lt;g stroke=&quot;var(--fig-grid)&quot; stroke-width=&quot;1&quot; stroke-dasharray=&quot;2 4&quot;&gt;&lt;line x1=&quot;480&quot; y1=&quot;40&quot; x2=&quot;480&quot; y2=&quot;196&quot;/&gt;&lt;/g&gt;
+    &lt;rect x=&quot;577&quot; y=&quot;184&quot; width=&quot;30&quot; height=&quot;12&quot; rx=&quot;3.5&quot; fill=&quot;url(#g-dist-tail)&quot; filter=&quot;url(#fx-glow)&quot;&gt;
+      &lt;animate attributeName=&quot;opacity&quot; values=&quot;1;0.4;1&quot; dur=&quot;2.4s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;0.5;1&quot; keySplines=&quot;0.4 0 0.6 1;0.4 0 0.6 1&quot; repeatCount=&quot;indefinite&quot;/&gt;
+    &lt;/rect&gt;
+    &lt;line x1=&quot;200&quot; y1=&quot;30&quot; x2=&quot;200&quot; y2=&quot;196&quot; stroke=&quot;var(--fig-ink2)&quot; stroke-width=&quot;1.4&quot; stroke-dasharray=&quot;4 4&quot; opacity=&quot;0.7&quot;/&gt;
+    &lt;line x1=&quot;235&quot; y1=&quot;30&quot; x2=&quot;235&quot; y2=&quot;196&quot; stroke=&quot;var(--c-orange)&quot; stroke-width=&quot;1.6&quot; stroke-dasharray=&quot;5 4&quot;/&gt;
+    &lt;g transform=&quot;translate(139,20)&quot;&gt;&lt;rect width=&quot;62&quot; height=&quot;19&quot; rx=&quot;6&quot; fill=&quot;var(--fig-ink2)&quot; opacity=&quot;0.1&quot;/&gt;&lt;text x=&quot;31&quot; y=&quot;13.5&quot; text-anchor=&quot;middle&quot; fill=&quot;var(--fig-ink2)&quot; font-size=&quot;11&quot; font-weight=&quot;700&quot; letter-spacing=&quot;0.02em&quot;&gt;P95 112ms&lt;/text&gt;&lt;/g&gt;
+    &lt;g transform=&quot;translate(206,20)&quot;&gt;&lt;rect width=&quot;66&quot; height=&quot;19&quot; rx=&quot;6&quot; fill=&quot;var(--c-orange)&quot; opacity=&quot;0.16&quot;/&gt;&lt;text x=&quot;33&quot; y=&quot;13.5&quot; text-anchor=&quot;middle&quot; fill=&quot;var(--c-orangeink)&quot; font-size=&quot;11&quot; font-weight=&quot;700&quot; letter-spacing=&quot;0.02em&quot;&gt;avg 148ms&lt;/text&gt;&lt;/g&gt;
+    &lt;g transform=&quot;translate(536,178)&quot;&gt;&lt;rect width=&quot;72&quot; height=&quot;19&quot; rx=&quot;6&quot; fill=&quot;var(--c-red)&quot; opacity=&quot;0.16&quot;/&gt;&lt;text x=&quot;36&quot; y=&quot;13.5&quot; text-anchor=&quot;middle&quot; fill=&quot;var(--c-redink)&quot; font-size=&quot;11&quot; font-weight=&quot;700&quot;&gt;4m30s 꼬리&lt;/text&gt;&lt;/g&gt;
+    &lt;g font-size=&quot;10.5&quot; fill=&quot;var(--fig-muted)&quot; letter-spacing=&quot;0.03em&quot;&gt;
+      &lt;text x=&quot;47&quot; y=&quot;214&quot;&gt;~50ms&lt;/text&gt;
+      &lt;text x=&quot;328&quot; y=&quot;230&quot; text-anchor=&quot;middle&quot;&gt;지연 (log) →&lt;/text&gt;
+    &lt;/g&gt;
+  &lt;/svg&gt;
+  &lt;figcaption&gt;봉우리는 &lt;b&gt;~110ms&lt;/b&gt;에 있는데, 오른쪽 끝 &lt;b&gt;4m30s&lt;/b&gt; 꼬리 한 칸이 평균을 148ms까지 밀어 올린다. 평균이 P95보다 커진 이유다.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p&gt;개별 트레이스 하나로 원인을 짚을 때마다, 다음 데이터가 그 짐작을 정정했습니다.&lt;br&gt;
+Redis라고 했다가, 푸시라고 했다가, 토큰이라고 했다가.&lt;/p&gt;
+&lt;p&gt;순서를 뒤집어야 했어요.&lt;br&gt;
+집계(P95)를 먼저 봅니다. 그다음에 이상치의 &lt;code class=&quot;language-text&quot;&gt;error.message&lt;/code&gt;를 끝까지 열어요.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;평균 &gt; P95면 꼬리를 의심하라. anecdote 한 건은 원인이 아니라 후보다.&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;포기한 것&lt;/strong&gt;: 꼬리를 잘라낸 깔끔한 계기판. P95 하나로는 4분 30초짜리 한 건을 못 봅니다. 그 한 건이 진짜 사고일 때도 있죠. 이상치는 여전히 사람이 열어봐야 했어요.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2&gt;&quot;5시간 밀렸다&quot;는 계산은 어디서 틀렸을까?&lt;/h2&gt;
+&lt;p&gt;지연 신고를 받고 봉투 뒷면에 계산을 했습니다.&lt;br&gt;
+발송 대상 1.1만 건, 단일 컨슈머, 건당 1.5초. 곱하면 약 5시간.&lt;/p&gt;
+&lt;p&gt;&quot;그럼 그렇지, 큐가 5시간 밀린 거야&quot; 하고 파티션 증설 견적을 내려던 참이었어요.&lt;/p&gt;
+&lt;p&gt;그리고 실제 컨슈머 지연 지표를 열었습니다.&lt;br&gt;
+평일 최대 12초. 대기 메시지는 최대 1건.&lt;/p&gt;
+&lt;p&gt;큐는 밀린 적이 없었어요.&lt;br&gt;
+곱셈이 그린 5시간짜리 백로그는 어디에도 없었습니다.&lt;br&gt;
+느림의 실체는 처리량이 아니라, 앞에서 본 삼켜진 유실이었어요.&lt;/p&gt;
+&lt;figure class=&quot;metric-fig&quot;&gt;
+  &lt;div class=&quot;cap-head&quot;&gt;&lt;span class=&quot;cap-tag&quot;&gt;envelope math vs measured lag&lt;/span&gt;&lt;span class=&quot;cap-tag&quot;&gt;11,260 msgs&lt;/span&gt;&lt;/div&gt;
+  &lt;svg viewBox=&quot;0 0 720 264&quot; role=&quot;img&quot; aria-label=&quot;같은 시작점에서 봉투계산은 5시간으로 치솟고 실측 지연은 12초에 붙어 있다&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;
+    &lt;defs&gt;
+      &lt;linearGradient id=&quot;g-env&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;0&quot; y2=&quot;1&quot;&gt;
+        &lt;stop offset=&quot;0&quot; stop-color=&quot;var(--c-orange)&quot; stop-opacity=&quot;0.32&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;var(--c-orange)&quot; stop-opacity=&quot;0&quot;/&gt;
+      &lt;/linearGradient&gt;
+      &lt;linearGradient id=&quot;g-meas&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;0&quot; y2=&quot;1&quot;&gt;
+        &lt;stop offset=&quot;0&quot; stop-color=&quot;var(--c-blue)&quot; stop-opacity=&quot;0.28&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;var(--c-blue)&quot; stop-opacity=&quot;0&quot;/&gt;
+      &lt;/linearGradient&gt;
+      &lt;linearGradient id=&quot;g-envline&quot; x1=&quot;0&quot; y1=&quot;1&quot; x2=&quot;1&quot; y2=&quot;0&quot;&gt;
+        &lt;stop offset=&quot;0&quot; stop-color=&quot;var(--c-orange)&quot; stop-opacity=&quot;0.7&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;var(--c-orange)&quot;/&gt;
+      &lt;/linearGradient&gt;
+    &lt;/defs&gt;
+    &lt;g stroke=&quot;var(--fig-grid)&quot; stroke-width=&quot;1&quot;&gt;
+      &lt;line x1=&quot;52&quot; y1=&quot;40&quot; x2=&quot;684&quot; y2=&quot;40&quot;/&gt;&lt;line x1=&quot;52&quot; y1=&quot;97&quot; x2=&quot;684&quot; y2=&quot;97&quot;/&gt;&lt;line x1=&quot;52&quot; y1=&quot;154&quot; x2=&quot;684&quot; y2=&quot;154&quot;/&gt;
+    &lt;/g&gt;
+    &lt;line x1=&quot;52&quot; y1=&quot;212&quot; x2=&quot;684&quot; y2=&quot;212&quot; stroke=&quot;var(--fig-baseline)&quot; stroke-width=&quot;1.4&quot;/&gt;
+    &lt;path d=&quot;M52 210 C 240 208, 430 150, 684 46 L684 212 L52 212 Z&quot; fill=&quot;url(#g-env)&quot;&gt;
+      &lt;animate attributeName=&quot;opacity&quot; values=&quot;0;0.95;0.95;0&quot; keyTimes=&quot;0;0.42;0.9;1&quot; dur=&quot;6.5s&quot; calcMode=&quot;spline&quot; keySplines=&quot;0.45 0 0.15 1;0 0 1 1;0.45 0 0.15 1&quot; repeatCount=&quot;indefinite&quot;/&gt;
+    &lt;/path&gt;
+    &lt;path d=&quot;M52 210 L150 209 L300 208 L360 208 L378 199 L398 208 L520 208 L684 207 L684 212 L52 212 Z&quot; fill=&quot;url(#g-meas)&quot;&gt;
+      &lt;animate attributeName=&quot;opacity&quot; values=&quot;0;0.95;0.95;0&quot; keyTimes=&quot;0;0.42;0.9;1&quot; dur=&quot;6.5s&quot; calcMode=&quot;spline&quot; keySplines=&quot;0.45 0 0.15 1;0 0 1 1;0.45 0 0.15 1&quot; repeatCount=&quot;indefinite&quot;/&gt;
+    &lt;/path&gt;
+    &lt;path d=&quot;M52 210 L150 209 L300 208 L360 208 L378 199 L398 208 L520 208 L684 207&quot; fill=&quot;none&quot; stroke=&quot;var(--c-blue)&quot; stroke-width=&quot;2.6&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; pathLength=&quot;100&quot; stroke-dasharray=&quot;100&quot;&gt;
+      &lt;animate attributeName=&quot;stroke-dashoffset&quot; values=&quot;100;0;0;100&quot; keyTimes=&quot;0;0.42;0.9;1&quot; dur=&quot;6.5s&quot; calcMode=&quot;spline&quot; keySplines=&quot;0.45 0 0.15 1;0 0 1 1;0.45 0 0.15 1&quot; repeatCount=&quot;indefinite&quot;/&gt;
+    &lt;/path&gt;
+    &lt;path d=&quot;M52 210 C 240 208, 430 150, 684 46&quot; fill=&quot;none&quot; stroke=&quot;url(#g-envline)&quot; stroke-width=&quot;2.8&quot; stroke-linecap=&quot;round&quot; pathLength=&quot;100&quot; stroke-dasharray=&quot;100&quot;&gt;
+      &lt;animate attributeName=&quot;stroke-dashoffset&quot; values=&quot;100;0;0;100&quot; keyTimes=&quot;0;0.42;0.9;1&quot; dur=&quot;6.5s&quot; calcMode=&quot;spline&quot; keySplines=&quot;0.45 0 0.15 1;0 0 1 1;0.45 0 0.15 1&quot; repeatCount=&quot;indefinite&quot;/&gt;
+    &lt;/path&gt;
+    &lt;circle r=&quot;9&quot; fill=&quot;var(--c-orange)&quot; opacity=&quot;0.18&quot;&gt;
+      &lt;animateMotion path=&quot;M52 210 C 240 208, 430 150, 684 46&quot; keyPoints=&quot;0;1;1;0&quot; keyTimes=&quot;0;0.42;0.9;1&quot; dur=&quot;6.5s&quot; calcMode=&quot;spline&quot; keySplines=&quot;0.45 0 0.15 1;0 0 1 1;0.45 0 0.15 1&quot; repeatCount=&quot;indefinite&quot;/&gt;
+    &lt;/circle&gt;
+    &lt;circle r=&quot;4.5&quot; fill=&quot;var(--c-orange)&quot; filter=&quot;url(#fx-glow)&quot;&gt;
+      &lt;animateMotion path=&quot;M52 210 C 240 208, 430 150, 684 46&quot; keyPoints=&quot;0;1;1;0&quot; keyTimes=&quot;0;0.42;0.9;1&quot; dur=&quot;6.5s&quot; calcMode=&quot;spline&quot; keySplines=&quot;0.45 0 0.15 1;0 0 1 1;0.45 0 0.15 1&quot; repeatCount=&quot;indefinite&quot;/&gt;
+    &lt;/circle&gt;
+    &lt;circle cx=&quot;52&quot; cy=&quot;211&quot; r=&quot;4&quot; fill=&quot;var(--fig-surface)&quot; stroke=&quot;var(--fig-ink2)&quot; stroke-width=&quot;1.6&quot;/&gt;
+    &lt;g transform=&quot;translate(556,30)&quot;&gt;&lt;rect width=&quot;128&quot; height=&quot;21&quot; rx=&quot;7&quot; fill=&quot;var(--c-orange)&quot; opacity=&quot;0.16&quot;/&gt;&lt;text x=&quot;12&quot; y=&quot;14.5&quot; fill=&quot;var(--c-orangeink)&quot; font-size=&quot;12&quot; font-weight=&quot;700&quot;&gt;봉투계산 · 약 5시간&lt;/text&gt;&lt;/g&gt;
+    &lt;g transform=&quot;translate(520,224)&quot;&gt;&lt;rect width=&quot;164&quot; height=&quot;21&quot; rx=&quot;7&quot; fill=&quot;var(--c-blue)&quot; opacity=&quot;0.16&quot;/&gt;&lt;text x=&quot;12&quot; y=&quot;14.5&quot; fill=&quot;var(--c-blueink)&quot; font-size=&quot;12&quot; font-weight=&quot;700&quot;&gt;실측 lag · 12초 (대기 1건)&lt;/text&gt;&lt;/g&gt;
+    &lt;text x=&quot;56&quot; y=&quot;230&quot; fill=&quot;var(--fig-muted)&quot; font-size=&quot;10.5&quot; letter-spacing=&quot;0.03em&quot;&gt;발송 시작&lt;/text&gt;
+  &lt;/svg&gt;
+  &lt;figcaption&gt;같은 지점에서 출발한 두 선. 위는 &lt;b&gt;건수 x 건당시간&lt;/b&gt;이 그린 추정, 아래는 컨슈머가 실제로 보고한 지연. 두 선의 벌어짐이 곧 잘못된 견적의 크기다.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p&gt;파티션 1개라 컨슈머를 늘려도 처리량이 안 오르는 건 사실이었습니다.&lt;br&gt;
+그런데 밀리지도 않은 큐를 증설할 이유는 없죠.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;백로그의 진실은 봉투계산이 아니라 측정된 lag입니다. lag이 낮으면 &quot;느림&quot;은 실체가 없어요.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;곱셈은 가설을 세울 때만 씁니다. 돈 쓰는 결정은 실측으로 해요.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;풀 상한은 왜 파드 수를 곱해야 할까?&lt;/h2&gt;
+&lt;p&gt;DB 커넥션 알람이 울렸습니다.&lt;br&gt;
+문서에는 서비스별 풀 상한을 더한 값이 430이라고 적혀 있었어요. 임계는 1800.&lt;/p&gt;
+&lt;p&gt;&quot;절반도 안 쓰는데 왜 알람이?&quot;&lt;br&gt;
+여기서 첫 실수가 나왔습니다.&lt;/p&gt;
+&lt;p&gt;430은 파드당 설정값의 단순 합이었어요.&lt;br&gt;
+인스턴스가 몇 개인지를 곱하지 않았습니다.&lt;/p&gt;
+&lt;p&gt;풀은 파드마다 따로 열립니다.&lt;br&gt;
+&lt;code class=&quot;language-text&quot;&gt;파드당 max-pool x replicas&lt;/code&gt;가 실제 상한이에요.&lt;/p&gt;
+&lt;p&gt;다시 계산하니 1220. 임계 1800의 68%입니다.&lt;br&gt;
+그림이 완전히 달라졌어요.&lt;/p&gt;
+&lt;figure class=&quot;metric-fig&quot;&gt;
+  &lt;div class=&quot;cap-head&quot;&gt;&lt;span class=&quot;cap-tag&quot;&gt;connection budget · per-service × replicas&lt;/span&gt;&lt;span class=&quot;cap-tag&quot;&gt;threshold &lt;b&gt;1,800&lt;/b&gt;&lt;/span&gt;&lt;/div&gt;
+  &lt;svg viewBox=&quot;0 0 640 244&quot; role=&quot;img&quot; aria-label=&quot;서비스별 커넥션이 파드 수를 곱하며 쌓여 1220에 이르고 임계 1800과 실측 810 선이 그어진다&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;
+    &lt;defs&gt;
+      &lt;linearGradient id=&quot;g4-slate&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;1&quot; y2=&quot;0&quot;&gt;&lt;stop offset=&quot;0&quot; stop-color=&quot;var(--c-slate)&quot; stop-opacity=&quot;0.6&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;var(--c-slate)&quot;/&gt;&lt;/linearGradient&gt;
+      &lt;linearGradient id=&quot;g4-amber&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;1&quot; y2=&quot;0&quot;&gt;&lt;stop offset=&quot;0&quot; stop-color=&quot;var(--c-amber)&quot; stop-opacity=&quot;0.65&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;var(--c-amber)&quot;/&gt;&lt;/linearGradient&gt;
+      &lt;linearGradient id=&quot;g4-green&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;1&quot; y2=&quot;0&quot;&gt;&lt;stop offset=&quot;0&quot; stop-color=&quot;var(--c-green)&quot; stop-opacity=&quot;0.6&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;var(--c-green)&quot;/&gt;&lt;/linearGradient&gt;
+    &lt;/defs&gt;
+    &lt;rect x=&quot;455&quot; y=&quot;42&quot; width=&quot;145&quot; height=&quot;168&quot; fill=&quot;var(--c-green)&quot; opacity=&quot;0.06&quot;/&gt;
+    &lt;text x=&quot;527&quot; y=&quot;36&quot; text-anchor=&quot;middle&quot; fill=&quot;var(--c-greenink)&quot; font-size=&quot;10&quot; letter-spacing=&quot;0.06em&quot; opacity=&quot;0.9&quot;&gt;HEADROOM&lt;/text&gt;
+    &lt;g stroke=&quot;var(--fig-grid)&quot; stroke-width=&quot;1&quot; font-size=&quot;10.5&quot; fill=&quot;var(--fig-muted)&quot;&gt;
+      &lt;line x1=&quot;150&quot; y1=&quot;42&quot; x2=&quot;150&quot; y2=&quot;210&quot;/&gt;&lt;text x=&quot;146&quot; y=&quot;214&quot; text-anchor=&quot;end&quot;&gt;0&lt;/text&gt;
+      &lt;line x1=&quot;262&quot; y1=&quot;42&quot; x2=&quot;262&quot; y2=&quot;210&quot;/&gt;&lt;text x=&quot;262&quot; y=&quot;228&quot; text-anchor=&quot;middle&quot;&gt;450&lt;/text&gt;
+      &lt;line x1=&quot;375&quot; y1=&quot;42&quot; x2=&quot;375&quot; y2=&quot;210&quot;/&gt;&lt;text x=&quot;375&quot; y=&quot;228&quot; text-anchor=&quot;middle&quot;&gt;900&lt;/text&gt;
+      &lt;line x1=&quot;487&quot; y1=&quot;42&quot; x2=&quot;487&quot; y2=&quot;210&quot;/&gt;&lt;text x=&quot;487&quot; y=&quot;228&quot; text-anchor=&quot;middle&quot;&gt;1350&lt;/text&gt;
+    &lt;/g&gt;
+    &lt;rect x=&quot;150&quot; y=&quot;56&quot; width=&quot;0&quot; height=&quot;26&quot; rx=&quot;4&quot; fill=&quot;url(#g4-slate)&quot; opacity=&quot;0.55&quot;&gt;&lt;animate attributeName=&quot;width&quot; values=&quot;0;107&quot; dur=&quot;0.6s&quot; begin=&quot;0.15s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.4 0 0.15 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/rect&gt;
+    &lt;rect x=&quot;150&quot; y=&quot;96&quot; width=&quot;0&quot; height=&quot;26&quot; rx=&quot;4&quot; fill=&quot;url(#g4-slate)&quot;&gt;&lt;animate attributeName=&quot;width&quot; values=&quot;0;155&quot; dur=&quot;0.6s&quot; begin=&quot;0.4s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.4 0 0.15 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/rect&gt;
+    &lt;rect x=&quot;150&quot; y=&quot;136&quot; width=&quot;0&quot; height=&quot;26&quot; rx=&quot;4&quot; fill=&quot;url(#g4-amber)&quot; filter=&quot;url(#fx-soft)&quot;&gt;&lt;animate attributeName=&quot;width&quot; values=&quot;0;202&quot; dur=&quot;0.6s&quot; begin=&quot;0.65s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.4 0 0.15 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/rect&gt;
+    &lt;rect x=&quot;150&quot; y=&quot;176&quot; width=&quot;0&quot; height=&quot;26&quot; rx=&quot;4&quot; fill=&quot;url(#g4-green)&quot; filter=&quot;url(#fx-soft)&quot;&gt;&lt;animate attributeName=&quot;width&quot; values=&quot;0;305&quot; dur=&quot;0.8s&quot; begin=&quot;0.9s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.4 0 0.15 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/rect&gt;
+    &lt;line x1=&quot;600&quot; y1=&quot;40&quot; x2=&quot;600&quot; y2=&quot;210&quot; stroke=&quot;var(--c-red)&quot; stroke-width=&quot;2.2&quot; stroke-dasharray=&quot;6 4&quot;&gt;
+      &lt;animate attributeName=&quot;opacity&quot; values=&quot;1;0.45;1&quot; dur=&quot;2.6s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;0.5;1&quot; keySplines=&quot;0.4 0 0.6 1;0.4 0 0.6 1&quot; repeatCount=&quot;indefinite&quot;/&gt;
+    &lt;/line&gt;
+    &lt;g transform=&quot;translate(560,214)&quot;&gt;&lt;rect width=&quot;60&quot; height=&quot;19&quot; rx=&quot;6&quot; fill=&quot;var(--c-red)&quot; opacity=&quot;0.16&quot;/&gt;&lt;text x=&quot;30&quot; y=&quot;13.5&quot; text-anchor=&quot;middle&quot; fill=&quot;var(--c-redink)&quot; font-size=&quot;11&quot; font-weight=&quot;700&quot;&gt;임계 1,800&lt;/text&gt;&lt;/g&gt;
+    &lt;g font-size=&quot;12&quot;&gt;
+      &lt;text x=&quot;146&quot; y=&quot;73&quot;  fill=&quot;var(--fig-muted)&quot; text-anchor=&quot;end&quot;&gt;순진한 합&lt;/text&gt;
+      &lt;g transform=&quot;translate(263,60)&quot;&gt;&lt;rect width=&quot;76&quot; height=&quot;18&quot; rx=&quot;6&quot; fill=&quot;var(--c-red)&quot; opacity=&quot;0.14&quot;/&gt;&lt;text x=&quot;9&quot; y=&quot;13&quot; fill=&quot;var(--c-redink)&quot; font-size=&quot;11&quot; font-weight=&quot;700&quot;&gt;430 ✗ 틀림&lt;/text&gt;&lt;/g&gt;
+      &lt;text x=&quot;146&quot; y=&quot;113&quot; fill=&quot;var(--fig-muted)&quot; text-anchor=&quot;end&quot;&gt;유휴 바닥&lt;/text&gt;&lt;text x=&quot;313&quot; y=&quot;113&quot; fill=&quot;var(--fig-ink2)&quot; font-weight=&quot;700&quot;&gt;620 · 상시 점유&lt;/text&gt;
+      &lt;text x=&quot;146&quot; y=&quot;153&quot; fill=&quot;var(--fig-muted)&quot; text-anchor=&quot;end&quot;&gt;실측&lt;/text&gt;&lt;text x=&quot;360&quot; y=&quot;153&quot; fill=&quot;var(--c-amberink)&quot; font-weight=&quot;700&quot;&gt;810 · 45%&lt;/text&gt;
+      &lt;text x=&quot;146&quot; y=&quot;193&quot; fill=&quot;var(--fig-muted)&quot; text-anchor=&quot;end&quot;&gt;실제 상한&lt;/text&gt;&lt;text x=&quot;463&quot; y=&quot;193&quot; fill=&quot;var(--c-greenink)&quot; font-weight=&quot;700&quot;&gt;1,220 · 파드 x 풀&lt;/text&gt;
+    &lt;/g&gt;
+  &lt;/svg&gt;
+  &lt;figcaption&gt;파드당 설정값만 더한 &lt;b&gt;430&lt;/b&gt;은 실제 인스턴스가 받는 압박을 3배 가까이 낮잡는다. 파드 수를 곱한 &lt;b&gt;1,220&lt;/b&gt;이 실제 상한이고, 임계 1,800까지는 아직 여유가 있다.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p&gt;여기서 두 번째 교훈이 나왔습니다.&lt;br&gt;
+바닥선(min-idle 합) 620을 먼저 계산해 두면, 관측치를 볼 때 기준이 생겨요.&lt;/p&gt;
+&lt;p&gt;트래픽이 0인데 관측치가 620보다 한참 낮다면, 서버가 아니라 &lt;em&gt;모니터 정의&lt;/em&gt;를 의심할 차례입니다.&lt;/p&gt;
+&lt;p&gt;실제로 그 대시보드는 한동안 &quot;45&quot;를 개수로 오독하게 만들었어요.&lt;br&gt;
+알고 보니 45는 개수가 아니라 45%였습니다.&lt;br&gt;
+상태 화면엔 &lt;code class=&quot;language-text&quot;&gt;a / 1800 * 100&lt;/code&gt; 수식이 숨어 있었죠.&lt;/p&gt;
+&lt;p&gt;관측치 810은 바닥 620 + 활성 190. 계산과 관측이 맞아떨어졌습니다.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;임계 분모(1800)는 상수로 박지 말고 메트릭으로 잡아라. 인스턴스 스펙이 바뀌면 계기가 조용히 어긋난다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;포기한 것&lt;/strong&gt;: &quot;파드당 설정값&quot;만 걸어둔 편한 대시보드. 게다가 1시간 평균 윈도우가 30분짜리 폭증을 평균으로 삼켰습니다. 짧은 스파이크는 알람도 못 울리고 지나갔어요.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2&gt;실패가 매시 51분에만 난다면?&lt;/h2&gt;
+&lt;p&gt;토큰 생성 실패 로그가 드문드문 찍혔습니다.&lt;br&gt;
+하루 한두 건. 무시해도 될 잡음처럼 보였어요.&lt;/p&gt;
+&lt;p&gt;그런데 발생 시각만 뽑아서 늘어놓자 소름이 돋았습니다.&lt;br&gt;
+15일치 30건이 전부 매시 51분경이었어요.&lt;/p&gt;
+&lt;p&gt;애플리케이션 버그는 이렇게 깔끔한 분(minute) 클러스터를 만들지 않습니다.&lt;br&gt;
+주기적으로 도는 무언가가 연결을 끊고 있다는 뜻이에요.&lt;br&gt;
+공용 egress, NAT, 벤더 앞단 로드밸런서 같은 것.&lt;/p&gt;
+&lt;p&gt;결정적 단서는 초 단위에 있었습니다.&lt;br&gt;
+발생 초가 매일 약 1.08초씩 밀렸어요.&lt;br&gt;
+51분 33.0초에서 시작해 13일 뒤 51분 47.2초로.&lt;/p&gt;
+&lt;figure class=&quot;metric-fig&quot;&gt;
+  &lt;div class=&quot;cap-head&quot;&gt;&lt;span class=&quot;cap-tag&quot;&gt;token reset failures · 15 days&lt;/span&gt;&lt;span class=&quot;cap-tag&quot;&gt;30 events&lt;/span&gt;&lt;/div&gt;
+  &lt;svg viewBox=&quot;0 0 640 288&quot; role=&quot;img&quot; aria-label=&quot;15일 동안 실패 점이 매시 51분 세로선에 정확히 모이고 날마다 초 단위로 오른쪽으로 드리프트한다&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;
+    &lt;defs&gt;
+      &lt;linearGradient id=&quot;g5-band&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;1&quot; y2=&quot;0&quot;&gt;
+        &lt;stop offset=&quot;0&quot; stop-color=&quot;var(--c-violet)&quot; stop-opacity=&quot;0&quot;/&gt;&lt;stop offset=&quot;0.5&quot; stop-color=&quot;var(--c-violet)&quot; stop-opacity=&quot;0.12&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;var(--c-violet)&quot; stop-opacity=&quot;0&quot;/&gt;
+      &lt;/linearGradient&gt;
+    &lt;/defs&gt;
+    &lt;rect x=&quot;200&quot; y=&quot;44&quot; width=&quot;270&quot; height=&quot;192&quot; fill=&quot;url(#g5-band)&quot;/&gt;
+    &lt;g stroke=&quot;var(--fig-grid)&quot; stroke-width=&quot;1&quot; font-size=&quot;10.5&quot; fill=&quot;var(--fig-muted)&quot;&gt;
+      &lt;line x1=&quot;158&quot; y1=&quot;44&quot; x2=&quot;158&quot; y2=&quot;236&quot;/&gt;&lt;text x=&quot;158&quot; y=&quot;254&quot; text-anchor=&quot;middle&quot;&gt;51:30&lt;/text&gt;
+      &lt;line x1=&quot;264&quot; y1=&quot;44&quot; x2=&quot;264&quot; y2=&quot;236&quot;/&gt;&lt;text x=&quot;264&quot; y=&quot;254&quot; text-anchor=&quot;middle&quot;&gt;51:36&lt;/text&gt;
+      &lt;line x1=&quot;370&quot; y1=&quot;44&quot; x2=&quot;370&quot; y2=&quot;236&quot;/&gt;&lt;text x=&quot;370&quot; y=&quot;254&quot; text-anchor=&quot;middle&quot;&gt;51:42&lt;/text&gt;
+      &lt;line x1=&quot;476&quot; y1=&quot;44&quot; x2=&quot;476&quot; y2=&quot;236&quot;/&gt;&lt;text x=&quot;476&quot; y=&quot;254&quot; text-anchor=&quot;middle&quot;&gt;51:48&lt;/text&gt;
+      &lt;line x1=&quot;582&quot; y1=&quot;44&quot; x2=&quot;582&quot; y2=&quot;236&quot;/&gt;&lt;text x=&quot;582&quot; y=&quot;254&quot; text-anchor=&quot;middle&quot;&gt;51:54&lt;/text&gt;
+    &lt;/g&gt;
+    &lt;path d=&quot;M211 236 L463 44&quot; fill=&quot;none&quot; stroke=&quot;var(--c-violet)&quot; stroke-width=&quot;1.6&quot; stroke-dasharray=&quot;5 5&quot;&gt;
+      &lt;animate attributeName=&quot;opacity&quot; values=&quot;0;0;0.85&quot; keyTimes=&quot;0;0.62;1&quot; dur=&quot;5s&quot; fill=&quot;freeze&quot;/&gt;
+    &lt;/path&gt;
+    &lt;g fill=&quot;var(--c-red)&quot; filter=&quot;url(#fx-glow)&quot;&gt;
+      &lt;circle cx=&quot;211&quot; cy=&quot;236&quot; r=&quot;0&quot;&gt;&lt;animate attributeName=&quot;r&quot; values=&quot;0;6;5&quot; dur=&quot;0.5s&quot; begin=&quot;0.3s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;0.6;1&quot; keySplines=&quot;0.3 0 0.2 1;0.4 0 0.4 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/circle&gt;
+      &lt;circle cx=&quot;229&quot; cy=&quot;222&quot; r=&quot;0&quot;&gt;&lt;animate attributeName=&quot;r&quot; values=&quot;0;6;5&quot; dur=&quot;0.5s&quot; begin=&quot;0.53s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;0.6;1&quot; keySplines=&quot;0.3 0 0.2 1;0.4 0 0.4 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/circle&gt;
+      &lt;circle cx=&quot;247&quot; cy=&quot;208&quot; r=&quot;0&quot;&gt;&lt;animate attributeName=&quot;r&quot; values=&quot;0;6;5&quot; dur=&quot;0.5s&quot; begin=&quot;0.76s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;0.6;1&quot; keySplines=&quot;0.3 0 0.2 1;0.4 0 0.4 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/circle&gt;
+      &lt;circle cx=&quot;265&quot; cy=&quot;194&quot; r=&quot;0&quot;&gt;&lt;animate attributeName=&quot;r&quot; values=&quot;0;6;5&quot; dur=&quot;0.5s&quot; begin=&quot;0.99s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;0.6;1&quot; keySplines=&quot;0.3 0 0.2 1;0.4 0 0.4 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/circle&gt;
+      &lt;circle cx=&quot;283&quot; cy=&quot;180&quot; r=&quot;0&quot;&gt;&lt;animate attributeName=&quot;r&quot; values=&quot;0;6;5&quot; dur=&quot;0.5s&quot; begin=&quot;1.22s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;0.6;1&quot; keySplines=&quot;0.3 0 0.2 1;0.4 0 0.4 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/circle&gt;
+      &lt;circle cx=&quot;301&quot; cy=&quot;166&quot; r=&quot;0&quot;&gt;&lt;animate attributeName=&quot;r&quot; values=&quot;0;6;5&quot; dur=&quot;0.5s&quot; begin=&quot;1.45s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;0.6;1&quot; keySplines=&quot;0.3 0 0.2 1;0.4 0 0.4 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/circle&gt;
+      &lt;circle cx=&quot;319&quot; cy=&quot;152&quot; r=&quot;0&quot;&gt;&lt;animate attributeName=&quot;r&quot; values=&quot;0;6;5&quot; dur=&quot;0.5s&quot; begin=&quot;1.68s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;0.6;1&quot; keySplines=&quot;0.3 0 0.2 1;0.4 0 0.4 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/circle&gt;
+      &lt;circle cx=&quot;337&quot; cy=&quot;138&quot; r=&quot;0&quot;&gt;&lt;animate attributeName=&quot;r&quot; values=&quot;0;6;5&quot; dur=&quot;0.5s&quot; begin=&quot;1.91s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;0.6;1&quot; keySplines=&quot;0.3 0 0.2 1;0.4 0 0.4 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/circle&gt;
+      &lt;circle cx=&quot;355&quot; cy=&quot;124&quot; r=&quot;0&quot;&gt;&lt;animate attributeName=&quot;r&quot; values=&quot;0;6;5&quot; dur=&quot;0.5s&quot; begin=&quot;2.14s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;0.6;1&quot; keySplines=&quot;0.3 0 0.2 1;0.4 0 0.4 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/circle&gt;
+      &lt;circle cx=&quot;373&quot; cy=&quot;110&quot; r=&quot;0&quot;&gt;&lt;animate attributeName=&quot;r&quot; values=&quot;0;6;5&quot; dur=&quot;0.5s&quot; begin=&quot;2.37s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;0.6;1&quot; keySplines=&quot;0.3 0 0.2 1;0.4 0 0.4 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/circle&gt;
+      &lt;circle cx=&quot;391&quot; cy=&quot;96&quot;  r=&quot;0&quot;&gt;&lt;animate attributeName=&quot;r&quot; values=&quot;0;6;5&quot; dur=&quot;0.5s&quot; begin=&quot;2.6s&quot;  calcMode=&quot;spline&quot; keyTimes=&quot;0;0.6;1&quot; keySplines=&quot;0.3 0 0.2 1;0.4 0 0.4 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/circle&gt;
+      &lt;circle cx=&quot;409&quot; cy=&quot;82&quot;  r=&quot;0&quot;&gt;&lt;animate attributeName=&quot;r&quot; values=&quot;0;6;5&quot; dur=&quot;0.5s&quot; begin=&quot;2.83s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;0.6;1&quot; keySplines=&quot;0.3 0 0.2 1;0.4 0 0.4 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/circle&gt;
+      &lt;circle cx=&quot;427&quot; cy=&quot;68&quot;  r=&quot;0&quot;&gt;&lt;animate attributeName=&quot;r&quot; values=&quot;0;6;5&quot; dur=&quot;0.5s&quot; begin=&quot;3.06s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;0.6;1&quot; keySplines=&quot;0.3 0 0.2 1;0.4 0 0.4 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/circle&gt;
+      &lt;circle cx=&quot;445&quot; cy=&quot;54&quot;  r=&quot;0&quot;&gt;&lt;animate attributeName=&quot;r&quot; values=&quot;0;6;5&quot; dur=&quot;0.5s&quot; begin=&quot;3.29s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;0.6;1&quot; keySplines=&quot;0.3 0 0.2 1;0.4 0 0.4 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/circle&gt;
+      &lt;circle cx=&quot;463&quot; cy=&quot;44&quot;  r=&quot;0&quot;&gt;&lt;animate attributeName=&quot;r&quot; values=&quot;0;6;5&quot; dur=&quot;0.5s&quot; begin=&quot;3.52s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;0.6;1&quot; keySplines=&quot;0.3 0 0.2 1;0.4 0 0.4 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/circle&gt;
+    &lt;/g&gt;
+    &lt;g transform=&quot;translate(240,26)&quot;&gt;&lt;rect width=&quot;192&quot; height=&quot;21&quot; rx=&quot;7&quot; fill=&quot;var(--c-violet)&quot; opacity=&quot;0.14&quot;/&gt;&lt;text x=&quot;96&quot; y=&quot;14.5&quot; text-anchor=&quot;middle&quot; fill=&quot;var(--c-violetink)&quot; font-size=&quot;12&quot; font-weight=&quot;700&quot;&gt;모든 실패가 :51에 내려앉는다&lt;/text&gt;&lt;/g&gt;
+    &lt;g font-size=&quot;11&quot;&gt;
+      &lt;text x=&quot;150&quot; y=&quot;240&quot; fill=&quot;var(--fig-muted)&quot; text-anchor=&quot;end&quot;&gt;day 1&lt;/text&gt;
+      &lt;text x=&quot;150&quot; y=&quot;52&quot;  fill=&quot;var(--fig-muted)&quot; text-anchor=&quot;end&quot;&gt;day 15&lt;/text&gt;
+      &lt;g transform=&quot;translate(474,88)&quot;&gt;&lt;rect width=&quot;98&quot; height=&quot;19&quot; rx=&quot;6&quot; fill=&quot;var(--c-violet)&quot; opacity=&quot;0.16&quot;/&gt;&lt;text x=&quot;49&quot; y=&quot;13.5&quot; text-anchor=&quot;middle&quot; fill=&quot;var(--c-violetink)&quot; font-weight=&quot;700&quot;&gt;+1.08초 / day&lt;/text&gt;&lt;/g&gt;
+    &lt;/g&gt;
+  &lt;/svg&gt;
+  &lt;figcaption&gt;가로축은 분:초, 세로축은 날짜. 점이 전부 &lt;b&gt;:51&lt;/b&gt; 세로선에 붙는다. 아래에서 위로 매일 &lt;b&gt;~1.08초&lt;/b&gt;씩 오른쪽으로 흐르는 이 드리프트가 &lt;b&gt;NTP 미동기화&lt;/b&gt;의 지문이다.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p&gt;시계가 맞는 장비라면 매일 같은 초에 리셋이 일어납니다.&lt;br&gt;
+매일 1초씩 밀린다는 건, 그 장비의 시간이 표준시에서 서서히 벗어난다는 얘기예요.&lt;/p&gt;
+&lt;p&gt;파드를 다른 노드로 옮겨도 패턴은 그대로였습니다.&lt;br&gt;
+원인은 우리 애플리케이션 바깥에 있었어요.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;실패 로그의 &quot;발생 시각 분포&quot;가 원인 계층을 가리킨다. 특정 분에 몰리면 코드가 아니라 주기적 인프라를 의심하라.&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2&gt;배치가 40초에 끝났는데 왜 2시간이 걸렸을까?&lt;/h2&gt;
+&lt;p&gt;일요일 10시. 배치 여러 종이 동시에 깨어나 이벤트를 쏟아냅니다.&lt;br&gt;
+&quot;10시에 배치가 몰린다&quot;는 말은 맞아요.&lt;/p&gt;
+&lt;p&gt;그런데 두 개의 시간을 하나로 뭉쳐서 보고 있었습니다.&lt;br&gt;
+&lt;em&gt;적재&lt;/em&gt;와 &lt;em&gt;소진&lt;/em&gt;입니다.&lt;/p&gt;
+&lt;p&gt;발행(적재)은 40초 만에 끝났어요.&lt;br&gt;
+문제는 소진이었습니다. 파티션 1개, 건당 450ms.&lt;br&gt;
+전부 비우는 데 2시간 3분이 걸렸어요.&lt;/p&gt;
+&lt;p&gt;완료 시각을 정하는 건 발행 속도가 아니라 컨슈머의 소진 속도입니다.&lt;/p&gt;
+&lt;p&gt;소진 곡선의 기울기가 꺾이는 지점이 병목 토픽을 드러냈어요.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;초반 3토픽 병렬: 분당 약 390건&lt;/li&gt;
+&lt;li&gt;하나가 끝나며: 분당 약 260건&lt;/li&gt;
+&lt;li&gt;마지막 월간 토픽 단독: 분당 약 128건&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;이 마지막 구간이 84분을 홀로 잡아먹었습니다.&lt;/p&gt;
+&lt;figure class=&quot;metric-fig&quot;&gt;
+  &lt;div class=&quot;cap-head&quot;&gt;&lt;span class=&quot;cap-tag&quot;&gt;drain throughput · msgs / min&lt;/span&gt;&lt;span class=&quot;cap-tag&quot;&gt;1 partition&lt;/span&gt;&lt;/div&gt;
+  &lt;svg viewBox=&quot;0 0 680 258&quot; role=&quot;img&quot; aria-label=&quot;소진 처리량이 병렬 구간 분당 390에서 하나가 끝나며 260으로 마지막 단일 토픽에서 128로 떨어진다&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;
+    &lt;defs&gt;
+      &lt;linearGradient id=&quot;g6-area&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;0&quot; y2=&quot;1&quot;&gt;
+        &lt;stop offset=&quot;0&quot; stop-color=&quot;var(--c-blue)&quot; stop-opacity=&quot;0.3&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;var(--c-blue)&quot; stop-opacity=&quot;0&quot;/&gt;
+      &lt;/linearGradient&gt;
+    &lt;/defs&gt;
+    &lt;rect x=&quot;360&quot; y=&quot;30&quot; width=&quot;284&quot; height=&quot;170&quot; fill=&quot;var(--c-orange)&quot; opacity=&quot;0.06&quot;/&gt;
+    &lt;text x=&quot;502&quot; y=&quot;24&quot; text-anchor=&quot;middle&quot; fill=&quot;var(--c-orangeink)&quot; font-size=&quot;10&quot; letter-spacing=&quot;0.06em&quot; opacity=&quot;0.85&quot;&gt;BOTTLENECK · 84min&lt;/text&gt;
+    &lt;g stroke=&quot;var(--fig-grid)&quot; stroke-width=&quot;1&quot; font-size=&quot;10.5&quot; fill=&quot;var(--fig-muted)&quot;&gt;
+      &lt;line x1=&quot;52&quot; y1=&quot;200&quot; x2=&quot;644&quot; y2=&quot;200&quot;/&gt;&lt;text x=&quot;46&quot; y=&quot;204&quot; text-anchor=&quot;end&quot;&gt;0&lt;/text&gt;
+      &lt;line x1=&quot;52&quot; y1=&quot;146&quot; x2=&quot;644&quot; y2=&quot;146&quot;/&gt;&lt;text x=&quot;46&quot; y=&quot;150&quot; text-anchor=&quot;end&quot;&gt;128&lt;/text&gt;
+      &lt;line x1=&quot;52&quot; y1=&quot;90&quot;  x2=&quot;644&quot; y2=&quot;90&quot;/&gt;&lt;text x=&quot;46&quot; y=&quot;94&quot;  text-anchor=&quot;end&quot;&gt;262&lt;/text&gt;
+      &lt;line x1=&quot;52&quot; y1=&quot;37&quot;  x2=&quot;644&quot; y2=&quot;37&quot;/&gt;&lt;text x=&quot;46&quot; y=&quot;41&quot;  text-anchor=&quot;end&quot;&gt;390&lt;/text&gt;
+    &lt;/g&gt;
+    &lt;path d=&quot;M52 37 L230 37 L230 90 L360 90 L360 146 L644 146 L644 200 L52 200 Z&quot; fill=&quot;url(#g6-area)&quot;&gt;
+      &lt;animate attributeName=&quot;opacity&quot; values=&quot;0;1;1;0&quot; keyTimes=&quot;0;0.45;0.9;1&quot; dur=&quot;7s&quot; calcMode=&quot;spline&quot; keySplines=&quot;0.45 0 0.15 1;0 0 1 1;0.45 0 0.15 1&quot; repeatCount=&quot;indefinite&quot;/&gt;
+    &lt;/path&gt;
+    &lt;path d=&quot;M52 37 L230 37 L230 90 L360 90 L360 146 L644 146&quot; fill=&quot;none&quot; stroke=&quot;var(--c-blue)&quot; stroke-width=&quot;2.8&quot; stroke-linejoin=&quot;round&quot; stroke-linecap=&quot;round&quot; pathLength=&quot;100&quot; stroke-dasharray=&quot;100&quot;&gt;
+      &lt;animate attributeName=&quot;stroke-dashoffset&quot; values=&quot;100;0;0;100&quot; keyTimes=&quot;0;0.45;0.9;1&quot; dur=&quot;7s&quot; calcMode=&quot;spline&quot; keySplines=&quot;0.45 0 0.15 1;0 0 1 1;0.45 0 0.15 1&quot; repeatCount=&quot;indefinite&quot;/&gt;
+    &lt;/path&gt;
+    &lt;circle r=&quot;8&quot; fill=&quot;var(--c-blue)&quot; opacity=&quot;0.16&quot;&gt;
+      &lt;animateMotion path=&quot;M52 37 L230 37 L230 90 L360 90 L360 146 L644 146&quot; keyPoints=&quot;0;1;1;0&quot; keyTimes=&quot;0;0.45;0.9;1&quot; dur=&quot;7s&quot; calcMode=&quot;spline&quot; keySplines=&quot;0.45 0 0.15 1;0 0 1 1;0.45 0 0.15 1&quot; repeatCount=&quot;indefinite&quot;/&gt;
+    &lt;/circle&gt;
+    &lt;circle r=&quot;4.5&quot; fill=&quot;var(--c-blue)&quot; filter=&quot;url(#fx-glow)&quot;&gt;
+      &lt;animateMotion path=&quot;M52 37 L230 37 L230 90 L360 90 L360 146 L644 146&quot; keyPoints=&quot;0;1;1;0&quot; keyTimes=&quot;0;0.45;0.9;1&quot; dur=&quot;7s&quot; calcMode=&quot;spline&quot; keySplines=&quot;0.45 0 0.15 1;0 0 1 1;0.45 0 0.15 1&quot; repeatCount=&quot;indefinite&quot;/&gt;
+    &lt;/circle&gt;
+    &lt;g transform=&quot;translate(72,12)&quot;&gt;&lt;rect width=&quot;150&quot; height=&quot;20&quot; rx=&quot;6&quot; fill=&quot;var(--c-green)&quot; opacity=&quot;0.14&quot;/&gt;&lt;text x=&quot;10&quot; y=&quot;14&quot; fill=&quot;var(--c-greenink)&quot; font-size=&quot;11.5&quot; font-weight=&quot;700&quot;&gt;3토픽 병렬 · ~390/분&lt;/text&gt;&lt;/g&gt;
+    &lt;g transform=&quot;translate(250,66)&quot;&gt;&lt;rect width=&quot;82&quot; height=&quot;19&quot; rx=&quot;6&quot; fill=&quot;var(--fig-ink2)&quot; opacity=&quot;0.1&quot;/&gt;&lt;text x=&quot;41&quot; y=&quot;13.5&quot; text-anchor=&quot;middle&quot; fill=&quot;var(--fig-ink2)&quot; font-size=&quot;11.5&quot; font-weight=&quot;700&quot;&gt;~260/분&lt;/text&gt;&lt;/g&gt;
+    &lt;g transform=&quot;translate(388,120)&quot;&gt;&lt;rect width=&quot;190&quot; height=&quot;20&quot; rx=&quot;6&quot; fill=&quot;var(--c-orange)&quot; opacity=&quot;0.16&quot;/&gt;&lt;text x=&quot;10&quot; y=&quot;14&quot; fill=&quot;var(--c-orangeink)&quot; font-size=&quot;11.5&quot; font-weight=&quot;700&quot;&gt;월간 단독 · ~128/분&lt;/text&gt;&lt;/g&gt;
+    &lt;g font-size=&quot;10.5&quot; fill=&quot;var(--fig-muted)&quot; letter-spacing=&quot;0.03em&quot;&gt;
+      &lt;text x=&quot;52&quot; y=&quot;224&quot;&gt;적재 40초&lt;/text&gt;
+      &lt;text x=&quot;644&quot; y=&quot;224&quot; text-anchor=&quot;end&quot;&gt;소진 2시간 03분&lt;/text&gt;
+    &lt;/g&gt;
+  &lt;/svg&gt;
+  &lt;figcaption&gt;곡선이 꺾이는 두 지점은 토픽이 하나씩 소진을 끝낸 순간이다. 마지막 월간 토픽 단독 구간(128/분)이 84분을 끌며 전체 완료 시각을 결정했다.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p&gt;곡선을 이렇게 나눠 보면 파티션 증설 판단이 선명해져요.&lt;br&gt;
+기준은 &quot;실측 꼬리가 요구 시각을 넘는가&quot;입니다.&lt;/p&gt;
+&lt;p&gt;산술로는 토픽당 상한이 유지되는 것처럼 보여도, 공유 자원 경합 때문에 실측이 30분씩 더 늦을 수 있었어요.&lt;br&gt;
+여기서도 계산보다 곡선이 정직했습니다.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;적재 시간과 소진 시간을 분리해 재라. 완료 시각은 언제나 느린 쪽이 정한다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2&gt;캐시가 DB보다 2,700배 느리면?&lt;/h2&gt;
+&lt;p&gt;의존성 지도를 열었더니 눈을 의심했습니다.&lt;br&gt;
+캐시 P95가 5.68초, 같은 구간 DB P95는 2.12ms.&lt;/p&gt;
+&lt;p&gt;캐시가 DB보다 2,700배 느렸어요.&lt;br&gt;
+캐시는 원래 DB보다 빨라야 하는데요. 정상 기준선은 0.2ms짜리 조회입니다.&lt;/p&gt;
+&lt;figure class=&quot;metric-fig&quot;&gt;
+  &lt;div class=&quot;cap-head&quot;&gt;&lt;span class=&quot;cap-tag&quot;&gt;p95 latency · same cache cluster&lt;/span&gt;&lt;span class=&quot;cap-tag&quot;&gt;log scale&lt;/span&gt;&lt;/div&gt;
+  &lt;svg viewBox=&quot;0 0 640 216&quot; role=&quot;img&quot; aria-label=&quot;로그 스케일 막대. 알림 서비스의 캐시 P95 5.68초가 DB 2.12ms와 다른 서비스의 캐시 1.44ms를 압도한다&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;
+    &lt;defs&gt;
+      &lt;linearGradient id=&quot;g7-red&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;1&quot; y2=&quot;0&quot;&gt;&lt;stop offset=&quot;0&quot; stop-color=&quot;var(--c-red)&quot; stop-opacity=&quot;0.6&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;var(--c-red)&quot;/&gt;&lt;/linearGradient&gt;
+      &lt;linearGradient id=&quot;g7-blue&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;1&quot; y2=&quot;0&quot;&gt;&lt;stop offset=&quot;0&quot; stop-color=&quot;var(--c-blue)&quot; stop-opacity=&quot;0.6&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;var(--c-blue)&quot;/&gt;&lt;/linearGradient&gt;
+      &lt;linearGradient id=&quot;g7-green&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;1&quot; y2=&quot;0&quot;&gt;&lt;stop offset=&quot;0&quot; stop-color=&quot;var(--c-green)&quot; stop-opacity=&quot;0.6&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;var(--c-green)&quot;/&gt;&lt;/linearGradient&gt;
+    &lt;/defs&gt;
+    &lt;g stroke=&quot;var(--fig-grid)&quot; stroke-width=&quot;1&quot; font-size=&quot;10.5&quot; fill=&quot;var(--fig-muted)&quot;&gt;
+      &lt;line x1=&quot;182&quot; y1=&quot;32&quot; x2=&quot;182&quot; y2=&quot;178&quot;/&gt;&lt;text x=&quot;182&quot; y=&quot;194&quot; text-anchor=&quot;middle&quot;&gt;1ms&lt;/text&gt;
+      &lt;line x1=&quot;289&quot; y1=&quot;32&quot; x2=&quot;289&quot; y2=&quot;178&quot;/&gt;&lt;text x=&quot;289&quot; y=&quot;194&quot; text-anchor=&quot;middle&quot;&gt;10ms&lt;/text&gt;
+      &lt;line x1=&quot;396&quot; y1=&quot;32&quot; x2=&quot;396&quot; y2=&quot;178&quot;/&gt;&lt;text x=&quot;396&quot; y=&quot;194&quot; text-anchor=&quot;middle&quot;&gt;100ms&lt;/text&gt;
+      &lt;line x1=&quot;503&quot; y1=&quot;32&quot; x2=&quot;503&quot; y2=&quot;178&quot;/&gt;&lt;text x=&quot;503&quot; y=&quot;194&quot; text-anchor=&quot;middle&quot;&gt;1s&lt;/text&gt;
+    &lt;/g&gt;
+    &lt;line x1=&quot;150&quot; y1=&quot;32&quot; x2=&quot;150&quot; y2=&quot;178&quot; stroke=&quot;var(--fig-baseline)&quot; stroke-width=&quot;1.4&quot;/&gt;
+    &lt;g font-size=&quot;12&quot;&gt;
+      &lt;text x=&quot;142&quot; y=&quot;61&quot;  fill=&quot;var(--fig-ink2)&quot; text-anchor=&quot;end&quot; font-weight=&quot;600&quot;&gt;알림 캐시 p95&lt;/text&gt;
+      &lt;text x=&quot;142&quot; y=&quot;109&quot; fill=&quot;var(--fig-ink2)&quot; text-anchor=&quot;end&quot; font-weight=&quot;600&quot;&gt;타 서비스 캐시&lt;/text&gt;
+      &lt;text x=&quot;142&quot; y=&quot;157&quot; fill=&quot;var(--fig-ink2)&quot; text-anchor=&quot;end&quot; font-weight=&quot;600&quot;&gt;DB p95&lt;/text&gt;
+    &lt;/g&gt;
+    &lt;rect x=&quot;150&quot; y=&quot;46&quot; width=&quot;0&quot; height=&quot;30&quot; rx=&quot;5&quot; fill=&quot;url(#g7-red)&quot; filter=&quot;url(#fx-soft)&quot;&gt;&lt;animate attributeName=&quot;width&quot; values=&quot;0;434&quot; dur=&quot;1.2s&quot; begin=&quot;0.2s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.35 0 0.1 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/rect&gt;
+    &lt;rect x=&quot;574&quot; y=&quot;46&quot; width=&quot;10&quot; height=&quot;30&quot; rx=&quot;0&quot; fill=&quot;var(--c-red)&quot; opacity=&quot;0&quot;&gt;&lt;animate attributeName=&quot;opacity&quot; values=&quot;0;0.9;0.3;0.9&quot; keyTimes=&quot;0;0.34;0.67;1&quot; dur=&quot;2.4s&quot; begin=&quot;1.4s&quot; repeatCount=&quot;indefinite&quot;/&gt;&lt;/rect&gt;
+    &lt;rect x=&quot;150&quot; y=&quot;94&quot; width=&quot;0&quot; height=&quot;30&quot; rx=&quot;5&quot; fill=&quot;url(#g7-blue)&quot;&gt;&lt;animate attributeName=&quot;width&quot; values=&quot;0;49&quot;  dur=&quot;0.7s&quot; begin=&quot;0.55s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.35 0 0.1 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/rect&gt;
+    &lt;rect x=&quot;150&quot; y=&quot;142&quot; width=&quot;0&quot; height=&quot;30&quot; rx=&quot;5&quot; fill=&quot;url(#g7-green)&quot;&gt;&lt;animate attributeName=&quot;width&quot; values=&quot;0;67&quot; dur=&quot;0.7s&quot; begin=&quot;0.85s&quot; calcMode=&quot;spline&quot; keyTimes=&quot;0;1&quot; keySplines=&quot;0.35 0 0.1 1&quot; fill=&quot;freeze&quot;/&gt;&lt;/rect&gt;
+    &lt;g font-weight=&quot;700&quot; font-size=&quot;12&quot;&gt;
+      &lt;text x=&quot;590&quot; y=&quot;65&quot;  fill=&quot;var(--c-redink)&quot; text-anchor=&quot;end&quot;&gt;5.68s&lt;/text&gt;
+      &lt;text x=&quot;209&quot; y=&quot;113&quot; fill=&quot;var(--c-blueink)&quot;&gt;1.44ms&lt;/text&gt;
+      &lt;text x=&quot;227&quot; y=&quot;161&quot; fill=&quot;var(--c-greenink)&quot;&gt;2.12ms&lt;/text&gt;
+    &lt;/g&gt;
+    &lt;g transform=&quot;translate(474,14)&quot;&gt;&lt;rect width=&quot;126&quot; height=&quot;21&quot; rx=&quot;7&quot; fill=&quot;var(--c-red)&quot; opacity=&quot;0.16&quot;/&gt;&lt;text x=&quot;63&quot; y=&quot;14.5&quot; text-anchor=&quot;middle&quot; fill=&quot;var(--c-redink)&quot; font-size=&quot;12&quot; font-weight=&quot;700&quot;&gt;~2,700x 느림&lt;/text&gt;&lt;/g&gt;
+  &lt;/svg&gt;
+  &lt;figcaption&gt;같은 클러스터인데 &lt;b&gt;한 서비스만&lt;/b&gt; 5.68초. 병목이 서버라면 셋 다 느려야 한다. 범인은 서버가 아니라 이 서비스의 공유 커넥션에 쌓인 줄이었다.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p&gt;캐시 서버가 죽은 게 아니었습니다.&lt;br&gt;
+같은 캐시를 쓰는 다른 서비스의 P95는 1.44ms로 멀쩡했어요.&lt;/p&gt;
+&lt;p&gt;한 서비스만 느리다면, 병목은 서버가 아니라 그 서비스의 &lt;em&gt;클라이언트 측 큐잉&lt;/em&gt;입니다.&lt;br&gt;
+단일 공유 커넥션에 명령이 줄을 서고 있었어요.&lt;/p&gt;
+&lt;p&gt;명령 종류를 까 보니 답이 나왔습니다.&lt;br&gt;
+3시간마다 도는 전체 재동기화가 &lt;code class=&quot;language-text&quot;&gt;DEL&lt;/code&gt;과 &lt;code class=&quot;language-text&quot;&gt;HMSET&lt;/code&gt;으로 트래픽의 90%를 차지했어요.&lt;br&gt;
+실사용 읽기가 아니라 안전망의 자기 폭격이었죠.&lt;/p&gt;
+&lt;p&gt;스케줄러가 3시간마다 전 사용자를 지우고 다시 넣고 있었습니다.&lt;br&gt;
+그 재동기화가 수십만 명령을 공유 커넥션에 밀어 넣는 동안, 실제 발송 경로의 읽기는 뒤에 줄을 섰어요.&lt;/p&gt;
+&lt;p&gt;그리고 그 주기 중 하나가 하필 정오, 매일 정오에 나가는 학습 알림 발송과 정면충돌했습니다.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;캐시 P95가 DB P95보다 느리면 서버가 아니라 클라이언트 큐잉을 의심하라. 같은 클러스터 타 서비스 P95가 리트머스다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;포기한 것&lt;/strong&gt;: &quot;캐시니까 빠르다&quot;는 가정. 파이프라이닝 없는 건별 왕복과 3시간 전량 재적재는, 캐시를 초당 수백 명령짜리 부하 발생기로 만들고 있었어요.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2&gt;정오 배치가 왜 밤 11시에 실행됐을까?&lt;/h2&gt;
+&lt;p&gt;정오에 나가야 할 학습 알림이 그날은 밤에 도착했습니다.&lt;br&gt;
+로그를 보니 같은 잡이 서로 다른 파드에서 두 번 실행되고 있었어요.&lt;/p&gt;
+&lt;p&gt;스케줄이 틀린 게 아니었습니다. 분산 락이 먼저 풀린 거였어요.&lt;/p&gt;
+&lt;p&gt;락 유지 시간은 &lt;code class=&quot;language-text&quot;&gt;lockAtMostFor = 15분&lt;/code&gt;.&lt;br&gt;
+그런데 실제 실행 시간은 주간 리포트 기준 11시간 53분이었습니다.&lt;/p&gt;
+&lt;p&gt;락이 15분 뒤 강제로 풀리면, 락 없이 도는 잡 뒤로 다른 파드가 같은 잡을 물고 들어와요.&lt;br&gt;
+중복 실행은 시간문제였습니다.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;지표&lt;/th&gt;
+&lt;th&gt;값&lt;/th&gt;
+&lt;th&gt;뜻&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;lockAtMostFor&lt;/td&gt;
+&lt;td&gt;15분&lt;/td&gt;
+&lt;td&gt;파드 사망 대비 강제 만료&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;실측 실행 시간&lt;/td&gt;
+&lt;td&gt;11시간 53분&lt;/td&gt;
+&lt;td&gt;락의 47배&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;쿼리 수&lt;/td&gt;
+&lt;td&gt;71,438개&lt;/td&gt;
+&lt;td&gt;N+1. hang이 아니라 slow&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;벌크로 고친 뒤&lt;/td&gt;
+&lt;td&gt;약 1분&lt;/td&gt;
+&lt;td&gt;쿼리 130회&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;느린 이유는 멈춤(hang)이 아니라 느림(slow)이었어요.&lt;br&gt;
+둘을 가른 건 쿼리 카운트였습니다.&lt;/p&gt;
+&lt;p&gt;대상 6만 행을 훑으며 행마다 5종의 쿼리를 더 날렸어요.&lt;br&gt;
+71,438개 쿼리를 도느라 바빴을 뿐, 어디에도 멈춰 있지 않았습니다.&lt;/p&gt;
+&lt;p&gt;실행 시간이 대상 건수에 선형으로 비례하면 그건 N+1입니다.&lt;br&gt;
+회원이 늘수록 락 초과는 저절로 커져요.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;락 유지 시간과 실측 실행 시간을 대조하라. 락을 늘리는 건 응급처치다. 실행 시간 자체를 줄여야 중복 발송도 사라진다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2&gt;트레이드오프 전체 정리&lt;/h2&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;지표를 읽은 법&lt;/th&gt;
+&lt;th&gt;얻은 것&lt;/th&gt;
+&lt;th&gt;포기한 것&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;성공을 HTTP 200 + code 1000으로 재정의&lt;/td&gt;
+&lt;td&gt;은폐된 28% 유실 노출&lt;/td&gt;
+&lt;td&gt;과거 성공 로그 전량 재집계 비용&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;P95를 먼저, 이상치는 나중&lt;/td&gt;
+&lt;td&gt;꼬리에 안 속음&lt;/td&gt;
+&lt;td&gt;4분 30초 한 건은 사람이 열어봐야 함&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;백로그를 곱셈 아닌 lag으로 판단&lt;/td&gt;
+&lt;td&gt;근거 없는 파티션 증설 취소&lt;/td&gt;
+&lt;td&gt;실측 지표 없으면 판단 불가&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;풀 상한을 파드 수로 곱함&lt;/td&gt;
+&lt;td&gt;실제 상한 1220 확보&lt;/td&gt;
+&lt;td&gt;편한 파드당 대시보드 폐기&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;관측치 어긋나면 모니터 정의부터&lt;/td&gt;
+&lt;td&gt;45를 45%로 정정&lt;/td&gt;
+&lt;td&gt;상태 화면만으로는 못 봄&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;실패의 시각 분포로 계층 판별&lt;/td&gt;
+&lt;td&gt;51분 리셋을 인프라로 특정&lt;/td&gt;
+&lt;td&gt;우리가 손댈 수 없는 원인&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;적재와 소진을 분리 측정&lt;/td&gt;
+&lt;td&gt;병목 토픽(월간) 특정&lt;/td&gt;
+&lt;td&gt;소진 속도는 파티션에 갇힘&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;캐시 P95를 타 서비스와 대조&lt;/td&gt;
+&lt;td&gt;자기 폭격 재동기화 발견&lt;/td&gt;
+&lt;td&gt;안전망 재설계 필요&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;락을 실측 실행 시간과 대조&lt;/td&gt;
+&lt;td&gt;중복 발송 원인 규명&lt;/td&gt;
+&lt;td&gt;실행 시간 자체를 줄여야 함&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;hr&gt;
+&lt;h2&gt;그래서, 무엇을 배웠나?&lt;/h2&gt;
+&lt;p&gt;돌아보면 매번 같은 실수를 했습니다.&lt;br&gt;
+계기를 보자마자 원인을 짚었어요. Redis라고, 벤더라고, 파티션 부족이라고.&lt;br&gt;
+그때마다 다음 데이터가 짐작을 정정했습니다.&lt;/p&gt;
+&lt;p&gt;지표를 읽는다는 건 결국, 계기 자체를 언제 못 믿을지 아는 일이었어요.&lt;/p&gt;
+&lt;p&gt;아직 못 푼 것도 남았습니다.&lt;br&gt;
+삼켜진 실패를 이력으로 남기지 못하면, 다음번에도 성공률은 실제보다 좋아 보일 거예요.&lt;/p&gt;
+&lt;p&gt;관측성을 먼저 세우는 것과, 그 위에서 구조를 고치는 것은 다른 일입니다.&lt;br&gt;
+이번 글은 앞쪽, 그러니까 &quot;믿을 수 있는 지표를 세우는 일&quot;에 대한 기록입니다.&lt;/p&gt;
+&lt;p&gt;측정이 먼저입니다. 진단은 그다음.&lt;br&gt;
+계기가 언제 거짓말하는지를 알아야, 비로소 지표가 읽힙니다.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;&quot;초록불이었는데.&quot;&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;이 한마디를 두 번 다시 하지 않으려고 성공의 정의부터 다시 썼습니다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[셀렉트를 세 벌 그렸지만 로직은 한 벌만 짰습니다]]></title><description><![CDATA[TL;DR 프로젝트 환경이 통째로 바뀌었습니다.
 Vite로 쌓아온 커머스가 Next(App Router) 프로젝트로 교체됐어요. 그동안 만든 상품 목록도 이 전환과 함께 사라졌습니다. 그 위에서 두 가지 컴포넌트를 만들었습니다.
 Select…]]></description><link>https://hyungkishin.github.io/frontend/e-commerce/headless-select-compound-dialog/</link><guid isPermaLink="false">https://hyungkishin.github.io/frontend/e-commerce/headless-select-compound-dialog/</guid><pubDate>Fri, 10 Jul 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;&lt;strong&gt;TL;DR&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;프로젝트 환경이 통째로 바뀌었습니다.
@@ -1060,7 +1671,363 @@ AI가 짜준 코드도 머지하면 내 코드다.
 그래서 더 중요해진 게 있다.
 어디서 멈출지, 무엇을 기계에 맡길지, 무엇을 끝까지 사람이 볼지를 정하는 일이다.
 다음 주에는 500줄짜리 컴포넌트와 싸운다.
-게이트가 못 잡는 관심사 분리가 본격적으로 사람 몫으로 넘어오는 자리다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[큐 거부 0건을 성공이라고 부른 직후, Outbox까지 가야 했습니다]]></title><description><![CDATA[TL;DR 새 enum status를 한 서버만 배포한 상태에서 배치가 돌았습니다.
+게이트가 못 잡는 관심사 분리가 본격적으로 사람 몫으로 넘어오는 자리다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[첫 호출만 5초, warmup으로 풀릴 줄 알았어요]]></title><description><![CDATA[TL;DR Spring + JDK 21 앱에서 첫 외부 API 호출이 5~10초, 두 번째부터는 0.3초였어요.
+"이거 cold start네, warmup 도입하면 풀리겠다." 이게 처음 가설이었습니다. 한 외부 API에서 막혔어요.
+매번 130ms…]]></description><link>https://hyungkishin.github.io/company/work/why5/</link><guid isPermaLink="false">https://hyungkishin.github.io/company/work/why5/</guid><pubDate>Sat, 02 May 2026 00:00:00 GMT</pubDate><content:encoded>&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;TL;DR&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Spring + JDK 21 앱에서 첫 외부 API 호출이 5~10초, 두 번째부터는 0.3초였어요.
+&quot;이거 cold start네, warmup 도입하면 풀리겠다.&quot; 이게 처음 가설이었습니다.&lt;/p&gt;
+&lt;p&gt;한 외부 API에서 막혔어요.
+매번 130ms 만에 RST. 두 번째도, 세 번째도, 100번째도 똑같이 130ms RST.
+warmup을 100번 해도 못 풀어요.&lt;/p&gt;
+&lt;p&gt;같은 &quot;느림&quot;으로 묶어놨던 호출들이, 뜯어보니 서로 다른 문제였습니다.&lt;/p&gt;
+&lt;p&gt;문제는 cold start가 아니었습니다.
+&lt;strong&gt;진단 없이 같은 처방을 반복한 것&lt;/strong&gt;이었습니다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2&gt;왜 첫 호출만 5초가 걸렸을까?&lt;/h2&gt;
+&lt;p&gt;숫자만 보면 쉬운 문제처럼 보였습니다.
+첫 호출만 5~10초, 두 번째부터는 0.3초.&lt;/p&gt;
+&lt;p&gt;이 패턴은 너무 익숙해서 오히려 위험했어요.
+&quot;cold start네&quot; 라고 이름 붙이는 순간, 진단은 끝난 것처럼 느껴졌습니다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;text&quot;&gt;&lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;1st call: 5~10s   (cold)
+2nd call: 0.3s    (warm)
+3rd call: 0.3s&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;같은 process, 같은 endpoint, 같은 사용자.
+첫 호출만 느림.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/static/01-call-count-response-time-13827e9cb6646c4be5041fa2bf71e49f.svg&quot; alt=&quot;호출 횟수별 응답 시간&quot;&gt;&lt;/p&gt;
+&lt;p&gt;그래서 처음엔 이 패턴만 보고 cold start라고 봤습니다.
+불편했던 건 그 다음입니다.
+같은 &quot;느림&quot;이라는 이름으로 S3와 OCR API를 묶었고, 둘 다 같은 처방으로 처리했습니다.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;&quot;cold start니까 warmup이면 되겠지&quot;가 맞았을까?&lt;/h2&gt;
+&lt;p&gt;처음 반응은 자료였습니다.
+JIT, TLS, DNS, TCP, 클래스 로딩, IRSA, Spring lazy init.
+첫 호출이 느려질 수 있는 이유는 충분히 많았습니다.&lt;/p&gt;
+&lt;p&gt;문제는 이유가 많을수록 가설이 더 그럴듯해진다는 점이었어요.
+그럴듯함은 진단이 아닙니다.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;단계&lt;/th&gt;
+&lt;th&gt;첫 호출&lt;/th&gt;
+&lt;th&gt;이후&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;JVM JIT&lt;/td&gt;
+&lt;td&gt;인터프리터에서 C1/C2 컴파일 진행&lt;/td&gt;
+&lt;td&gt;네이티브 코드&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;TLS Handshake&lt;/td&gt;
+&lt;td&gt;Full handshake&lt;/td&gt;
+&lt;td&gt;Connection pool 재사용 (keep-alive)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;DNS&lt;/td&gt;
+&lt;td&gt;실제 질의 (50~200ms)&lt;/td&gt;
+&lt;td&gt;OS/JVM DNS 캐시&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;TCP Connection&lt;/td&gt;
+&lt;td&gt;3-way handshake&lt;/td&gt;
+&lt;td&gt;기존 connection 재사용&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;클래스 로딩&lt;/td&gt;
+&lt;td&gt;lazy load&lt;/td&gt;
+&lt;td&gt;이미 로드&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;AWS IRSA STS&lt;/td&gt;
+&lt;td&gt;AssumeRoleWithWebIdentity (1~2s)&lt;/td&gt;
+&lt;td&gt;캐시된 임시 자격증명&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Spring Lazy Init&lt;/td&gt;
+&lt;td&gt;일부 빈 첫 사용 시 초기화&lt;/td&gt;
+&lt;td&gt;이미 초기화&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;JIT은 단순 &quot;인터프리터에서 네이티브&quot;가 아닙니다.
+Tiered Compilation 4단계로 진행돼요 (Level 0 인터프리터, 1 C1, 2~3 C1+profiling, 4 C2).&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/static/02-jit-tiered-compilation-75891d735e6198e9e0dfa6afcecf846f.svg&quot; alt=&quot;JIT Tiered Compilation level 0~4&quot;&gt;&lt;/p&gt;
+&lt;p&gt;TLS도 &quot;세션 재사용&quot; 보다 &quot;Connection 재사용&quot; 이 더 정확합니다.
+OkHttp/Apache/JDK HttpClient는 대부분 connection pool로 처리해요.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/static/03-tls-handshake-cold-warm-a1ce792e6329d9fa5475be994ac0427f.svg&quot; alt=&quot;TLS handshake, cold vs warm&quot;&gt;&lt;/p&gt;
+&lt;p&gt;EKS IRSA 첫 STS 호출 1&lt;del&gt;2초, Spring lazy bean 초기화 1&lt;/del&gt;3초.
+JIT + TLS + DNS + IRSA + lazy 합산이 4~7초 흔합니다.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/static/06-cold-start-breakdown-7bf8f95133af581ce312d84ba7a3b95c.svg&quot; alt=&quot;cold start 시간 분해&quot;&gt;&lt;/p&gt;
+&lt;p&gt;하지만 이 표를 다 외워도 OCR API는 풀리지 않았습니다.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;판단 기준은 자료의 양이 아니었습니다.
+&lt;strong&gt;첫 호출만 느린가.&lt;/strong&gt; 이걸 먼저 갈랐어야 했습니다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2&gt;어디가 느린지는 어떻게 쪼개야 할까?&lt;/h2&gt;
+&lt;p&gt;warmup을 넣기 전에 먼저 시간을 찢어야 했습니다.
+&quot;느리다&quot;는 한 단어 안에 DNS, TCP, TLS, 서버 처리, 클라이언트 처리가 같이 들어갑니다.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/static/04-curl-time-variables-8a4920fab608af57edbbac5f0439c8e0.svg&quot; alt=&quot;curl 시간 변수 의미&quot;&gt;&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;bash&quot;&gt;&lt;pre class=&quot;language-bash&quot;&gt;&lt;code class=&quot;language-bash&quot;&gt;&lt;span class=&quot;token function&quot;&gt;curl&lt;/span&gt; &lt;span class=&quot;token parameter variable&quot;&gt;-w&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;
+  DNS:           %{time_namelookup}s
+  CONNECT:       %{time_connect}s
+  SSL_HANDSHAKE: %{time_appconnect}s
+  TTFB:          %{time_starttransfer}s
+  TOTAL:         %{time_total}s
+&quot;&lt;/span&gt; &lt;span class=&quot;token parameter variable&quot;&gt;-s&lt;/span&gt; &lt;span class=&quot;token parameter variable&quot;&gt;-o&lt;/span&gt; /dev/null https://&lt;span class=&quot;token punctuation&quot;&gt;..&lt;/span&gt;.&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;DNS, TCP, TLS, 서버 처리, 클라이언트 처리.
+다섯 단계로 분리해서, 어디가 느린지 정확히 짚어줍니다.&lt;/p&gt;
+&lt;p&gt;이 작업은 귀찮습니다.
+대신 처방을 늦추고, 원인을 먼저 고정합니다.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;warmup 코드는 어디까지 먹혔을까?&lt;/h2&gt;
+&lt;p&gt;S3는 처음 가설이 맞았습니다.
+첫 호출 비용이었고, startup 이후 dummy 호출로 비용을 미리 냈습니다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;kotlin&quot;&gt;&lt;pre class=&quot;language-kotlin&quot;&gt;&lt;code class=&quot;language-kotlin&quot;&gt;&lt;span class=&quot;token annotation builtin&quot;&gt;@Component&lt;/span&gt;
+&lt;span class=&quot;token keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;S3Warmup&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;val&lt;/span&gt; s3Service&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; S3Service&lt;span class=&quot;token operator&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; ApplicationListener&lt;span class=&quot;token operator&quot;&gt;&amp;lt;&lt;/span&gt;ApplicationReadyEvent&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+
+    &lt;span class=&quot;token keyword&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;val&lt;/span&gt; log &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; LoggerFactory&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;getLogger&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;javaClass&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;token keyword&quot;&gt;override&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;fun&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;onApplicationEvent&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;event&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; ApplicationReadyEvent&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;token keyword&quot;&gt;val&lt;/span&gt; s3 &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; s3Service &lt;span class=&quot;token operator&quot;&gt;?:&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt;
+        &lt;span class=&quot;token comment&quot;&gt;// 비동기 + timeout + try-catch. startup 블로킹 0, 실패 무시.&lt;/span&gt;
+        CompletableFuture&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;runAsync&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+            runCatching &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt; s3&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;warmupHeadBucket&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+                &lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;onFailure&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt; log&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;warn&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string-literal singleline&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;S3 warmup failed (ignored): {}&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; it&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;message&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;orTimeout&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; TimeUnit&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;SECONDS&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;&lt;img src=&quot;/static/05-warmup-effect-26cabbdf9503a17b282c9b3e390707fc.svg&quot; alt=&quot;warmup 전후 응답 시간&quot;&gt;&lt;/p&gt;
+&lt;p&gt;여기까지는 &quot;cold start&quot;로 설명이 됐습니다.
+S3 첫 호출은 이걸로 풀렸습니다.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;포기한 것&lt;/strong&gt;: startup 이후 백그라운드 작업 하나를 추가했습니다. 실패는 무시하지만, 로그와 timeout은 남겨야 했습니다.
+대신 첫 S3 호출에서 5초 timeout을 맞는 비용을 줄였습니다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2&gt;그런데 OCR API는 왜 100번 호출해도 같았을까?&lt;/h2&gt;
+&lt;p&gt;같은 앱에 외부 OCR API 호출도 있었습니다.
+&quot;같은 cold start 패턴이겠지&quot; 싶어서 같이 warmup 코드를 추가했어요.
+여기서 판단이 가장 불편했습니다.
+이미 S3에서 맞은 처방이 있었기 때문에, 같은 처방을 다시 쓰고 싶었습니다.&lt;/p&gt;
+&lt;p&gt;근데 패턴이 달랐습니다.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;외부 호출&lt;/th&gt;
+&lt;th&gt;첫 호출&lt;/th&gt;
+&lt;th&gt;두 번째&lt;/th&gt;
+&lt;th&gt;패턴&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;S3 PutObject&lt;/td&gt;
+&lt;td&gt;5001ms timeout&lt;/td&gt;
+&lt;td&gt;887ms 성공&lt;/td&gt;
+&lt;td&gt;첫만 느림, cold start&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;외부 OCR API&lt;/td&gt;
+&lt;td&gt;130ms RST&lt;/td&gt;
+&lt;td&gt;130ms RST&lt;/td&gt;
+&lt;td&gt;매번 같음, 다른 원인&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;사내 LLM Proxy&lt;/td&gt;
+&lt;td&gt;정상&lt;/td&gt;
+&lt;td&gt;정상&lt;/td&gt;
+&lt;td&gt;무관&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;S3는 첫 호출만 5초 timeout, 두 번째부터 800ms.
+근데 OCR API는 첫, 두번째, 100번째 다 똑같이 130ms 만에 RST.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/static/08-our-ocr-diagnosis-a2ccdf9a0c5e592705a67b4e7cf83c7c.svg&quot; alt=&quot;외부 호출별 진단 매핑&quot;&gt;&lt;/p&gt;
+&lt;p&gt;130ms는 우리쪽에서 만들어진 시간이 아니에요.
+요청이 우리쪽에서 빨리 끊긴다는 뜻이고, 인프라에서 outbound가 막혀 있을 가능성이 큽니다.
+warmup 100번 해도 같은 패턴이 그대로 나옵니다.&lt;/p&gt;
+&lt;p&gt;여기서 첫 가설이 무너졌어요.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&quot;느림&quot;이라는 한 단어로 묶어둔 순간 처방이 틀어졌습니다.
+S3는 첫 호출 비용이었고, OCR은 매번 130ms에 끊기는 outbound 차단이었습니다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2&gt;처방 전에 무엇을 먼저 갈랐어야 할까?&lt;/h2&gt;
+&lt;p&gt;&lt;img src=&quot;/static/07-slowness-diagnosis-flow-e61ca6644c2264cbd064418973e88ecd.svg&quot; alt=&quot;느림의 원인 분류 진단 흐름&quot;&gt;&lt;/p&gt;
+&lt;p&gt;원인을 분리하고 나서야 처방도 갈라졌습니다.
+같은 외부 호출이라도 장애 경계가 달랐습니다.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;외부 호출&lt;/th&gt;
+&lt;th&gt;진단&lt;/th&gt;
+&lt;th&gt;처방&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;S3 PutObject&lt;/td&gt;
+&lt;td&gt;Cold start (JIT + IRSA + TLS)&lt;/td&gt;
+&lt;td&gt;warmup 코드 추가&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;외부 OCR API&lt;/td&gt;
+&lt;td&gt;Outbound 차단&lt;/td&gt;
+&lt;td&gt;SRE 컨택, ServiceEntry 등록 요청&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;사내 LLM Proxy&lt;/td&gt;
+&lt;td&gt;무관&lt;/td&gt;
+&lt;td&gt;그대로 유지&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;S3 timeout도 5s에서 30s로 임시 조정해서 실제 cold start 시간을 측정한 뒤에 warmup을 도입했어요.
+&quot;5초 timeout 떨어진다&quot; 는 우리가 만든 한도였지, 실제 cold start 시간이 아니었습니다.&lt;/p&gt;
+&lt;p&gt;이것도 작은 불편함이었습니다.
+timeout을 늘리면 장애가 길게 보입니다.
+대신 한 번은 실제 시간을 봐야 했습니다.&lt;/p&gt;
+&lt;p&gt;진단 순서는 이렇습니다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;text&quot;&gt;&lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;1. 증상 측정 (어떤 호출 / 얼마나 / 어떤 패턴)
+2. 반복 호출 비교, 두 번째부터 빨라지는가
+3. 단계별 elapsed 분리, DNS/TCP/TLS/서버/클라이언트 (curl -w)
+4. 인프라 검증, pod 안에서 nc/curl로 outbound 가능한가
+5. 외부 API 한도 검증, 콘솔/문서에서 RPM·동시성 제한
+6. 위 통과 + 첫 호출만 느리면 cold start 확정, warmup&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;처음엔 1단계에서 바로 6단계로 직진했어요.
+진단을 빼먹고 약 처방.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;같은 느림에 같은 약을 써도 될까?&lt;/h2&gt;
+&lt;p&gt;같은 증상이라도 원인 카테고리가 다르면 처방이 다릅니다.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;증상&lt;/th&gt;
+&lt;th&gt;원인 카테고리&lt;/th&gt;
+&lt;th&gt;Warmup으로 풀리나?&lt;/th&gt;
+&lt;th&gt;가야 할 처방&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;첫 호출 느리고 두 번째부터 빠름&lt;/td&gt;
+&lt;td&gt;Cold start (JIT/connection/STS)&lt;/td&gt;
+&lt;td&gt;YES&lt;/td&gt;
+&lt;td&gt;App startup 시 dummy 호출&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;매번 똑같이 빠르게 RST/timeout&lt;/td&gt;
+&lt;td&gt;Outbound 차단 (방화벽, mesh)&lt;/td&gt;
+&lt;td&gt;NO&lt;/td&gt;
+&lt;td&gt;SRE, ServiceEntry, SG, NAT&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;매번 비슷한 시간 (예: 1.7s)&lt;/td&gt;
+&lt;td&gt;외부 API 자체 시간&lt;/td&gt;
+&lt;td&gt;NO&lt;/td&gt;
+&lt;td&gt;외부 API plan 인상 / 다른 API&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;burst 시 일부 거절 (429)&lt;/td&gt;
+&lt;td&gt;외부 rate limit&lt;/td&gt;
+&lt;td&gt;NO&lt;/td&gt;
+&lt;td&gt;concurrency 직렬화 / commitment tier&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;진단 없이 warmup으로 직진하면 약을 잘못 씁니다.&lt;/p&gt;
+&lt;p&gt;warmup은 나쁜 처방이 아니었습니다.
+다만 첫 호출 비용에만 맞는 처방이었습니다.
+outbound 차단에는 요청을 더 많이 보내는 코드일 뿐입니다.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;K8s probe가 첫 호출 latency까지 막아줄까?&lt;/h2&gt;
+&lt;p&gt;처음엔 &quot;K8s probe로 다 풀린다&quot; 고 들었던 적도 있어요.
+이게 절반만 맞는 말이었습니다.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;주장&lt;/th&gt;
+&lt;th&gt;실제&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Readiness probe로 ready 전 트래픽 차단&lt;/td&gt;
+&lt;td&gt;정확. 단 앱 시작 완료 ≠ JIT/connection warm. probe 통과해도 JIT은 cold.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;사내 chassis가 워밍업 수행&lt;/td&gt;
+&lt;td&gt;보통 &lt;code class=&quot;language-text&quot;&gt;DataSource eager init&lt;/code&gt; 같은 startup task만. 외부 API 워밍업은 안 함.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Rolling update&lt;/td&gt;
+&lt;td&gt;트래픽 안전성. cold start 자체 해결은 X.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;probe와 rolling update는 장애 회피용이에요.
+첫 호출 latency 자체는 별도 워밍업이 필요합니다.&lt;/p&gt;
+&lt;p&gt;여기서도 경계가 갈립니다.
+probe는 &quot;트래픽을 받아도 되는가&quot; 를 묻고, warmup은 &quot;첫 실제 요청이 비용을 맞을 것인가&quot; 를 줄입니다.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;IDEA 디버그 숫자를 믿어도 될까?&lt;/h2&gt;
+&lt;p&gt;IntelliJ의 Run/Debug 설정에서 &quot;Run with fast startup&quot; 옵션이 켜져 있으면, &lt;code class=&quot;language-text&quot;&gt;-XX:TieredStopAtLevel=1&lt;/code&gt; 이 붙어서 C1까지만 컴파일됩니다.
+옵션을 안 켜면 default JIT (C2까지)로 돌긴 하지만, 디버거 attach 자체가 JIT 컴파일을 제약합니다.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;항목&lt;/th&gt;
+&lt;th&gt;IDEA 디버그&lt;/th&gt;
+&lt;th&gt;프로덕션&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;JIT 단계&lt;/td&gt;
+&lt;td&gt;fast startup 옵션 시 C1만, default도 디버거 어태치로 컴파일 제약&lt;/td&gt;
+&lt;td&gt;C1 + C2 정상&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Warm 성능&lt;/td&gt;
+&lt;td&gt;2~5배 느림 (디버거 + 컴파일 제약)&lt;/td&gt;
+&lt;td&gt;기준 성능&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;운영 성능 측정은 IDEA가 아니라 빌드된 jar로.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;포기한 것&lt;/strong&gt;: 로컬 IDEA에서 본 latency는 운영 신호가 아닙니다. 측정이 필요하면 빌드한 jar를 띄워야 해요.
+편한 디버그 환경을 버리고, 재현성이 있는 실행 조건을 택해야 했습니다.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2&gt;무엇을 아직 못 정했을까?&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;GraalVM Native Image&lt;/strong&gt;: startup 50ms 수준이지만 PGO 없으면 peak 처리량이 떨어집니다. reflection 설정 부담도 커요. 도입 평가 못 했습니다.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;AppCDS&lt;/strong&gt;: &lt;code class=&quot;language-text&quot;&gt;-XX:+UseAppCDS&lt;/code&gt; 는 deprecated. &lt;code class=&quot;language-text&quot;&gt;ArchiveClassesAtExit&lt;/code&gt; / &lt;code class=&quot;language-text&quot;&gt;SharedArchiveFile&lt;/code&gt; 만 써야 합니다. 도입 안 했지만 startup 5~10% 단축 여지 있어요.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;외부 OCR API SRE 작업 일정&lt;/strong&gt;: ServiceEntry 등록 요청 보냈지만 인프라 팀 일정에 의존하는 자리.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;OkHttp &lt;code class=&quot;language-text&quot;&gt;connectTimeout&lt;/code&gt;/&lt;code class=&quot;language-text&quot;&gt;readTimeout&lt;/code&gt; 명시 부재&lt;/strong&gt;: 환경마다 default가 달라서 일관성 위험 있어요.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2&gt;어디서 가정이 굳었을까?&lt;/h2&gt;
+&lt;p&gt;처음엔 cold start 자료를 굉장히 자세히 모았습니다.
+JIT Tiered Compilation 그림, TLS handshake 단계, IRSA 흐름. 다 도식화.&lt;/p&gt;
+&lt;p&gt;근데 실제로 막힌 건 그 자료가 설명하지 못하는 케이스였습니다.
+S3는 cold start, OCR API는 outbound 차단.
+자료 하나로 둘 다 풀리지 않았어요.&lt;/p&gt;
+&lt;p&gt;&quot;내가 모은 일반론 안에서 설명될 거라는 가정&quot; 이 처음 가설을 직진하게 만든 자리였습니다.&lt;/p&gt;
+&lt;p&gt;사실 막혔던 자리는 cold start가 아니었어요.
+&lt;strong&gt;진단 없이 같은 처방을 반복한 실패&lt;/strong&gt;였습니다.&lt;/p&gt;
+&lt;p&gt;같은 증상이라도 처방이 같지는 않아요.
+warmup이 약이 되는 케이스인지부터 가르는 게 먼저였습니다.&lt;/p&gt;
+&lt;p&gt;그래서 다음에는 이름을 붙이기 전에 먼저 패턴을 나눠야 합니다.
+첫 호출만 느린지, 매번 같은 시간에 끊기는지, 외부 API 자체가 늦는지.
+그 순서를 건너뛰면 지식이 많아질수록 더 빠르게 틀립니다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[큐 거부 0건을 성공이라고 부른 직후, Outbox까지 가야 했습니다]]></title><description><![CDATA[TL;DR 새 enum status를 한 서버만 배포한 상태에서 배치가 돌았습니다.
 비동기 이벤트 큐가 거부했고, 5,235건이 영구 유실됐어요. 1차 봉합으로 Virtual Thread + concurrencyLimit 을 넣었습니다.
 큐 거부…]]></description><link>https://hyungkishin.github.io/company/work/why6/</link><guid isPermaLink="false">https://hyungkishin.github.io/company/work/why6/</guid><pubDate>Sat, 02 May 2026 00:00:00 GMT</pubDate><content:encoded>&lt;blockquote&gt;
 &lt;p&gt;&lt;strong&gt;TL;DR&lt;/strong&gt;&lt;/p&gt;
@@ -1445,363 +2412,7 @@ UNKNOWN fallback은 silent failure 위험이라 사용 안 했어요.&lt;/p&gt;
 이 시간 안에 Outbox로 넘어가야 한다는 의미.
 안 넘어가면 같은 사고를 다시 만나게 될 거예요.&lt;/p&gt;
 &lt;p&gt;성공이라는 말은 정합성 경계가 옮겨진 뒤에 써야 했습니다.
-그 전까지는 &quot;거부 0건&quot;이 아니라 &quot;아직 메모리에 남아 있는 위험&quot;으로 불러야 했습니다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[첫 호출만 5초, warmup으로 풀릴 줄 알았어요]]></title><description><![CDATA[TL;DR Spring + JDK 21 앱에서 첫 외부 API 호출이 5~10초, 두 번째부터는 0.3초였어요.
-"이거 cold start네, warmup 도입하면 풀리겠다." 이게 처음 가설이었습니다. 한 외부 API에서 막혔어요.
-매번 130ms…]]></description><link>https://hyungkishin.github.io/company/work/why5/</link><guid isPermaLink="false">https://hyungkishin.github.io/company/work/why5/</guid><pubDate>Sat, 02 May 2026 00:00:00 GMT</pubDate><content:encoded>&lt;blockquote&gt;
-&lt;p&gt;&lt;strong&gt;TL;DR&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;Spring + JDK 21 앱에서 첫 외부 API 호출이 5~10초, 두 번째부터는 0.3초였어요.
-&quot;이거 cold start네, warmup 도입하면 풀리겠다.&quot; 이게 처음 가설이었습니다.&lt;/p&gt;
-&lt;p&gt;한 외부 API에서 막혔어요.
-매번 130ms 만에 RST. 두 번째도, 세 번째도, 100번째도 똑같이 130ms RST.
-warmup을 100번 해도 못 풀어요.&lt;/p&gt;
-&lt;p&gt;같은 &quot;느림&quot;으로 묶어놨던 호출들이, 뜯어보니 서로 다른 문제였습니다.&lt;/p&gt;
-&lt;p&gt;문제는 cold start가 아니었습니다.
-&lt;strong&gt;진단 없이 같은 처방을 반복한 것&lt;/strong&gt;이었습니다.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;hr&gt;
-&lt;h2&gt;왜 첫 호출만 5초가 걸렸을까?&lt;/h2&gt;
-&lt;p&gt;숫자만 보면 쉬운 문제처럼 보였습니다.
-첫 호출만 5~10초, 두 번째부터는 0.3초.&lt;/p&gt;
-&lt;p&gt;이 패턴은 너무 익숙해서 오히려 위험했어요.
-&quot;cold start네&quot; 라고 이름 붙이는 순간, 진단은 끝난 것처럼 느껴졌습니다.&lt;/p&gt;
-&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;text&quot;&gt;&lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;1st call: 5~10s   (cold)
-2nd call: 0.3s    (warm)
-3rd call: 0.3s&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;같은 process, 같은 endpoint, 같은 사용자.
-첫 호출만 느림.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;/static/01-call-count-response-time-13827e9cb6646c4be5041fa2bf71e49f.svg&quot; alt=&quot;호출 횟수별 응답 시간&quot;&gt;&lt;/p&gt;
-&lt;p&gt;그래서 처음엔 이 패턴만 보고 cold start라고 봤습니다.
-불편했던 건 그 다음입니다.
-같은 &quot;느림&quot;이라는 이름으로 S3와 OCR API를 묶었고, 둘 다 같은 처방으로 처리했습니다.&lt;/p&gt;
-&lt;hr&gt;
-&lt;h2&gt;&quot;cold start니까 warmup이면 되겠지&quot;가 맞았을까?&lt;/h2&gt;
-&lt;p&gt;처음 반응은 자료였습니다.
-JIT, TLS, DNS, TCP, 클래스 로딩, IRSA, Spring lazy init.
-첫 호출이 느려질 수 있는 이유는 충분히 많았습니다.&lt;/p&gt;
-&lt;p&gt;문제는 이유가 많을수록 가설이 더 그럴듯해진다는 점이었어요.
-그럴듯함은 진단이 아닙니다.&lt;/p&gt;
-&lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;단계&lt;/th&gt;
-&lt;th&gt;첫 호출&lt;/th&gt;
-&lt;th&gt;이후&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;JVM JIT&lt;/td&gt;
-&lt;td&gt;인터프리터에서 C1/C2 컴파일 진행&lt;/td&gt;
-&lt;td&gt;네이티브 코드&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;TLS Handshake&lt;/td&gt;
-&lt;td&gt;Full handshake&lt;/td&gt;
-&lt;td&gt;Connection pool 재사용 (keep-alive)&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;DNS&lt;/td&gt;
-&lt;td&gt;실제 질의 (50~200ms)&lt;/td&gt;
-&lt;td&gt;OS/JVM DNS 캐시&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;TCP Connection&lt;/td&gt;
-&lt;td&gt;3-way handshake&lt;/td&gt;
-&lt;td&gt;기존 connection 재사용&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;클래스 로딩&lt;/td&gt;
-&lt;td&gt;lazy load&lt;/td&gt;
-&lt;td&gt;이미 로드&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;AWS IRSA STS&lt;/td&gt;
-&lt;td&gt;AssumeRoleWithWebIdentity (1~2s)&lt;/td&gt;
-&lt;td&gt;캐시된 임시 자격증명&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;Spring Lazy Init&lt;/td&gt;
-&lt;td&gt;일부 빈 첫 사용 시 초기화&lt;/td&gt;
-&lt;td&gt;이미 초기화&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-&lt;p&gt;JIT은 단순 &quot;인터프리터에서 네이티브&quot;가 아닙니다.
-Tiered Compilation 4단계로 진행돼요 (Level 0 인터프리터, 1 C1, 2~3 C1+profiling, 4 C2).&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;/static/02-jit-tiered-compilation-75891d735e6198e9e0dfa6afcecf846f.svg&quot; alt=&quot;JIT Tiered Compilation level 0~4&quot;&gt;&lt;/p&gt;
-&lt;p&gt;TLS도 &quot;세션 재사용&quot; 보다 &quot;Connection 재사용&quot; 이 더 정확합니다.
-OkHttp/Apache/JDK HttpClient는 대부분 connection pool로 처리해요.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;/static/03-tls-handshake-cold-warm-a1ce792e6329d9fa5475be994ac0427f.svg&quot; alt=&quot;TLS handshake, cold vs warm&quot;&gt;&lt;/p&gt;
-&lt;p&gt;EKS IRSA 첫 STS 호출 1&lt;del&gt;2초, Spring lazy bean 초기화 1&lt;/del&gt;3초.
-JIT + TLS + DNS + IRSA + lazy 합산이 4~7초 흔합니다.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;/static/06-cold-start-breakdown-7bf8f95133af581ce312d84ba7a3b95c.svg&quot; alt=&quot;cold start 시간 분해&quot;&gt;&lt;/p&gt;
-&lt;p&gt;하지만 이 표를 다 외워도 OCR API는 풀리지 않았습니다.&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;판단 기준은 자료의 양이 아니었습니다.
-&lt;strong&gt;첫 호출만 느린가.&lt;/strong&gt; 이걸 먼저 갈랐어야 했습니다.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;hr&gt;
-&lt;h2&gt;어디가 느린지는 어떻게 쪼개야 할까?&lt;/h2&gt;
-&lt;p&gt;warmup을 넣기 전에 먼저 시간을 찢어야 했습니다.
-&quot;느리다&quot;는 한 단어 안에 DNS, TCP, TLS, 서버 처리, 클라이언트 처리가 같이 들어갑니다.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;/static/04-curl-time-variables-8a4920fab608af57edbbac5f0439c8e0.svg&quot; alt=&quot;curl 시간 변수 의미&quot;&gt;&lt;/p&gt;
-&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;bash&quot;&gt;&lt;pre class=&quot;language-bash&quot;&gt;&lt;code class=&quot;language-bash&quot;&gt;&lt;span class=&quot;token function&quot;&gt;curl&lt;/span&gt; &lt;span class=&quot;token parameter variable&quot;&gt;-w&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;
-  DNS:           %{time_namelookup}s
-  CONNECT:       %{time_connect}s
-  SSL_HANDSHAKE: %{time_appconnect}s
-  TTFB:          %{time_starttransfer}s
-  TOTAL:         %{time_total}s
-&quot;&lt;/span&gt; &lt;span class=&quot;token parameter variable&quot;&gt;-s&lt;/span&gt; &lt;span class=&quot;token parameter variable&quot;&gt;-o&lt;/span&gt; /dev/null https://&lt;span class=&quot;token punctuation&quot;&gt;..&lt;/span&gt;.&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;DNS, TCP, TLS, 서버 처리, 클라이언트 처리.
-다섯 단계로 분리해서, 어디가 느린지 정확히 짚어줍니다.&lt;/p&gt;
-&lt;p&gt;이 작업은 귀찮습니다.
-대신 처방을 늦추고, 원인을 먼저 고정합니다.&lt;/p&gt;
-&lt;hr&gt;
-&lt;h2&gt;warmup 코드는 어디까지 먹혔을까?&lt;/h2&gt;
-&lt;p&gt;S3는 처음 가설이 맞았습니다.
-첫 호출 비용이었고, startup 이후 dummy 호출로 비용을 미리 냈습니다.&lt;/p&gt;
-&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;kotlin&quot;&gt;&lt;pre class=&quot;language-kotlin&quot;&gt;&lt;code class=&quot;language-kotlin&quot;&gt;&lt;span class=&quot;token annotation builtin&quot;&gt;@Component&lt;/span&gt;
-&lt;span class=&quot;token keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;S3Warmup&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;
-    &lt;span class=&quot;token keyword&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;val&lt;/span&gt; s3Service&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; S3Service&lt;span class=&quot;token operator&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
-&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; ApplicationListener&lt;span class=&quot;token operator&quot;&gt;&amp;lt;&lt;/span&gt;ApplicationReadyEvent&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
-
-    &lt;span class=&quot;token keyword&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;val&lt;/span&gt; log &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; LoggerFactory&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;getLogger&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;javaClass&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
-
-    &lt;span class=&quot;token keyword&quot;&gt;override&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;fun&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;onApplicationEvent&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;event&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; ApplicationReadyEvent&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;token keyword&quot;&gt;val&lt;/span&gt; s3 &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; s3Service &lt;span class=&quot;token operator&quot;&gt;?:&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt;
-        &lt;span class=&quot;token comment&quot;&gt;// 비동기 + timeout + try-catch. startup 블로킹 0, 실패 무시.&lt;/span&gt;
-        CompletableFuture&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;runAsync&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
-            runCatching &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt; s3&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;warmupHeadBucket&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
-                &lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;onFailure&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt; log&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;warn&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string-literal singleline&quot;&gt;&lt;span class=&quot;token string&quot;&gt;&quot;S3 warmup failed (ignored): {}&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; it&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;message&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
-        &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;orTimeout&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; TimeUnit&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;SECONDS&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
-    &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;&lt;img src=&quot;/static/05-warmup-effect-26cabbdf9503a17b282c9b3e390707fc.svg&quot; alt=&quot;warmup 전후 응답 시간&quot;&gt;&lt;/p&gt;
-&lt;p&gt;여기까지는 &quot;cold start&quot;로 설명이 됐습니다.
-S3 첫 호출은 이걸로 풀렸습니다.&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;&lt;strong&gt;포기한 것&lt;/strong&gt;: startup 이후 백그라운드 작업 하나를 추가했습니다. 실패는 무시하지만, 로그와 timeout은 남겨야 했습니다.
-대신 첫 S3 호출에서 5초 timeout을 맞는 비용을 줄였습니다.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;hr&gt;
-&lt;h2&gt;그런데 OCR API는 왜 100번 호출해도 같았을까?&lt;/h2&gt;
-&lt;p&gt;같은 앱에 외부 OCR API 호출도 있었습니다.
-&quot;같은 cold start 패턴이겠지&quot; 싶어서 같이 warmup 코드를 추가했어요.
-여기서 판단이 가장 불편했습니다.
-이미 S3에서 맞은 처방이 있었기 때문에, 같은 처방을 다시 쓰고 싶었습니다.&lt;/p&gt;
-&lt;p&gt;근데 패턴이 달랐습니다.&lt;/p&gt;
-&lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;외부 호출&lt;/th&gt;
-&lt;th&gt;첫 호출&lt;/th&gt;
-&lt;th&gt;두 번째&lt;/th&gt;
-&lt;th&gt;패턴&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;S3 PutObject&lt;/td&gt;
-&lt;td&gt;5001ms timeout&lt;/td&gt;
-&lt;td&gt;887ms 성공&lt;/td&gt;
-&lt;td&gt;첫만 느림, cold start&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;외부 OCR API&lt;/td&gt;
-&lt;td&gt;130ms RST&lt;/td&gt;
-&lt;td&gt;130ms RST&lt;/td&gt;
-&lt;td&gt;매번 같음, 다른 원인&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;사내 LLM Proxy&lt;/td&gt;
-&lt;td&gt;정상&lt;/td&gt;
-&lt;td&gt;정상&lt;/td&gt;
-&lt;td&gt;무관&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-&lt;p&gt;S3는 첫 호출만 5초 timeout, 두 번째부터 800ms.
-근데 OCR API는 첫, 두번째, 100번째 다 똑같이 130ms 만에 RST.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;/static/08-our-ocr-diagnosis-a2ccdf9a0c5e592705a67b4e7cf83c7c.svg&quot; alt=&quot;외부 호출별 진단 매핑&quot;&gt;&lt;/p&gt;
-&lt;p&gt;130ms는 우리쪽에서 만들어진 시간이 아니에요.
-요청이 우리쪽에서 빨리 끊긴다는 뜻이고, 인프라에서 outbound가 막혀 있을 가능성이 큽니다.
-warmup 100번 해도 같은 패턴이 그대로 나옵니다.&lt;/p&gt;
-&lt;p&gt;여기서 첫 가설이 무너졌어요.&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;&quot;느림&quot;이라는 한 단어로 묶어둔 순간 처방이 틀어졌습니다.
-S3는 첫 호출 비용이었고, OCR은 매번 130ms에 끊기는 outbound 차단이었습니다.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;hr&gt;
-&lt;h2&gt;처방 전에 무엇을 먼저 갈랐어야 할까?&lt;/h2&gt;
-&lt;p&gt;&lt;img src=&quot;/static/07-slowness-diagnosis-flow-e61ca6644c2264cbd064418973e88ecd.svg&quot; alt=&quot;느림의 원인 분류 진단 흐름&quot;&gt;&lt;/p&gt;
-&lt;p&gt;원인을 분리하고 나서야 처방도 갈라졌습니다.
-같은 외부 호출이라도 장애 경계가 달랐습니다.&lt;/p&gt;
-&lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;외부 호출&lt;/th&gt;
-&lt;th&gt;진단&lt;/th&gt;
-&lt;th&gt;처방&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;S3 PutObject&lt;/td&gt;
-&lt;td&gt;Cold start (JIT + IRSA + TLS)&lt;/td&gt;
-&lt;td&gt;warmup 코드 추가&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;외부 OCR API&lt;/td&gt;
-&lt;td&gt;Outbound 차단&lt;/td&gt;
-&lt;td&gt;SRE 컨택, ServiceEntry 등록 요청&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;사내 LLM Proxy&lt;/td&gt;
-&lt;td&gt;무관&lt;/td&gt;
-&lt;td&gt;그대로 유지&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-&lt;p&gt;S3 timeout도 5s에서 30s로 임시 조정해서 실제 cold start 시간을 측정한 뒤에 warmup을 도입했어요.
-&quot;5초 timeout 떨어진다&quot; 는 우리가 만든 한도였지, 실제 cold start 시간이 아니었습니다.&lt;/p&gt;
-&lt;p&gt;이것도 작은 불편함이었습니다.
-timeout을 늘리면 장애가 길게 보입니다.
-대신 한 번은 실제 시간을 봐야 했습니다.&lt;/p&gt;
-&lt;p&gt;진단 순서는 이렇습니다.&lt;/p&gt;
-&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;text&quot;&gt;&lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;1. 증상 측정 (어떤 호출 / 얼마나 / 어떤 패턴)
-2. 반복 호출 비교, 두 번째부터 빨라지는가
-3. 단계별 elapsed 분리, DNS/TCP/TLS/서버/클라이언트 (curl -w)
-4. 인프라 검증, pod 안에서 nc/curl로 outbound 가능한가
-5. 외부 API 한도 검증, 콘솔/문서에서 RPM·동시성 제한
-6. 위 통과 + 첫 호출만 느리면 cold start 확정, warmup&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;처음엔 1단계에서 바로 6단계로 직진했어요.
-진단을 빼먹고 약 처방.&lt;/p&gt;
-&lt;hr&gt;
-&lt;h2&gt;같은 느림에 같은 약을 써도 될까?&lt;/h2&gt;
-&lt;p&gt;같은 증상이라도 원인 카테고리가 다르면 처방이 다릅니다.&lt;/p&gt;
-&lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;증상&lt;/th&gt;
-&lt;th&gt;원인 카테고리&lt;/th&gt;
-&lt;th&gt;Warmup으로 풀리나?&lt;/th&gt;
-&lt;th&gt;가야 할 처방&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;첫 호출 느리고 두 번째부터 빠름&lt;/td&gt;
-&lt;td&gt;Cold start (JIT/connection/STS)&lt;/td&gt;
-&lt;td&gt;YES&lt;/td&gt;
-&lt;td&gt;App startup 시 dummy 호출&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;매번 똑같이 빠르게 RST/timeout&lt;/td&gt;
-&lt;td&gt;Outbound 차단 (방화벽, mesh)&lt;/td&gt;
-&lt;td&gt;NO&lt;/td&gt;
-&lt;td&gt;SRE, ServiceEntry, SG, NAT&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;매번 비슷한 시간 (예: 1.7s)&lt;/td&gt;
-&lt;td&gt;외부 API 자체 시간&lt;/td&gt;
-&lt;td&gt;NO&lt;/td&gt;
-&lt;td&gt;외부 API plan 인상 / 다른 API&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;burst 시 일부 거절 (429)&lt;/td&gt;
-&lt;td&gt;외부 rate limit&lt;/td&gt;
-&lt;td&gt;NO&lt;/td&gt;
-&lt;td&gt;concurrency 직렬화 / commitment tier&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-&lt;p&gt;진단 없이 warmup으로 직진하면 약을 잘못 씁니다.&lt;/p&gt;
-&lt;p&gt;warmup은 나쁜 처방이 아니었습니다.
-다만 첫 호출 비용에만 맞는 처방이었습니다.
-outbound 차단에는 요청을 더 많이 보내는 코드일 뿐입니다.&lt;/p&gt;
-&lt;hr&gt;
-&lt;h2&gt;K8s probe가 첫 호출 latency까지 막아줄까?&lt;/h2&gt;
-&lt;p&gt;처음엔 &quot;K8s probe로 다 풀린다&quot; 고 들었던 적도 있어요.
-이게 절반만 맞는 말이었습니다.&lt;/p&gt;
-&lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;주장&lt;/th&gt;
-&lt;th&gt;실제&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;Readiness probe로 ready 전 트래픽 차단&lt;/td&gt;
-&lt;td&gt;정확. 단 앱 시작 완료 ≠ JIT/connection warm. probe 통과해도 JIT은 cold.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;사내 chassis가 워밍업 수행&lt;/td&gt;
-&lt;td&gt;보통 &lt;code class=&quot;language-text&quot;&gt;DataSource eager init&lt;/code&gt; 같은 startup task만. 외부 API 워밍업은 안 함.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;Rolling update&lt;/td&gt;
-&lt;td&gt;트래픽 안전성. cold start 자체 해결은 X.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-&lt;p&gt;probe와 rolling update는 장애 회피용이에요.
-첫 호출 latency 자체는 별도 워밍업이 필요합니다.&lt;/p&gt;
-&lt;p&gt;여기서도 경계가 갈립니다.
-probe는 &quot;트래픽을 받아도 되는가&quot; 를 묻고, warmup은 &quot;첫 실제 요청이 비용을 맞을 것인가&quot; 를 줄입니다.&lt;/p&gt;
-&lt;hr&gt;
-&lt;h2&gt;IDEA 디버그 숫자를 믿어도 될까?&lt;/h2&gt;
-&lt;p&gt;IntelliJ의 Run/Debug 설정에서 &quot;Run with fast startup&quot; 옵션이 켜져 있으면, &lt;code class=&quot;language-text&quot;&gt;-XX:TieredStopAtLevel=1&lt;/code&gt; 이 붙어서 C1까지만 컴파일됩니다.
-옵션을 안 켜면 default JIT (C2까지)로 돌긴 하지만, 디버거 attach 자체가 JIT 컴파일을 제약합니다.&lt;/p&gt;
-&lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;항목&lt;/th&gt;
-&lt;th&gt;IDEA 디버그&lt;/th&gt;
-&lt;th&gt;프로덕션&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;JIT 단계&lt;/td&gt;
-&lt;td&gt;fast startup 옵션 시 C1만, default도 디버거 어태치로 컴파일 제약&lt;/td&gt;
-&lt;td&gt;C1 + C2 정상&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;Warm 성능&lt;/td&gt;
-&lt;td&gt;2~5배 느림 (디버거 + 컴파일 제약)&lt;/td&gt;
-&lt;td&gt;기준 성능&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-&lt;p&gt;운영 성능 측정은 IDEA가 아니라 빌드된 jar로.&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;&lt;strong&gt;포기한 것&lt;/strong&gt;: 로컬 IDEA에서 본 latency는 운영 신호가 아닙니다. 측정이 필요하면 빌드한 jar를 띄워야 해요.
-편한 디버그 환경을 버리고, 재현성이 있는 실행 조건을 택해야 했습니다.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;hr&gt;
-&lt;h2&gt;무엇을 아직 못 정했을까?&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;GraalVM Native Image&lt;/strong&gt;: startup 50ms 수준이지만 PGO 없으면 peak 처리량이 떨어집니다. reflection 설정 부담도 커요. 도입 평가 못 했습니다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;AppCDS&lt;/strong&gt;: &lt;code class=&quot;language-text&quot;&gt;-XX:+UseAppCDS&lt;/code&gt; 는 deprecated. &lt;code class=&quot;language-text&quot;&gt;ArchiveClassesAtExit&lt;/code&gt; / &lt;code class=&quot;language-text&quot;&gt;SharedArchiveFile&lt;/code&gt; 만 써야 합니다. 도입 안 했지만 startup 5~10% 단축 여지 있어요.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;외부 OCR API SRE 작업 일정&lt;/strong&gt;: ServiceEntry 등록 요청 보냈지만 인프라 팀 일정에 의존하는 자리.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;OkHttp &lt;code class=&quot;language-text&quot;&gt;connectTimeout&lt;/code&gt;/&lt;code class=&quot;language-text&quot;&gt;readTimeout&lt;/code&gt; 명시 부재&lt;/strong&gt;: 환경마다 default가 달라서 일관성 위험 있어요.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;hr&gt;
-&lt;h2&gt;어디서 가정이 굳었을까?&lt;/h2&gt;
-&lt;p&gt;처음엔 cold start 자료를 굉장히 자세히 모았습니다.
-JIT Tiered Compilation 그림, TLS handshake 단계, IRSA 흐름. 다 도식화.&lt;/p&gt;
-&lt;p&gt;근데 실제로 막힌 건 그 자료가 설명하지 못하는 케이스였습니다.
-S3는 cold start, OCR API는 outbound 차단.
-자료 하나로 둘 다 풀리지 않았어요.&lt;/p&gt;
-&lt;p&gt;&quot;내가 모은 일반론 안에서 설명될 거라는 가정&quot; 이 처음 가설을 직진하게 만든 자리였습니다.&lt;/p&gt;
-&lt;p&gt;사실 막혔던 자리는 cold start가 아니었어요.
-&lt;strong&gt;진단 없이 같은 처방을 반복한 실패&lt;/strong&gt;였습니다.&lt;/p&gt;
-&lt;p&gt;같은 증상이라도 처방이 같지는 않아요.
-warmup이 약이 되는 케이스인지부터 가르는 게 먼저였습니다.&lt;/p&gt;
-&lt;p&gt;그래서 다음에는 이름을 붙이기 전에 먼저 패턴을 나눠야 합니다.
-첫 호출만 느린지, 매번 같은 시간에 끊기는지, 외부 API 자체가 늦는지.
-그 순서를 건너뛰면 지식이 많아질수록 더 빠르게 틀립니다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[8h 안에 한 번에 끝낸다는 SLA 가정 때문에 같은 사용자가 계속 누락됐어요]]></title><description><![CDATA[TL;DR 매일 새벽 0~8시에 모수 50만짜리 알림 발송 배치를 돌리고 있었어요.
+그 전까지는 &quot;거부 0건&quot;이 아니라 &quot;아직 메모리에 남아 있는 위험&quot;으로 불러야 했습니다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[8h 안에 한 번에 끝낸다는 SLA 가정 때문에 같은 사용자가 계속 누락됐어요]]></title><description><![CDATA[TL;DR 매일 새벽 0~8시에 모수 50만짜리 알림 발송 배치를 돌리고 있었어요.
 운영 timeout이 자주 떴습니다. 같은 사용자가 며칠째 누락된다는 보고도 들어왔습니다. 처음 이틀은 parallelism 튜닝이었습니다.
 30 -> 50 -> 3…]]></description><link>https://hyungkishin.github.io/company/work/why4/</link><guid isPermaLink="false">https://hyungkishin.github.io/company/work/why4/</guid><pubDate>Sat, 02 May 2026 00:00:00 GMT</pubDate><content:encoded>&lt;blockquote&gt;
 &lt;p&gt;&lt;strong&gt;TL;DR&lt;/strong&gt;&lt;/p&gt;

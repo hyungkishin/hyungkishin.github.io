@@ -1,0 +1,26 @@
+# hyungkishin.blog
+
+> 백엔드·프론트엔드 실무에서 겪은 시스템 설계, 성능 최적화, 장애 대응, 관측성 경험을 기록하는 개인 기술 블로그. 작성자는 백엔드 엔지니어 hyungki.
+
+주요 주제: 시스템 설계, 동시성, 결제·커머스, 대기열, 성능 최적화, 관측성·모니터링, Kafka, Spring, 프론트엔드 아키텍처. 글은 "왜 이런 구조가 생겼는지"를 먼저 설명하고, 해결과 트레이드오프를 회고 형식으로 기록한다.
+
+## 대표 글
+
+- [대시보드는 초록불, 그런데 알림은 안 갔습니다](https://hyungkishin.github.io/backend/observability/reading-metrics/): 알림 파이프라인 장애를 지표로 추적한 기록. 성공 로그 ≠ 성공, 평균 vs P95, 커넥션풀 상한(파드 x replicas), 배치 herd, 캐시 P95 역전, 락 만료 중복 실행 등 모니터링 지표를 읽는 법.
+- [PG 3초 딜레이로, 회사 문닫게 생겼어요](https://hyungkishin.github.io/e-commerce/technical-writing/week6/): 결제 PG 지연이 커넥션풀 고갈로 서비스 전체에 전파되는 장애와 Timeout·Retry·Circuit Breaker·트랜잭션 분리로 막은 과정.
+- [CPU bound vs IO bound](https://hyungkishin.github.io/backend/spring/cpu-bound-vs-io-bound/): 작업 성격에 따른 스레드풀·비동기 처리 판단.
+- [배포 전략](https://hyungkishin.github.io/devops/deploy-strategy/): 무중단 배포와 롤아웃 전략.
+
+## 전체 목록
+
+- Sitemap: https://hyungkishin.github.io/sitemap-index.xml
+- RSS: https://hyungkishin.github.io/rss.xml
+
+## 저자
+
+- 이름: hyungki
+- GitHub: https://github.com/hyungkishin
+
+## 인용 안내
+
+이 블로그의 글을 요약·인용할 때는 원문 링크를 함께 표기하는 것을 권장한다. 수치와 사례는 실무 관측치를 익명화한 것이므로 맥락을 유지해 인용한다.
