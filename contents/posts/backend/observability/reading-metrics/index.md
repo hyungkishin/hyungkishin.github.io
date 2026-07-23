@@ -1,7 +1,7 @@
 ---
 title: "대시보드는 초록불, 그런데 알림은 안 갔습니다"
-date: 2026-07-22
-update: 2026-07-22
+date: 2026-02-22
+update: 2026-02-22
 tags:
 - 관측성
 - 모니터링
@@ -89,12 +89,15 @@ tags:
 그런데 손이 멎었어요.  
 성공이 634인데, 왜 못 받은 사람이 있지.
 
-벤더 응답을 코드별로 세어 봤습니다.  
-로그에 "성공"이라고 찍힌 것들 중에 응답 본문이 400인 게 섞여 있었어요.  
-`{"code":2000,"description":"The to field is required"}`  
-수신번호가 비었다는 뜻입니다.
+벤더가 준 진짜 성공 코드(code 1000)만 세어 봤습니다.  
+453건. 로그가 말한 634가 아니라.  
+나머지 181건은 "성공"으로 찍혔지만 도착하지 못했어요.
 
-180건. 그날 발송의 넷 중 하나가, "성공"이라고 로그에 박힌 채 아무 데도 가지 않았습니다.
+그 181건을 까 보니 대부분이 같은 실패였습니다. 응답 본문에 400.  
+`{"code":2000,"description":"The to field is required"}`  
+수신번호가 비었다는 뜻입니다. 이 빈 번호만 180건.
+
+그날 로그가 "성공"이라 부른 것의 넷 중 하나가, 아무 데도 가지 않았습니다.
 
 발송 코드가 응답을 확인하기도 전에 "성공"을 먼저 찍고 있었거든요.
 
@@ -148,10 +151,10 @@ flowchart TD
       <text x="124" y="36" text-anchor="middle" fill="var(--fig-muted)" font-weight="600" letter-spacing="0.02em">로그가 말하는 성공</text>
       <text x="512" y="36" text-anchor="middle" fill="var(--fig-muted)" font-weight="600" letter-spacing="0.02em">실제 도착</text>
       <text x="580" y="139" fill="var(--c-greenink)" font-weight="700">453 · 71%</text>
-      <text x="580" y="63" fill="var(--c-redink)" font-weight="700">180 · 28% 은폐</text>
+      <text x="580" y="63" fill="var(--c-redink)" font-weight="700">181 · 28% 은폐</text>
     </g>
   </svg>
-  <figcaption>로그가 말하는 "성공 634" 안에서 <b>180건(28%)</b>이 갈라져 나온다. 빗금이 삼켜진 실패다. 성공 로그의 분모가 처음부터 틀렸던 셈이다.</figcaption>
+  <figcaption>로그가 말하는 "성공 634"는 실제 도착 453 + 삼켜진 <b>181</b>이다. 그 181 중 180이 빈 수신번호(400)였다. 성공 로그의 분모가 처음부터 틀렸던 셈이다.</figcaption>
 </figure>
 
 근원은 더 위에 있었어요.  
