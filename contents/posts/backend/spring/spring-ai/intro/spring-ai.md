@@ -1,7 +1,8 @@
 ---
 title: "Ai. Spring AI 로 때워도 되나유? 1편"
 date: 2025-03-29
-update: 2024-03-29
+update: 2026-07-24
+series: "Spring AI 로 때워도 되나유"
 tags:
   - AI
   - Spring

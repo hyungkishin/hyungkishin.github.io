@@ -30,6 +30,18 @@ const SERIES_RULES = [
     accent: ACCENT,
   },
   {
+    id: "spring-ai",
+    name: "Spring AI 로 때워도 되나유",
+    tagline: "배달 상담 에이전트를 6라운드에 걸쳐 만든 기록",
+    indexSlug: "/backend/spring/spring-ai/",
+    pattern: /\/spring-ai\/(intro\/spring-ai|round\d+)\/$/,
+    sortKey: (slug) => {
+      const m = slug.match(/round(\d+)/)
+      return m ? parseInt(m[1], 10) : 0
+    },
+    accent: ACCENT,
+  },
+  {
     id: "will",
     name: "e-commerce 주간 회고",
     tagline: "주차별 회고",
