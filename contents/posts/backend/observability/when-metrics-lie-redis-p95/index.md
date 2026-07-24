@@ -170,7 +170,7 @@ APM이 뜨는 "캐시 span"은 대개 **호출 시작부터 응답까지 전체*
     </g>
     <g transform="translate(474,14)"><rect width="126" height="21" rx="7" fill="var(--c-red)" opacity="0.16"/><text x="63" y="14.5" text-anchor="middle" fill="var(--c-redink)" font-size="12" font-weight="700">~2,700x 느림</text></g>
   </svg>
-  <figcaption>같은 클러스터인데 한 서비스만 5.68초. 클러스터 전반 장애라면 셋 다 느려야 한다. 그래서 서버 전반보다 <b>이 서비스의 클라이언트 경로</b>를 먼저 팠다.</figcaption>
+  <figcaption>같은 클러스터인데 한 서비스만 5.68초. 클러스터 전반 장애라면 셋 다 느려야 한다. 그래서 서버 전반보다 <b>이 서비스의 클라이언트 경로</b>를 먼저 팠다. (로그 축이라 막대 길이가 아니라 눈금 위치로 읽는다.)</figcaption>
 </figure>
 
 첫 줄이 방향을 바꿨습니다.  
