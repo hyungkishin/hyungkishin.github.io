@@ -21,6 +21,7 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
           }
           frontmatter {
             series
+            date
           }
         }
       }
@@ -44,7 +45,8 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
 
   // 각 글 페이지 생성
   if (posts.length > 0) {
-    // 시리즈 글의 이전/다음은 같은 시리즈 안에서 잇는다. 일반 글은 시간순 그대로.
+    // 시리즈 글의 이전/다음은 같은 시리즈 안에서 잇는다.
+    // 시리즈의 끝에서는 다음 시리즈의 첫 편으로 넘어간다. 일반 글은 시간순 그대로.
     const seriesGroups = {}
     posts.forEach(post => {
       const seriesName = post.frontmatter && post.frontmatter.series
@@ -53,17 +55,56 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
       seriesGroups[seriesName].push(post)
     })
 
+    // 같은 날짜의 동점은 slug로 고정한다 (why1 < why2 < ...)
+    Object.values(seriesGroups).forEach(group => {
+      group.sort((a, b) => {
+        const dateCompare = String(a.frontmatter.date).localeCompare(
+          String(b.frontmatter.date)
+        )
+        return dateCompare !== 0
+          ? dateCompare
+          : a.fields.slug.localeCompare(b.fields.slug)
+      })
+    })
+
+    // 시리즈 순서는 각 시리즈 첫 편의 날짜 순
+    const seriesNames = Object.keys(seriesGroups).sort((a, b) =>
+      String(seriesGroups[a][0].frontmatter.date).localeCompare(
+        String(seriesGroups[b][0].frontmatter.date)
+      )
+    )
+
     posts.forEach((post, index) => {
       const seriesName = (post.frontmatter && post.frontmatter.series) || null
       let previousPostId = index === 0 ? null : posts[index - 1].id
       let nextPostId = index === posts.length - 1 ? null : posts[index + 1].id
+      let previousLabel = null
+      let nextLabel = null
 
       if (seriesName) {
         const group = seriesGroups[seriesName]
-        const seriesIndex = group.findIndex(p => p.id === post.id)
-        previousPostId = seriesIndex > 0 ? group[seriesIndex - 1].id : null
-        nextPostId =
-          seriesIndex < group.length - 1 ? group[seriesIndex + 1].id : null
+        const gi = group.findIndex(p => p.id === post.id)
+        const si = seriesNames.indexOf(seriesName)
+
+        if (gi > 0) {
+          previousPostId = group[gi - 1].id
+          previousLabel = "시리즈 이전 편"
+        } else {
+          const prevSeries = seriesNames[si - 1]
+          const prevGroup = prevSeries ? seriesGroups[prevSeries] : null
+          previousPostId = prevGroup ? prevGroup[prevGroup.length - 1].id : null
+          previousLabel = prevGroup ? "이전 시리즈" : null
+        }
+
+        if (gi < group.length - 1) {
+          nextPostId = group[gi + 1].id
+          nextLabel = "시리즈 다음 편"
+        } else {
+          const nextSeries = seriesNames[si + 1]
+          const nextGroup = nextSeries ? seriesGroups[nextSeries] : null
+          nextPostId = nextGroup ? nextGroup[0].id : null
+          nextLabel = nextGroup ? "다음 시리즈" : null
+        }
       }
 
       const isResume = post.fields.slug === "/resume/"
@@ -74,9 +115,10 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
         context: {
           id: post.id,
           series: seriesName,
-          seriesNav: Boolean(seriesName),
           previousPostId,
           nextPostId,
+          previousLabel,
+          nextLabel,
         },
       })
     })

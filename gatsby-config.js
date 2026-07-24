@@ -17,7 +17,14 @@ module.exports = {
       },
     },
     `gatsby-plugin-catch-links`,
-    `gatsby-plugin-robots-txt`,
+    {
+      resolve: `gatsby-plugin-robots-txt`,
+      options: {
+        host: "",
+        sitemap: `${siteUrl}sitemap-index.xml`,
+        policy: [{ userAgent: "*", allow: "/" }],
+      },
+    },
     {
       resolve: `gatsby-plugin-react-redux`,
       options: {
@@ -133,7 +140,42 @@ module.exports = {
       },
     },
     `gatsby-plugin-resolve-src`,
-    `gatsby-plugin-sitemap`,
+    {
+      resolve: `gatsby-plugin-sitemap`,
+      options: {
+        resolveSiteUrl: () => siteUrl,
+        query: `{
+          allSitePage { nodes { path } }
+          allMarkdownRemark {
+            nodes {
+              fields { slug }
+              frontmatter { date update }
+            }
+          }
+        }`,
+        resolvePages: ({
+          allSitePage: { nodes: pages },
+          allMarkdownRemark: { nodes: posts },
+        }) => {
+          const postMeta = {}
+          posts.forEach(node => {
+            if (node.fields && node.fields.slug) {
+              postMeta[node.fields.slug] = node.frontmatter
+            }
+          })
+          return pages.map(page => ({
+            ...page,
+            ...(postMeta[page.path] || {}),
+          }))
+        },
+        serialize: ({ path, date, update }) => {
+          const entry = { url: path, changefreq: `daily`, priority: 0.7 }
+          const lastmod = update || date
+          if (lastmod) entry.lastmod = lastmod
+          return entry
+        },
+      },
+    },
     {
       resolve: `gatsby-plugin-feed`,
       options: {

@@ -190,14 +190,14 @@ const Comment = () => {
   )
 }
 
-const Footer = ({ previous, next, seriesNav }) => {
+const Footer = ({ previous, next, previousLabel, nextLabel }) => {
   return (
     <>
       <ArticleButtonContainer>
         {previous ? (
           <ArticleButton
             onClick={() => navigate(previous?.fields?.slug)}
-            label={seriesNav ? "시리즈 이전 편" : undefined}
+            label={previousLabel || undefined}
           >
             {previous?.frontmatter?.title}
           </ArticleButton>
@@ -208,7 +208,7 @@ const Footer = ({ previous, next, seriesNav }) => {
           <ArticleButton
             right
             onClick={() => navigate(next?.fields?.slug)}
-            label={seriesNav ? "시리즈 다음 편" : undefined}
+            label={nextLabel || undefined}
           >
             {next?.frontmatter?.title}
           </ArticleButton>

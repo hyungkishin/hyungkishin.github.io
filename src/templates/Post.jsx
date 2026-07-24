@@ -57,7 +57,8 @@ const Post = ({ data, pageContext }) => {
         <Article.Footer
           previous={previous}
           next={next}
-          seriesNav={pageContext.seriesNav}
+          previousLabel={pageContext.previousLabel}
+          nextLabel={pageContext.nextLabel}
         />
       </Article>
     </Layout>

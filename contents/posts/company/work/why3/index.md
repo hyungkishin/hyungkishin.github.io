@@ -68,6 +68,38 @@ class ExternalAuthClientException(
 
 실패하면 메시지가 뜨고, 메시지가 다시 시도를 시키고, 다시 시도가 실패를 만든다. 악보로 치면 "다시 시도하세요"는 도돌이표다. 사용자는 악보에 적힌 대로 성실하게 연주했을 뿐이다.
 
+<style>
+.metric-fig{--fig-surface:#ffffff;--fig-ink:#0f172a;--fig-ink2:#334155;--fig-muted:#94a3b8;--fig-hair:#e6eaf1;--fig-baseline:#d0d7e2;--c-green:#16a34a;--c-greenink:#15803d;--c-red:#ef4444;--c-redink:#b91c1c;--c-blue:#2f6fed;--c-blueink:#1d4ed8;--c-amber:#d97706;--c-amberink:#b45309;margin:2.4em 0;border:1px solid var(--fig-hair);border-radius:18px;background:var(--fig-surface);padding:18px 20px 10px;overflow:hidden;box-shadow:0 1px 2px rgba(2,6,23,.05),0 14px 40px rgba(2,6,23,.09)}
+.metric-fig svg{width:100%;height:auto;display:block;max-width:100%}
+.metric-fig svg text{font-family:ui-monospace,"SF Mono","JetBrains Mono",Menlo,monospace}
+.metric-fig figcaption{font-size:13.5px;color:var(--fig-muted);line-height:1.6;padding:12px 2px 6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.metric-fig figcaption b{color:var(--fig-ink2);font-weight:600}
+@media (prefers-reduced-motion: reduce){.metric-fig svg animate,.metric-fig svg animateMotion{display:none}}
+</style>
+
+<figure class="metric-fig">
+  <svg viewBox="0 0 660 234" role="img" aria-label="실패 화면의 다시 시도하세요 문장을 사용자가 따라 하면 결함이 다시 트리거되는 루프가 끝없이 돈다" xmlns="http://www.w3.org/2000/svg">
+    <path d="M330 44 H520 Q556 44 556 80 V152 Q556 188 520 188 H140 Q104 188 104 152 V80 Q104 44 140 44 Z" fill="none" stroke="var(--fig-baseline)" stroke-dasharray="4 5"/>
+    <circle r="6" fill="var(--c-red)">
+      <animateMotion dur="6s" repeatCount="indefinite" path="M330 44 H520 Q556 44 556 80 V152 Q556 188 520 188 H140 Q104 188 104 152 V80 Q104 44 140 44 Z"/>
+    </circle>
+    <rect x="252" y="30" width="156" height="26" rx="7" fill="var(--c-red)" opacity="0.14"/>
+    <text x="330" y="47" font-size="11" fill="var(--c-redink)" text-anchor="middle" font-weight="700">세션 덮어쓰기, 실패</text>
+    <rect x="474" y="103" width="164" height="26" rx="7" fill="var(--c-amber)" opacity="0.16"/>
+    <text x="556" y="120" font-size="11" fill="var(--c-amberink)" text-anchor="middle" font-weight="700">"다시 시도하세요"</text>
+    <rect x="238" y="175" width="184" height="26" rx="7" fill="var(--c-blue)" opacity="0.14"/>
+    <text x="330" y="192" font-size="11" fill="var(--c-blueink)" text-anchor="middle" font-weight="700">사용자, 시키는 대로 재시도</text>
+    <rect x="30" y="103" width="148" height="26" rx="7" fill="var(--fig-baseline)" opacity="0.4"/>
+    <text x="104" y="120" font-size="11" fill="var(--fig-ink2)" text-anchor="middle" font-weight="700">인증 재트리거</text>
+    <text x="330" y="110" font-size="11" fill="var(--fig-muted)" text-anchor="middle">코드 픽스를 머지해도</text>
+    <text x="330" y="128" font-size="11" fill="var(--fig-muted)" text-anchor="middle">이 원은 계속 돈다</text>
+    <text x="330" y="152" font-size="13" fill="var(--c-redink)" text-anchor="middle" font-weight="800">운영 알림 +1
+      <animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.05;0.2;1" dur="6s" repeatCount="indefinite"/>
+    </text>
+  </svg>
+  <figcaption>도돌이표. 실패가 문장을 띄우고, 문장이 재시도를 시키고, 재시도가 실패를 만든다. 알림은 한 바퀴에 <b>+1</b>씩 쌓인다.</figcaption>
+</figure>
+
 ## 루프의 세기는 실패가 보이는 속도가 정한다
 
 세션 덮어쓰기 이후의 거절은 두 갈래로 나뉜다고 했다. 이 분기가 루프의 세기도 가른다.

@@ -58,6 +58,44 @@ Redis 캐시는 비유하자면 옆집 냉장고다.
 
 정작 필요한 마지막 단계는 마이크로초 단위다. 나머지는 전부 "옆집에 다녀오는" 비용이다.
 
+<style>
+.metric-fig{--fig-surface:#ffffff;--fig-ink:#0f172a;--fig-ink2:#334155;--fig-muted:#94a3b8;--fig-hair:#e6eaf1;--fig-baseline:#d0d7e2;--c-green:#16a34a;--c-greenink:#15803d;--c-red:#ef4444;--c-redink:#b91c1c;--c-blue:#2f6fed;--c-blueink:#1d4ed8;--c-amber:#d97706;--c-amberink:#b45309;margin:2.4em 0;border:1px solid var(--fig-hair);border-radius:18px;background:var(--fig-surface);padding:18px 20px 10px;overflow:hidden;box-shadow:0 1px 2px rgba(2,6,23,.05),0 14px 40px rgba(2,6,23,.09)}
+.metric-fig svg{width:100%;height:auto;display:block;max-width:100%}
+.metric-fig svg text{font-family:ui-monospace,"SF Mono","JetBrains Mono",Menlo,monospace}
+.metric-fig figcaption{font-size:13.5px;color:var(--fig-muted);line-height:1.6;padding:12px 2px 6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.metric-fig figcaption b{color:var(--fig-ink2);font-weight:600}
+@media (prefers-reduced-motion: reduce){.metric-fig svg animate,.metric-fig svg animateMotion{display:none}}
+</style>
+
+<figure class="metric-fig">
+  <svg viewBox="0 0 660 244" role="img" aria-label="같은 요청이 위에서는 매번 Redis까지 왕복해 4~6ms를 내고 아래에서는 L1에서 0ms에 끝난다" xmlns="http://www.w3.org/2000/svg">
+    <text x="24" y="30" font-size="12" fill="var(--fig-muted)" font-weight="600">지금: 물 한 잔에 옆집까지</text>
+    <rect x="24" y="44" width="120" height="52" rx="10" fill="none" stroke="var(--c-blue)" stroke-opacity="0.5"/>
+    <text x="84" y="74" font-size="13" fill="var(--fig-ink)" text-anchor="middle" font-weight="700">앱</text>
+    <rect x="516" y="44" width="120" height="52" rx="10" fill="none" stroke="var(--c-red)" stroke-opacity="0.5"/>
+    <text x="576" y="74" font-size="13" fill="var(--fig-ink)" text-anchor="middle" font-weight="700">Redis</text>
+    <line x1="150" y1="70" x2="510" y2="70" stroke="var(--fig-baseline)" stroke-dasharray="4 5"/>
+    <circle r="6" fill="var(--c-red)">
+      <animateMotion path="M152 70 L508 70" keyPoints="0;1;1;0;0" keyTimes="0;0.4;0.5;0.9;1" calcMode="linear" dur="2.8s" repeatCount="indefinite"/>
+    </circle>
+    <text x="330" y="58" font-size="11" fill="var(--c-redink)" text-anchor="middle" font-weight="700">+4~6ms
+      <animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.84;0.92;1" dur="2.8s" repeatCount="indefinite"/>
+    </text>
+    <text x="24" y="148" font-size="12" fill="var(--fig-muted)" font-weight="600">L1 이후: 냉장고가 방 안에</text>
+    <rect x="24" y="162" width="120" height="60" rx="10" fill="none" stroke="var(--c-green)" stroke-opacity="0.6"/>
+    <text x="84" y="184" font-size="13" fill="var(--fig-ink)" text-anchor="middle" font-weight="700">앱</text>
+    <rect x="44" y="194" width="80" height="18" rx="5" fill="var(--c-green)" opacity="0.16"/>
+    <text x="84" y="207" font-size="10" fill="var(--c-greenink)" text-anchor="middle" font-weight="700">L1</text>
+    <circle cx="84" cy="203" r="0" fill="var(--c-green)" opacity="0.55">
+      <animate attributeName="r" values="0;9;9;0;0" keyTimes="0;0.08;0.16;0.24;1" dur="2.8s" repeatCount="indefinite"/>
+    </circle>
+    <text x="160" y="206" font-size="11" fill="var(--c-greenink)" font-weight="700">0ms
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.1;0.2;0.3;1" dur="2.8s" repeatCount="indefinite"/>
+    </text>
+  </svg>
+  <figcaption>같은 요청 한 건. 위는 매번 네트워크를 건너며 <b>4~6ms</b>를 내고, 아래는 프로세스 안에서 <b>0ms</b>에 끝난다. hit률은 두 경우 모두 100%다.</figcaption>
+</figure>
+
 이게 얼마나 쌓이는지 계산해 보자. 왕복이 1ms라고 치고 초당 100건이 들어오면, 아무 일도 안 해도 매초 100ms를 길에 뿌리는 셈이다. 트래픽이 두 배가 되면 이 낭비도 정확히 두 배가 된다. 연 1회 바뀌는 데이터를 위해서.
 
 ## 첫 번째 가설: 짐을 줄이면 되지 않을까

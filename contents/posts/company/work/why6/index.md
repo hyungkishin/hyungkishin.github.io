@@ -106,6 +106,38 @@ VT 봉합이 막은 건 거부에 의한 유실이지, 유실 그 자체가 아�
 
 거부 0건의 정확한 이름은 "성공"이 아니라 "아직 메모리에 남아 있는 위험"이었다.
 
+<style>
+.metric-fig{--fig-surface:#ffffff;--fig-ink:#0f172a;--fig-ink2:#334155;--fig-muted:#94a3b8;--fig-hair:#e6eaf1;--fig-baseline:#d0d7e2;--c-green:#16a34a;--c-greenink:#15803d;--c-red:#ef4444;--c-redink:#b91c1c;--c-blue:#2f6fed;--c-blueink:#1d4ed8;--c-amber:#d97706;--c-amberink:#b45309;margin:2.4em 0;border:1px solid var(--fig-hair);border-radius:18px;background:var(--fig-surface);padding:18px 20px 10px;overflow:hidden;box-shadow:0 1px 2px rgba(2,6,23,.05),0 14px 40px rgba(2,6,23,.09)}
+.metric-fig svg{width:100%;height:auto;display:block;max-width:100%}
+.metric-fig svg text{font-family:ui-monospace,"SF Mono","JetBrains Mono",Menlo,monospace}
+.metric-fig figcaption{font-size:13.5px;color:var(--fig-muted);line-height:1.6;padding:12px 2px 6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.metric-fig figcaption b{color:var(--fig-ink2);font-weight:600}
+@media (prefers-reduced-motion: reduce){.metric-fig svg animate,.metric-fig svg animateMotion{display:none}}
+</style>
+
+<figure class="metric-fig">
+  <svg viewBox="0 0 660 240" role="img" aria-label="pod이 죽으면 메모리 큐의 이벤트는 증발하지만 outbox 테이블의 이벤트는 남아서 발송된다" xmlns="http://www.w3.org/2000/svg">
+    <rect x="40" y="56" width="240" height="150" rx="12" fill="none" stroke="var(--fig-baseline)">
+      <animate attributeName="stroke" values="var(--fig-baseline);var(--fig-baseline);#ef4444;var(--fig-baseline)" keyTimes="0;0.40;0.44;0.5" dur="8s" repeatCount="indefinite"/>
+    </rect>
+    <text x="160" y="44" font-size="11" fill="var(--fig-muted)" text-anchor="middle">executor pod (메모리 큐)</text>
+    <text x="160" y="80" font-size="10.5" fill="var(--fig-muted)" text-anchor="middle">메모지</text>
+    <rect x="64" y="92" width="190" height="20" rx="5" fill="var(--c-blue)" opacity="0"><animate attributeName="opacity" values="0;0;0.55;0.55;0;0" keyTimes="0;0.05;0.08;0.44;0.48;1" dur="8s" repeatCount="indefinite"/></rect><rect x="64" y="120" width="190" height="20" rx="5" fill="var(--c-blue)" opacity="0"><animate attributeName="opacity" values="0;0;0.55;0.55;0;0" keyTimes="0;0.09;0.12;0.44;0.48;1" dur="8s" repeatCount="indefinite"/></rect><rect x="64" y="148" width="190" height="20" rx="5" fill="var(--c-blue)" opacity="0"><animate attributeName="opacity" values="0;0;0.55;0.55;0;0" keyTimes="0;0.13;0.16;0.44;0.48;1" dur="8s" repeatCount="indefinite"/></rect><rect x="64" y="176" width="190" height="20" rx="5" fill="var(--c-blue)" opacity="0"><animate attributeName="opacity" values="0;0;0.55;0.55;0;0" keyTimes="0;0.17;0.2;0.44;0.48;1" dur="8s" repeatCount="indefinite"/></rect>
+    <text x="160" y="140" font-size="12" fill="var(--c-redink)" text-anchor="middle" font-weight="800">pod 죽음, 큐 증발
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.46;0.5;0.96;1" dur="8s" repeatCount="indefinite"/>
+    </text>
+    <ellipse cx="492" cy="62" rx="110" ry="14" fill="none" stroke="var(--fig-baseline)"/>
+    <path d="M382 62 V196 A110 14 0 0 0 602 196 V62" fill="none" stroke="var(--fig-baseline)"/>
+    <text x="492" y="44" font-size="11" fill="var(--fig-muted)" text-anchor="middle">workflow_outbox (장부)</text>
+    <rect x="404" y="96" width="176" height="18" rx="4" fill="var(--fig-baseline)" opacity="0"><animate attributeName="opacity" values="0;0;0.6;0.6;0" keyTimes="0;0.05;0.08;0.96;1" dur="8s" repeatCount="indefinite"/></rect><rect x="404" y="122" width="176" height="18" rx="4" fill="var(--fig-baseline)" opacity="0"><animate attributeName="opacity" values="0;0;0.6;0.6;0" keyTimes="0;0.09;0.12;0.96;1" dur="8s" repeatCount="indefinite"/></rect><rect x="404" y="148" width="176" height="18" rx="4" fill="var(--fig-baseline)" opacity="0"><animate attributeName="opacity" values="0;0;0.6;0.6;0" keyTimes="0;0.13;0.16;0.96;1" dur="8s" repeatCount="indefinite"/></rect><rect x="404" y="174" width="176" height="18" rx="4" fill="var(--fig-baseline)" opacity="0"><animate attributeName="opacity" values="0;0;0.6;0.6;0" keyTimes="0;0.17;0.2;0.96;1" dur="8s" repeatCount="indefinite"/></rect>
+    <rect x="404" y="96" width="176" height="18" rx="4" fill="var(--c-green)" opacity="0"><animate attributeName="opacity" values="0;0;0.55;0.55;0" keyTimes="0;0.58;0.61;0.96;1" dur="8s" repeatCount="indefinite"/></rect><rect x="404" y="122" width="176" height="18" rx="4" fill="var(--c-green)" opacity="0"><animate attributeName="opacity" values="0;0;0.55;0.55;0" keyTimes="0;0.65;0.68;0.96;1" dur="8s" repeatCount="indefinite"/></rect><rect x="404" y="148" width="176" height="18" rx="4" fill="var(--c-green)" opacity="0"><animate attributeName="opacity" values="0;0;0.55;0.55;0" keyTimes="0;0.72;0.75;0.96;1" dur="8s" repeatCount="indefinite"/></rect><rect x="404" y="174" width="176" height="18" rx="4" fill="var(--c-green)" opacity="0"><animate attributeName="opacity" values="0;0;0.55;0.55;0" keyTimes="0;0.79;0.82;0.96;1" dur="8s" repeatCount="indefinite"/></rect>
+    <text x="492" y="230" font-size="10.5" fill="var(--c-greenink)" text-anchor="middle" font-weight="700">남은 이벤트는 publisher가 발송한다
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.56;0.6;0.96;1" dur="8s" repeatCount="indefinite"/>
+    </text>
+  </svg>
+  <figcaption>같은 이벤트 네 건. pod이 죽는 순간 메모리 큐(왼쪽)는 통째로 증발하지만, 같은 트랜잭션으로 <b>outbox</b>(오른쪽)에 적힌 이벤트는 남아서 발송된다.</figcaption>
+</figure>
+
 ## 사고 원인과 구조 원인
 
 사고의 원인은 배포 누락이다. 절차를 고치면 이번 사고는 재발하지 않는다. 하지만 이 사고를 가능하게 만든 구조는 네 겹이었고, 구조를 두면 다음 실수가 같은 유실을 만든다.

@@ -46,14 +46,57 @@ tags:
 
 비행기 좌석에 비유하면 이렇다. 좌석 하나에 탑승권이 두 장 발권된 상황이다. 항공사(외부 기관)는 나중에 발권된 탑승권만 유효하다고 본다. 먼저 발권된 탑승권으로 이미 탑승 수속을 진행 중이던 승객은 어느 관문에선가 반드시 걸린다. 그 관문이 수하물 검사(비동기 수집)면 `INVALID_SESSION` 알림이 되고, 탑승구(동기 sign 호출)면 5xx 알림이 된다.
 
-```mermaid
-flowchart LR
-  A["인증 트리거 1회차"] --> S1["Redis: 세션 1 저장"]
-  B["인증 트리거 2회차"] --> S2["Redis: 세션 2가 세션 1을 덮어씀"]
-  S1 -.->|"세션 1로 진행 중이던 단계"| F["외부가 거절: INVALID_SESSION"]
-  F -->|"수집 단계에서 나면"| N1["알림 A"]
-  F -->|"sign 단계에서 나면"| N2["알림 B"]
-```
+<style>
+.metric-fig{--fig-surface:#ffffff;--fig-ink:#0f172a;--fig-ink2:#334155;--fig-muted:#94a3b8;--fig-hair:#e6eaf1;--fig-baseline:#d0d7e2;--c-green:#16a34a;--c-greenink:#15803d;--c-red:#ef4444;--c-redink:#b91c1c;--c-blue:#2f6fed;--c-blueink:#1d4ed8;--c-amber:#d97706;--c-amberink:#b45309;margin:2.4em 0;border:1px solid var(--fig-hair);border-radius:18px;background:var(--fig-surface);padding:18px 20px 10px;overflow:hidden;box-shadow:0 1px 2px rgba(2,6,23,.05),0 14px 40px rgba(2,6,23,.09)}
+.metric-fig svg{width:100%;height:auto;display:block;max-width:100%}
+.metric-fig svg text{font-family:ui-monospace,"SF Mono","JetBrains Mono",Menlo,monospace}
+.metric-fig figcaption{font-size:13.5px;color:var(--fig-muted);line-height:1.6;padding:12px 2px 6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.metric-fig figcaption b{color:var(--fig-ink2);font-weight:600}
+@media (prefers-reduced-motion: reduce){.metric-fig svg animate,.metric-fig svg animateMotion{display:none}}
+</style>
+
+<figure class="metric-fig">
+  <svg viewBox="0 0 660 214" role="img" aria-label="세션 2가 세션 1을 덮어쓰고, 세션 1로 진행 중이던 요청이 외부 관문에서 INVALID_SESSION으로 거절된다" xmlns="http://www.w3.org/2000/svg">
+    <text x="70" y="76" font-size="11" fill="var(--fig-muted)">인증 트리거 1회차</text>
+    <text x="70" y="118" font-size="11" fill="var(--fig-muted)">인증 트리거 2회차</text>
+    <line x1="196" y1="72" x2="248" y2="76" stroke="var(--fig-baseline)"/>
+    <line x1="196" y1="114" x2="248" y2="112" stroke="var(--fig-baseline)"/>
+    <rect x="252" y="50" width="150" height="88" rx="10" fill="none" stroke="var(--fig-baseline)"/>
+    <text x="327" y="40" font-size="11" fill="var(--fig-muted)" text-anchor="middle">Redis 한 자리 (좌석)</text>
+    <rect x="268" y="62" width="118" height="26" rx="6" fill="var(--c-green)">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0.18;0.18;0" keyTimes="0;0.04;0.08;0.30;0.34;0.97;1" dur="8s" repeatCount="indefinite"/>
+    </rect>
+    <text x="327" y="79" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="700">세션 1
+      <animate attributeName="opacity" values="0;0;1;1;0.35;0.35;0" keyTimes="0;0.04;0.08;0.30;0.34;0.97;1" dur="8s" repeatCount="indefinite"/>
+    </text>
+    <line x1="268" y1="75" x2="386" y2="75" stroke="var(--c-red)" stroke-width="2">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.32;0.36;0.97;1" dur="8s" repeatCount="indefinite"/>
+    </line>
+    <rect x="268" y="100" width="118" height="26" rx="6" fill="var(--c-amber)">
+      <animate attributeName="opacity" values="0;0;0.95;0.95;0" keyTimes="0;0.28;0.32;0.97;1" dur="8s" repeatCount="indefinite"/>
+    </rect>
+    <text x="327" y="117" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="700">세션 2
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.28;0.32;0.97;1" dur="8s" repeatCount="indefinite"/>
+    </text>
+    <rect x="520" y="50" width="116" height="88" rx="10" fill="none" stroke="var(--fig-baseline)"/>
+    <text x="578" y="98" font-size="12" fill="var(--fig-ink)" text-anchor="middle" font-weight="700">외부 관문</text>
+    <line x1="406" y1="160" x2="516" y2="160" stroke="var(--fig-baseline)" stroke-dasharray="3 4"/>
+    <text x="300" y="164" font-size="10.5" fill="var(--fig-muted)">세션 1로 진행 중이던 작업</text>
+    <circle r="6" fill="var(--c-green)">
+      <animateMotion path="M410 160 L512 160" keyPoints="0;0;1;1" keyTimes="0;0.44;0.58;1" calcMode="linear" dur="8s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.43;0.46;0.58;0.62;1" dur="8s" repeatCount="indefinite"/>
+    </circle>
+    <g stroke="var(--c-red)" stroke-width="3" stroke-linecap="round">
+      <line x1="560" y1="152" x2="596" y2="182"/>
+      <line x1="596" y1="152" x2="560" y2="182"/>
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.58;0.62;0.94;1" dur="8s" repeatCount="indefinite"/>
+    </g>
+    <text x="578" y="204" font-size="10.5" fill="var(--c-redink)" text-anchor="middle" font-weight="700">INVALID_SESSION
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.58;0.62;0.94;1" dur="8s" repeatCount="indefinite"/>
+    </text>
+  </svg>
+  <figcaption>좌석은 하나, 탑승권은 두 장. <b>세션 2</b>가 자리를 차지하는 순간 <b>세션 1</b>은 무효가 되고, 세션 1로 진행 중이던 작업은 어느 관문에선가 반드시 거절된다.</figcaption>
+</figure>
 
 결함은 "세션이 두 벌 생긴다" 하나다. 알림이 두 종류인 건 거절당하는 관문이 두 군데라서다. 그렇다면 남는 질문은 하나로 좁혀진다. 인증은 왜 두 번 트리거되는가?
 

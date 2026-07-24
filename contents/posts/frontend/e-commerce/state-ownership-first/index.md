@@ -82,21 +82,37 @@ key와 요청이 각자 조건을 조립하는 구조에서는 한쪽에만 조�
 ```ts
 export type ProductListCondition = Required<ProductListQuery>
 
-export const productListQuery = (condition: ProductListCondition) =>
-  queryOptions({
-    queryKey: ['products', condition],
-    queryFn: ({ signal }) => fetchProducts(condition, signal),
-    staleTime: 30_000,
-    gcTime: 5 * 60_000,
-  })
+export const commerceQueries = {
+  products: {
+    all: () => ['products'] as const,
+    lists: () => [...commerceQueries.products.all(), 'list'] as const,
+    list: (condition: ProductListCondition) =>
+      queryOptions({
+        queryKey: [...commerceQueries.products.lists(), condition],
+        queryFn: ({ signal }) => fetchProducts(condition, signal),
+        staleTime: 30_000,
+        gcTime: 5 * 60_000,
+      }),
+  },
+}
 ```
 
 조건 객체를 공유한 이유는 중복 코드를 줄이기 위해서가 아니다. 캐시가 구분하는 요청과 서버가 실제로 처리하는 요청의 의미를 같게 만들기 위해서다. 기본 정렬이 요청에 항상 명시되는 것도 같은 이유다. 기본값을 생략하면 서버와 클라이언트가 서로 다른 조건으로 요청을 해석할 여지가 생긴다.
+
+키는 일반적인 주소에서 구체적인 주소로 내려간다. `['products']`는 상품 도메인 전체,
+`['products', 'list']`는 조건과 무관한 목록 전체, 마지막 condition까지 붙은 키는 특정
+목록 하나다. 조건 객체만 붙였을 때도 캐시는 분리되지만 목록과 상세가 함께 생기면
+“목록만 무효화”할 주소가 없다. 계층은 현재 조회뿐 아니라 이후의 무효화 범위까지
+표현한다.
 
 위 코드의 signal도 같은 결이다. 조건이 바뀌어 쿼리가 새 key로 갈아타면 React Query는 밀려난 쿼리에 취소 신호를 보낸다. 첫 구현의 fetch는 그 신호를 받지 않았고 아무도 보지 않을 응답이 네트워크를 타고 끝까지 내려왔다. signal이 fetch 옵션까지 내려가면 이탈한 요청은 클라이언트에서 중단된다.
 
 캐시 키는 배열의 모양이 아니라 요청의 의미를 표현하는 계약이다.
 이 계약이 보장하는 것은 조건과 응답의 짝까지다. 캐시를 얼마나 오래 신선하게 볼지는 별도 결정이고 근거는 화면의 동선이다. 목록은 조건 이동과 뒤로 가기가 잦아 30초, 홈은 배너와 랭킹이 분 단위로 바뀌지 않아 60초, 비활성 캐시는 조건을 바꿨다 돌아오는 동선을 덮도록 5분. 취소 역시 클라이언트 연결까지다. 서버가 이미 시작한 처리는 이 신호로 멈추지 않는다.
+
+도메인 정책을 아직 정하지 않은 새 쿼리에는 전역 staleTime 20초를 적용했다. 이 값은
+정답이라서가 아니라 한 화면 안에서 발생하는 불필요한 재요청을 막는 최소선이다.
+홈과 목록처럼 수명이 설명된 쿼리는 팩토리의 60초와 30초가 이 기본값을 덮어쓴다.
 
 > **포기한 것**: 페이지 전환 중 기존 목록을 유지하는 placeholderData. 전환마다 로딩 화면이 한 번 깜빡인다는 것을 알고도 뒀다. key 사이를 데이터가 건너다니는 옵션이라 캐시 정책과 붙여서 검증해야 할 결정이고, 이번 범위의 경계 밖이다.
 
@@ -136,6 +152,12 @@ scenario는 mock API가 에러와 빈 응답을 강제하는 테스트용 스위
 
 구현체는 표의 보관 위치 그대로다. 조건 변경은 history push로 새 항목이 되고 검색, 카테고리, 정렬이 바뀌면 page는 1로 돌아간다. 헤더는 배열의 길이만, 상품 버튼은 자기 ID의 포함 여부와 action만 구독한다.
 
+Zustand store 자체는 모듈 밖으로 공개하지 않았다. 화면이 store 전체를 구독하거나 내부
+필드 이름에 직접 의존하지 않도록 `useCartCount`, `useIsInCart`, `useToggleCart` 같은
+용도별 selector 훅만 공개한다. 이 훅은 단순한 편의 함수가 아니라 화면과 저장소 사이의
+어댑터다. 테스트도 내부 store의 `getState`나 `setState`를 직접 검사하지 않고 공개된
+selector 훅이 보여주는 행동을 검증한다.
+
 ![담기 클릭이 store의 ID 목록을 갱신하고 그 원본을 구독한 헤더만 따라 바뀌는 애니메이션](./01-toggle-propagation.svg)
 
 > **포기한 것**: 새로고침 후에도 장바구니가 남는 persist. 세션이 끝나면 담은 것이 사라진다는 걸 알고 남겼다. 저장값의 hydration 불일치와 버전 마이그레이션이 같이 오는 결정이라 소유권 분리와 한 호흡에 넣지 않았다.
@@ -147,4 +169,4 @@ scenario는 mock API가 에러와 빈 응답을 강제하는 테스트용 스위
 렌더 예외를 격리할 Error Boundary는 아직 없다. 페이지 단위 경계와 복구 UI를 함께 정해야 하는 문제라 이번 범위에서 제외했고 현재는 계약을 벗어난 응답이 페이지 전체 렌더 실패로 이어질 수 있다.
 로그인이 생기면 장바구니의 쓰기 권한은 서버로 넘어간다. store에 ID만 두는 구조는 그 이관에서 버릴 것을 최소화한다.
 
-URL 정규화, 빈 결과 분기, 에러 후 재시도, store 파생값과 화면 간 공유는 상태 계약 테스트 23건으로 확인한다. 전체 테스트 104건과 lint, 타입 검사, 프로덕션 빌드를 포함한 pnpm check는 작성 시점 기준으로 통과한다.
+URL 정규화, 빈 결과 분기, 에러 후 재시도, store 파생값과 화면 간 공유는 상태 계약 테스트로 확인한다. query key 계층과 전역 캐시 기본값도 별도 단위 테스트로 고정했다. 전체 테스트 106건과 lint, 타입 검사, 프로덕션 빌드를 포함한 pnpm check는 작성 시점 기준으로 통과한다.
