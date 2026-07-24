@@ -80,7 +80,13 @@ const Body = ({ html }) => {
         wrapper.innerHTML = svg
         pre.replaceWith(wrapper)
       } catch {
-        // 렌더링 실패 시 코드블록 유지
+        // 렌더링 실패 시 코드블록 유지.
+        // mermaid가 body에 남긴 에러 SVG 컨테이너도 지운다.
+        // SPA 라우팅에서는 이 잔재가 다른 글 위까지 따라다닌다.
+        const tempEl = document.getElementById("d" + id)
+        if (tempEl) tempEl.remove()
+        const orphan = document.getElementById(id)
+        if (orphan) orphan.remove()
       }
     }
   }, [theme.name])

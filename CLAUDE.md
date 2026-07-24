@@ -40,9 +40,10 @@ Gatsby 기반 기술 블로그. 실무에서 겪은 시스템 설계/성능 최�
 
 ```bash
 npm run lint:tone -- contents/posts/<path>/index.md
+npm run lint:mermaid
 ```
 
-`error`가 0개여야 한다. 룰 정의는 `scripts/tone-guard.mjs` + `.claude/rules/tone-harness.md` 7.5~7.6절.
+`error`가 0개여야 한다. lint:mermaid는 전체 글의 mermaid 블록을 실제 파서로 검증한다 (실패 블록은 배포 페이지에서 에러 SVG로 나타난다). 룰 정의는 `scripts/tone-guard.mjs` + `.claude/rules/tone-harness.md` 7.5~7.6절.
 
 한국어 AI 티(번역투·관용구·리듬)는 `.claude/rules/ai-tell-taxonomy.md`(분류 체계 SSOT) + `ai-tell-quick-rules.md`(슬림 룰북) + `rewriting-playbook.md`(치환 레시피)를 기준으로 본다. 깊은 윤문은 `/humanize-korean` 스킬.
 

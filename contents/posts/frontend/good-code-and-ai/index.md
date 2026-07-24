@@ -166,17 +166,22 @@ stateDiagram-v2
     classDef bad fill:#e94560,color:#ffffff,stroke:#e0e0e0
     classDef step fill:#16213e,color:#e0e0e0,stroke:#e0e0e0
 
-    [*] --> 커밋시도: 🧪 깨진 코드 staged
-    커밋시도 --> 게이트: pre-commit 훅
-    게이트 --> 차단: ❌ error 2건
-    게이트 --> 통과: ✅ 깨끗함
-    차단 --> [*]: 🛑 HEAD 그대로
-    통과 --> [*]: 커밋 완료
+    state "커밋 시도" as tryCommit
+    state "게이트" as gate
+    state "차단" as blocked
+    state "통과" as passed
 
-    class 통과 ok
-    class 차단 bad
-    class 커밋시도 step
-    class 게이트 step
+    [*] --> tryCommit: 🧪 깨진 코드 staged
+    tryCommit --> gate: pre-commit 훅
+    gate --> blocked: ❌ error 2건
+    gate --> passed: ✅ 깨끗함
+    blocked --> [*]: 🛑 HEAD 그대로
+    passed --> [*]: 커밋 완료
+
+    class passed ok
+    class blocked bad
+    class tryCommit step
+    class gate step
 ```
 
 결과는 기대한 대로였다.
