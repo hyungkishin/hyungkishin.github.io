@@ -258,24 +258,7 @@ for (const rel of referencedSvgs) {
   } catch {
     continue;
   }
-  // 명시적으로 흰색 배경을 가진 SVG는 라이트 테마로 인정.
-  // 진한 텍스트 색은 라이트 배경에서 정상 가독성을 위한 것이라 다크 카운트에서 제외.
-  const hasWhiteBackground =
-    /class=["']bg["'][^>]*fill=["']#ffffff["']/i.test(svg) ||
-    /fill=["']#ffffff["'][^>]*class=["']bg["']/i.test(svg) ||
-    /\.bg\s*\{[^}]*fill:\s*#ffffff/i.test(svg) ||
-    /<rect[^>]*\bfill=["']#ffffff["'][^>]*\bwidth=["']\d+["'][^>]*\bheight=["']\d+["']/i.test(svg);
-
-  if (!hasWhiteBackground) {
-    const darkHits = svg.match(/#0[0-9a-f]{5}|#1[0-9a-f]{5}|#2[0-9a-f]{5}/gi);
-    if (darkHits && darkHits.length >= 3) {
-      warnings.push({
-        type: "svg-dark-theme",
-        phrase: rel,
-        guidance: `SVG에 다크 hex(${darkHits.slice(0, 3).join(", ")}...) 다수. 라이트 테마(#ffffff 배경) 권장.`
-      });
-    }
-  }
+  // 테마는 다크 글래스가 기본 (tone-harness.md 8절). 색 검사는 하지 않는다.
   if (/—|–/.test(svg)) {
     errors.push({
       type: "svg-em-dash",
@@ -351,22 +334,8 @@ if (endingComma.length >= 6) {
   });
 }
 
-// 절충형 신규: 사람 목소리(경험·반문·구어) 측정. 빼는 규칙만으론 기계적 AI 톤을 못 거른다.
-const voiceSignals = [
-  /거든요|인데요|더라고요|니까요|잖아요|네요|군요/g, // 구어 종결
-  /까요\?|나요\?|을까\?|ㄹ까\?/g, // 반문
-  /제가|저는|내가|나는|직접\s/g // 1인칭 경험
-];
-let voiceHits = 0;
-for (const re of voiceSignals) voiceHits += (prose.match(re) || []).length;
-if (sections.length >= 3 && voiceHits < 3) {
-  warnings.push({
-    type: "voice-missing",
-    line: null,
-    phrase: `목소리 ${voiceHits}건`,
-    guidance: "경험·반문·구어가 거의 없다. '제가 겪은~', '~거든요', '~할까요?' 같은 사람 목소리를 넣어라."
-  });
-}
+// voice-missing 규칙은 제거됐다 (tone-harness.md 11절).
+// 구어 종결을 억지로 섞어 사람 냄새를 내지 않는다. 서술의 주체는 개발자가 아니라 구조다.
 
 for (const item of errors) {
   console.log(`error:${item.line}: ${item.type}: "${item.phrase}" - ${item.guidance}`);
