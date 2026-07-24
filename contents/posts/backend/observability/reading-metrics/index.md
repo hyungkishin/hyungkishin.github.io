@@ -16,6 +16,6 @@ tags:
 
 자동으로 넘어가지 않으면 위 링크를 눌러 주세요.
 
-- [① 에러율 0%인데 181건이 실패했습니다](/backend/observability/when-metrics-lie-error-rate/)
-- [② Kafka lag 0은 무엇을 의미할까](/backend/observability/when-metrics-lie-kafka-lag/)
-- [③ Redis P95 5.68초는 어디서 잰 시간일까](/backend/observability/when-metrics-lie-redis-p95/)
+- [에러율 0%인데 181건이 실패했습니다](/backend/observability/when-metrics-lie-error-rate/)
+- [Kafka lag 0은 무엇을 의미할까](/backend/observability/when-metrics-lie-kafka-lag/)
+- [Redis P95 5.68초는 어디서 잰 시간일까](/backend/observability/when-metrics-lie-redis-p95/)

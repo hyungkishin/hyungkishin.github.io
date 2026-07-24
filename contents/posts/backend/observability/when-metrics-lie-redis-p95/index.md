@@ -1,5 +1,5 @@
 ---
-title: "계기가 거짓말할 때 ③ Redis P95 5.68초는 어디서 잰 시간일까"
+title: "계기가 거짓말할 때 : Redis P95 5.68초는 어디서 잰 시간일까"
 date: 2026-02-26
 update: 2026-02-26
 series: "계기가 거짓말할 때"
@@ -78,7 +78,7 @@ APM이 뜨는 "캐시 span"은 대개 **호출 시작부터 응답까지 전체*
 그래서 "캐시 P95 5.68초"는 "Redis 서버가 5.68초 걸렸다"와 같은 말이 아닙니다. 어디서 그 시간이 쌓였는지를 나눠 봐야 해요.
 
 <figure class="metric-fig">
-  <div class="cap-head"><span class="cap-tag">what one Redis call actually measures</span><span class="cap-tag">span = ① ~ ⑥</span></div>
+  <div class="cap-head"><span class="cap-tag">what one Redis call actually measures</span><span class="cap-tag">6 stages</span></div>
   <svg viewBox="0 0 660 196" role="img" aria-label="Redis 호출 한 번의 시간은 여섯 단계로 나뉜다. 클라이언트 큐 대기 칸이 5.68초를 만들었고 실제 명령 실행은 0.2ms로 아주 작다" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="e3-red" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--c-red)"/><stop offset="1" stop-color="var(--c-red)" stop-opacity="0.7"/></linearGradient>
@@ -88,7 +88,7 @@ APM이 뜨는 "캐시 span"은 대개 **호출 시작부터 응답까지 전체*
     <g stroke="var(--fig-muted)" stroke-width="1" opacity="0.7">
       <line x1="44" y1="44" x2="44" y2="52"/><line x1="616" y1="44" x2="616" y2="52"/><line x1="44" y1="44" x2="616" y2="44"/>
     </g>
-    <text x="330" y="34" text-anchor="middle" fill="var(--fig-muted)" font-size="11" letter-spacing="0.04em">APM 캐시 span = ① ~ ⑥ 전체 (클라이언트 대기 포함)</text>
+    <text x="330" y="34" text-anchor="middle" fill="var(--fig-muted)" font-size="11" letter-spacing="0.04em">APM 캐시 span = 여섯 단계 전체 (클라이언트 대기 포함)</text>
     <g stroke="var(--fig-surface)" stroke-width="2">
       <rect x="44"  y="60" width="0" height="46" rx="2" fill="url(#e3-slate)"><animate attributeName="width" values="0;34"  dur="0.4s" begin="0.1s"  fill="freeze"/></rect>
       <rect x="78"  y="60" width="0" height="46" rx="2" fill="url(#e3-slate)"><animate attributeName="width" values="0;40"  dur="0.4s" begin="0.25s" fill="freeze"/></rect>
@@ -100,17 +100,11 @@ APM이 뜨는 "캐시 span"은 대개 **호출 시작부터 응답까지 전체*
     <rect x="118" y="60" width="380" height="46" rx="2" fill="none" stroke="var(--c-red)" stroke-width="0" opacity="0.9">
       <animate attributeName="stroke-width" values="0;2;0;2" keyTimes="0;0.34;0.67;1" dur="2.6s" begin="1.4s" repeatCount="indefinite"/>
     </rect>
-    <g font-size="12" font-weight="700" fill="var(--fig-ink2)" text-anchor="middle">
-      <text x="61" y="128">①</text><text x="98" y="128">②</text><text x="308" y="128" fill="var(--c-redink)">③</text>
-      <text x="518" y="128">④</text><text x="554" y="128" fill="var(--c-greenink)">⑤</text><text x="593" y="128">⑥</text>
-    </g>
-    <g font-size="12" font-weight="700">
-      <text x="308" y="152" text-anchor="middle" fill="var(--c-redink)">③ 클라이언트 큐 대기 = 5.68초가 쌓인 곳</text>
-      <text x="308" y="170" text-anchor="middle" fill="var(--c-greenink)">⑤ 실제 Redis 명령 = ~0.2ms</text>
-    </g>
-    <text x="330" y="190" text-anchor="middle" fill="var(--fig-muted)" font-size="10.5">① 앱 대기 · ② 커넥션 획득 · ④ 네트워크 · ⑥ 역직렬화</text>
+    <text x="308" y="130" text-anchor="middle" fill="var(--c-redink)" font-size="12" font-weight="700">클라이언트 큐 대기 = 5.68초가 쌓인 곳</text>
+    <text x="330" y="154" text-anchor="middle" fill="var(--c-greenink)" font-size="11.5" font-weight="700">가장 작은 칸(명령 실행)이 실제 Redis 작업, 약 0.2ms</text>
+    <text x="330" y="182" text-anchor="middle" fill="var(--fig-muted)" font-size="10.5">칸 순서: 앱 대기 · 커넥션 획득 · 클라이언트 큐 대기 · 네트워크 · 명령 실행 · 역직렬화</text>
   </svg>
-  <figcaption>APM "캐시 span"은 여섯 단계 전체를 잰다. 5.68초는 <b>③ 클라이언트 큐 대기</b>에서 쌓였다. 우리가 "Redis가 느리다"고 상상한 <b>⑤ 명령 실행</b>은 0.2ms로 가장 작은 칸이었다.</figcaption>
+  <figcaption>APM "캐시 span"은 여섯 단계 전체를 잰다. 5.68초는 <b>클라이언트 큐 대기</b>에서 쌓였다. 우리가 "Redis가 느리다"고 상상한 <b>명령 실행</b>은 0.2ms로 가장 작은 칸이었다.</figcaption>
 </figure>
 
 ## 그날 관측된 것
@@ -191,34 +185,6 @@ Redis 서버는 명령을 한 줄로(single-thread) 처리합니다. Lettuce는 
 그동안 발송 경로가 캐시를 읽으려고 `HGET`을 보내면 그 명령은 **재적재 명령들 뒤에 줄을 섭니다.**  
 앞의 수십만 개가 빠질 때까지 기다려요. 이게 head-of-line blocking입니다. 커넥션이 하나라 앞이 막히면 뒤는 무조건 기다립니다.
 
-<figure class="metric-fig">
-  <div class="cap-head"><span class="cap-tag">head-of-line on a shared connection</span><span class="cap-tag">1 connection</span></div>
-  <svg viewBox="0 0 660 210" role="img" aria-label="공유 커넥션 하나에 재동기화 명령 수십만 개가 앞을 채우면 발송 HGET이 맨 뒤에서 기다린다. 전용 커넥션을 분리하면 바로 통과한다" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <filter id="e3h-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    </defs>
-    <text x="150" y="26" fill="var(--fig-muted)" font-size="11">공유 커넥션 1개 (지금)</text>
-    <rect x="150" y="34" width="426" height="34" rx="17" fill="none" stroke="var(--fig-baseline)" stroke-width="1.5"/>
-    <rect x="588" y="32" width="60" height="38" rx="7" fill="var(--fig-baseline)" opacity="0.35"/>
-    <text x="618" y="55" text-anchor="middle" fill="var(--fig-ink2)" font-size="11" font-weight="700">Redis</text>
-    <g fill="var(--fig-baseline)">
-      <rect x="252" y="44" width="20" height="16" rx="2"/><rect x="276" y="44" width="20" height="16" rx="2"/><rect x="300" y="44" width="20" height="16" rx="2"/><rect x="324" y="44" width="20" height="16" rx="2"/><rect x="348" y="44" width="20" height="16" rx="2"/><rect x="372" y="44" width="20" height="16" rx="2"/><rect x="396" y="44" width="20" height="16" rx="2"/><rect x="420" y="44" width="20" height="16" rx="2"/><rect x="444" y="44" width="20" height="16" rx="2"/><rect x="468" y="44" width="20" height="16" rx="2"/><rect x="492" y="44" width="20" height="16" rx="2"/><rect x="516" y="44" width="20" height="16" rx="2"/><rect x="540" y="44" width="20" height="16" rx="2"/>
-    </g>
-    <g><rect x="162" y="44" width="46" height="16" rx="3" fill="var(--c-red)" filter="url(#e3h-glow)"/><text x="185" y="56" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="700">HGET</text><animate attributeName="opacity" values="1;0.45;1" dur="1.8s" repeatCount="indefinite"/></g>
-    <text x="150" y="90" fill="var(--c-redink)" font-size="11" font-weight="700">재동기화 명령 수십만 개가 앞을 채움 → 발송 HGET은 맨 뒤 (5.68s)</text>
-    <text x="150" y="128" fill="var(--fig-muted)" font-size="11">발송 전용 커넥션 (분리 후)</text>
-    <rect x="150" y="136" width="426" height="34" rx="17" fill="none" stroke="var(--c-green)" stroke-opacity="0.45" stroke-width="1.5"/>
-    <rect x="588" y="134" width="60" height="38" rx="7" fill="var(--fig-baseline)" opacity="0.35"/>
-    <text x="618" y="157" text-anchor="middle" fill="var(--fig-ink2)" font-size="11" font-weight="700">Redis</text>
-    <g>
-      <rect x="162" y="146" width="46" height="16" rx="3" fill="var(--c-red)" filter="url(#e3h-glow)"/><text x="185" y="158" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="700">HGET</text>
-      <animateTransform attributeName="transform" type="translate" values="0 0;358 0;358 0" keyTimes="0;0.7;1" dur="2.4s" repeatCount="indefinite"/>
-      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.1;0.85;1" dur="2.4s" repeatCount="indefinite"/>
-    </g>
-    <text x="150" y="192" fill="var(--c-greenink)" font-size="11" font-weight="700">재동기화와 안 섞임 → 발송 HGET은 바로 통과 (0.2ms)</text>
-  </svg>
-  <figcaption>커넥션이 하나면(위) 재동기화 수십만 명령 뒤에 발송 HGET이 줄을 서서 5.68초를 기다린다. 발송 경로에 전용 커넥션을 주면(아래) 재적재와 안 섞여 바로 통과한다. <b>head-of-line은 Redis 서버가 아니라 이 서비스의 커넥션에서 났다.</b></figcaption>
-</figure>
 
 여기가 다른 서비스와 갈린 지점이에요. head-of-line이 **서버 쪽**이었다면 같은 Redis를 쓰는 다른 서비스도 같이 느렸어야 합니다. 그런데 다른 서비스는 1.44ms로 멀쩡했어요.  
 그러니 병목은 Redis 서버가 아니라 **이 서비스가 쥔 커넥션 안**이었습니다. 자기 커넥션을 자기가 막은 거예요.
@@ -230,10 +196,10 @@ Redis 서버는 명령을 한 줄로(single-thread) 처리합니다. Lettuce는 
 
 네 증거가 한 점을 가리킵니다.
 
-- **① 한 서비스만 느림** : 다른 서비스는 1.44ms. Redis 서버 전반 장애가 아니다.
-- **② 명령의 90%가 재적재** : 1주 20.9M 요청 중 DEL 10.2M + HMSET 8.64M. 실사용이 아니라 안전망 트래픽이다.
-- **③ 스파이크 시각이 재적재 cron과 일치** : 3시간 주기, 정오 정각 급증.
-- **④ 커넥션이 하나** : 공유 커넥션이라 앞이 막히면 뒤가 대기한다.
+- **한 서비스만 느림.** 다른 서비스는 1.44ms. Redis 서버 전반 장애가 아니다.
+- **명령의 90%가 재적재.** 1주 20.9M 요청 중 DEL 10.2M + HMSET 8.64M. 실사용이 아니라 안전망 트래픽이다.
+- **스파이크 시각이 재적재 cron과 일치.** 3시간 주기, 정오 정각 급증.
+- **커넥션이 하나.** 공유 커넥션이라 앞이 막히면 뒤가 대기한다.
 
 그래서 이건 정황이 아니라 구조입니다.  
 **5.68초는 Redis가 느린 게 아니라, 이 서비스의 발송 HGET이 자기 재적재 뒤에서 기다린 시간이에요.** "캐시가 느리다"가 아니라 "내가 내 커넥션을 막았다".
