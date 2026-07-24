@@ -1,7 +1,7 @@
 ---
 title: "계기가 거짓말할 때 : Redis P95 5.68초는 어디서 잰 시간일까"
 date: 2026-02-26
-update: 2026-02-26
+update: 2026-07-24
 series: "계기가 거짓말할 때"
 tags:
 - 관측성
@@ -14,11 +14,10 @@ tags:
 
 > **TL;DR**
 >
-> 알림 서비스의 캐시 P95가 5.68초였습니다. 같은 DB는 2.12ms. 처음엔 Redis 서버가 아프다고 봤어요.
-> 그런데 같은 클러스터의 다른 서비스는 1.44ms로 멀쩡했습니다.
+> 이 사건에서 중요한 건 Redis 서버가 아니었다. 5.68초가 어디서 잰 시간인지였다.
 >
-> 5.68초는 Redis 명령 실행 시간이 아니라, 공유 커넥션 앞에서 기다린 시간을 포함한 값이었어요.
-> "캐시가 느리다"와 "캐시를 호출한 쪽이 기다렸다"는 다른 이야기입니다.
+> 알림 서비스의 캐시 P95는 5.68초, 같은 DB는 2.12ms. 그런데 같은 클러스터의 다른 서비스는 1.44ms로 멀쩡했다.
+> 5.68초는 Redis 명령 실행 시간이 아니라 공유 커넥션 앞에서 기다린 시간을 포함한 값이다. "캐시가 느리다"와 "캐시를 호출한 쪽이 기다렸다"는 다른 이야기다.
 
 ---
 
@@ -62,76 +61,12 @@ tags:
   </defs>
 </svg>
 
-## 캐시 P95라는 지표는 무엇을 재고 있었나
+## 캐시가 DB보다 2,700배 느리게 찍혔다
 
-Redis 호출 한 번의 시간은, 서버가 명령을 실행한 시간만이 아닙니다.  
-보통 이렇게 쌓여요.
+알림 서비스의 캐시 P95가 5.68초로 찍혔다. 같은 서비스의 DB P95는 2.12ms. 정상 구간의 캐시 조회 기준선은 0.2ms대(HGET 약 100~200µs)다.
+캐시는 DB보다 빠르라고 두는 계층인데 계기는 반대로 2,700배 느린 값을 가리키고 있었다.
 
-- 애플리케이션에서 호출을 시작
-- 커넥션 획득
-- 클라이언트 큐에서 대기
-- 네트워크 왕복
-- Redis 명령 실행
-- 응답 역직렬화
-
-APM이 뜨는 "캐시 span"은 대개 **호출 시작부터 응답까지 전체**를 잽니다. 그 안에는 클라이언트에서 줄 서서 기다린 시간도 들어가요.  
-그래서 "캐시 P95 5.68초"는 "Redis 서버가 5.68초 걸렸다"와 같은 말이 아닙니다. 어디서 그 시간이 쌓였는지를 나눠 봐야 해요.
-
-<figure class="metric-fig">
-  <div class="cap-head"><span class="cap-tag">what one Redis call actually measures</span><span class="cap-tag">6 stages</span></div>
-  <svg viewBox="0 0 660 196" role="img" aria-label="Redis 호출 한 번의 시간은 여섯 단계로 나뉜다. 클라이언트 큐 대기 칸이 5.68초를 만들었고 실제 명령 실행은 0.2ms로 아주 작다" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="e3-red" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--c-red)"/><stop offset="1" stop-color="var(--c-red)" stop-opacity="0.7"/></linearGradient>
-      <linearGradient id="e3-green" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--c-green)"/><stop offset="1" stop-color="var(--c-green)" stop-opacity="0.7"/></linearGradient>
-      <linearGradient id="e3-slate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--fig-baseline)"/><stop offset="1" stop-color="var(--fig-baseline)" stop-opacity="0.6"/></linearGradient>
-    </defs>
-    <g stroke="var(--fig-muted)" stroke-width="1" opacity="0.7">
-      <line x1="44" y1="44" x2="44" y2="52"/><line x1="616" y1="44" x2="616" y2="52"/><line x1="44" y1="44" x2="616" y2="44"/>
-    </g>
-    <text x="330" y="34" text-anchor="middle" fill="var(--fig-muted)" font-size="11" letter-spacing="0.04em">APM 캐시 span = 여섯 단계 전체 (클라이언트 대기 포함)</text>
-    <g stroke="var(--fig-surface)" stroke-width="2">
-      <rect x="44"  y="60" width="0" height="46" rx="2" fill="url(#e3-slate)"><animate attributeName="width" values="0;34"  dur="0.4s" begin="0.1s"  fill="freeze"/></rect>
-      <rect x="78"  y="60" width="0" height="46" rx="2" fill="url(#e3-slate)"><animate attributeName="width" values="0;40"  dur="0.4s" begin="0.25s" fill="freeze"/></rect>
-      <rect x="118" y="60" width="0" height="46" rx="2" fill="url(#e3-red)" filter="url(#fx-soft)"><animate attributeName="width" values="0;380" dur="0.7s" begin="0.4s" fill="freeze"/></rect>
-      <rect x="498" y="60" width="0" height="46" rx="2" fill="url(#e3-slate)"><animate attributeName="width" values="0;40"  dur="0.4s" begin="0.7s"  fill="freeze"/></rect>
-      <rect x="538" y="60" width="0" height="46" rx="2" fill="url(#e3-green)"><animate attributeName="width" values="0;32"  dur="0.4s" begin="0.85s" fill="freeze"/></rect>
-      <rect x="570" y="60" width="0" height="46" rx="2" fill="url(#e3-slate)"><animate attributeName="width" values="0;46"  dur="0.4s" begin="1.0s"  fill="freeze"/></rect>
-    </g>
-    <rect x="118" y="60" width="380" height="46" rx="2" fill="none" stroke="var(--c-red)" stroke-width="0" opacity="0.9">
-      <animate attributeName="stroke-width" values="0;2;0;2" keyTimes="0;0.34;0.67;1" dur="2.6s" begin="1.4s" repeatCount="indefinite"/>
-    </rect>
-    <text x="308" y="130" text-anchor="middle" fill="var(--c-redink)" font-size="12" font-weight="700">클라이언트 큐 대기 = 5.68초가 쌓인 곳</text>
-    <text x="330" y="154" text-anchor="middle" fill="var(--c-greenink)" font-size="11.5" font-weight="700">가장 작은 칸(명령 실행)이 실제 Redis 작업, 약 0.2ms</text>
-    <text x="330" y="182" text-anchor="middle" fill="var(--fig-muted)" font-size="10.5">칸 순서: 앱 대기 · 커넥션 획득 · 클라이언트 큐 대기 · 네트워크 · 명령 실행 · 역직렬화</text>
-  </svg>
-  <figcaption>APM "캐시 span"은 여섯 단계 전체를 잰다. 5.68초는 <b>클라이언트 큐 대기</b>에서 쌓였다. 우리가 "Redis가 느리다"고 상상한 <b>명령 실행</b>은 0.2ms로 가장 작은 칸이었다.</figcaption>
-</figure>
-
-## 그날 관측된 것
-
-사실만 적습니다.
-
-- 알림 서비스 캐시 P95: 5.68초.
-- 같은 DB P95: 2.12ms.
-- 정상 구간의 캐시 조회 기준선: 0.2ms대(HGET 약 100~200µs).
-
-캐시가 DB보다 2,700배 느린 값으로 찍혔습니다.
-
-## 처음엔 Redis 서버가 아프다고 봤다
-
-첫 가설은 "Redis 클러스터의 성능 저하"였어요. 캐시가 이 정도로 느리면 서버가 문제라고 본 거죠.
-
-이건 가설입니다. 아직 5.68초가 어디서 만들어진 시간인지 모릅니다.
-
-## 후보를 하나씩 지운 순서
-
-| 단계 | 확인한 것 | 결과 |
-|---|---|---|
-| 같은 클러스터 타 서비스 P95 | 다른 서비스는 1.44ms | 클러스터 전반 장애의 우선순위를 낮춤 |
-| 5.68초가 무엇의 시간인지 | APM 의존성 span(호출~응답, 클라이언트 대기 포함) | 서버 명령 시간만이 아님 |
-| 시간대 패턴 | 3시간 주기 스파이크, 정오 정각 급증 | 주기 작업과 겹침 |
-| 명령 종류 분해 | 1주 20.9M 요청 중 DEL 10.2M + HMSET 8.64M = 약 90%(건수 기준) | 실사용 읽기가 아니라 재동기화 |
-| 클라이언트 커넥션 구조 | 공유 커넥션 1개로 직렬 전송 | 재동기화가 발송 읽기 앞을 막음 |
+첫 가설은 Redis 클러스터의 성능 저하였다. 캐시가 이 정도로 느리면 서버가 문제라는 가설이다. 이 시점에는 5.68초가 어디서 만들어진 시간인지 아무도 모른다.
 
 <figure class="metric-fig">
   <div class="cap-head"><span class="cap-tag">p95 latency · same cache cluster</span><span class="cap-tag">log scale</span></div>
@@ -167,70 +102,118 @@ APM이 뜨는 "캐시 span"은 대개 **호출 시작부터 응답까지 전체*
   <figcaption>같은 클러스터인데 한 서비스만 5.68초. 클러스터 전반 장애라면 셋 다 느려야 한다. 그래서 서버 전반보다 <b>이 서비스의 클라이언트 경로</b>를 먼저 팠다. (로그 축이라 막대 길이가 아니라 눈금 위치로 읽는다.)</figcaption>
 </figure>
 
-첫 줄이 방향을 바꿨습니다.  
-같은 Redis를 쓰는 다른 서비스가 1.44ms라면, 클러스터 전체가 아픈 그림은 아니에요. 그래서 서버 전반 장애를 원인 후보에서 뒤로 미루고, 이 서비스만 다른 점을 찾기 시작했습니다.
+첫 가설은 그림의 가운데 막대에서 지워진다.
+같은 클러스터를 쓰는 다른 서비스가 1.44ms라면 클러스터 전체가 아픈 그림이 아니다. 병목 후보는 서버 전반에서 이 서비스만의 경로로 좁혀진다.
 
-## 왜 이 서비스만 느렸나: 공유 커넥션의 head-of-line
+## 5.68초는 어디서 잰 시간인가
 
-여기서부터가 이 사건의 핵심이에요. 왜 하필 이 서비스만 느렸을까.
+Redis 호출 한 번의 시간은 서버가 명령을 실행한 시간만이 아니다. 보통 이렇게 쌓인다.
 
-Lettuce(자바 Redis 클라이언트)는 기본적으로 **커넥션 하나**를 여러 스레드가 나눠 씁니다. 보통은 문제가 안 돼요.  
-Redis 서버는 명령을 한 줄로(single-thread) 처리합니다. Lettuce는 응답을 기다리지 않고 명령을 연달아 밀어 넣고요(pipelining). 그래서 커넥션 하나로도 처리량이 충분하거든요.
+- 애플리케이션에서 호출 시작
+- 커넥션 획득
+- 클라이언트 큐에서 대기
+- 네트워크 왕복
+- Redis 명령 실행
+- 응답 역직렬화
 
-문제는 그 커넥션 하나에 **누가 얼마나 밀어 넣느냐**입니다.
+APM이 띄우는 "캐시 span"은 대개 호출 시작부터 응답까지 전체를 잰다. 그 안에는 클라이언트에서 줄 서서 기다린 시간도 들어간다.
+"캐시 P95 5.68초"는 "Redis 서버가 5.68초 걸렸다"와 같은 말이 아니다. 그 시간이 여섯 칸 중 어디에 쌓였는지를 나눠야 한다.
 
-이 서비스의 스케줄러는 3시간마다 전 사용자 캐시를 `DEL`로 통째로 지우고 `HMSET`으로 다시 넣었어요.  
-한 번에 **33만 개** 명령(DEL 약 18만 + HMSET 약 15만)이 그 공유 커넥션 한 줄에 쏟아집니다. 1주 전체 Redis 요청의 90%가 이 재적재였어요. 실사용 읽기가 아니라 안전망이 스스로 만든 트래픽입니다.
+<figure class="metric-fig">
+  <div class="cap-head"><span class="cap-tag">what one Redis call actually measures</span><span class="cap-tag">6 stages</span></div>
+  <svg viewBox="0 0 660 196" role="img" aria-label="Redis 호출 한 번의 시간은 여섯 단계로 나뉜다. 클라이언트 큐 대기 칸이 5.68초를 만들었고 실제 명령 실행은 0.2ms로 아주 작다" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="e3-red" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--c-red)"/><stop offset="1" stop-color="var(--c-red)" stop-opacity="0.7"/></linearGradient>
+      <linearGradient id="e3-green" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--c-green)"/><stop offset="1" stop-color="var(--c-green)" stop-opacity="0.7"/></linearGradient>
+      <linearGradient id="e3-slate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--fig-baseline)"/><stop offset="1" stop-color="var(--fig-baseline)" stop-opacity="0.6"/></linearGradient>
+    </defs>
+    <g stroke="var(--fig-muted)" stroke-width="1" opacity="0.7">
+      <line x1="44" y1="44" x2="44" y2="52"/><line x1="616" y1="44" x2="616" y2="52"/><line x1="44" y1="44" x2="616" y2="44"/>
+    </g>
+    <text x="330" y="34" text-anchor="middle" fill="var(--fig-muted)" font-size="11" letter-spacing="0.04em">APM 캐시 span = 여섯 단계 전체 (클라이언트 대기 포함)</text>
+    <g stroke="var(--fig-surface)" stroke-width="2">
+      <rect x="44"  y="60" width="0" height="46" rx="2" fill="url(#e3-slate)"><animate attributeName="width" values="0;34"  dur="0.4s" begin="0.1s"  fill="freeze"/></rect>
+      <rect x="78"  y="60" width="0" height="46" rx="2" fill="url(#e3-slate)"><animate attributeName="width" values="0;40"  dur="0.4s" begin="0.25s" fill="freeze"/></rect>
+      <rect x="118" y="60" width="0" height="46" rx="2" fill="url(#e3-red)" filter="url(#fx-soft)"><animate attributeName="width" values="0;380" dur="0.7s" begin="0.4s" fill="freeze"/></rect>
+      <rect x="498" y="60" width="0" height="46" rx="2" fill="url(#e3-slate)"><animate attributeName="width" values="0;40"  dur="0.4s" begin="0.7s"  fill="freeze"/></rect>
+      <rect x="538" y="60" width="0" height="46" rx="2" fill="url(#e3-green)"><animate attributeName="width" values="0;32"  dur="0.4s" begin="0.85s" fill="freeze"/></rect>
+      <rect x="570" y="60" width="0" height="46" rx="2" fill="url(#e3-slate)"><animate attributeName="width" values="0;46"  dur="0.4s" begin="1.0s"  fill="freeze"/></rect>
+    </g>
+    <rect x="118" y="60" width="380" height="46" rx="2" fill="none" stroke="var(--c-red)" stroke-width="0" opacity="0.9">
+      <animate attributeName="stroke-width" values="0;2;0;2" keyTimes="0;0.34;0.67;1" dur="2.6s" begin="1.4s" repeatCount="indefinite"/>
+    </rect>
+    <text x="308" y="130" text-anchor="middle" fill="var(--c-redink)" font-size="12" font-weight="700">클라이언트 큐 대기 = 5.68초가 쌓인 곳</text>
+    <text x="330" y="154" text-anchor="middle" fill="var(--c-greenink)" font-size="11.5" font-weight="700">가장 작은 칸(명령 실행)이 실제 Redis 작업, 약 0.2ms</text>
+    <text x="330" y="182" text-anchor="middle" fill="var(--fig-muted)" font-size="10.5">칸 순서: 앱 대기 · 커넥션 획득 · 클라이언트 큐 대기 · 네트워크 · 명령 실행 · 역직렬화</text>
+  </svg>
+  <figcaption>APM "캐시 span"은 여섯 단계 전체를 잰다. 5.68초는 <b>클라이언트 큐 대기</b>에서 쌓였다. "Redis가 느리다"는 상상 속의 <b>명령 실행</b>은 0.2ms로 가장 작은 칸이었다.</figcaption>
+</figure>
 
-그동안 발송 경로가 캐시를 읽으려고 `HGET`을 보내면 그 명령은 **재적재 명령들 뒤에 줄을 섭니다.**  
-앞의 수십만 개가 빠질 때까지 기다려요. 이게 head-of-line blocking입니다. 커넥션이 하나라 앞이 막히면 뒤는 무조건 기다립니다.
+## 후보는 이 순서로 지워졌다
 
+| 단계 | 확인한 것 | 결과 |
+|---|---|---|
+| 같은 클러스터 타 서비스 P95 | 다른 서비스는 1.44ms | 클러스터 전반 장애의 우선순위를 낮춤 |
+| 5.68초가 무엇의 시간인지 | APM 의존성 span(호출~응답, 클라이언트 대기 포함) | 서버 명령 시간만이 아님 |
+| 시간대 패턴 | 3시간 주기 스파이크, 정오 정각 급증 | 주기 작업과 겹침 |
+| 명령 종류 분해 | 1주 20.9M 요청 중 DEL 10.2M + HMSET 8.64M = 약 90%(건수 기준) | 실사용 읽기가 아니라 재동기화 |
+| 클라이언트 커넥션 구조 | 공유 커넥션 1개로 직렬 전송 | 재동기화가 발송 읽기 앞을 막음 |
 
-여기가 다른 서비스와 갈린 지점이에요. head-of-line이 **서버 쪽**이었다면 같은 Redis를 쓰는 다른 서비스도 같이 느렸어야 합니다. 그런데 다른 서비스는 1.44ms로 멀쩡했어요.  
-그러니 병목은 Redis 서버가 아니라 **이 서비스가 쥔 커넥션 안**이었습니다. 자기 커넥션을 자기가 막은 거예요.
+## 발송 HGET은 자기 재적재 뒤에 줄을 섰다
 
-여기에 하나 더. 재적재는 **파이프라이닝 없이** 사용자당 명령 네 개(delete 2 + add 1 + set 1)를 하나씩, 응답을 받고 다음을 보내는 식으로 처리했어요.  
-파이프라이닝이 없으면 명령 N개는 곧 **왕복(RTT) N번**입니다. 왕복이 0.2ms라도 수십만 번이면 수십 초예요. 파이프라인으로 묶으면 왕복 한두 번으로 줄어듭니다. 자릿수가 바뀌어요.
+Lettuce(자바 Redis 클라이언트)는 기본적으로 커넥션 하나를 여러 스레드가 나눠 쓴다. 보통은 문제가 되지 않는다.
+Redis 서버는 명령을 한 줄로(single-thread) 처리하고 Lettuce는 응답을 기다리지 않고 명령을 연달아 밀어 넣는다(pipelining). 커넥션 하나로도 처리량이 충분한 이유다.
 
-## 무엇으로 확정했나
+문제는 그 커넥션 하나에 누가 얼마나 밀어 넣느냐다.
 
-네 증거가 한 점을 가리킵니다.
+이 서비스의 스케줄러는 3시간마다 전 사용자 캐시를 `DEL`로 통째로 지우고 `HMSET`으로 다시 넣는다.
+한 번에 33만 개 명령(DEL 약 18만 + HMSET 약 15만)이 그 공유 커넥션 한 줄에 쏟아진다. 1주 전체 Redis 요청의 90%가 이 재적재였다. 실사용 읽기가 아니라 안전망이 스스로 만든 트래픽이다.
+
+그동안 발송 경로가 캐시를 읽으려고 `HGET`을 보내면 그 명령은 재적재 명령들 뒤에 줄을 선다.
+앞의 수십만 개가 빠질 때까지 기다린다. 이것이 head-of-line blocking이다. 커넥션이 하나라 앞이 막히면 뒤는 예외 없이 기다리는 구조다.
+
+다른 서비스와 갈린 지점이 여기다. head-of-line이 서버 쪽이었다면 같은 Redis를 쓰는 다른 서비스도 같이 느려야 한다. 다른 서비스는 1.44ms로 멀쩡했다.
+병목은 Redis 서버가 아니라 이 서비스가 쥔 커넥션 안이다. 자기 커넥션을 자기가 막은 구조다.
+
+하나 더 있다. 재적재는 파이프라이닝 없이 사용자당 명령 네 개(delete 2 + add 1 + set 1)를 하나씩, 응답을 받고 다음을 보내는 식으로 처리한다.
+파이프라이닝이 없으면 명령 N개는 곧 왕복(RTT) N번이다. 왕복이 0.2ms라도 수십만 번이면 수십 초다. 파이프라인으로 묶으면 왕복 한두 번으로 줄고 자릿수가 바뀐다.
+
+## 무엇으로 확정됐나
+
+네 증거가 한 점을 가리킨다.
 
 - **한 서비스만 느림.** 다른 서비스는 1.44ms. Redis 서버 전반 장애가 아니다.
 - **명령의 90%가 재적재.** 1주 20.9M 요청 중 DEL 10.2M + HMSET 8.64M. 실사용이 아니라 안전망 트래픽이다.
 - **스파이크 시각이 재적재 cron과 일치.** 3시간 주기, 정오 정각 급증.
 - **커넥션이 하나.** 공유 커넥션이라 앞이 막히면 뒤가 대기한다.
 
-그래서 이건 정황이 아니라 구조입니다.  
-**5.68초는 Redis가 느린 게 아니라, 이 서비스의 발송 HGET이 자기 재적재 뒤에서 기다린 시간이에요.** "캐시가 느리다"가 아니라 "내가 내 커넥션을 막았다".
+정황이 아니라 구조다.
+5.68초는 Redis가 느린 시간이 아니라 이 서비스의 발송 HGET이 자기 재적재 뒤에서 기다린 시간이다. "캐시가 느리다"가 아니라 "내가 내 커넥션을 막았다".
 
-## 무엇을 바꿨나
+## 무엇이 바뀌나
 
-원인이 구조라 조치도 구조로 갑니다. 순서가 중요해요.
+원인이 구조라 조치도 구조로 간다. 순서가 중요하다.
 
-- **발송 경로와 재적재 경로의 커넥션을 분리.** 발송 HGET이 재적재 뒤에 안 서게 전용 커넥션(또는 풀)을 씁니다. head-of-line을 끊는 가장 직접적인 수술이에요.
-- **전량 DEL+HMSET → 증분 갱신.** 바뀐 것만 갱신하면 33만 개 명령이 애초에 안 생깁니다.
-- **resetPushList 파이프라이닝.** 사용자당 네 왕복을 한 배치로 묶어 왕복 수를 자릿수로 줄였어요.
-- **재적재 cron을 발송 피크(정오)와 분리.** 겹침만 없애는 완화책이에요. 위 셋의 임시 방편.
-- **commandTimeout 60초 → 10초 + 예외 시 DB 폴백.** 캐시가 막혀도 빨리 포기하고 DB로 갑니다. timeout만 줄이면 "빨리 실패"할 뿐이라, 폴백이 있어야 처리량이 안 무너져요.
+- **발송 경로와 재적재 경로의 커넥션 분리.** 발송 HGET이 재적재 뒤에 서지 않게 전용 커넥션(또는 풀)을 쓴다. head-of-line을 끊는 가장 직접적인 수술이다.
+- **전량 DEL+HMSET에서 증분 갱신으로.** 바뀐 것만 갱신하면 33만 개 명령이 애초에 생기지 않는다.
+- **resetPushList 파이프라이닝.** 사용자당 네 왕복을 한 배치로 묶어 왕복 수를 자릿수로 줄인다.
+- **재적재 cron을 발송 피크(정오)와 분리.** 겹침만 없애는 완화책이다. 위 셋의 임시 방편.
+- **commandTimeout 60초에서 10초로 + 예외 시 DB 폴백.** 캐시가 막혀도 빨리 포기하고 DB로 간다. timeout만 줄이면 빨리 실패할 뿐이라 폴백이 있어야 처리량이 무너지지 않는다.
 
-## 고치고 다시 재보니
+다시 잰 결과는 이렇다.
+정상 상태 캐시 조회는 원래 0.2ms대(HGET 약 100~200µs)다. 5.68초는 그 2만 배가 넘는다. 커넥션 분리와 cron 분리로 정오 발송과 재적재의 충돌은 사라졌다. 증분 갱신은 구조 변경이라 후속으로 남았고, 이것이 없는 한 33만 개 명령은 여전히 어딘가에서 돈다.
 
-- 정상 상태 캐시 조회는 원래 **0.2ms**대(HGET 약 100~200µs)였어요. 5.68초는 그 2만 배가 넘습니다. 눈금이 정상으로 돌아온다는 건 이 0.2ms대로 붙는다는 뜻이에요.
-- 커넥션 분리와 cron 분리로 정오 발송과 재적재의 충돌은 사라졌습니다.
-- 증분 갱신은 구조 변경이라 후속으로 뒀어요. 이게 없으면 33만 개 명령은 여전히 어딘가에서 돕니다.
+닫지 못한 숫자도 남긴다. 수정 후 "5.68초에서 몇 ms"를 이 글은 단일 숫자로 못 박지 않는다.
+커넥션이 분리되면 발송 HGET은 재적재와 섞이지 않으니 정상 기준선(0.2ms)에 붙는 것이 맞다. 다만 전량 재적재 구조가 남아 있는 한 재적재 커넥션 자체의 스파이크는 남는다. 여기까지가 이 글이 닫는 선이다.
 
-솔직히 하나 남깁니다. 수정 후 "5.68초 → 몇 ms"를 이 글에서 단일 숫자로 못 박진 않아요.  
-커넥션을 분리하면 발송 HGET은 재적재와 안 섞이니 정상 기준선(0.2ms)에 붙는 게 맞아요. 다만 전량 재적재 구조가 남아 있는 한 재적재 커넥션 자체의 스파이크는 남습니다. 여기까지가 이 글이 정직하게 닫는 선이에요.
+## 이 지표로도 알 수 없는 것
 
-## 이 지표로는 알 수 없는 것
-
-- P95 span 하나로는 서버 명령 시간과 클라이언트 대기 시간을 못 나눕니다. 둘을 갈라 보려면 Redis command latency와 커넥션 대기(pending)를 따로 계측해야 해요. 그게 있었으면 "5.68초 중 몇 ms가 서버, 몇 초가 대기"까지 한 번에 닫혔을 겁니다.
+- P95 span 하나로는 서버 명령 시간과 클라이언트 대기 시간을 나눌 수 없다. 둘을 갈라 보려면 Redis command latency와 커넥션 대기(pending)를 따로 계측해야 한다. 그것이 있었다면 "5.68초 중 몇 ms가 서버, 몇 초가 대기"까지 한 번에 닫혔을 것이다.
 
 > 캐시가 느리다는 지표는, 캐시 서버가 느리다는 뜻이 아닐 수 있다. 그 시간이 어디서 쌓였는지부터 나눠야 한다.
 
 ---
 
-세 편을 관통하는 문장은 하나입니다.  
-지표의 값이 이상하면 시스템을 의심하기 전에, 그 값이 무엇을 세고 어디서부터 어디까지 재는지부터 확인한다.  
-성공의 정의, lag의 경계, 캐시 P95의 계층. 셋 다 값이 아니라 정의를 읽는 이야기였어요.
+세 편을 관통하는 문장은 하나다.
+지표의 값이 이상하면 시스템을 의심하기 전에, 그 값이 무엇을 세고 어디서부터 어디까지 재는지부터 확인한다.
+성공의 정의, lag의 경계, 캐시 P95의 계층. 셋 다 값이 아니라 정의를 읽는 이야기다.

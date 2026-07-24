@@ -1,7 +1,7 @@
 ---
 title: "계기가 거짓말할 때 : Kafka lag 0은 무엇을 의미할까"
 date: 2026-02-25
-update: 2026-02-25
+update: 2026-07-24
 series: "계기가 거짓말할 때"
 tags:
 - 관측성
@@ -14,11 +14,10 @@ tags:
 
 > **TL;DR**
 >
-> 발송 지연 신고를 받고 봉투 뒷면에 계산했습니다. 1.1만 건 × 건당 1.5초 = 약 5시간.
-> 큐가 5시간 밀렸겠거니 하고 파티션 증설 견적을 냈어요.
+> 이 사건에서 중요한 건 파티션 증설이 아니었다. lag이 어디서부터 어디까지를 재는지였다.
 >
-> 그런데 실제 lag은 최대 12초, 대기 메시지 최대 1건이었습니다. 밀린 큐는 없었어요.
-> lag 0은 "느리지 않다"가 아니라 "쌓인 게 없다"에 가깝습니다.
+> 발송 지연 신고에 봉투 계산이 먼저 답했다. 1.1만 건 × 건당 1.5초 = 약 5시간. 큐가 5시간 밀렸다는 가설과 파티션 증설 견적이 나왔다.
+> 실측 lag은 최대 12초, 대기 메시지 최대 1건이었다. 밀린 큐는 없었다. lag 0은 "느리지 않다"가 아니라 "쌓인 게 없다"에 가깝다.
 
 ---
 
@@ -61,75 +60,17 @@ tags:
   </defs>
 </svg>
 
-## lag이라는 지표는 무엇을 재고 있었나
+## 봉투 계산은 5시간을 그렸다
 
-Kafka는 producer가 메시지를 broker의 파티션에 넣고, consumer가 순서대로 읽어 가는 구조입니다.  
-각 파티션에는 두 위치가 있어요. 가장 마지막에 들어온 메시지 위치(latest offset)와, consumer가 지금까지 읽은 위치(consumer offset).
+발송 대상 약 1.1만 건. "알림이 느리다"는 신고가 며칠째 이어졌다. 여기까지가 관측된 전부다. 지표는 아직 아무도 열지 않았다.
 
-- **offset lag** = 이 둘의 차이. 아직 안 읽은 메시지 수.
-- **time lag** = 가장 오래된 미소비 메시지가 얼마나 기다렸는가.
+첫 답은 봉투 뒷면 계산에서 나왔다.
+1.1만 건 × 건당 1.5초 = 약 5시간. 파티션이 1개라 consumer를 늘려도 처리량이 오르지 않는 구조이니, 큐가 5시간 밀렸다는 가설과 파티션 증설 견적이 따라왔다.
+곱셈은 측정이 아니다. 큐가 밀렸을 "경우"를 그린 그림이다.
 
-여기서 주의할 게 있어요. lag을 *어디서 재느냐*에 따라 달라집니다.  
-컨슈머가 읽어 간 위치(position)를 기준으로 하면 처리 중인 메시지는 이미 읽힌 뒤라 lag에 안 잡혀요.  
-반대로 커밋 오프셋을 기준으로 하면 처리한 뒤 커밋하는 흔한 설정에서는 처리 중 메시지도 lag에 남습니다.  
-Kafka 밖의 지연은 어느 쪽으로도 안 보여요. producer가 늦게 넣는 것, 벤더가 접수한 뒤 늦게 배송하는 것 모두요.
+## 계기는 12초를 가리켰다
 
-즉 lag은 "큐에 쌓여 대기 중인 양"을 재는 지표지, "전체 지연"을 재는 지표가 아니에요.
-
-<figure class="metric-fig">
-  <div class="cap-head"><span class="cap-tag">a message's life · what lag sees</span><span class="cap-tag">queue only</span></div>
-  <svg viewBox="0 0 660 196" role="img" aria-label="메시지 한 건이 네 단계를 지나는데 lag은 파티션 대기 구간 하나만 잰다. producer 투입 전, consumer 처리 중, 벤더 배송은 lag 사각지대다" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="e2-blue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--c-blue)"/><stop offset="1" stop-color="var(--c-blue)" stop-opacity="0.7"/></linearGradient>
-      <linearGradient id="e2-slate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--fig-baseline)"/><stop offset="1" stop-color="var(--fig-baseline)" stop-opacity="0.55"/></linearGradient>
-    </defs>
-    <g stroke="var(--c-blue)" stroke-width="1.2">
-      <line x1="174" y1="52" x2="174" y2="60"/><line x1="374" y1="52" x2="374" y2="60"/><line x1="174" y1="52" x2="374" y2="52"/>
-    </g>
-    <text x="274" y="42" text-anchor="middle" fill="var(--c-blueink)" font-size="11" font-weight="700">lag이 재는 유일한 구간</text>
-    <g stroke="var(--fig-surface)" stroke-width="2">
-      <rect x="44"  y="64" width="130" height="44" rx="2" fill="url(#e2-slate)"/>
-      <rect x="174" y="64" width="200" height="44" rx="2" fill="url(#e2-blue)"/>
-      <rect x="374" y="64" width="120" height="44" rx="2" fill="url(#e2-slate)"/>
-      <rect x="494" y="64" width="122" height="44" rx="2" fill="url(#e2-slate)"/>
-    </g>
-    <g font-size="13" font-weight="700" text-anchor="middle">
-      <text x="274" y="91" fill="#ffffff" font-size="11">lag</text>
-    </g>
-    <circle r="5" fill="var(--c-blue)" filter="url(#fx-glow)">
-      <animateMotion path="M50 86 L610 86" dur="4s" repeatCount="indefinite"/>
-      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.1;0.9;1" dur="4s" repeatCount="indefinite"/>
-    </circle>
-    <g font-size="11" text-anchor="middle" fill="var(--fig-muted)">
-      <text x="109" y="128">producer 투입 전</text>
-      <text x="274" y="128" fill="var(--c-blueink)" font-weight="700">파티션 대기</text>
-      <text x="434" y="128">consumer 처리 중</text>
-      <text x="555" y="128">벤더 배송</text>
-    </g>
-    <text x="330" y="166" text-anchor="middle" fill="var(--fig-muted)" font-size="10.5">파티션 대기만 lag(offset · time)에 잡힌다. 나머지 세 구간은 lag 사각지대.</text>
-  </svg>
-  <figcaption>메시지 한 건은 네 구간을 지난다. lag이 재는 건 <b>파티션 대기</b> 하나뿐이다. producer 투입 전, consumer가 이미 읽어 처리 중, 벤더 접수 후 배송의 지연은 lag에 보이지 않는다.</figcaption>
-</figure>
-
-## 그날 관측된 것
-
-사실만 적습니다.
-
-- 발송 대상 약 1.1만 건.
-- "알림이 느리다"는 신고가 며칠째.
-
-여기까지는 신고뿐이에요. 지표를 아직 안 봤습니다.
-
-## 처음엔 큐가 5시간 밀렸다고 봤다
-
-머릿속 어림 계산(흔히 "봉투 뒷면 계산")부터 했어요.  
-1.1만 건 × 건당 1.5초 = 약 5시간. 파티션이 1개라 consumer를 늘려도 처리량이 안 오르니, 큐가 5시간 밀렸겠거니 했습니다.
-
-이건 가설입니다. 곱셈이지 측정이 아니에요.
-
-## 후보를 지운 순서
-
-곱셈을 믿는 대신 lag 지표를 열었습니다.
+곱셈 대신 lag 지표를 열면 다른 그림이 나온다.
 
 | 단계 | 확인한 것 | 결과 |
 |---|---|---|
@@ -182,37 +123,84 @@ Kafka 밖의 지연은 어느 쪽으로도 안 보여요. producer가 늦게 넣
   <figcaption>같은 지점에서 출발한 두 선. 위는 <b>건수 x 건당시간</b>이 그린 추정, 아래는 컨슈머가 실제로 보고한 지연. 두 선의 벌어짐이 곧 잘못된 견적의 크기다.</figcaption>
 </figure>
 
-곱셈은 큐가 밀렸을 "경우"를 그린 그림입니다. lag은 실제로 밀린 양을 잰 값이고요.  
-둘이 이만큼 벌어졌다는 건, 봉투 계산이 애초에 없는 백로그를 상상했다는 뜻이에요.  
-(참고로 "대기 1건"과 "time lag 12초"는 같은 순간의 값이 아니라 각각의 최댓값입니다. 12초는 리밸런싱 같은 순간의 1회 스파이크였어요.)
+두 선의 간극이 곧 봉투 계산이 상상한 백로그의 크기다. 밀린 큐는 처음부터 없었다.
+(참고로 "대기 1건"과 "time lag 12초"는 같은 순간의 값이 아니라 각각의 최댓값이다. 12초는 리밸런싱 같은 순간의 1회 스파이크였다.)
 
-## 무엇으로 확정했나
+## lag은 어디를 재고 있나
 
-여기까지만 말할 수 있습니다.
+12초와 5시간의 간극을 설명하려면 lag이 재는 구간의 경계가 필요하다.
 
-- **측정된 구간에서 Kafka backlog는 이 지연의 원인이 아니었다.**
+Kafka는 producer가 메시지를 broker의 파티션에 넣고 consumer가 순서대로 읽어 가는 구조다.
+각 파티션에는 두 위치가 있다. 가장 마지막에 들어온 메시지 위치(latest offset)와 consumer가 지금까지 읽은 위치(consumer offset).
 
-파티션이 1개라 consumer를 늘려도 처리량이 안 오르는 구조는 맞아요. 그런데 밀린 큐 자체가 없었으니, 그건 지금 풀 문제가 아니었습니다.  
-그날 "안 온" 것의 상당수는 앞 편에서 본 삼켜진 실패였어요. "느리게 느껴진" 부분이 남았다면, 그건 Kafka 구간이 아니라 벤더 접수 후 배송처럼 lag 사각지대에 있을 가능성이 큽니다. 이 편이 확정한 건 "Kafka backlog는 아니다"까지예요.
+- **offset lag** = 이 둘의 차이. 아직 안 읽은 메시지 수.
+- **time lag** = 가장 오래된 미소비 메시지가 얼마나 기다렸는가.
 
-## 무엇을 바꿨나
+측정 위치에 따라 값도 달라진다.
+컨슈머가 읽어 간 위치(position)를 기준으로 하면 처리 중인 메시지는 이미 읽힌 뒤라 lag에 잡히지 않는다.
+커밋 오프셋을 기준으로 하면 처리한 뒤 커밋하는 흔한 설정에서 처리 중 메시지도 lag에 남는다.
+그리고 Kafka 밖의 지연은 어느 쪽으로도 보이지 않는다. producer가 늦게 넣는 것, 벤더가 접수한 뒤 늦게 배송하는 것 모두.
 
-- 근거 없는 파티션 증설을 보류했습니다. 지표가 불필요한 조치 하나를 막았어요.
-- 진짜 원인(발송 성공 판정)은 1편에서 고쳤습니다.
-- lag(offset·time)을 발송 대시보드에 상시 지표로 올렸습니다.
+<figure class="metric-fig">
+  <div class="cap-head"><span class="cap-tag">a message's life · what lag sees</span><span class="cap-tag">queue only</span></div>
+  <svg viewBox="0 0 660 196" role="img" aria-label="메시지 한 건이 네 단계를 지나는데 lag은 파티션 대기 구간 하나만 잰다. producer 투입 전, consumer 처리 중, 벤더 배송은 lag 사각지대다" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="e2-blue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--c-blue)"/><stop offset="1" stop-color="var(--c-blue)" stop-opacity="0.7"/></linearGradient>
+      <linearGradient id="e2-slate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--fig-baseline)"/><stop offset="1" stop-color="var(--fig-baseline)" stop-opacity="0.55"/></linearGradient>
+    </defs>
+    <g stroke="var(--c-blue)" stroke-width="1.2">
+      <line x1="174" y1="52" x2="174" y2="60"/><line x1="374" y1="52" x2="374" y2="60"/><line x1="174" y1="52" x2="374" y2="52"/>
+    </g>
+    <text x="274" y="42" text-anchor="middle" fill="var(--c-blueink)" font-size="11" font-weight="700">lag이 재는 유일한 구간</text>
+    <g stroke="var(--fig-surface)" stroke-width="2">
+      <rect x="44"  y="64" width="130" height="44" rx="2" fill="url(#e2-slate)"/>
+      <rect x="174" y="64" width="200" height="44" rx="2" fill="url(#e2-blue)"/>
+      <rect x="374" y="64" width="120" height="44" rx="2" fill="url(#e2-slate)"/>
+      <rect x="494" y="64" width="122" height="44" rx="2" fill="url(#e2-slate)"/>
+    </g>
+    <g font-size="13" font-weight="700" text-anchor="middle">
+      <text x="274" y="91" fill="#ffffff" font-size="11">lag</text>
+    </g>
+    <circle r="5" fill="var(--c-blue)" filter="url(#fx-glow)">
+      <animateMotion path="M50 86 L610 86" dur="4s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.1;0.9;1" dur="4s" repeatCount="indefinite"/>
+    </circle>
+    <g font-size="11" text-anchor="middle" fill="var(--fig-muted)">
+      <text x="109" y="128">producer 투입 전</text>
+      <text x="274" y="128" fill="var(--c-blueink)" font-weight="700">파티션 대기</text>
+      <text x="434" y="128">consumer 처리 중</text>
+      <text x="555" y="128">벤더 배송</text>
+    </g>
+    <text x="330" y="166" text-anchor="middle" fill="var(--fig-muted)" font-size="10.5">파티션 대기만 lag(offset · time)에 잡힌다. 나머지 세 구간은 lag 사각지대.</text>
+  </svg>
+  <figcaption>메시지 한 건은 네 구간을 지난다. lag이 재는 건 <b>파티션 대기</b> 하나뿐이다. producer 투입 전, consumer가 이미 읽어 처리 중, 벤더 접수 후 배송의 지연은 lag에 보이지 않는다.</figcaption>
+</figure>
 
-## 고치고 다시 재보니
+lag은 "큐에 쌓여 대기 중인 양"을 재는 지표지 "전체 지연"을 재는 지표가 아니다. 봉투 계산은 전자를 후자로 읽은 셈이다.
 
-- 평시 offset lag은 0 근처, time lag 최대 12초 그대로.
-- 월말 월간 리포트 1.1만 건 버스트 때 time lag 최대 약 10분. 봉투 계산의 5시간과는 자릿수가 다릅니다.
-- 파티션은 늘리지 않았습니다. 발송은 정상으로 돌아왔어요.
+## 확정한 것과 확정하지 못한 것
 
-## 이 지표로는 알 수 없는 것
+이 측정이 확정하는 것은 한 줄이다. **측정된 구간에서 Kafka backlog는 이 지연의 원인이 아니다.**
 
-- lag 0은 "시스템 전체에 지연이 없다"가 아니라 "소비되지 않고 대기 중인 메시지가 없다"에 가깝습니다.
-- Kafka 투입 전(producer 지연)과 벤더 접수 후(벤더 배송 지연)의 지연은 이 지표로 판단할 수 없어요.
-- lag 수집 주기가 짧으면 순간 스파이크를 놓칠 수 있습니다.
+파티션이 1개라 consumer를 늘려도 처리량이 오르지 않는 구조는 사실이다. 그런데 밀린 큐 자체가 없으니 그것은 지금 풀 문제가 아니다.
+그날 "안 온" 것의 상당수는 앞 편의 삼켜진 실패였다. "느리게 느껴진" 부분이 남았다면 그것은 Kafka 구간이 아니라 벤더 접수 후 배송처럼 lag 사각지대에 있을 가능성이 크다. 이 편이 닫는 선은 "Kafka backlog는 아니다"까지다.
+
+## 무엇이 바뀌었나
+
+- 근거 없던 파티션 증설이 보류됐다. 지표 하나가 불필요한 조치 하나를 막았다.
+- 진짜 원인(발송 성공 판정)은 1편에서 고쳐졌다.
+- lag(offset과 time)은 발송 대시보드의 상시 지표가 됐다.
+
+다시 잰 결과는 이렇다. 평시 offset lag은 0 근처, time lag 최대 12초 그대로. 월말 월간 리포트 1.1만 건 버스트 때 time lag 최대 약 10분. 봉투 계산의 5시간과는 자릿수가 다르다. 파티션은 늘리지 않았고 발송은 정상으로 돌아왔다.
+
+측정할 수 있는 값을 곱셈으로 추정하지 않는다. 봉투 계산은 가설을 만들 때까지만 쓰고 결정은 계기가 한다.
+
+## 이 지표로도 알 수 없는 것
+
+- lag 0은 "시스템 전체에 지연이 없다"가 아니라 "소비되지 않고 대기 중인 메시지가 없다"에 가깝다.
+- Kafka 투입 전(producer 지연)과 벤더 접수 후(벤더 배송 지연)의 지연은 이 지표로 판단할 수 없다.
+- lag 수집 주기가 길면 순간 스파이크를 놓칠 수 있다.
 
 > lag 0은 밀린 게 없다는 뜻이지, 느리지 않다는 뜻이 아니다.
 
-다음 편은 캐시입니다. Redis P95가 5.68초로 찍혔어요. 그게 정말 Redis가 느린 걸까요.
+다음 편은 캐시다. Redis P95가 5.68초로 찍혔다. 그것이 정말 Redis가 느린 시간인지가 문제다.
