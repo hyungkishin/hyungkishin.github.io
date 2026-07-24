@@ -432,17 +432,22 @@ error로 막고 싶었다.
     <span class="token keyword">classDef</span> bad <span class="token style"><span class="token property">fill</span><span class="token operator">:</span>#e94560<span class="token punctuation">,</span><span class="token property">color</span><span class="token operator">:</span>#ffffff<span class="token punctuation">,</span><span class="token property">stroke</span><span class="token operator">:</span>#e0e0e0</span>
     <span class="token keyword">classDef</span> step <span class="token style"><span class="token property">fill</span><span class="token operator">:</span>#16213e<span class="token punctuation">,</span><span class="token property">color</span><span class="token operator">:</span>#e0e0e0<span class="token punctuation">,</span><span class="token property">stroke</span><span class="token operator">:</span>#e0e0e0</span>
 
-    <span class="token text string">[*]</span> <span class="token arrow operator">--></span> 커밋시도<span class="token operator">:</span> 🧪 깨진 코드 staged
-    커밋시도 <span class="token arrow operator">--></span> 게이트<span class="token operator">:</span> pre-commit 훅
-    게이트 <span class="token arrow operator">--></span> 차단<span class="token operator">:</span> ❌ error 2건
-    게이트 <span class="token arrow operator">--></span> 통과<span class="token operator">:</span> ✅ 깨끗함
-    차단 <span class="token arrow operator">--></span> <span class="token text string">[*]</span><span class="token operator">:</span> 🛑 HEAD 그대로
-    통과 <span class="token arrow operator">--></span> <span class="token text string">[*]</span><span class="token operator">:</span> 커밋 완료
+    <span class="token keyword">state</span> <span class="token string">"커밋 시도"</span> as tryCommit
+    <span class="token keyword">state</span> <span class="token string">"게이트"</span> as gate
+    <span class="token keyword">state</span> <span class="token string">"차단"</span> as blocked
+    <span class="token keyword">state</span> <span class="token string">"통과"</span> as passed
 
-    <span class="token keyword">class</span> 통과 ok
-    <span class="token keyword">class</span> 차단 bad
-    <span class="token keyword">class</span> 커밋시도 step
-    <span class="token keyword">class</span> 게이트 step</code></pre></div>
+    <span class="token text string">[*]</span> <span class="token arrow operator">--></span> tryCommit<span class="token operator">:</span> 🧪 깨진 코드 staged
+    tryCommit <span class="token arrow operator">--></span> gate<span class="token operator">:</span> pre-commit 훅
+    gate <span class="token arrow operator">--></span> blocked<span class="token operator">:</span> ❌ error 2건
+    gate <span class="token arrow operator">--></span> passed<span class="token operator">:</span> ✅ 깨끗함
+    blocked <span class="token arrow operator">--></span> <span class="token text string">[*]</span><span class="token operator">:</span> 🛑 HEAD 그대로
+    passed <span class="token arrow operator">--></span> <span class="token text string">[*]</span><span class="token operator">:</span> 커밋 완료
+
+    <span class="token keyword">class</span> passed ok
+    <span class="token keyword">class</span> blocked bad
+    <span class="token keyword">class</span> tryCommit step
+    <span class="token keyword">class</span> gate step</code></pre></div>
 <p>결과는 기대한 대로였다.
 <code class="language-text">eslint --fix</code>가 못 고치는 error 두 건에서 커밋이 멈췄다.
 HEAD는 그대로였다.
@@ -494,6 +499,6 @@ AI가 짜준 코드도 머지하면 내 코드다.
           <script
             id="gatsby-chunk-mapping"
           >
-            window.___chunkMapping="{\"app\":[\"/app-98b685c25b0e02e65e40.js\"],\"component---src-pages-404-jsx\":[\"/component---src-pages-404-jsx-d2f58d66980a09598a25.js\"],\"component---src-pages-index-jsx\":[\"/component---src-pages-index-jsx-d394ff73e3b6ff796e6d.js\"],\"component---src-pages-search-jsx\":[\"/component---src-pages-search-jsx-dc937fc913761be1d619.js\"],\"component---src-pages-tags-jsx\":[\"/component---src-pages-tags-jsx-81dad5c1e2343d75ae70.js\"],\"component---src-templates-post-jsx\":[\"/component---src-templates-post-jsx-a8272ba7a237056e8e97.js\"],\"component---src-templates-resume-jsx\":[\"/component---src-templates-resume-jsx-b27a5e8c62e05f6723d4.js\"],\"component---src-templates-series-index-jsx\":[\"/component---src-templates-series-index-jsx-4f6728ce84cd3b306ed2.js\"]}";
+            window.___chunkMapping="{\"app\":[\"/app-98b685c25b0e02e65e40.js\"],\"component---src-pages-404-jsx\":[\"/component---src-pages-404-jsx-d2f58d66980a09598a25.js\"],\"component---src-pages-index-jsx\":[\"/component---src-pages-index-jsx-d394ff73e3b6ff796e6d.js\"],\"component---src-pages-search-jsx\":[\"/component---src-pages-search-jsx-dc937fc913761be1d619.js\"],\"component---src-pages-tags-jsx\":[\"/component---src-pages-tags-jsx-81dad5c1e2343d75ae70.js\"],\"component---src-templates-post-jsx\":[\"/component---src-templates-post-jsx-056cd23aff61d9b2be3a.js\"],\"component---src-templates-resume-jsx\":[\"/component---src-templates-resume-jsx-b27a5e8c62e05f6723d4.js\"],\"component---src-templates-series-index-jsx\":[\"/component---src-templates-series-index-jsx-4f6728ce84cd3b306ed2.js\"]}";
           </script>
-        <script>window.___webpackCompilationHash="4a07ddd1e3706cddaeaf";</script><script src="/webpack-runtime-aee070b915465e641032.js" async></script><script src="/framework-7470c203f27921ce9fc2.js" async></script><script src="/app-98b685c25b0e02e65e40.js" async></script><!-- slice-end id="_gatsby-scripts-1" --></body></html>
+        <script>window.___webpackCompilationHash="1cf65f35b44e9a08a2cb";</script><script src="/webpack-runtime-f33d2ee35d04ba94ed7a.js" async></script><script src="/framework-7470c203f27921ce9fc2.js" async></script><script src="/app-98b685c25b0e02e65e40.js" async></script><!-- slice-end id="_gatsby-scripts-1" --></body></html>
