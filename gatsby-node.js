@@ -19,6 +19,9 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
           fields {
             slug
           }
+          frontmatter {
+            series
+          }
         }
       }
       tagsGroup: allMarkdownRemark(limit: 2000) {
@@ -41,9 +44,28 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
 
   // 각 글 페이지 생성
   if (posts.length > 0) {
+    // 시리즈 글의 이전/다음은 같은 시리즈 안에서 잇는다. 일반 글은 시간순 그대로.
+    const seriesGroups = {}
+    posts.forEach(post => {
+      const seriesName = post.frontmatter && post.frontmatter.series
+      if (!seriesName) return
+      if (!seriesGroups[seriesName]) seriesGroups[seriesName] = []
+      seriesGroups[seriesName].push(post)
+    })
+
     posts.forEach((post, index) => {
-      const previousPostId = index === 0 ? null : posts[index - 1].id
-      const nextPostId = index === posts.length - 1 ? null : posts[index + 1].id
+      const seriesName = (post.frontmatter && post.frontmatter.series) || null
+      let previousPostId = index === 0 ? null : posts[index - 1].id
+      let nextPostId = index === posts.length - 1 ? null : posts[index + 1].id
+
+      if (seriesName) {
+        const group = seriesGroups[seriesName]
+        const seriesIndex = group.findIndex(p => p.id === post.id)
+        previousPostId = seriesIndex > 0 ? group[seriesIndex - 1].id : null
+        nextPostId =
+          seriesIndex < group.length - 1 ? group[seriesIndex + 1].id : null
+      }
+
       const isResume = post.fields.slug === "/resume/"
 
       createPage({
@@ -51,6 +73,8 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
         component: isResume ? resumeTemplate : postTemplate,
         context: {
           id: post.id,
+          series: seriesName,
+          seriesNav: Boolean(seriesName),
           previousPostId,
           nextPostId,
         },

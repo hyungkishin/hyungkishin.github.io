@@ -130,14 +130,14 @@ const HiddenWrapper = styled.div`
   overflow: ${props => (props.$isHidden ? "hidden" : "auto")};
 `
 
-const ArticleButton = ({ right, children, onClick }) => {
+const ArticleButton = ({ right, children, onClick, label }) => {
   return (
     <ArticleButtonWrapper $right={right} onClick={onClick}>
       <ArrowFlexWrapper>
         <Arrow>{right ? <BiRightArrowAlt /> : <BiLeftArrowAlt />}</Arrow>
         <ArticleButtonTextWrapper>
           <ArticleButtonLabel>
-            {right ? <>Next Post</> : <>Previous Post</>}
+            {label || (right ? <>Next Post</> : <>Previous Post</>)}
           </ArticleButtonLabel>
           <ArticleButtonTitle>{children}</ArticleButtonTitle>
         </ArticleButtonTextWrapper>
@@ -190,19 +190,26 @@ const Comment = () => {
   )
 }
 
-const Footer = ({ previous, next }) => {
+const Footer = ({ previous, next, seriesNav }) => {
   return (
     <>
       <ArticleButtonContainer>
         {previous ? (
-          <ArticleButton onClick={() => navigate(previous?.fields?.slug)}>
+          <ArticleButton
+            onClick={() => navigate(previous?.fields?.slug)}
+            label={seriesNav ? "시리즈 이전 편" : undefined}
+          >
             {previous?.frontmatter?.title}
           </ArticleButton>
         ) : (
           <div></div>
         )}
         {next && (
-          <ArticleButton right onClick={() => navigate(next?.fields?.slug)}>
+          <ArticleButton
+            right
+            onClick={() => navigate(next?.fields?.slug)}
+            label={seriesNav ? "시리즈 다음 편" : undefined}
+          >
             {next?.frontmatter?.title}
           </ArticleButton>
         )}

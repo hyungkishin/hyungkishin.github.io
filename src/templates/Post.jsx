@@ -7,7 +7,7 @@ import Article from "components/Article"
 
 import { siteUrl } from "../../blog-config"
 
-const Post = ({ data }) => {
+const Post = ({ data, pageContext }) => {
   const post = data.markdownRemark
   const { previous, next, seriesList } = data
 
@@ -54,7 +54,11 @@ const Post = ({ data }) => {
           <Article.Series header={series} series={filteredSeries} />
         )}
         <Article.Body html={post.html} />
-        <Article.Footer previous={previous} next={next} />
+        <Article.Footer
+          previous={previous}
+          next={next}
+          seriesNav={pageContext.seriesNav}
+        />
       </Article>
     </Layout>
   )
