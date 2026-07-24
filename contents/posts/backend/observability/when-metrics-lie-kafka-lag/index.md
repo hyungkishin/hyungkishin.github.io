@@ -75,6 +75,44 @@ Kafka 밖의 지연도 lag에는 보이지 않습니다. producer가 늦게 넣�
 
 즉 lag은 "큐에 쌓여 대기 중인 양"을 재는 지표지, "전체 지연"을 재는 지표가 아니에요.
 
+<figure class="metric-fig">
+  <div class="cap-head"><span class="cap-tag">a message's life · what lag sees</span><span class="cap-tag">only ②</span></div>
+  <svg viewBox="0 0 660 196" role="img" aria-label="메시지 한 건이 네 단계를 지나는데 lag은 파티션 대기 구간 하나만 잰다. producer 투입 전, consumer 처리 중, 벤더 배송은 lag 사각지대다" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="e2-blue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--c-blue)"/><stop offset="1" stop-color="var(--c-blue)" stop-opacity="0.7"/></linearGradient>
+      <linearGradient id="e2-slate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--fig-baseline)"/><stop offset="1" stop-color="var(--fig-baseline)" stop-opacity="0.55"/></linearGradient>
+    </defs>
+    <g stroke="var(--c-blue)" stroke-width="1.2">
+      <line x1="174" y1="52" x2="174" y2="60"/><line x1="374" y1="52" x2="374" y2="60"/><line x1="174" y1="52" x2="374" y2="52"/>
+    </g>
+    <text x="274" y="42" text-anchor="middle" fill="var(--c-blueink)" font-size="11" font-weight="700">lag이 재는 유일한 구간</text>
+    <g stroke="var(--fig-surface)" stroke-width="2">
+      <rect x="44"  y="64" width="130" height="44" rx="2" fill="url(#e2-slate)"/>
+      <rect x="174" y="64" width="200" height="44" rx="2" fill="url(#e2-blue)"/>
+      <rect x="374" y="64" width="120" height="44" rx="2" fill="url(#e2-slate)"/>
+      <rect x="494" y="64" width="122" height="44" rx="2" fill="url(#e2-slate)"/>
+    </g>
+    <g font-size="13" font-weight="700" text-anchor="middle">
+      <text x="109" y="91" fill="var(--fig-ink2)">①</text>
+      <text x="274" y="91" fill="#ffffff">②</text>
+      <text x="434" y="91" fill="var(--fig-ink2)">③</text>
+      <text x="555" y="91" fill="var(--fig-ink2)">④</text>
+    </g>
+    <circle r="5" fill="var(--c-blue)" filter="url(#fx-glow)">
+      <animateMotion path="M50 86 L610 86" dur="4s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.1;0.9;1" dur="4s" repeatCount="indefinite"/>
+    </circle>
+    <g font-size="11" text-anchor="middle" fill="var(--fig-muted)">
+      <text x="109" y="128">producer 투입 전</text>
+      <text x="274" y="128" fill="var(--c-blueink)" font-weight="700">파티션 대기</text>
+      <text x="434" y="128">consumer 처리 중</text>
+      <text x="555" y="128">벤더 배송</text>
+    </g>
+    <text x="330" y="166" text-anchor="middle" fill="var(--fig-muted)" font-size="10.5">② 파티션 대기만 lag(offset · time)에 잡힌다. ① ③ ④ 는 lag 사각지대.</text>
+  </svg>
+  <figcaption>메시지 한 건은 네 구간을 지난다. lag이 재는 건 <b>② 파티션 대기</b> 하나뿐이다. producer 투입 전(①), consumer가 이미 읽어 처리 중(③), 벤더 접수 후 배송(④)의 지연은 lag에 보이지 않는다.</figcaption>
+</figure>
+
 ## 그날 관측된 것
 
 사실만 적습니다.
@@ -168,7 +206,7 @@ Kafka 밖의 지연도 lag에는 보이지 않습니다. producer가 늦게 넣�
 
 - 평시 offset lag은 0 근처, time lag 최대 12초 그대로.
 - 월말 월간 리포트 1.1만 건 버스트 때 time lag 최대 약 10분. 봉투 계산의 5시간과는 자릿수가 다릅니다.
-- 파티션은 늘리지 않았고, 발송은 정상으로 돌아왔어요.
+- 파티션은 늘리지 않았습니다. 발송은 정상으로 돌아왔어요.
 
 ## 이 지표로는 알 수 없는 것
 

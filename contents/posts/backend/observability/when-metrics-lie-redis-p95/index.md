@@ -77,6 +77,42 @@ Redis 호출 한 번의 시간은, 서버가 명령을 실행한 시간만이 �
 APM이 뜨는 "캐시 span"은 대개 **호출 시작부터 응답까지 전체**를 잽니다. 그 안에는 클라이언트에서 줄 서서 기다린 시간도 들어가요.  
 그래서 "캐시 P95 5.68초"는 "Redis 서버가 5.68초 걸렸다"와 같은 말이 아닙니다. 어디서 그 시간이 쌓였는지를 나눠 봐야 해요.
 
+<figure class="metric-fig">
+  <div class="cap-head"><span class="cap-tag">what one Redis call actually measures</span><span class="cap-tag">span = ① ~ ⑥</span></div>
+  <svg viewBox="0 0 660 196" role="img" aria-label="Redis 호출 한 번의 시간은 여섯 단계로 나뉜다. 클라이언트 큐 대기 칸이 5.68초를 만들었고 실제 명령 실행은 0.2ms로 아주 작다" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="e3-red" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--c-red)"/><stop offset="1" stop-color="var(--c-red)" stop-opacity="0.7"/></linearGradient>
+      <linearGradient id="e3-green" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--c-green)"/><stop offset="1" stop-color="var(--c-green)" stop-opacity="0.7"/></linearGradient>
+      <linearGradient id="e3-slate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--fig-baseline)"/><stop offset="1" stop-color="var(--fig-baseline)" stop-opacity="0.6"/></linearGradient>
+    </defs>
+    <g stroke="var(--fig-muted)" stroke-width="1" opacity="0.7">
+      <line x1="44" y1="44" x2="44" y2="52"/><line x1="616" y1="44" x2="616" y2="52"/><line x1="44" y1="44" x2="616" y2="44"/>
+    </g>
+    <text x="330" y="34" text-anchor="middle" fill="var(--fig-muted)" font-size="11" letter-spacing="0.04em">APM 캐시 span = ① ~ ⑥ 전체 (클라이언트 대기 포함)</text>
+    <g stroke="var(--fig-surface)" stroke-width="2">
+      <rect x="44"  y="60" width="0" height="46" rx="2" fill="url(#e3-slate)"><animate attributeName="width" values="0;34"  dur="0.4s" begin="0.1s"  fill="freeze"/></rect>
+      <rect x="78"  y="60" width="0" height="46" rx="2" fill="url(#e3-slate)"><animate attributeName="width" values="0;40"  dur="0.4s" begin="0.25s" fill="freeze"/></rect>
+      <rect x="118" y="60" width="0" height="46" rx="2" fill="url(#e3-red)" filter="url(#fx-soft)"><animate attributeName="width" values="0;380" dur="0.7s" begin="0.4s" fill="freeze"/></rect>
+      <rect x="498" y="60" width="0" height="46" rx="2" fill="url(#e3-slate)"><animate attributeName="width" values="0;40"  dur="0.4s" begin="0.7s"  fill="freeze"/></rect>
+      <rect x="538" y="60" width="0" height="46" rx="2" fill="url(#e3-green)"><animate attributeName="width" values="0;32"  dur="0.4s" begin="0.85s" fill="freeze"/></rect>
+      <rect x="570" y="60" width="0" height="46" rx="2" fill="url(#e3-slate)"><animate attributeName="width" values="0;46"  dur="0.4s" begin="1.0s"  fill="freeze"/></rect>
+    </g>
+    <rect x="118" y="60" width="380" height="46" rx="2" fill="none" stroke="var(--c-red)" stroke-width="0" opacity="0.9">
+      <animate attributeName="stroke-width" values="0;2;0;2" keyTimes="0;0.34;0.67;1" dur="2.6s" begin="1.4s" repeatCount="indefinite"/>
+    </rect>
+    <g font-size="12" font-weight="700" fill="var(--fig-ink2)" text-anchor="middle">
+      <text x="61" y="128">①</text><text x="98" y="128">②</text><text x="308" y="128" fill="var(--c-redink)">③</text>
+      <text x="518" y="128">④</text><text x="554" y="128" fill="var(--c-greenink)">⑤</text><text x="593" y="128">⑥</text>
+    </g>
+    <g font-size="12" font-weight="700">
+      <text x="308" y="152" text-anchor="middle" fill="var(--c-redink)">③ 클라이언트 큐 대기 = 5.68초가 쌓인 곳</text>
+      <text x="308" y="170" text-anchor="middle" fill="var(--c-greenink)">⑤ 실제 Redis 명령 = ~0.2ms</text>
+    </g>
+    <text x="330" y="190" text-anchor="middle" fill="var(--fig-muted)" font-size="10.5">① 앱 대기 · ② 커넥션 획득 · ④ 네트워크 · ⑥ 역직렬화</text>
+  </svg>
+  <figcaption>APM "캐시 span"은 여섯 단계 전체를 잰다. 5.68초는 <b>③ 클라이언트 큐 대기</b>에서 쌓였다. 우리가 "Redis가 느리다"고 상상한 <b>⑤ 명령 실행</b>은 0.2ms로 가장 작은 칸이었다.</figcaption>
+</figure>
+
 ## 그날 관측된 것
 
 사실만 적습니다.
