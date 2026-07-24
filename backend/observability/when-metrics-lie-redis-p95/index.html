@@ -474,33 +474,77 @@ data-styled.g53[id="Footer__HiddenWrapper-sc-1d9k77a-9"]{content:"ZwedX,"}/*!sc*
 </figure>
 <p>첫 줄이 방향을 바꿨습니다.<br>
 같은 Redis를 쓰는 다른 서비스가 1.44ms라면, 클러스터 전체가 아픈 그림은 아니에요. 그래서 서버 전반 장애를 원인 후보에서 뒤로 미루고, 이 서비스만 다른 점을 찾기 시작했습니다.</p>
+<h2>왜 이 서비스만 느렸나: 공유 커넥션의 head-of-line</h2>
+<p>여기서부터가 이 사건의 핵심이에요. 왜 하필 이 서비스만 느렸을까.</p>
+<p>Lettuce(자바 Redis 클라이언트)는 기본적으로 <strong>커넥션 하나</strong>를 여러 스레드가 나눠 씁니다. 보통은 문제가 안 돼요.<br>
+Redis 서버는 명령을 한 줄로(single-thread) 처리합니다. Lettuce는 응답을 기다리지 않고 명령을 연달아 밀어 넣고요(pipelining). 그래서 커넥션 하나로도 처리량이 충분하거든요.</p>
+<p>문제는 그 커넥션 하나에 <strong>누가 얼마나 밀어 넣느냐</strong>입니다.</p>
+<p>이 서비스의 스케줄러는 3시간마다 전 사용자 캐시를 <code class="language-text">DEL</code>로 통째로 지우고 <code class="language-text">HMSET</code>으로 다시 넣었어요.<br>
+한 번에 <strong>33만 개</strong> 명령(DEL 약 18만 + HMSET 약 15만)이 그 공유 커넥션 한 줄에 쏟아집니다. 1주 전체 Redis 요청의 90%가 이 재적재였어요. 실사용 읽기가 아니라 안전망이 스스로 만든 트래픽입니다.</p>
+<p>그동안 발송 경로가 캐시를 읽으려고 <code class="language-text">HGET</code>을 보내면 그 명령은 <strong>재적재 명령들 뒤에 줄을 섭니다.</strong><br>
+앞의 수십만 개가 빠질 때까지 기다려요. 이게 head-of-line blocking입니다. 커넥션이 하나라 앞이 막히면 뒤는 무조건 기다립니다.</p>
+<figure class="metric-fig">
+  <div class="cap-head"><span class="cap-tag">head-of-line on a shared connection</span><span class="cap-tag">1 connection</span></div>
+  <svg viewBox="0 0 660 210" role="img" aria-label="공유 커넥션 하나에 재동기화 명령 수십만 개가 앞을 채우면 발송 HGET이 맨 뒤에서 기다린다. 전용 커넥션을 분리하면 바로 통과한다" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="e3h-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+    <text x="150" y="26" fill="var(--fig-muted)" font-size="11">공유 커넥션 1개 (지금)</text>
+    <rect x="150" y="34" width="426" height="34" rx="17" fill="none" stroke="var(--fig-baseline)" stroke-width="1.5"/>
+    <rect x="588" y="32" width="60" height="38" rx="7" fill="var(--fig-baseline)" opacity="0.35"/>
+    <text x="618" y="55" text-anchor="middle" fill="var(--fig-ink2)" font-size="11" font-weight="700">Redis</text>
+    <g fill="var(--fig-baseline)">
+      <rect x="252" y="44" width="20" height="16" rx="2"/><rect x="276" y="44" width="20" height="16" rx="2"/><rect x="300" y="44" width="20" height="16" rx="2"/><rect x="324" y="44" width="20" height="16" rx="2"/><rect x="348" y="44" width="20" height="16" rx="2"/><rect x="372" y="44" width="20" height="16" rx="2"/><rect x="396" y="44" width="20" height="16" rx="2"/><rect x="420" y="44" width="20" height="16" rx="2"/><rect x="444" y="44" width="20" height="16" rx="2"/><rect x="468" y="44" width="20" height="16" rx="2"/><rect x="492" y="44" width="20" height="16" rx="2"/><rect x="516" y="44" width="20" height="16" rx="2"/><rect x="540" y="44" width="20" height="16" rx="2"/>
+    </g>
+    <g><rect x="162" y="44" width="46" height="16" rx="3" fill="var(--c-red)" filter="url(#e3h-glow)"/><text x="185" y="56" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="700">HGET</text><animate attributeName="opacity" values="1;0.45;1" dur="1.8s" repeatCount="indefinite"/></g>
+    <text x="150" y="90" fill="var(--c-redink)" font-size="11" font-weight="700">재동기화 명령 수십만 개가 앞을 채움 → 발송 HGET은 맨 뒤 (5.68s)</text>
+    <text x="150" y="128" fill="var(--fig-muted)" font-size="11">발송 전용 커넥션 (분리 후)</text>
+    <rect x="150" y="136" width="426" height="34" rx="17" fill="none" stroke="var(--c-green)" stroke-opacity="0.45" stroke-width="1.5"/>
+    <rect x="588" y="134" width="60" height="38" rx="7" fill="var(--fig-baseline)" opacity="0.35"/>
+    <text x="618" y="157" text-anchor="middle" fill="var(--fig-ink2)" font-size="11" font-weight="700">Redis</text>
+    <g>
+      <rect x="162" y="146" width="46" height="16" rx="3" fill="var(--c-red)" filter="url(#e3h-glow)"/><text x="185" y="158" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="700">HGET</text>
+      <animateTransform attributeName="transform" type="translate" values="0 0;358 0;358 0" keyTimes="0;0.7;1" dur="2.4s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.1;0.85;1" dur="2.4s" repeatCount="indefinite"/>
+    </g>
+    <text x="150" y="192" fill="var(--c-greenink)" font-size="11" font-weight="700">재동기화와 안 섞임 → 발송 HGET은 바로 통과 (0.2ms)</text>
+  </svg>
+  <figcaption>커넥션이 하나면(위) 재동기화 수십만 명령 뒤에 발송 HGET이 줄을 서서 5.68초를 기다린다. 발송 경로에 전용 커넥션을 주면(아래) 재적재와 안 섞여 바로 통과한다. <b>head-of-line은 Redis 서버가 아니라 이 서비스의 커넥션에서 났다.</b></figcaption>
+</figure>
+<p>여기가 다른 서비스와 갈린 지점이에요. head-of-line이 <strong>서버 쪽</strong>이었다면 같은 Redis를 쓰는 다른 서비스도 같이 느렸어야 합니다. 그런데 다른 서비스는 1.44ms로 멀쩡했어요.<br>
+그러니 병목은 Redis 서버가 아니라 <strong>이 서비스가 쥔 커넥션 안</strong>이었습니다. 자기 커넥션을 자기가 막은 거예요.</p>
+<p>여기에 하나 더. 재적재는 <strong>파이프라이닝 없이</strong> 사용자당 명령 네 개(delete 2 + add 1 + set 1)를 하나씩, 응답을 받고 다음을 보내는 식으로 처리했어요.<br>
+파이프라이닝이 없으면 명령 N개는 곧 <strong>왕복(RTT) N번</strong>입니다. 왕복이 0.2ms라도 수십만 번이면 수십 초예요. 파이프라인으로 묶으면 왕복 한두 번으로 줄어듭니다. 자릿수가 바뀌어요.</p>
 <h2>무엇으로 확정했나</h2>
-<p>여기까지는 정황이 모입니다.</p>
+<p>네 증거가 한 점을 가리킵니다.</p>
 <ul>
-<li>5.68초는 Redis 서버의 명령 실행 시간이 아니라, 클라이언트 대기까지 포함한 span이었습니다.</li>
-<li>3시간 주기로 도는 전체 재동기화가 <code class="language-text">DEL</code>과 <code class="language-text">HMSET</code>으로 요청 건수의 약 90%를 차지했어요. 실사용 읽기가 아니라 안전망의 재적재였습니다.</li>
-<li>이 서비스는 공유 커넥션 하나로 명령을 직렬 전송합니다. 재동기화가 수십만 명령을 그 커넥션에 밀어 넣는 동안, 발송 경로의 읽기는 뒤에 줄을 섰어요.</li>
+<li><strong>① 한 서비스만 느림</strong> : 다른 서비스는 1.44ms. Redis 서버 전반 장애가 아니다.</li>
+<li><strong>② 명령의 90%가 재적재</strong> : 1주 20.9M 요청 중 DEL 10.2M + HMSET 8.64M. 실사용이 아니라 안전망 트래픽이다.</li>
+<li><strong>③ 스파이크 시각이 재적재 cron과 일치</strong> : 3시간 주기, 정오 정각 급증.</li>
+<li><strong>④ 커넥션이 하나</strong> : 공유 커넥션이라 앞이 막히면 뒤가 대기한다.</li>
 </ul>
-<p>세 정황이 한 방향을 가리킵니다.<br>
-타 서비스는 멀쩡했고(서버 아님), 스파이크 시각이 재동기화와 겹쳤고, 커넥션이 하나라 직렬이었습니다. 그래서 "캐시가 느리다"가 아니라 "발송 읽기가 재동기화 뒤에서 기다렸다"로 좁혔어요.</p>
+<p>그래서 이건 정황이 아니라 구조입니다.<br>
+<strong>5.68초는 Redis가 느린 게 아니라, 이 서비스의 발송 HGET이 자기 재적재 뒤에서 기다린 시간이에요.</strong> "캐시가 느리다"가 아니라 "내가 내 커넥션을 막았다".</p>
 <h2>무엇을 바꿨나</h2>
+<p>원인이 구조라 조치도 구조로 갑니다. 순서가 중요해요.</p>
 <ul>
-<li>재동기화 시각을 정오 발송 피크와 분리했습니다.</li>
-<li>전체 삭제·재적재를 증분 갱신으로 바꾸는 방향을 잡았어요.</li>
-<li>발송 경로와 동기화 경로의 커넥션을 분리했습니다.</li>
+<li><strong>발송 경로와 재적재 경로의 커넥션을 분리.</strong> 발송 HGET이 재적재 뒤에 안 서게 전용 커넥션(또는 풀)을 씁니다. head-of-line을 끊는 가장 직접적인 수술이에요.</li>
+<li><strong>전량 DEL+HMSET → 증분 갱신.</strong> 바뀐 것만 갱신하면 33만 개 명령이 애초에 안 생깁니다.</li>
+<li><strong>resetPushList 파이프라이닝.</strong> 사용자당 네 왕복을 한 배치로 묶어 왕복 수를 자릿수로 줄였어요.</li>
+<li><strong>재적재 cron을 발송 피크(정오)와 분리.</strong> 겹침만 없애는 완화책이에요. 위 셋의 임시 방편.</li>
+<li><strong>commandTimeout 60초 → 10초 + 예외 시 DB 폴백.</strong> 캐시가 막혀도 빨리 포기하고 DB로 갑니다. timeout만 줄이면 "빨리 실패"할 뿐이라, 폴백이 있어야 처리량이 안 무너져요.</li>
 </ul>
 <h2>고치고 다시 재보니</h2>
-<p>정직하게 씁니다.</p>
 <ul>
-<li>시각을 옮기자 정오 발송과 재동기화의 충돌은 사라졌습니다.</li>
-<li>다만 전량 재적재 구조 자체는 남아 있어요. <strong>시각 이동은 완화책이지 구조적 해결이 아닙니다.</strong></li>
-<li>증분 갱신 전환은 후속 과제로 남겼습니다.</li>
+<li>정상 상태 캐시 조회는 원래 <strong>0.2ms</strong>대(HGET 약 100~200µs)였어요. 5.68초는 그 2만 배가 넘습니다. 눈금이 정상으로 돌아온다는 건 이 0.2ms대로 붙는다는 뜻이에요.</li>
+<li>커넥션 분리와 cron 분리로 정오 발송과 재적재의 충돌은 사라졌습니다.</li>
+<li>증분 갱신은 구조 변경이라 후속으로 뒀어요. 이게 없으면 33만 개 명령은 여전히 어딘가에서 돕니다.</li>
 </ul>
-<p>수정 후 캐시 P95의 정확한 새 값은 이 글에서 확정해 말하지 않습니다. 충돌 제거는 확인했어요. 다만 "5.68초 → 몇 ms"까지 닫으려면 재측정 구간을 하나 더 잡아야 합니다. 모르는 숫자를 지어내지 않겠습니다.</p>
+<p>솔직히 하나 남깁니다. 수정 후 "5.68초 → 몇 ms"를 이 글에서 단일 숫자로 못 박진 않아요.<br>
+커넥션을 분리하면 발송 HGET은 재적재와 안 섞이니 정상 기준선(0.2ms)에 붙는 게 맞아요. 다만 전량 재적재 구조가 남아 있는 한 재적재 커넥션 자체의 스파이크는 남습니다. 여기까지가 이 글이 정직하게 닫는 선이에요.</p>
 <h2>이 지표로는 알 수 없는 것</h2>
 <ul>
-<li>P95 span 하나로는 서버 명령 시간과 클라이언트 대기 시간을 분리하지 못합니다. 둘을 나누려면 command latency와 connection wait를 따로 계측해야 해요.</li>
-<li>재동기화 중 대기 명령이 실제로 얼마나 쌓였는지는 직접 지표로 확인하지 못했습니다. 단일 공유 커넥션 구조 + 시간대 일치 + 타 서비스 정상이라는 정황으로 좁혔을 뿐이에요.</li>
+<li>P95 span 하나로는 서버 명령 시간과 클라이언트 대기 시간을 못 나눕니다. 둘을 갈라 보려면 Redis command latency와 커넥션 대기(pending)를 따로 계측해야 해요. 그게 있었으면 "5.68초 중 몇 ms가 서버, 몇 초가 대기"까지 한 번에 닫혔을 겁니다.</li>
 </ul>
 <blockquote>
 <p>캐시가 느리다는 지표는, 캐시 서버가 느리다는 뜻이 아닐 수 있다. 그 시간이 어디서 쌓였는지부터 나눠야 한다.</p>
