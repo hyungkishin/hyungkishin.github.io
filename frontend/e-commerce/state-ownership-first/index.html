@@ -292,7 +292,7 @@ URL의 page 값은 parser를 통과해 상품 목록 요청에 포함됐다. API
   <span class="token function-variable function">serialize</span><span class="token operator">:</span> <span class="token punctuation">(</span>value<span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token function">String</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span><span class="token punctuation">,</span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span></code></pre></div>
 <p>안전한 양의 정수가 아니면 parser는 null을 반환하고 parser에 걸어 둔 기본값인 1페이지로 돌아간다. 잘못된 URL이 더 이상 API 에러 화면까지 전달되지 않는다.</p>
-<p><img src="/static/02-parser-gate-8d1317843b0980ddd3d5a1d9ef67a925.svg" alt="유효한 page 값만 관문을 통과하고 잘못된 값은 기본값 1로 되돌아가는 애니메이션"></p>
+<p><img src="/static/02-parser-gate-ae80e284913837176e3aebe602207aa5.svg" alt="유효한 page 값만 관문을 통과하고 잘못된 값은 기본값 1로 되돌아가는 애니메이션"></p>
 <p>입력 검증은 잘못된 값을 거절하는 일이 아니라 복구 가능한 상태만 다음 경계로 보내는 일이다. 400을 정확하게 보여주는 것보다 사용자가 빠져나올 수 없는 400을 만들지 않는 편이 낫다.
 다만 parser가 막는 것은 URL이 API 계약을 벗어나는 경우다. 정상 요청에서 발생하는 서버 장애와 네트워크 오류에는 별도의 재시도와 복구 정책이 필요하다. 그리고 형식이 유효해도 존재하지 않는 페이지는 응답을 받아야 드러난다. 다음 사례다.</p>
 <blockquote>
@@ -385,7 +385,7 @@ URL의 page 값은 parser를 통과해 상품 목록 요청에 포함됐다. API
 </table>
 <p>파생값은 이 표에 없다. 개수와 포함 여부는 ID 배열에서, 로딩과 요청 에러는 쿼리의 요청 상태에서 나온다. 빈 결과의 의미는 응답의 products와 totalCount, 현재 조건을 해석해 결정된다. 저장하는 순간 원본과 어긋날 수 있는 값들이라 저장하지 않는다.</p>
 <p>구현체는 표의 보관 위치 그대로다. 조건 변경은 history push로 새 항목이 되고 검색, 카테고리, 정렬이 바뀌면 page는 1로 돌아간다. 헤더는 배열의 길이만, 상품 버튼은 자기 ID의 포함 여부와 action만 구독한다.</p>
-<p><img src="/static/01-toggle-propagation-1f92d4b0da91ba77e0e469fb35c3d2b9.svg" alt="담기 클릭이 store의 ID 목록을 갱신하고 그 원본을 구독한 헤더만 따라 바뀌는 애니메이션"></p>
+<p><img src="/static/01-toggle-propagation-1be98feecc139574d27c6b42af7ea216.svg" alt="담기 클릭이 store의 ID 목록을 갱신하고 그 원본을 구독한 헤더만 따라 바뀌는 애니메이션"></p>
 <blockquote>
 <p><strong>포기한 것</strong>: 새로고침 후에도 장바구니가 남는 persist. 세션이 끝나면 담은 것이 사라진다는 걸 알고 남겼다. 저장값의 hydration 불일치와 버전 마이그레이션이 같이 오는 결정이라 소유권 분리와 한 호흡에 넣지 않았다.</p>
 </blockquote>
