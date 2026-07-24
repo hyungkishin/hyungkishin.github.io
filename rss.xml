@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Fri, 24 Jul 2026 01:17:57 GMT</lastBuildDate><item><title><![CDATA[셀렉트를 세 벌 그렸지만 로직은 한 벌만 짰습니다]]></title><description><![CDATA[TL;DR 프로젝트 환경이 통째로 바뀌었습니다.
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Fri, 24 Jul 2026 01:28:50 GMT</lastBuildDate><item><title><![CDATA[셀렉트를 세 벌 그렸지만 로직은 한 벌만 짰습니다]]></title><description><![CDATA[TL;DR 프로젝트 환경이 통째로 바뀌었습니다.
 Vite로 쌓아온 커머스가 Next(App Router) 프로젝트로 교체됐어요. 그동안 만든 상품 목록도 이 전환과 함께 사라졌습니다. 그 위에서 두 가지 컴포넌트를 만들었습니다.
 Select…]]></description><link>https://hyungkishin.github.io/frontend/e-commerce/headless-select-compound-dialog/</link><guid isPermaLink="false">https://hyungkishin.github.io/frontend/e-commerce/headless-select-compound-dialog/</guid><pubDate>Fri, 10 Jul 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;&lt;strong&gt;TL;DR&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;프로젝트 환경이 통째로 바뀌었습니다.
@@ -6687,7 +6687,7 @@ malformed JSON이나 producer bug를 놓칠 수 있으니, 운영 환경에서�
 partition stall은 실패 한 건보다 훨씬 큰 장애를 만들기 때문입니다.&lt;/p&gt;
 &lt;p&gt;다만 이건 consumer 쪽의 대응입니다. 구조 자체의 문제는 남아 있습니다.
 하나의 토픽에 여러 서비스 메시지가 섞이는 구조는 producer 편의로 만들어진 것입니다. 그 비용을 consumer가 떠안는 형태죠.&lt;/p&gt;
-&lt;p&gt;장기적으로는 도메인 단위 토픽 분리가 맞고, 이 작업은 그때까지의 버팀목입니다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[계기가 거짓말할 때 ③ Redis P95 5.68초는 어디서 잰 시간일까]]></title><description><![CDATA[TL;DR 알림 서비스의 캐시 P95가 5.68초였습니다. 같은 DB는 2.12ms. 처음엔 Redis 서버가 아프다고 봤어요.
+&lt;p&gt;장기적으로는 도메인 단위 토픽 분리가 맞고, 이 작업은 그때까지의 버팀목입니다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[계기가 거짓말할 때 : Redis P95 5.68초는 어디서 잰 시간일까]]></title><description><![CDATA[TL;DR 알림 서비스의 캐시 P95가 5.68초였습니다. 같은 DB는 2.12ms. 처음엔 Redis 서버가 아프다고 봤어요.
 그런데 같은 클러스터의 다른 서비스는 1.44ms로 멀쩡했습니다. 5.68초는 Redis…]]></description><link>https://hyungkishin.github.io/backend/observability/when-metrics-lie-redis-p95/</link><guid isPermaLink="false">https://hyungkishin.github.io/backend/observability/when-metrics-lie-redis-p95/</guid><pubDate>Thu, 26 Feb 2026 00:00:00 GMT</pubDate><content:encoded>&lt;blockquote&gt;
 &lt;p&gt;&lt;strong&gt;TL;DR&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;알림 서비스의 캐시 P95가 5.68초였습니다. 같은 DB는 2.12ms. 처음엔 Redis 서버가 아프다고 봤어요.
@@ -6748,7 +6748,7 @@ partition stall은 실패 한 건보다 훨씬 큰 장애를 만들기 때문입
 &lt;p&gt;APM이 뜨는 &quot;캐시 span&quot;은 대개 &lt;strong&gt;호출 시작부터 응답까지 전체&lt;/strong&gt;를 잽니다. 그 안에는 클라이언트에서 줄 서서 기다린 시간도 들어가요.&lt;br&gt;
 그래서 &quot;캐시 P95 5.68초&quot;는 &quot;Redis 서버가 5.68초 걸렸다&quot;와 같은 말이 아닙니다. 어디서 그 시간이 쌓였는지를 나눠 봐야 해요.&lt;/p&gt;
 &lt;figure class=&quot;metric-fig&quot;&gt;
-  &lt;div class=&quot;cap-head&quot;&gt;&lt;span class=&quot;cap-tag&quot;&gt;what one Redis call actually measures&lt;/span&gt;&lt;span class=&quot;cap-tag&quot;&gt;span = ① ~ ⑥&lt;/span&gt;&lt;/div&gt;
+  &lt;div class=&quot;cap-head&quot;&gt;&lt;span class=&quot;cap-tag&quot;&gt;what one Redis call actually measures&lt;/span&gt;&lt;span class=&quot;cap-tag&quot;&gt;6 stages&lt;/span&gt;&lt;/div&gt;
   &lt;svg viewBox=&quot;0 0 660 196&quot; role=&quot;img&quot; aria-label=&quot;Redis 호출 한 번의 시간은 여섯 단계로 나뉜다. 클라이언트 큐 대기 칸이 5.68초를 만들었고 실제 명령 실행은 0.2ms로 아주 작다&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;
     &lt;defs&gt;
       &lt;linearGradient id=&quot;e3-red&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;0&quot; y2=&quot;1&quot;&gt;&lt;stop offset=&quot;0&quot; stop-color=&quot;var(--c-red)&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;var(--c-red)&quot; stop-opacity=&quot;0.7&quot;/&gt;&lt;/linearGradient&gt;
@@ -6758,7 +6758,7 @@ partition stall은 실패 한 건보다 훨씬 큰 장애를 만들기 때문입
     &lt;g stroke=&quot;var(--fig-muted)&quot; stroke-width=&quot;1&quot; opacity=&quot;0.7&quot;&gt;
       &lt;line x1=&quot;44&quot; y1=&quot;44&quot; x2=&quot;44&quot; y2=&quot;52&quot;/&gt;&lt;line x1=&quot;616&quot; y1=&quot;44&quot; x2=&quot;616&quot; y2=&quot;52&quot;/&gt;&lt;line x1=&quot;44&quot; y1=&quot;44&quot; x2=&quot;616&quot; y2=&quot;44&quot;/&gt;
     &lt;/g&gt;
-    &lt;text x=&quot;330&quot; y=&quot;34&quot; text-anchor=&quot;middle&quot; fill=&quot;var(--fig-muted)&quot; font-size=&quot;11&quot; letter-spacing=&quot;0.04em&quot;&gt;APM 캐시 span = ① ~ ⑥ 전체 (클라이언트 대기 포함)&lt;/text&gt;
+    &lt;text x=&quot;330&quot; y=&quot;34&quot; text-anchor=&quot;middle&quot; fill=&quot;var(--fig-muted)&quot; font-size=&quot;11&quot; letter-spacing=&quot;0.04em&quot;&gt;APM 캐시 span = 여섯 단계 전체 (클라이언트 대기 포함)&lt;/text&gt;
     &lt;g stroke=&quot;var(--fig-surface)&quot; stroke-width=&quot;2&quot;&gt;
       &lt;rect x=&quot;44&quot;  y=&quot;60&quot; width=&quot;0&quot; height=&quot;46&quot; rx=&quot;2&quot; fill=&quot;url(#e3-slate)&quot;&gt;&lt;animate attributeName=&quot;width&quot; values=&quot;0;34&quot;  dur=&quot;0.4s&quot; begin=&quot;0.1s&quot;  fill=&quot;freeze&quot;/&gt;&lt;/rect&gt;
       &lt;rect x=&quot;78&quot;  y=&quot;60&quot; width=&quot;0&quot; height=&quot;46&quot; rx=&quot;2&quot; fill=&quot;url(#e3-slate)&quot;&gt;&lt;animate attributeName=&quot;width&quot; values=&quot;0;40&quot;  dur=&quot;0.4s&quot; begin=&quot;0.25s&quot; fill=&quot;freeze&quot;/&gt;&lt;/rect&gt;
@@ -6770,17 +6770,11 @@ partition stall은 실패 한 건보다 훨씬 큰 장애를 만들기 때문입
     &lt;rect x=&quot;118&quot; y=&quot;60&quot; width=&quot;380&quot; height=&quot;46&quot; rx=&quot;2&quot; fill=&quot;none&quot; stroke=&quot;var(--c-red)&quot; stroke-width=&quot;0&quot; opacity=&quot;0.9&quot;&gt;
       &lt;animate attributeName=&quot;stroke-width&quot; values=&quot;0;2;0;2&quot; keyTimes=&quot;0;0.34;0.67;1&quot; dur=&quot;2.6s&quot; begin=&quot;1.4s&quot; repeatCount=&quot;indefinite&quot;/&gt;
     &lt;/rect&gt;
-    &lt;g font-size=&quot;12&quot; font-weight=&quot;700&quot; fill=&quot;var(--fig-ink2)&quot; text-anchor=&quot;middle&quot;&gt;
-      &lt;text x=&quot;61&quot; y=&quot;128&quot;&gt;①&lt;/text&gt;&lt;text x=&quot;98&quot; y=&quot;128&quot;&gt;②&lt;/text&gt;&lt;text x=&quot;308&quot; y=&quot;128&quot; fill=&quot;var(--c-redink)&quot;&gt;③&lt;/text&gt;
-      &lt;text x=&quot;518&quot; y=&quot;128&quot;&gt;④&lt;/text&gt;&lt;text x=&quot;554&quot; y=&quot;128&quot; fill=&quot;var(--c-greenink)&quot;&gt;⑤&lt;/text&gt;&lt;text x=&quot;593&quot; y=&quot;128&quot;&gt;⑥&lt;/text&gt;
-    &lt;/g&gt;
-    &lt;g font-size=&quot;12&quot; font-weight=&quot;700&quot;&gt;
-      &lt;text x=&quot;308&quot; y=&quot;152&quot; text-anchor=&quot;middle&quot; fill=&quot;var(--c-redink)&quot;&gt;③ 클라이언트 큐 대기 = 5.68초가 쌓인 곳&lt;/text&gt;
-      &lt;text x=&quot;308&quot; y=&quot;170&quot; text-anchor=&quot;middle&quot; fill=&quot;var(--c-greenink)&quot;&gt;⑤ 실제 Redis 명령 = ~0.2ms&lt;/text&gt;
-    &lt;/g&gt;
-    &lt;text x=&quot;330&quot; y=&quot;190&quot; text-anchor=&quot;middle&quot; fill=&quot;var(--fig-muted)&quot; font-size=&quot;10.5&quot;&gt;① 앱 대기 · ② 커넥션 획득 · ④ 네트워크 · ⑥ 역직렬화&lt;/text&gt;
+    &lt;text x=&quot;308&quot; y=&quot;130&quot; text-anchor=&quot;middle&quot; fill=&quot;var(--c-redink)&quot; font-size=&quot;12&quot; font-weight=&quot;700&quot;&gt;클라이언트 큐 대기 = 5.68초가 쌓인 곳&lt;/text&gt;
+    &lt;text x=&quot;330&quot; y=&quot;154&quot; text-anchor=&quot;middle&quot; fill=&quot;var(--c-greenink)&quot; font-size=&quot;11.5&quot; font-weight=&quot;700&quot;&gt;가장 작은 칸(명령 실행)이 실제 Redis 작업, 약 0.2ms&lt;/text&gt;
+    &lt;text x=&quot;330&quot; y=&quot;182&quot; text-anchor=&quot;middle&quot; fill=&quot;var(--fig-muted)&quot; font-size=&quot;10.5&quot;&gt;칸 순서: 앱 대기 · 커넥션 획득 · 클라이언트 큐 대기 · 네트워크 · 명령 실행 · 역직렬화&lt;/text&gt;
   &lt;/svg&gt;
-  &lt;figcaption&gt;APM &quot;캐시 span&quot;은 여섯 단계 전체를 잰다. 5.68초는 &lt;b&gt;③ 클라이언트 큐 대기&lt;/b&gt;에서 쌓였다. 우리가 &quot;Redis가 느리다&quot;고 상상한 &lt;b&gt;⑤ 명령 실행&lt;/b&gt;은 0.2ms로 가장 작은 칸이었다.&lt;/figcaption&gt;
+  &lt;figcaption&gt;APM &quot;캐시 span&quot;은 여섯 단계 전체를 잰다. 5.68초는 &lt;b&gt;클라이언트 큐 대기&lt;/b&gt;에서 쌓였다. 우리가 &quot;Redis가 느리다&quot;고 상상한 &lt;b&gt;명령 실행&lt;/b&gt;은 0.2ms로 가장 작은 칸이었다.&lt;/figcaption&gt;
 &lt;/figure&gt;
 &lt;h2&gt;그날 관측된 것&lt;/h2&gt;
 &lt;p&gt;사실만 적습니다.&lt;/p&gt;
@@ -6874,34 +6868,6 @@ Redis 서버는 명령을 한 줄로(single-thread) 처리합니다. Lettuce는 
 한 번에 &lt;strong&gt;33만 개&lt;/strong&gt; 명령(DEL 약 18만 + HMSET 약 15만)이 그 공유 커넥션 한 줄에 쏟아집니다. 1주 전체 Redis 요청의 90%가 이 재적재였어요. 실사용 읽기가 아니라 안전망이 스스로 만든 트래픽입니다.&lt;/p&gt;
 &lt;p&gt;그동안 발송 경로가 캐시를 읽으려고 &lt;code class=&quot;language-text&quot;&gt;HGET&lt;/code&gt;을 보내면 그 명령은 &lt;strong&gt;재적재 명령들 뒤에 줄을 섭니다.&lt;/strong&gt;&lt;br&gt;
 앞의 수십만 개가 빠질 때까지 기다려요. 이게 head-of-line blocking입니다. 커넥션이 하나라 앞이 막히면 뒤는 무조건 기다립니다.&lt;/p&gt;
-&lt;figure class=&quot;metric-fig&quot;&gt;
-  &lt;div class=&quot;cap-head&quot;&gt;&lt;span class=&quot;cap-tag&quot;&gt;head-of-line on a shared connection&lt;/span&gt;&lt;span class=&quot;cap-tag&quot;&gt;1 connection&lt;/span&gt;&lt;/div&gt;
-  &lt;svg viewBox=&quot;0 0 660 210&quot; role=&quot;img&quot; aria-label=&quot;공유 커넥션 하나에 재동기화 명령 수십만 개가 앞을 채우면 발송 HGET이 맨 뒤에서 기다린다. 전용 커넥션을 분리하면 바로 통과한다&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;
-    &lt;defs&gt;
-      &lt;filter id=&quot;e3h-glow&quot; x=&quot;-60%&quot; y=&quot;-60%&quot; width=&quot;220%&quot; height=&quot;220%&quot;&gt;&lt;feGaussianBlur stdDeviation=&quot;2.5&quot; result=&quot;b&quot;/&gt;&lt;feMerge&gt;&lt;feMergeNode in=&quot;b&quot;/&gt;&lt;feMergeNode in=&quot;SourceGraphic&quot;/&gt;&lt;/feMerge&gt;&lt;/filter&gt;
-    &lt;/defs&gt;
-    &lt;text x=&quot;150&quot; y=&quot;26&quot; fill=&quot;var(--fig-muted)&quot; font-size=&quot;11&quot;&gt;공유 커넥션 1개 (지금)&lt;/text&gt;
-    &lt;rect x=&quot;150&quot; y=&quot;34&quot; width=&quot;426&quot; height=&quot;34&quot; rx=&quot;17&quot; fill=&quot;none&quot; stroke=&quot;var(--fig-baseline)&quot; stroke-width=&quot;1.5&quot;/&gt;
-    &lt;rect x=&quot;588&quot; y=&quot;32&quot; width=&quot;60&quot; height=&quot;38&quot; rx=&quot;7&quot; fill=&quot;var(--fig-baseline)&quot; opacity=&quot;0.35&quot;/&gt;
-    &lt;text x=&quot;618&quot; y=&quot;55&quot; text-anchor=&quot;middle&quot; fill=&quot;var(--fig-ink2)&quot; font-size=&quot;11&quot; font-weight=&quot;700&quot;&gt;Redis&lt;/text&gt;
-    &lt;g fill=&quot;var(--fig-baseline)&quot;&gt;
-      &lt;rect x=&quot;252&quot; y=&quot;44&quot; width=&quot;20&quot; height=&quot;16&quot; rx=&quot;2&quot;/&gt;&lt;rect x=&quot;276&quot; y=&quot;44&quot; width=&quot;20&quot; height=&quot;16&quot; rx=&quot;2&quot;/&gt;&lt;rect x=&quot;300&quot; y=&quot;44&quot; width=&quot;20&quot; height=&quot;16&quot; rx=&quot;2&quot;/&gt;&lt;rect x=&quot;324&quot; y=&quot;44&quot; width=&quot;20&quot; height=&quot;16&quot; rx=&quot;2&quot;/&gt;&lt;rect x=&quot;348&quot; y=&quot;44&quot; width=&quot;20&quot; height=&quot;16&quot; rx=&quot;2&quot;/&gt;&lt;rect x=&quot;372&quot; y=&quot;44&quot; width=&quot;20&quot; height=&quot;16&quot; rx=&quot;2&quot;/&gt;&lt;rect x=&quot;396&quot; y=&quot;44&quot; width=&quot;20&quot; height=&quot;16&quot; rx=&quot;2&quot;/&gt;&lt;rect x=&quot;420&quot; y=&quot;44&quot; width=&quot;20&quot; height=&quot;16&quot; rx=&quot;2&quot;/&gt;&lt;rect x=&quot;444&quot; y=&quot;44&quot; width=&quot;20&quot; height=&quot;16&quot; rx=&quot;2&quot;/&gt;&lt;rect x=&quot;468&quot; y=&quot;44&quot; width=&quot;20&quot; height=&quot;16&quot; rx=&quot;2&quot;/&gt;&lt;rect x=&quot;492&quot; y=&quot;44&quot; width=&quot;20&quot; height=&quot;16&quot; rx=&quot;2&quot;/&gt;&lt;rect x=&quot;516&quot; y=&quot;44&quot; width=&quot;20&quot; height=&quot;16&quot; rx=&quot;2&quot;/&gt;&lt;rect x=&quot;540&quot; y=&quot;44&quot; width=&quot;20&quot; height=&quot;16&quot; rx=&quot;2&quot;/&gt;
-    &lt;/g&gt;
-    &lt;g&gt;&lt;rect x=&quot;162&quot; y=&quot;44&quot; width=&quot;46&quot; height=&quot;16&quot; rx=&quot;3&quot; fill=&quot;var(--c-red)&quot; filter=&quot;url(#e3h-glow)&quot;/&gt;&lt;text x=&quot;185&quot; y=&quot;56&quot; text-anchor=&quot;middle&quot; fill=&quot;#ffffff&quot; font-size=&quot;9&quot; font-weight=&quot;700&quot;&gt;HGET&lt;/text&gt;&lt;animate attributeName=&quot;opacity&quot; values=&quot;1;0.45;1&quot; dur=&quot;1.8s&quot; repeatCount=&quot;indefinite&quot;/&gt;&lt;/g&gt;
-    &lt;text x=&quot;150&quot; y=&quot;90&quot; fill=&quot;var(--c-redink)&quot; font-size=&quot;11&quot; font-weight=&quot;700&quot;&gt;재동기화 명령 수십만 개가 앞을 채움 → 발송 HGET은 맨 뒤 (5.68s)&lt;/text&gt;
-    &lt;text x=&quot;150&quot; y=&quot;128&quot; fill=&quot;var(--fig-muted)&quot; font-size=&quot;11&quot;&gt;발송 전용 커넥션 (분리 후)&lt;/text&gt;
-    &lt;rect x=&quot;150&quot; y=&quot;136&quot; width=&quot;426&quot; height=&quot;34&quot; rx=&quot;17&quot; fill=&quot;none&quot; stroke=&quot;var(--c-green)&quot; stroke-opacity=&quot;0.45&quot; stroke-width=&quot;1.5&quot;/&gt;
-    &lt;rect x=&quot;588&quot; y=&quot;134&quot; width=&quot;60&quot; height=&quot;38&quot; rx=&quot;7&quot; fill=&quot;var(--fig-baseline)&quot; opacity=&quot;0.35&quot;/&gt;
-    &lt;text x=&quot;618&quot; y=&quot;157&quot; text-anchor=&quot;middle&quot; fill=&quot;var(--fig-ink2)&quot; font-size=&quot;11&quot; font-weight=&quot;700&quot;&gt;Redis&lt;/text&gt;
-    &lt;g&gt;
-      &lt;rect x=&quot;162&quot; y=&quot;146&quot; width=&quot;46&quot; height=&quot;16&quot; rx=&quot;3&quot; fill=&quot;var(--c-red)&quot; filter=&quot;url(#e3h-glow)&quot;/&gt;&lt;text x=&quot;185&quot; y=&quot;158&quot; text-anchor=&quot;middle&quot; fill=&quot;#ffffff&quot; font-size=&quot;9&quot; font-weight=&quot;700&quot;&gt;HGET&lt;/text&gt;
-      &lt;animateTransform attributeName=&quot;transform&quot; type=&quot;translate&quot; values=&quot;0 0;358 0;358 0&quot; keyTimes=&quot;0;0.7;1&quot; dur=&quot;2.4s&quot; repeatCount=&quot;indefinite&quot;/&gt;
-      &lt;animate attributeName=&quot;opacity&quot; values=&quot;0;1;1;0&quot; keyTimes=&quot;0;0.1;0.85;1&quot; dur=&quot;2.4s&quot; repeatCount=&quot;indefinite&quot;/&gt;
-    &lt;/g&gt;
-    &lt;text x=&quot;150&quot; y=&quot;192&quot; fill=&quot;var(--c-greenink)&quot; font-size=&quot;11&quot; font-weight=&quot;700&quot;&gt;재동기화와 안 섞임 → 발송 HGET은 바로 통과 (0.2ms)&lt;/text&gt;
-  &lt;/svg&gt;
-  &lt;figcaption&gt;커넥션이 하나면(위) 재동기화 수십만 명령 뒤에 발송 HGET이 줄을 서서 5.68초를 기다린다. 발송 경로에 전용 커넥션을 주면(아래) 재적재와 안 섞여 바로 통과한다. &lt;b&gt;head-of-line은 Redis 서버가 아니라 이 서비스의 커넥션에서 났다.&lt;/b&gt;&lt;/figcaption&gt;
-&lt;/figure&gt;
 &lt;p&gt;여기가 다른 서비스와 갈린 지점이에요. head-of-line이 &lt;strong&gt;서버 쪽&lt;/strong&gt;이었다면 같은 Redis를 쓰는 다른 서비스도 같이 느렸어야 합니다. 그런데 다른 서비스는 1.44ms로 멀쩡했어요.&lt;br&gt;
 그러니 병목은 Redis 서버가 아니라 &lt;strong&gt;이 서비스가 쥔 커넥션 안&lt;/strong&gt;이었습니다. 자기 커넥션을 자기가 막은 거예요.&lt;/p&gt;
 &lt;p&gt;여기에 하나 더. 재적재는 &lt;strong&gt;파이프라이닝 없이&lt;/strong&gt; 사용자당 명령 네 개(delete 2 + add 1 + set 1)를 하나씩, 응답을 받고 다음을 보내는 식으로 처리했어요.&lt;br&gt;
@@ -6909,10 +6875,10 @@ Redis 서버는 명령을 한 줄로(single-thread) 처리합니다. Lettuce는 
 &lt;h2&gt;무엇으로 확정했나&lt;/h2&gt;
 &lt;p&gt;네 증거가 한 점을 가리킵니다.&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;① 한 서비스만 느림&lt;/strong&gt; : 다른 서비스는 1.44ms. Redis 서버 전반 장애가 아니다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;② 명령의 90%가 재적재&lt;/strong&gt; : 1주 20.9M 요청 중 DEL 10.2M + HMSET 8.64M. 실사용이 아니라 안전망 트래픽이다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;③ 스파이크 시각이 재적재 cron과 일치&lt;/strong&gt; : 3시간 주기, 정오 정각 급증.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;④ 커넥션이 하나&lt;/strong&gt; : 공유 커넥션이라 앞이 막히면 뒤가 대기한다.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;한 서비스만 느림.&lt;/strong&gt; 다른 서비스는 1.44ms. Redis 서버 전반 장애가 아니다.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;명령의 90%가 재적재.&lt;/strong&gt; 1주 20.9M 요청 중 DEL 10.2M + HMSET 8.64M. 실사용이 아니라 안전망 트래픽이다.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;스파이크 시각이 재적재 cron과 일치.&lt;/strong&gt; 3시간 주기, 정오 정각 급증.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;커넥션이 하나.&lt;/strong&gt; 공유 커넥션이라 앞이 막히면 뒤가 대기한다.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;그래서 이건 정황이 아니라 구조입니다.&lt;br&gt;
 &lt;strong&gt;5.68초는 Redis가 느린 게 아니라, 이 서비스의 발송 HGET이 자기 재적재 뒤에서 기다린 시간이에요.&lt;/strong&gt; &quot;캐시가 느리다&quot;가 아니라 &quot;내가 내 커넥션을 막았다&quot;.&lt;/p&gt;
@@ -6943,7 +6909,7 @@ Redis 서버는 명령을 한 줄로(single-thread) 처리합니다. Lettuce는 
 &lt;hr&gt;
 &lt;p&gt;세 편을 관통하는 문장은 하나입니다.&lt;br&gt;
 지표의 값이 이상하면 시스템을 의심하기 전에, 그 값이 무엇을 세고 어디서부터 어디까지 재는지부터 확인한다.&lt;br&gt;
-성공의 정의, lag의 경계, 캐시 P95의 계층. 셋 다 값이 아니라 정의를 읽는 이야기였어요.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[계기가 거짓말할 때 ② Kafka lag 0은 무엇을 의미할까]]></title><description><![CDATA[TL;DR 발송 지연 신고를 받고 봉투 뒷면에 계산했습니다. 1.1만 건 × 건당 1.5초 = 약 5시간.
+성공의 정의, lag의 경계, 캐시 P95의 계층. 셋 다 값이 아니라 정의를 읽는 이야기였어요.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[계기가 거짓말할 때 : Kafka lag 0은 무엇을 의미할까]]></title><description><![CDATA[TL;DR 발송 지연 신고를 받고 봉투 뒷면에 계산했습니다. 1.1만 건 × 건당 1.5초 = 약 5시간.
 큐가 5시간 밀렸겠거니 하고 파티션 증설 견적을 냈어요. 그런데 실제 lag은 최대 12초, 대기 메시지 최대…]]></description><link>https://hyungkishin.github.io/backend/observability/when-metrics-lie-kafka-lag/</link><guid isPermaLink="false">https://hyungkishin.github.io/backend/observability/when-metrics-lie-kafka-lag/</guid><pubDate>Wed, 25 Feb 2026 00:00:00 GMT</pubDate><content:encoded>&lt;blockquote&gt;
 &lt;p&gt;&lt;strong&gt;TL;DR&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;발송 지연 신고를 받고 봉투 뒷면에 계산했습니다. 1.1만 건 × 건당 1.5초 = 약 5시간.
@@ -7002,7 +6968,7 @@ lag 0은 &quot;느리지 않다&quot;가 아니라 &quot;쌓인 게 없다&quot;
 Kafka 밖의 지연은 어느 쪽으로도 안 보여요. producer가 늦게 넣는 것, 벤더가 접수한 뒤 늦게 배송하는 것 모두요.&lt;/p&gt;
 &lt;p&gt;즉 lag은 &quot;큐에 쌓여 대기 중인 양&quot;을 재는 지표지, &quot;전체 지연&quot;을 재는 지표가 아니에요.&lt;/p&gt;
 &lt;figure class=&quot;metric-fig&quot;&gt;
-  &lt;div class=&quot;cap-head&quot;&gt;&lt;span class=&quot;cap-tag&quot;&gt;a message&apos;s life · what lag sees&lt;/span&gt;&lt;span class=&quot;cap-tag&quot;&gt;only ②&lt;/span&gt;&lt;/div&gt;
+  &lt;div class=&quot;cap-head&quot;&gt;&lt;span class=&quot;cap-tag&quot;&gt;a message&apos;s life · what lag sees&lt;/span&gt;&lt;span class=&quot;cap-tag&quot;&gt;queue only&lt;/span&gt;&lt;/div&gt;
   &lt;svg viewBox=&quot;0 0 660 196&quot; role=&quot;img&quot; aria-label=&quot;메시지 한 건이 네 단계를 지나는데 lag은 파티션 대기 구간 하나만 잰다. producer 투입 전, consumer 처리 중, 벤더 배송은 lag 사각지대다&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;
     &lt;defs&gt;
       &lt;linearGradient id=&quot;e2-blue&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;0&quot; y2=&quot;1&quot;&gt;&lt;stop offset=&quot;0&quot; stop-color=&quot;var(--c-blue)&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;var(--c-blue)&quot; stop-opacity=&quot;0.7&quot;/&gt;&lt;/linearGradient&gt;
@@ -7019,10 +6985,7 @@ Kafka 밖의 지연은 어느 쪽으로도 안 보여요. producer가 늦게 넣
       &lt;rect x=&quot;494&quot; y=&quot;64&quot; width=&quot;122&quot; height=&quot;44&quot; rx=&quot;2&quot; fill=&quot;url(#e2-slate)&quot;/&gt;
     &lt;/g&gt;
     &lt;g font-size=&quot;13&quot; font-weight=&quot;700&quot; text-anchor=&quot;middle&quot;&gt;
-      &lt;text x=&quot;109&quot; y=&quot;91&quot; fill=&quot;var(--fig-ink2)&quot;&gt;①&lt;/text&gt;
-      &lt;text x=&quot;274&quot; y=&quot;91&quot; fill=&quot;#ffffff&quot;&gt;②&lt;/text&gt;
-      &lt;text x=&quot;434&quot; y=&quot;91&quot; fill=&quot;var(--fig-ink2)&quot;&gt;③&lt;/text&gt;
-      &lt;text x=&quot;555&quot; y=&quot;91&quot; fill=&quot;var(--fig-ink2)&quot;&gt;④&lt;/text&gt;
+      &lt;text x=&quot;274&quot; y=&quot;91&quot; fill=&quot;#ffffff&quot; font-size=&quot;11&quot;&gt;lag&lt;/text&gt;
     &lt;/g&gt;
     &lt;circle r=&quot;5&quot; fill=&quot;var(--c-blue)&quot; filter=&quot;url(#fx-glow)&quot;&gt;
       &lt;animateMotion path=&quot;M50 86 L610 86&quot; dur=&quot;4s&quot; repeatCount=&quot;indefinite&quot;/&gt;
@@ -7034,9 +6997,9 @@ Kafka 밖의 지연은 어느 쪽으로도 안 보여요. producer가 늦게 넣
       &lt;text x=&quot;434&quot; y=&quot;128&quot;&gt;consumer 처리 중&lt;/text&gt;
       &lt;text x=&quot;555&quot; y=&quot;128&quot;&gt;벤더 배송&lt;/text&gt;
     &lt;/g&gt;
-    &lt;text x=&quot;330&quot; y=&quot;166&quot; text-anchor=&quot;middle&quot; fill=&quot;var(--fig-muted)&quot; font-size=&quot;10.5&quot;&gt;② 파티션 대기만 lag(offset · time)에 잡힌다. ① ③ ④ 는 lag 사각지대.&lt;/text&gt;
+    &lt;text x=&quot;330&quot; y=&quot;166&quot; text-anchor=&quot;middle&quot; fill=&quot;var(--fig-muted)&quot; font-size=&quot;10.5&quot;&gt;파티션 대기만 lag(offset · time)에 잡힌다. 나머지 세 구간은 lag 사각지대.&lt;/text&gt;
   &lt;/svg&gt;
-  &lt;figcaption&gt;메시지 한 건은 네 구간을 지난다. lag이 재는 건 &lt;b&gt;② 파티션 대기&lt;/b&gt; 하나뿐이다. producer 투입 전(①), consumer가 이미 읽어 처리 중(③), 벤더 접수 후 배송(④)의 지연은 lag에 보이지 않는다.&lt;/figcaption&gt;
+  &lt;figcaption&gt;메시지 한 건은 네 구간을 지난다. lag이 재는 건 &lt;b&gt;파티션 대기&lt;/b&gt; 하나뿐이다. producer 투입 전, consumer가 이미 읽어 처리 중, 벤더 접수 후 배송의 지연은 lag에 보이지 않는다.&lt;/figcaption&gt;
 &lt;/figure&gt;
 &lt;h2&gt;그날 관측된 것&lt;/h2&gt;
 &lt;p&gt;사실만 적습니다.&lt;/p&gt;
@@ -7156,7 +7119,7 @@ Kafka 밖의 지연은 어느 쪽으로도 안 보여요. producer가 늦게 넣
 &lt;blockquote&gt;
 &lt;p&gt;lag 0은 밀린 게 없다는 뜻이지, 느리지 않다는 뜻이 아니다.&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;p&gt;다음 편은 캐시입니다. Redis P95가 5.68초로 찍혔어요. 그게 정말 Redis가 느린 걸까요.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[계기가 거짓말할 때 ① 에러율 0%인데 181건이 실패했습니다]]></title><description><![CDATA[TL;DR 배치는 "성공 634건"을 찍었는데 실제 도착은 453건이었습니다.
+&lt;p&gt;다음 편은 캐시입니다. Redis P95가 5.68초로 찍혔어요. 그게 정말 Redis가 느린 걸까요.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[계기가 거짓말할 때 : 에러율 0%인데 181건이 실패했습니다]]></title><description><![CDATA[TL;DR 배치는 "성공 634건"을 찍었는데 실제 도착은 453건이었습니다.
 HTTP 200을 성공으로 셌기 때문이에요. 벤더는 200을 주면서 본문에 실패 코드를 담아 돌려줬습니다. 성공을 으로 다시 정의하자, 그날 성공률은 로그상 99.…]]></description><link>https://hyungkishin.github.io/backend/observability/when-metrics-lie-error-rate/</link><guid isPermaLink="false">https://hyungkishin.github.io/backend/observability/when-metrics-lie-error-rate/</guid><pubDate>Tue, 24 Feb 2026 00:00:00 GMT</pubDate><content:encoded>&lt;blockquote&gt;
 &lt;p&gt;&lt;strong&gt;TL;DR&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;배치는 &quot;성공 634건&quot;을 찍었는데 실제 도착은 453건이었습니다.
@@ -7422,20 +7385,20 @@ HTTP 연결은 됐으니 네트워크가 아니고, 실패 응답이 한 종류�
 &lt;h2&gt;앞으로 다룰 것&lt;/h2&gt;
 &lt;p&gt;각 편은 지표 하나를 개념부터 풀고, 실제로 그 지표에 속았던 사례를 따라갑니다.&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;① 에러율 0%인데 181건이 실패했습니다&lt;/strong&gt; : HTTP 200은 왜 성공이 아니었을까&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;② Kafka lag 0은 무엇을 의미할까&lt;/strong&gt; : 봉투 계산으로 5시간, 실측 12초&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;③ Redis P95 5.68초는 어디서 잰 시간일까&lt;/strong&gt; : 캐시가 느린 건지, 앞에서 기다린 건지&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;에러율 0%인데 181건이 실패했습니다&lt;/strong&gt; : HTTP 200은 왜 성공이 아니었을까&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Kafka lag 0은 무엇을 의미할까&lt;/strong&gt; : 봉투 계산으로 5시간, 실측 12초&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Redis P95 5.68초는 어디서 잰 시간일까&lt;/strong&gt; : 캐시가 느린 건지, 앞에서 기다린 건지&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;편마다 순서는 같습니다.&lt;br&gt;
 지표가 무엇인지 → 관측된 사실 → 처음 세운 가설 → 어떤 근거로 후보를 지웠는지 → 무엇으로 확정했는지(또는 못 했는지) → 무엇을 바꿨는지 → 다시 재보니 어땠는지 → 이 지표로는 알 수 없는 것.&lt;/p&gt;
-&lt;p&gt;원인을 맞히는 이야기가 아니라, 후보를 어떻게 좁혔는지를 남기려 합니다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[이 글은 '계기가 거짓말할 때' 시리즈로 옮겼습니다]]></title><description><![CDATA[한 편에 사례를 너무 많이 담아, 지표별로 나눈 시리즈로 새로 썼습니다. 계기가 거짓말할 때 (프롤로그) 로 이동합니다. 자동으로 넘어가지 않으면 위 링크를 눌러 주세요. ① 에러율 0%인데 181건이 실패했습니다 ② Kafka lag…]]></description><link>https://hyungkishin.github.io/backend/observability/reading-metrics/</link><guid isPermaLink="false">https://hyungkishin.github.io/backend/observability/reading-metrics/</guid><pubDate>Sun, 22 Feb 2026 00:00:00 GMT</pubDate><content:encoded>&lt;meta http-equiv=&quot;refresh&quot; content=&quot;0; url=https://hyungkishin.github.io/backend/observability/when-metrics-lie/&quot;&gt;
+&lt;p&gt;원인을 맞히는 이야기가 아니라, 후보를 어떻게 좁혔는지를 남기려 합니다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[이 글은 '계기가 거짓말할 때' 시리즈로 옮겼습니다]]></title><description><![CDATA[한 편에 사례를 너무 많이 담아, 지표별로 나눈 시리즈로 새로 썼습니다. 계기가 거짓말할 때 (프롤로그) 로 이동합니다. 자동으로 넘어가지 않으면 위 링크를 눌러 주세요. 에러율 0%인데 181건이 실패했습니다 Kafka lag…]]></description><link>https://hyungkishin.github.io/backend/observability/reading-metrics/</link><guid isPermaLink="false">https://hyungkishin.github.io/backend/observability/reading-metrics/</guid><pubDate>Sun, 22 Feb 2026 00:00:00 GMT</pubDate><content:encoded>&lt;meta http-equiv=&quot;refresh&quot; content=&quot;0; url=https://hyungkishin.github.io/backend/observability/when-metrics-lie/&quot;&gt;
 &lt;p&gt;한 편에 사례를 너무 많이 담아, 지표별로 나눈 시리즈로 새로 썼습니다.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;&lt;a href=&quot;/backend/observability/when-metrics-lie/&quot;&gt;계기가 거짓말할 때 (프롤로그)&lt;/a&gt;&lt;/strong&gt; 로 이동합니다.&lt;/p&gt;
 &lt;p&gt;자동으로 넘어가지 않으면 위 링크를 눌러 주세요.&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;/backend/observability/when-metrics-lie-error-rate/&quot;&gt;① 에러율 0%인데 181건이 실패했습니다&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;/backend/observability/when-metrics-lie-kafka-lag/&quot;&gt;② Kafka lag 0은 무엇을 의미할까&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;/backend/observability/when-metrics-lie-redis-p95/&quot;&gt;③ Redis P95 5.68초는 어디서 잰 시간일까&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;/backend/observability/when-metrics-lie-error-rate/&quot;&gt;에러율 0%인데 181건이 실패했습니다&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;/backend/observability/when-metrics-lie-kafka-lag/&quot;&gt;Kafka lag 0은 무엇을 의미할까&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;/backend/observability/when-metrics-lie-redis-p95/&quot;&gt;Redis P95 5.68초는 어디서 잰 시간일까&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;</content:encoded></item><item><title><![CDATA[요구사항을 설계로 번역하는 과정에서 내린 선택들]]></title><description><![CDATA[배경 이번 설계는 감성 이커머스라는 가상의 서비스를 대상으로, 다음 주부터 바로 개발에 착수할 수 있는 수준의 도메인 설계 문서를 만드는 것이 목표였다. 구현 자체보다 더 중요한 조건은 다음과 같았다. 요구사항이 완전히 정제되지 않은 상태 단일 RDB…]]></description><link>https://hyungkishin.github.io/e-commerce/will/two-week/</link><guid isPermaLink="false">https://hyungkishin.github.io/e-commerce/will/two-week/</guid><pubDate>Fri, 13 Feb 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;배경&lt;/h2&gt;
 &lt;p&gt;이번 설계는 감성 이커머스라는 가상의 서비스를 대상으로,&lt;br&gt;
 &lt;strong&gt;다음 주부터 바로 개발에 착수할 수 있는 수준의 도메인 설계 문서&lt;/strong&gt;를 만드는 것이 목표였다.&lt;/p&gt;
