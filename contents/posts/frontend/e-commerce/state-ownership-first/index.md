@@ -41,21 +41,70 @@ return Number.isInteger(page) && page >= 1 ? page : null
 
 문제는 Number.isInteger(1e20)이 true라는 점이다. 정수 여부만 검사할 뿐 그 값이 안전하게 표현 가능한 정수인지는 확인하지 않는다. 반면 API는 Number.isSafeInteger를 기준으로 page를 확인한다. 클라이언트와 API가 서로 다른 유효성 기준을 쓰면서 parser는 통과하지만 API에서는 거절되는 구간이 생겼다.
 
+기준을 `Number.isSafeInteger`로 바꾸면 1e20은 걸린다. 그런데 값만 보는 판정에는 구멍이 하나 더 있다. 표기를 보지 않는다.
+
+| URL의 page | `Number()` 결과 | 값만 보는 판정 | 표기까지 보는 판정 |
+| --- | --- | --- | --- |
+| `3` | 3 | 통과 | 통과 |
+| `007` | 7 | 통과 | 거절 |
+| `0x10` | 16 | 통과 | 거절 |
+| `%201` | 1 | 통과 | 거절 |
+| `1e2` | 100 | 통과 | 거절 |
+| `1e20` | 1e+20 | 거절 | 거절 |
+
+`007`과 `7`은 같은 페이지다. 값만 보면 둘 다 통과한다. 그런데 URL이 다르다. 조건의 원본이 URL이므로 query key도 갈린다. 같은 목록이 캐시 두 칸을 차지하고 한쪽이 갱신돼도 다른 쪽은 옛 응답을 들고 있다. 표기가 갈리는 만큼 캐시가 갈린다.
+
+그래서 판정은 표기부터 한다.
+
 ```ts
-const parseAsPageNumber = createParser<number>({
-  parse: (value) => {
-    const page = Number(value)
-    return Number.isSafeInteger(page) && page >= 1 ? page : null
-  },
-  serialize: (value) => String(value),
-})
+// 표기 검사가 먼저다. Number()만 쓰면 '0x10', ' 1', '1e2'가 통과하고
+// '007'과 '7'이 같은 페이지의 다른 URL이 된다.
+const parsePositiveIntegerValue = (
+  raw: string,
+  isValid: (value: number) => boolean,
+) => {
+  if (!/^[1-9]\d*$/.test(raw)) return null
+  const value = Number(raw)
+  return isValid(value) ? value : null
+}
+
+const isValidPage = (page: number) => Number.isSafeInteger(page) && page >= 1
+
+export const parsePageValue = (raw: string) =>
+  parsePositiveIntegerValue(raw, isValidPage)
 ```
 
-안전한 양의 정수가 아니면 parser는 null을 반환하고 parser에 걸어 둔 기본값인 1페이지로 돌아간다. 잘못된 URL이 더 이상 API 에러 화면까지 전달되지 않는다.
+이 판정 규칙은 parser 안에 있지 않다. mock API route가 같은 파일을 읽는다. 두 처리의 책임은 다르다. 클라이언트 정규화는 잘못된 입력을 요청 전에 되돌려 불필요한 400 왕복을 줄이는 UX 처리다. 서버 검증은 클라이언트를 신뢰하지 않는다는 전제에서 따로 한다. 책임은 나누되 기준까지 갈라지면 같은 URL이 화면과 API에서 다르게 판정된다.
+
+파싱을 통과하지 못한 값은 parser에 걸어 둔 기본값인 1페이지로 돌아간다. 잘못된 URL이 더 이상 API 에러 화면까지 전달되지 않는다.
 
 ![유효한 page 값만 관문을 통과하고 잘못된 값은 기본값 1로 되돌아가는 애니메이션](./02-parser-gate.svg)
 
+같은 문제가 검색어에도 있었다. 폼은 제출할 때 앞뒤 공백을 자른다. 주소창에 직접 입력하거나 뒤로 가기로 돌아오는 경로는 폼을 거치지 않는다. `q=%20신발`과 `q=신발`이 다른 query key가 된다. 정규화를 폼이 아니라 parser에 두면 어느 경로로 들어와도 같은 조건이 된다.
+
+```ts
+const parseAsSearchQuery = createParser<string>({
+  parse: (value) => value.trim(),
+  serialize: (value) => value.trim(),
+})
+```
+
 입력 검증은 잘못된 값을 거절하는 일이 아니라 복구 가능한 상태만 다음 경계로 보내는 일이다. 400을 정확하게 보여주는 것보다 사용자가 빠져나올 수 없는 400을 만들지 않는 편이 낫다. 정규화되지 않은 입력을 내부 상태로 들이지 않고, 잘못된 상태가 UI에 남기 전에 정상 경로로 돌려보낸다. 두 불변식이 여기서 하나의 parser로 만난다.
+
+재시도 버튼도 다시 봤다. 실패마다 열려 있는 길이 다르다.
+
+```tsx
+let exit: React.ReactNode
+if (isRetryable(error)) {
+  exit = <button onClick={() => refetch()}>다시 시도</button>
+} else if (canResetFilters) {
+  exit = <button onClick={() => setFilters(null)}>검색 조건 초기화</button>
+} else {
+  exit = <Link href="/">홈으로</Link>
+}
+```
+
+`isRetryable`은 ApiError가 아니거나 status가 500 이상일 때만 참이다. 400과 404에서 재시도는 같은 요청을 반복할 뿐이다. 조건이 거절된 실패는 조건을 되돌려야 벗어난다. 조건이 이미 기본값이면 초기화해도 URL과 query key가 그대로여서 화면이 변하지 않는다. 그때는 결과 영역 밖으로 나가는 길을 준다. 셋 중 하나는 실제로 동작한다.
 
 다만 parser가 막는 것은 URL이 API 계약을 벗어나는 경우다. 정상 요청에서 발생하는 서버 장애와 네트워크 오류에는 별도의 재시도와 복구 정책이 필요하다. 잘못된 page 값이 요청까지 도달하지 않으므로 이 입력을 위한 별도 400 재시도 분기는 두지 않았다. 형식이 유효해도 존재하지 않는 페이지는 응답을 받아야 드러난다. 다음 사례다.
 
@@ -65,7 +114,24 @@ const parseAsPageNumber = createParser<number>({
 
 page=99는 형식상 유효한 값이라 parser를 통과한다. 서버는 전체 배열에서 99페이지 구간을 잘라내고 그 구간에는 아무것도 없다. 응답은 200, products는 빈 배열, totalCount는 30이다. 화면은 배열이 비었다는 사실 하나로 "결과 없음" 분기에 들어갔고 이 분기에는 페이지네이션이 없다. 존재하는 상품과 사용자 사이에 클릭으로 건널 수 없는 화면이 생긴 것이다.
 
-같은 빈 배열이 두 상태를 담고 있었다. totalCount가 0이면 조건 불일치, 0이 아니면 범위 밖 페이지다. 지금은 totalCount가 분기를 가르고 범위 밖 페이지에는 전체 개수와 함께 1페이지로 가는 버튼이 남는다.
+같은 빈 배열이 두 상태를 담고 있었다. totalCount가 0이면 조건 불일치, 0이 아니면 범위 밖 페이지다. 분기를 가르는 건 배열 길이 하나가 아니라 두 값의 조합이다.
+
+```tsx
+if (data.products.length === 0 && data.totalCount > 0) {
+  // 범위 밖 페이지. 상품은 있는데 이 구간에만 없다
+  results = (
+    <>
+      <p>없는 페이지입니다. 조건에 맞는 상품은 {data.totalCount}개입니다.</p>
+      <button onClick={() => handlePageChange(1)}>1페이지로 이동</button>
+    </>
+  )
+} else if (data.products.length === 0) {
+  // 조건 불일치. 이 조건에는 상품이 없다
+  results = <p>조건에 맞는 상품이 없습니다.</p>
+}
+```
+
+두 분기의 차이는 문구가 아니라 출구다. 범위 밖 페이지에는 1페이지로 가는 버튼이 남는다. 조건 불일치에는 조건을 바꾸는 것 말고 할 일이 없으므로 버튼을 두지 않는다.
 
 홈도 같은 결이다. 상품 섹션이 비어도 배너와 카테고리는 유지된다. 응답 일부의 공백이 화면 전체를 접을 이유는 없다.
 
@@ -157,7 +223,28 @@ scenario는 mock API가 에러와 빈 응답을 강제하는 테스트용 스위
 | 장바구니, 위시리스트 | 클라이언트 store | Zustand store | 새로고침 전 | 홈, 목록, 헤더 |
 | 제출 전 검색어 | 컴포넌트 | useState | 입력 중 | 검색 폼 |
 
-장바구니에는 상품 전체가 아니라 ID만 저장한다. 개수와 포함 여부는 ID 배열에서 계산하고, 화면에는 용도별 selector 훅만 공개한다.
+장바구니에는 상품 전체가 아니라 ID만 저장한다. Product를 통째로 복사하면 서버 캐시와 두 번째 원본이 생긴다.
+
+```ts
+const toggleId = (ids: string[], id: string) =>
+  ids.includes(id) ? ids.filter((existing) => existing !== id) : [...ids, id]
+
+// 비로그인 익명 상태라 서버 원본이 없다. 원본은 이 store 하나다.
+const useShoppingStore = create<ShoppingState>((set) => ({
+  cartIds: [],
+  toggleCart: (productId) =>
+    set((state) => ({ cartIds: toggleId(state.cartIds, productId) })),
+}))
+
+// 화면에는 store가 아니라 용도별 selector 훅만 공개한다.
+export const useCartCount = () =>
+  useShoppingStore((state) => state.cartIds.length)
+
+export const useIsInCart = (productId: string) =>
+  useShoppingStore((state) => state.cartIds.includes(productId))
+```
+
+개수와 포함 여부는 ID 배열에서 계산한다. 헤더는 `useCartCount`만, 상품 카드는 자기 ID의 `useIsInCart`만 구독한다. store를 그대로 열어 두면 소비자가 전체를 구독하거나 임의의 필드에 의존하게 된다. 그 순간 store의 모양이 화면의 계약이 된다.
 
 ![담기 한 번이 store의 ID 배열을 바꾸고 헤더는 개수만, 다른 카드는 포함 여부만 구독하는 파급 범위](./01-toggle-propagation.svg)
 
