@@ -1,8 +1,8 @@
 const { createFilePath } = require(`gatsby-source-filesystem`)
 const {
-  SERIES_RULES,
   NO_SERIES_ID,
   matchSeries,
+  groupPostsBySeries,
   buildPostNavigation,
 } = require("./src/utils/seriesRules")
 
@@ -67,7 +67,8 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
   })
 
   // 시리즈 목록 페이지. 경로는 그 시리즈 글들의 부모 디렉토리다.
-  SERIES_RULES.forEach(rule => {
+  // 글이 아직 없는 규칙은 페이지를 만들지 않는다. 빈 목록 페이지가 사이트맵에 남는다.
+  groupPostsBySeries(posts).forEach(({ rule }) => {
     if (!rule.indexSlug) return
     createPage({
       path: rule.indexSlug,

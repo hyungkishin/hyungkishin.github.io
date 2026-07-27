@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" font-family="Pretendard, Apple SD Gothic Neo, sans-serif">
+  <defs>
+    <linearGradient id="tlbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#f1f5f9"/>
+    </linearGradient>
+    <filter id="tlglow" x="-70%" y="-70%" width="240%" height="240%">
+      <feGaussianBlur stdDeviation="3.5" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect x="0" y="0" width="900" height="420" rx="20" fill="url(#tlbg)"/>
+
+  <text x="40" y="52" font-size="22" font-weight="700" fill="#1e293b">완료 순서와 결과 순서는 다른 축이다</text>
+  <text x="40" y="78" font-size="14" fill="#64748b">두 작업은 같이 출발한다. 결과 배열의 자리는 출발선에서 이미 정해져 있다.</text>
+
+  <!-- 시간 축 -->
+  <line x1="150" y1="292" x2="770" y2="292" stroke="#94a3b8" stroke-opacity="0.5" stroke-width="1.5"/>
+  <line x1="150" y1="286" x2="150" y2="298" stroke="#94a3b8" stroke-opacity="0.6"/>
+  <text x="150" y="316" font-size="12" fill="#94a3b8" text-anchor="middle" font-family="monospace">0ms</text>
+  <line x1="196" y1="286" x2="196" y2="298" stroke="#94a3b8" stroke-opacity="0.6"/>
+  <text x="196" y="316" font-size="12" fill="#94a3b8" text-anchor="middle" font-family="monospace">10</text>
+  <line x1="704" y1="286" x2="704" y2="298" stroke="#94a3b8" stroke-opacity="0.6"/>
+  <text x="704" y="316" font-size="12" fill="#94a3b8" text-anchor="middle" font-family="monospace">120</text>
+
+  <!-- 레인 라벨 -->
+  <text x="132" y="176" font-size="14" fill="#7e22ce" text-anchor="end" font-family="monospace">slow</text>
+  <text x="132" y="242" font-size="14" fill="#0e7490" text-anchor="end" font-family="monospace">fast</text>
+
+  <!-- 레인 배경 -->
+  <rect x="150" y="152" width="620" height="34" rx="10" fill="#0f172a" fill-opacity="0.03"/>
+  <rect x="150" y="218" width="620" height="34" rx="10" fill="#0f172a" fill-opacity="0.03"/>
+
+  <!-- slow 진행 막대 -->
+  <rect x="150" y="152" width="0" height="34" rx="10" fill="#a855f7" fill-opacity="0.35">
+    <animate attributeName="width" values="0;0;554;554;554;0" keyTimes="0;0.10;0.60;0.94;0.97;1" dur="10s" repeatCount="indefinite"/>
+  </rect>
+
+  <!-- fast 진행 막대 -->
+  <rect x="150" y="218" width="0" height="34" rx="10" fill="#0891b2" fill-opacity="0.35">
+    <animate attributeName="width" values="0;0;46;46;46;0" keyTimes="0;0.10;0.142;0.94;0.97;1" dur="10s" repeatCount="indefinite"/>
+  </rect>
+
+  <!-- 출발 신호 -->
+  <text x="150" y="130" font-size="13" fill="#059669" text-anchor="middle" font-family="monospace" opacity="0">
+    <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.08;0.24;0.30;1" dur="10s" repeatCount="indefinite"/>
+    동시 출발
+  </text>
+
+  <!-- fast 완료 -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.14;0.19;0.94;1" dur="10s" repeatCount="indefinite"/>
+    <circle cx="196" cy="235" r="7" fill="#0891b2" filter="url(#tlglow)"/>
+    <text x="216" y="240" font-size="13" fill="#0e7490" font-family="monospace">완료 1번</text>
+  </g>
+
+  <!-- slow 완료 -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.60;0.65;0.94;1" dur="10s" repeatCount="indefinite"/>
+    <circle cx="704" cy="169" r="7" fill="#a855f7" filter="url(#tlglow)"/>
+    <text x="724" y="174" font-size="13" fill="#7e22ce" font-family="monospace">완료 2번</text>
+  </g>
+
+  <!-- fast 대기 표시 -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.20;0.25;0.58;0.63;1" dur="10s" repeatCount="indefinite"/>
+    <line x1="196" y1="252" x2="196" y2="272" stroke="#0891b2" stroke-opacity="0.4" stroke-dasharray="4 4"/>
+    <text x="330" y="272" font-size="12.5" fill="#0e7490" font-family="monospace">먼저 끝나도 배열은 아직 만들어지지 않는다</text>
+  </g>
+
+  <!-- 결과 배열 -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.66;0.72;0.94;1" dur="10s" repeatCount="indefinite"/>
+    <text x="150" y="360" font-size="13" fill="#94a3b8" font-family="monospace">await Promise.all([slow, fast])</text>
+    <rect x="410" y="340" width="150" height="42" rx="12" fill="#a855f7" fill-opacity="0.14" stroke="#a855f7" stroke-opacity="0.55"/>
+    <text x="485" y="367" font-size="15" fill="#7e22ce" text-anchor="middle" font-family="monospace">'slow'</text>
+    <rect x="576" y="340" width="150" height="42" rx="12" fill="#0891b2" fill-opacity="0.14" stroke="#0891b2" stroke-opacity="0.55"/>
+    <text x="651" y="367" font-size="15" fill="#0e7490" text-anchor="middle" font-family="monospace">'fast'</text>
+    <text x="740" y="367" font-size="13" fill="#64748b" font-family="monospace">index 순</text>
+  </g>
+</svg>

@@ -55,6 +55,20 @@ const SERIES_RULES = [
     sortKey: slug => Number(slug.match(/round(\d+)/)?.[1]),
   },
   {
+    id: "js-quiz",
+    name: "자바스크립트 열 문제",
+    tagline: "퀴즈 열 개에서 언어 규칙을 역산한 기록",
+    indexSlug: "/frontend/javascript/",
+    // 문제 번호가 아니라 규칙 이름이 슬러그다. 읽는 순서는 아래 나열 순서다.
+    slugs: [
+      "/frontend/javascript/implicit-string-conversion/",
+      "/frontend/javascript/value-identity/",
+      "/frontend/javascript/shallow-copy/",
+      "/frontend/javascript/lookup-and-call/",
+      "/frontend/javascript/execution-order/",
+    ],
+  },
+  {
     id: "will",
     name: "e-commerce 주간 회고",
     tagline: "주차별 회고",

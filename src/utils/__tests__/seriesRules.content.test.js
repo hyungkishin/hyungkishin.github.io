@@ -11,6 +11,7 @@ const {
   SERIES_RULES,
   NAV_LABELS,
   matchSeries,
+  groupPostsBySeries,
   buildPostNavigation,
 } = require("../seriesRules")
 
@@ -54,11 +55,31 @@ test("콘텐츠 정합성", async t => {
     assert.deepEqual(missing, [])
   })
 
-  await t.test("빈 시리즈 규칙이 없다", () => {
-    const empty = SERIES_RULES.filter(
-      rule => !posts.some(post => matchSeries(post.fields.slug) === rule)
-    ).map(rule => rule.id)
-    assert.deepEqual(empty, [])
+  await t.test("시리즈 디렉토리의 글이 규칙에서 누락되지 않는다", t => {
+    // 나열형 규칙은 아직 쓰지 않은 글까지 순서를 미리 선언한다. 그래서 목록에 있는데
+    // 파일이 없는 건 정상이다. 반대로 파일이 있는데 목록에 없으면 그 글은 시리즈에서
+    // 빠진 채 발행된다. 이 글을 시리즈로 묶게 만든 원래 버그가 그것이다.
+    const missing = []
+
+    SERIES_RULES.filter(rule => rule.slugs).forEach(rule => {
+      const declared = new Set(rule.slugs)
+      const written = posts
+        .map(post => post.fields.slug)
+        .filter(
+          slug => slug.startsWith(rule.indexSlug) && slug !== rule.indexSlug
+        )
+
+      written
+        .filter(slug => !declared.has(slug))
+        .forEach(slug => missing.push(`${rule.id}: ${slug}`))
+
+      const unwritten = rule.slugs.filter(slug => !written.includes(slug))
+      if (unwritten.length > 0) {
+        t.diagnostic(`${rule.id}: 아직 쓰지 않은 ${unwritten.length}편`)
+      }
+    })
+
+    assert.deepEqual(missing, [])
   })
 
   await t.test("시리즈 목록 페이지 경로가 글 경로와 겹치지 않는다", () => {
