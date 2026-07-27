@@ -105,6 +105,7 @@ export const pageQuery = graphql`
         }
         frontmatter {
           date(formatString: "MMMM DD, YYYY")
+          isoDate: date
           update(formatString: "MMM DD, YYYY")
           title
           tags

@@ -2,7 +2,6 @@
 title: "큐 거부 0건을 성공이라고 부른 직후, Outbox까지 가야 했습니다"
 date: 2026-05-02
 update: 2026-07-24
-series: "사고가 어디서 시작됐는지"
 tags:
 - 장애회고
 - Outbox

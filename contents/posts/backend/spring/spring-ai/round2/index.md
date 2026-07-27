@@ -2,7 +2,6 @@
 title: "Ai. Spring AI 로 때워도 되나유? 3편 : 판단은 LLM, 실행은 Spring Bean"
 date: 2026-07-20
 update: 2026-07-24
-series: "Spring AI 로 때워도 되나유"
 tags:
   - AI
   - Spring

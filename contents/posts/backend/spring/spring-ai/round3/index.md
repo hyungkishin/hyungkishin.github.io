@@ -2,7 +2,6 @@
 title: "Ai. Spring AI 로 때워도 되나유? 4편 : \"그거\" 는 누가 기억하나"
 date: 2026-07-21
 update: 2026-07-24
-series: "Spring AI 로 때워도 되나유"
 tags:
   - AI
   - Spring

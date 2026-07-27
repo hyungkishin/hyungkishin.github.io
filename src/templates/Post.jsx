@@ -5,32 +5,21 @@ import { graphql } from "gatsby"
 import Layout from "components/Layout"
 import Article from "components/Article"
 
+import { findSeriesById, sortSeriesPosts } from "utils/seriesRules"
 import { siteUrl } from "../../blog-config"
 
 const Post = ({ data, pageContext }) => {
   const post = data.markdownRemark
-  const { previous, next, seriesList } = data
+  const { previous, next } = data
 
-  const { title, description, date, update, tags, series } = post.frontmatter
+  const { title, description, date, update, tags } = post.frontmatter
   const { isoDate, isoUpdate } = post.frontmatter
   const { slug } = post.fields
 
-  let filteredSeries = []
-  if (series !== null) {
-    filteredSeries = seriesList.edges.map(seriesPost => {
-      if (seriesPost.node.id === post.id) {
-        return {
-          ...seriesPost.node,
-          currentPost: true,
-        }
-      } else {
-        return {
-          ...seriesPost.node,
-          currentPost: false,
-        }
-      }
-    })
-  }
+  const seriesRule = findSeriesById(pageContext.seriesId)
+  const seriesPosts = seriesRule
+    ? sortSeriesPosts(seriesRule, data.seriesPosts.nodes)
+    : []
 
   return (
     <Layout>
@@ -44,14 +33,13 @@ const Post = ({ data, pageContext }) => {
         tags={tags}
       />
       <Article>
-        <Article.Header
-          title={title}
-          date={date}
-          update={update}
-          tags={tags}
-        />
-        {filteredSeries.length > 0 && (
-          <Article.Series header={series} series={filteredSeries} />
+        <Article.Header title={title} date={date} update={update} tags={tags} />
+        {seriesPosts.length > 1 && (
+          <Article.Series
+            rule={seriesRule}
+            posts={seriesPosts}
+            currentId={post.id}
+          />
         )}
         <Article.Body html={post.html} />
         <Article.Footer
@@ -70,7 +58,7 @@ export default Post
 export const pageQuery = graphql`
   query BlogPostBySlug(
     $id: String!
-    $series: String
+    $seriesId: String
     $previousPostId: String
     $nextPostId: String
   ) {
@@ -90,25 +78,22 @@ export const pageQuery = graphql`
         isoDate: date
         isoUpdate: update
         tags
-        series
       }
       fields {
         slug
       }
     }
-    seriesList: allMarkdownRemark(
-      sort: { order: ASC, fields: [frontmatter___date] }
-      filter: { frontmatter: { series: { eq: $series } } }
+    seriesPosts: allMarkdownRemark(
+      filter: { fields: { series: { eq: $seriesId } } }
     ) {
-      edges {
-        node {
-          id
-          fields {
-            slug
-          }
-          frontmatter {
-            title
-          }
+      nodes {
+        id
+        fields {
+          slug
+        }
+        frontmatter {
+          title
+          isoDate: date
         }
       }
     }

@@ -10,7 +10,6 @@ import { description, siteUrl } from "../../blog-config"
 
 const SeriesIndexPage = ({ pageContext, data }) => {
   const rule = findSeriesById(pageContext.seriesId)
-  const posts = data.allMarkdownRemark.nodes
 
   if (!rule) {
     return (
@@ -27,7 +26,7 @@ const SeriesIndexPage = ({ pageContext, data }) => {
         description={rule.tagline || description}
         url={`${siteUrl}${rule.indexSlug}`}
       />
-      <SeriesDetail rule={rule} posts={posts} />
+      <SeriesDetail rule={rule} posts={data.seriesPosts.nodes} />
     </Layout>
   )
 }
@@ -35,8 +34,10 @@ const SeriesIndexPage = ({ pageContext, data }) => {
 export default SeriesIndexPage
 
 export const pageQuery = graphql`
-  query {
-    allMarkdownRemark(sort: { fields: [frontmatter___date], order: DESC }) {
+  query SeriesIndexBySeriesId($seriesId: String!) {
+    seriesPosts: allMarkdownRemark(
+      filter: { fields: { series: { eq: $seriesId } } }
+    ) {
       nodes {
         id
         excerpt(pruneLength: 200, truncate: true)
@@ -46,6 +47,7 @@ export const pageQuery = graphql`
         }
         frontmatter {
           date(formatString: "MMMM DD, YYYY")
+          isoDate: date
           title
           tags
         }

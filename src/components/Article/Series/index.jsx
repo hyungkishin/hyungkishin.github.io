@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from "react"
-import _ from "lodash"
 import styled from "styled-components"
 import { Link } from "gatsby"
 
 import { AiOutlineArrowLeft } from "react-icons/ai"
+
+const FOLDED_SIZE = 5
 
 const SeriesWrapper = styled.div`
   margin-bottom: 40px;
@@ -89,51 +90,60 @@ const ViewMore = styled.div`
   }
 `
 
-const Series = ({ header, series }) => {
-  const [fold, setFold] = useState(true)
+/** 접힌 상태에서는 현재 글을 가운데 두고 앞뒤 편만 보여준다. */
+const foldAround = (posts, currentIndex) => {
+  if (posts.length <= FOLDED_SIZE) return posts
 
-  const filteredPosts = useMemo(() => {
-    if (series.length < 5) return series
-    if (!fold) return series
+  const half = Math.floor(FOLDED_SIZE / 2)
+  if (currentIndex < half) return posts.slice(0, FOLDED_SIZE)
+  if (posts.length - currentIndex - 1 < half) return posts.slice(-FOLDED_SIZE)
+  return posts.slice(currentIndex - half, currentIndex + half + 1)
+}
 
-    const currentPostIdx = _.findIndex(series, { currentPost: true })
+/**
+ * @param {object} rule 시리즈 규칙 (utils/seriesRules)
+ * @param {object[]} posts 읽는 순서대로 정렬된 같은 시리즈의 글
+ * @param {string} currentId 지금 보고 있는 글의 id
+ */
+const Series = ({ rule, posts, currentId }) => {
+  const [folded, setFolded] = useState(true)
 
-    if (currentPostIdx < 2) return series.slice(0, 5)
-    if (series.length - currentPostIdx - 1 < 2)
-      return series.slice(series.length - 5, series.length)
+  const currentIndex = useMemo(
+    () => posts.findIndex(post => post.id === currentId),
+    [posts, currentId]
+  )
 
-    return series.slice(currentPostIdx - 2, currentPostIdx + 3)
-  }, [series, fold])
+  const visiblePosts = useMemo(
+    () => (folded ? foldAround(posts, currentIndex) : posts),
+    [posts, currentIndex, folded]
+  )
 
-  const showViewButton = useMemo(() => {
-    return series.length > 5
-  }, [series])
+  const hiddenCount = posts.length - visiblePosts.length
 
   return (
     <SeriesWrapper>
       <SeriesHeader>
-        <Link to={`/series/${_.replace(header, /\s/g, "-")}`}>
-          SERIES: {header}
-        </Link>{" "}
-        <span>({series.length})</span>
+        {rule.indexSlug ? (
+          <Link to={rule.indexSlug}>SERIES: {rule.name}</Link>
+        ) : (
+          <>SERIES: {rule.name}</>
+        )}{" "}
+        <span>({posts.length})</span>
       </SeriesHeader>
       <PostWrapper>
-        {filteredPosts.map((post, i) => (
-          <Post key={i} currentPost={post.currentPost}>
-            <Link to={post.fields.slug}>{post.frontmatter.title}</Link>{" "}
-            {post.currentPost && <AiOutlineArrowLeft />}{" "}
-          </Post>
-        ))}
+        {visiblePosts.map(post => {
+          const isCurrent = post.id === currentId
+          return (
+            <Post key={post.id} currentPost={isCurrent}>
+              <Link to={post.fields.slug}>{post.frontmatter.title}</Link>{" "}
+              {isCurrent && <AiOutlineArrowLeft />}{" "}
+            </Post>
+          )
+        })}
       </PostWrapper>
-      {showViewButton && (
-        <ViewMore
-          onClick={() => {
-            setFold(!fold)
-          }}
-        >
-          {fold
-            ? `View More (+${series.length - filteredPosts.length})`
-            : "View Less"}
+      {posts.length > FOLDED_SIZE && (
+        <ViewMore onClick={() => setFolded(!folded)}>
+          {folded ? `View More (+${hiddenCount})` : "View Less"}
         </ViewMore>
       )}
     </SeriesWrapper>

@@ -2,7 +2,6 @@
 title: "Ai. Spring AI 로 때워도 되나유? 5편 : 902 토큰을 내고도 모델은 정책을 안 썼다"
 date: 2026-07-22
 update: 2026-07-24
-series: "Spring AI 로 때워도 되나유"
 tags:
   - AI
   - Spring

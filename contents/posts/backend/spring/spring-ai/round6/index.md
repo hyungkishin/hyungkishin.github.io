@@ -2,7 +2,6 @@
 title: "Ai. Spring AI 로 때워도 되나유? 7편 : 에이전트는 마법이 아니라 체인이다"
 date: 2026-07-24
 update: 2026-07-24
-series: "Spring AI 로 때워도 되나유"
 tags:
   - AI
   - Spring

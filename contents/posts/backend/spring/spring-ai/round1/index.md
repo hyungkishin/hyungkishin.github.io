@@ -2,7 +2,6 @@
 title: "Ai. Spring AI 로 때워도 되나유? 2편 : .call() 한 줄 아래에서 벌어지는 일"
 date: 2026-07-19
 update: 2026-07-24
-series: "Spring AI 로 때워도 되나유"
 tags:
   - AI
   - Spring

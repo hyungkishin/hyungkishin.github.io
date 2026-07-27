@@ -1,5 +1,10 @@
 const { createFilePath } = require(`gatsby-source-filesystem`)
-const { SERIES_RULES } = require("./src/utils/seriesRules")
+const {
+  SERIES_RULES,
+  NO_SERIES_ID,
+  matchSeries,
+  buildPostNavigation,
+} = require("./src/utils/seriesRules")
 
 exports.createPages = async ({ graphql, actions, reporter }) => {
   const { createPage } = actions
@@ -20,7 +25,6 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
             slug
           }
           frontmatter {
-            series
             date
           }
         }
@@ -42,90 +46,28 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
   }
 
   const posts = result.data.postsRemark.nodes
+  const navigation = buildPostNavigation(posts)
 
-  // 각 글 페이지 생성
-  if (posts.length > 0) {
-    // 시리즈 글의 이전/다음은 같은 시리즈 안에서 잇는다.
-    // 시리즈의 끝에서는 다음 시리즈의 첫 편으로 넘어간다. 일반 글은 시간순 그대로.
-    const seriesGroups = {}
-    posts.forEach(post => {
-      const seriesName = post.frontmatter && post.frontmatter.series
-      if (!seriesName) return
-      if (!seriesGroups[seriesName]) seriesGroups[seriesName] = []
-      seriesGroups[seriesName].push(post)
+  posts.forEach(post => {
+    const nav = navigation.get(post.fields.slug)
+    const isResume = post.fields.slug === "/resume/"
+
+    createPage({
+      path: post.fields.slug,
+      component: isResume ? resumeTemplate : postTemplate,
+      context: {
+        id: post.id,
+        seriesId: nav.seriesId || NO_SERIES_ID,
+        previousPostId: nav.previous ? nav.previous.id : null,
+        nextPostId: nav.next ? nav.next.id : null,
+        previousLabel: nav.previousLabel,
+        nextLabel: nav.nextLabel,
+      },
     })
+  })
 
-    // 같은 날짜의 동점은 slug로 고정한다 (why1 < why2 < ...)
-    Object.values(seriesGroups).forEach(group => {
-      group.sort((a, b) => {
-        const dateCompare = String(a.frontmatter.date).localeCompare(
-          String(b.frontmatter.date)
-        )
-        return dateCompare !== 0
-          ? dateCompare
-          : a.fields.slug.localeCompare(b.fields.slug)
-      })
-    })
-
-    // 시리즈 순서는 각 시리즈 첫 편의 날짜 순
-    const seriesNames = Object.keys(seriesGroups).sort((a, b) =>
-      String(seriesGroups[a][0].frontmatter.date).localeCompare(
-        String(seriesGroups[b][0].frontmatter.date)
-      )
-    )
-
-    posts.forEach((post, index) => {
-      const seriesName = (post.frontmatter && post.frontmatter.series) || null
-      let previousPostId = index === 0 ? null : posts[index - 1].id
-      let nextPostId = index === posts.length - 1 ? null : posts[index + 1].id
-      let previousLabel = null
-      let nextLabel = null
-
-      if (seriesName) {
-        const group = seriesGroups[seriesName]
-        const gi = group.findIndex(p => p.id === post.id)
-        const si = seriesNames.indexOf(seriesName)
-
-        if (gi > 0) {
-          previousPostId = group[gi - 1].id
-          previousLabel = "시리즈 이전 편"
-        } else {
-          const prevSeries = seriesNames[si - 1]
-          const prevGroup = prevSeries ? seriesGroups[prevSeries] : null
-          previousPostId = prevGroup ? prevGroup[prevGroup.length - 1].id : null
-          previousLabel = prevGroup ? "이전 시리즈" : null
-        }
-
-        if (gi < group.length - 1) {
-          nextPostId = group[gi + 1].id
-          nextLabel = "시리즈 다음 편"
-        } else {
-          const nextSeries = seriesNames[si + 1]
-          const nextGroup = nextSeries ? seriesGroups[nextSeries] : null
-          nextPostId = nextGroup ? nextGroup[0].id : null
-          nextLabel = nextGroup ? "다음 시리즈" : null
-        }
-      }
-
-      const isResume = post.fields.slug === "/resume/"
-
-      createPage({
-        path: post.fields.slug,
-        component: isResume ? resumeTemplate : postTemplate,
-        context: {
-          id: post.id,
-          series: seriesName,
-          previousPostId,
-          nextPostId,
-          previousLabel,
-          nextLabel,
-        },
-      })
-    })
-  }
-
-  // 시리즈 인덱스 페이지 생성 (부모 디렉토리 URL)
-  SERIES_RULES.forEach((rule) => {
+  // 시리즈 목록 페이지. 경로는 그 시리즈 글들의 부모 디렉토리다.
+  SERIES_RULES.forEach(rule => {
     if (!rule.indexSlug) return
     createPage({
       path: rule.indexSlug,
@@ -140,28 +82,22 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
 exports.onCreateNode = ({ node, actions, getNode }) => {
   const { createNodeField } = actions
 
-  if (node.internal.type === `MarkdownRemark`) {
-    const filePath = node.fileAbsolutePath || ""
-    // createFilePath가 contents/posts 이후 경로를 반환.
-    // 예: contents/posts/company/work/why1/index.md → /company/work/why1/
-    const slug = createFilePath({ node, getNode })
+  if (node.internal.type !== `MarkdownRemark`) return
 
-    createNodeField({
-      node,
-      name: `slug`,
-      value: slug,
-    })
+  const filePath = node.fileAbsolutePath || ""
+  // createFilePath가 contents/posts 이후 경로를 반환.
+  // 예: contents/posts/company/work/why1/index.md → /company/work/why1/
+  const slug = createFilePath({ node, getNode })
 
-    // 첫 번째 디렉토리를 카테고리로 사용
-    const match = filePath.match(/\/contents\/posts\/([^/]+)\//)
-    const topDir = match ? match[1] : "etc"
+  createNodeField({ node, name: `slug`, value: slug })
 
-    createNodeField({
-      node,
-      name: `category`,
-      value: topDir,
-    })
-  }
+  // 첫 번째 디렉토리를 카테고리로 사용
+  const match = filePath.match(/\/contents\/posts\/([^/]+)\//)
+  createNodeField({ node, name: `category`, value: match ? match[1] : "etc" })
+
+  // 시리즈 소속은 슬러그에서 파생된다. 프론트매터에 적지 않는다.
+  const rule = matchSeries(slug)
+  createNodeField({ node, name: `series`, value: rule ? rule.id : null })
 }
 
 exports.createSchemaCustomization = ({ actions }) => {
@@ -169,11 +105,16 @@ exports.createSchemaCustomization = ({ actions }) => {
   const typeDefs = `
   type MarkdownRemark implements Node {
     frontmatter: Frontmatter!
+    fields: MarkdownRemarkFields
   }
   type Frontmatter {
     title: String!
     description: String
     tags: [String!]!
+  }
+  type MarkdownRemarkFields {
+    slug: String!
+    category: String!
     series: String
   }
   `

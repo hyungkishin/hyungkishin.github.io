@@ -2,7 +2,6 @@
 title: "첫 호출만 5초, warmup으로 풀릴 줄 알았어요"
 date: 2026-05-02
 update: 2026-07-24
-series: "사고가 어디서 시작됐는지"
 tags:
 - JVM
 - ColdStart

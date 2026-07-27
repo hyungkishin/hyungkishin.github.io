@@ -1,0 +1,123 @@
+/**
+ * 실제 contents/posts 를 읽어 시리즈 규칙과 글이 어긋나지 않는지 본다.
+ * 글을 추가하다가 시리즈에서 빠지거나, 규칙만 남고 글이 사라지는 상황을 여기서 잡는다.
+ */
+const test = require("node:test")
+const assert = require("node:assert/strict")
+const fs = require("node:fs")
+const path = require("node:path")
+
+const {
+  SERIES_RULES,
+  NAV_LABELS,
+  matchSeries,
+  buildPostNavigation,
+} = require("../seriesRules")
+
+const POSTS_DIR = path.join(__dirname, "..", "..", "..", "contents", "posts")
+
+const readPosts = () =>
+  fs
+    .readdirSync(POSTS_DIR, { recursive: true })
+    .filter(entry => path.basename(entry) === "index.md")
+    .map(entry => {
+      const file = path.join(POSTS_DIR, entry)
+      const raw = fs.readFileSync(file, "utf8")
+      const dir = path.dirname(entry)
+      return {
+        id: dir,
+        raw,
+        fields: { slug: `/${dir === "." ? "" : `${dir}/`}` },
+        frontmatter: { date: (raw.match(/^date:\s*(.+)$/m) || [])[1] || "" },
+      }
+    })
+
+const posts = readPosts()
+
+test("콘텐츠 정합성", async t => {
+  await t.test("글을 하나 이상 읽어온다", () => {
+    assert.ok(posts.length > 10, `읽어온 글 ${posts.length}편`)
+  })
+
+  await t.test("프론트매터에 series 가 남아 있지 않다", () => {
+    // 소속 근거는 슬러그 하나다. 프론트매터에 다시 적으면 두 정의가 갈라진다.
+    const offenders = posts
+      .filter(post => /^series:/m.test(post.raw.split("---")[1] || ""))
+      .map(post => post.fields.slug)
+    assert.deepEqual(offenders, [])
+  })
+
+  await t.test("모든 글에 date 가 있다", () => {
+    const missing = posts
+      .filter(post => !post.frontmatter.date)
+      .map(post => post.fields.slug)
+    assert.deepEqual(missing, [])
+  })
+
+  await t.test("빈 시리즈 규칙이 없다", () => {
+    const empty = SERIES_RULES.filter(
+      rule => !posts.some(post => matchSeries(post.fields.slug) === rule)
+    ).map(rule => rule.id)
+    assert.deepEqual(empty, [])
+  })
+
+  await t.test("시리즈 목록 페이지 경로가 글 경로와 겹치지 않는다", () => {
+    const slugs = new Set(posts.map(post => post.fields.slug))
+    const collisions = SERIES_RULES.filter(rule =>
+      slugs.has(rule.indexSlug)
+    ).map(rule => rule.indexSlug)
+    assert.deepEqual(collisions, [])
+  })
+
+  await t.test("시리즈 id 와 목록 경로가 중복되지 않는다", () => {
+    const ids = SERIES_RULES.map(rule => rule.id)
+    const indexSlugs = SERIES_RULES.map(rule => rule.indexSlug)
+    assert.equal(new Set(ids).size, ids.length)
+    assert.equal(new Set(indexSlugs).size, indexSlugs.length)
+  })
+
+  await t.test(
+    "시리즈 글의 이전/다음은 같은 시리즈이거나 시리즈 경계다",
+    () => {
+      const navigation = buildPostNavigation(posts)
+
+      posts.forEach(post => {
+        const rule = matchSeries(post.fields.slug)
+        if (!rule) return
+
+        const nav = navigation.get(post.fields.slug)
+        const check = (neighbor, label, boundaryLabel) => {
+          if (!neighbor) return
+          const neighborRule = matchSeries(neighbor.fields.slug)
+          const sameSeries = neighborRule === rule
+          assert.ok(
+            sameSeries || label === boundaryLabel,
+            `${post.fields.slug} 의 이웃 ${neighbor.fields.slug} 가 다른 시리즈인데 라벨이 ${label}`
+          )
+          if (!sameSeries) {
+            assert.ok(
+              neighborRule,
+              `${post.fields.slug} 가 시리즈에 속하지 않은 ${neighbor.fields.slug} 로 이어진다`
+            )
+          }
+        }
+
+        check(nav.previous, nav.previousLabel, NAV_LABELS.previousSeries)
+        check(nav.next, nav.nextLabel, NAV_LABELS.nextSeries)
+      })
+    }
+  )
+
+  await t.test("최신 storefront 글 다음은 spring 단독 글이 아니다", () => {
+    // 이 리팩터링을 촉발한 회귀. 시리즈에 안 묶여서 날짜순 이웃(Spring)이 붙었다.
+    const nav = buildPostNavigation(posts).get(
+      "/frontend/e-commerce/state-ownership-first/"
+    )
+    assert.equal(nav.seriesId, "storefront")
+    assert.equal(
+      nav.previousLabel,
+      NAV_LABELS.previousInSeries,
+      "이전 글이 같은 시리즈가 아니다"
+    )
+  })
+})

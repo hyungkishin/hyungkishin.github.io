@@ -2,7 +2,6 @@
 title: "Ai. Spring AI 로 때워도 되나유? 6편 : 방어가 한 겹이면 새는 자리는 정해져 있다"
 date: 2026-07-23
 update: 2026-07-24
-series: "Spring AI 로 때워도 되나유"
 tags:
   - AI
   - Spring
