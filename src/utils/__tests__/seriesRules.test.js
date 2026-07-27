@@ -42,6 +42,11 @@ test("matchSeries: 슬러그가 시리즈 소속을 결정한다", async t => {
       "metrics"
     )
     assert.equal(idOf("/backend/spring/spring-ai/round6/"), "spring-ai")
+    // 파일명이 index.md 가 아니라 슬러그가 한 단 더 들어간다
+    assert.equal(
+      idOf("/backend/spring/spring-ai/intro/spring-ai/"),
+      "spring-ai"
+    )
     assert.equal(idOf("/e-commerce/will/will10/"), "will")
   })
 
@@ -108,6 +113,18 @@ test("sortSeriesPosts: 읽는 순서", async t => {
       "/e-commerce/technical-writing/week1/",
       "/e-commerce/technical-writing/week2/",
       "/e-commerce/technical-writing/week10/",
+    ])
+  })
+
+  await t.test("intro 가 round1 보다 앞이다", () => {
+    const rule = matchSeries("/backend/spring/spring-ai/round1/")
+    const sorted = sortSeriesPosts(rule, [
+      post("/backend/spring/spring-ai/round1/", "2026-07-19"),
+      post("/backend/spring/spring-ai/intro/spring-ai/", "2025-03-29"),
+    ])
+    assert.deepEqual(sorted.map(slugOf), [
+      "/backend/spring/spring-ai/intro/spring-ai/",
+      "/backend/spring/spring-ai/round1/",
     ])
   })
 

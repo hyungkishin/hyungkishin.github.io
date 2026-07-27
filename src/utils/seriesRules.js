@@ -51,8 +51,10 @@ const SERIES_RULES = [
     name: "Spring AI 로 때워도 되나유",
     tagline: "배달 상담 에이전트를 6라운드에 걸쳐 만든 기록",
     indexSlug: "/backend/spring/spring-ai/",
-    pattern: /^\/backend\/spring\/spring-ai\/round\d+\/$/,
-    sortKey: slug => Number(slug.match(/round(\d+)/)?.[1]),
+    // 파일명이 index.md 가 아니라 intro/spring-ai.md 여서 슬러그가 한 단 더 들어간다.
+    pattern: /^\/backend\/spring\/spring-ai\/(intro\/spring-ai|round\d+)\/$/,
+    // intro 가 1편이고 roundN 이 N+1편이다.
+    sortKey: slug => Number(slug.match(/round(\d+)/)?.[1] ?? 0),
   },
   {
     id: "js-quiz",

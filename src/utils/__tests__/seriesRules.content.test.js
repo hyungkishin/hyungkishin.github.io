@@ -17,18 +17,27 @@ const {
 
 const POSTS_DIR = path.join(__dirname, "..", "..", "..", "contents", "posts")
 
+// gatsby-source-filesystem 의 createFilePath 와 같은 규칙으로 슬러그를 만든다.
+// foo/index.md 는 /foo/ 가 되고 foo/bar.md 는 /foo/bar/ 가 된다.
+// index.md 만 읽으면 intro/spring-ai.md 같은 글이 검사에서 통째로 빠진다.
+const slugOfEntry = entry => {
+  const dir = path.dirname(entry)
+  const name = path.basename(entry, ".md")
+  const segments = dir === "." ? [] : dir.split(path.sep)
+  if (name !== "index") segments.push(name)
+  return `/${segments.length ? `${segments.join("/")}/` : ""}`
+}
+
 const readPosts = () =>
   fs
     .readdirSync(POSTS_DIR, { recursive: true })
-    .filter(entry => path.basename(entry) === "index.md")
+    .filter(entry => entry.endsWith(".md"))
     .map(entry => {
-      const file = path.join(POSTS_DIR, entry)
-      const raw = fs.readFileSync(file, "utf8")
-      const dir = path.dirname(entry)
+      const raw = fs.readFileSync(path.join(POSTS_DIR, entry), "utf8")
       return {
-        id: dir,
+        id: entry,
         raw,
-        fields: { slug: `/${dir === "." ? "" : `${dir}/`}` },
+        fields: { slug: slugOfEntry(entry) },
         frontmatter: { date: (raw.match(/^date:\s*(.+)$/m) || [])[1] || "" },
       }
     })
@@ -80,6 +89,22 @@ test("콘텐츠 정합성", async t => {
     })
 
     assert.deepEqual(missing, [])
+  })
+
+  await t.test("시리즈 디렉토리 아래인데 규칙에 안 잡히는 글을 드러낸다", t => {
+    // 의도적으로 뺀 글도 있어서 실패시키지 않는다. 다만 조용히 빠지면
+    // intro/spring-ai.md 처럼 규칙 수정 때 통째로 사라져도 아무도 모른다.
+    SERIES_RULES.forEach(rule => {
+      posts
+        .map(post => post.fields.slug)
+        .filter(
+          slug =>
+            slug.startsWith(rule.indexSlug) &&
+            slug !== rule.indexSlug &&
+            !matchSeries(slug)
+        )
+        .forEach(slug => t.diagnostic(`${rule.id} 밖에 있는 글: ${slug}`))
+    })
   })
 
   await t.test("시리즈 목록 페이지 경로가 글 경로와 겹치지 않는다", () => {
