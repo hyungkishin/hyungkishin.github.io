@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 440" font-family="Pretendard, Apple SD Gothic Neo, sans-serif">
+  <defs>
+    <linearGradient id="idbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#f1f5f9"/>
+    </linearGradient>
+    <filter id="idglow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect x="0" y="0" width="900" height="440" rx="20" fill="url(#idbg)"/>
+
+  <text x="40" y="52" font-size="22" font-weight="700" fill="#1e293b">Set이 묻는 것은 모양이 아니라 주소다</text>
+
+  <!-- 장면 1 자막 -->
+  <text x="40" y="80" font-size="14" fill="#64748b" opacity="1">
+    <animate attributeName="opacity" values="1;1;0;0;1" keyTimes="0;0.42;0.48;0.94;1" dur="12s" repeatCount="indefinite"/>
+    리터럴을 두 번 쓰면 객체도 두 개다. 내용이 같아도 서로 다른 참조다.
+  </text>
+  <!-- 장면 2 자막 -->
+  <text x="40" y="80" font-size="14" fill="#64748b" opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.48;0.54;0.92;1" dur="12s" repeatCount="indefinite"/>
+    같은 변수를 두 번 넣으면 참조가 하나다. 두 번째는 자리를 차지하지 않는다.
+  </text>
+
+  <!-- 열 제목 -->
+  <text x="150" y="130" font-size="12" fill="#94a3b8" text-anchor="middle" font-family="monospace">입력</text>
+  <text x="450" y="130" font-size="12" fill="#94a3b8" text-anchor="middle" font-family="monospace">힙</text>
+  <text x="750" y="130" font-size="12" fill="#94a3b8" text-anchor="middle" font-family="monospace">Set</text>
+
+  <!-- ── 장면 1: 리터럴 두 개 ── -->
+  <g opacity="1">
+    <animate attributeName="opacity" values="1;1;0;0;1" keyTimes="0;0.42;0.48;0.94;1" dur="12s" repeatCount="indefinite"/>
+
+    <rect x="60" y="160" width="180" height="44" rx="12" fill="#0891b2" fill-opacity="0.10" stroke="#0891b2" stroke-opacity="0.45"/>
+    <text x="150" y="188" font-size="14" fill="#0e7490" text-anchor="middle" font-family="monospace">{ id: 1 }</text>
+
+    <rect x="60" y="252" width="180" height="44" rx="12" fill="#0891b2" fill-opacity="0.10" stroke="#0891b2" stroke-opacity="0.45"/>
+    <text x="150" y="280" font-size="14" fill="#0e7490" text-anchor="middle" font-family="monospace">{ id: 1 }</text>
+
+    <line x1="248" y1="182" x2="352" y2="182" stroke="#94a3b8" stroke-opacity="0.5" stroke-width="1.5"/>
+    <line x1="248" y1="274" x2="352" y2="274" stroke="#94a3b8" stroke-opacity="0.5" stroke-width="1.5"/>
+
+    <rect x="360" y="160" width="180" height="44" rx="12" fill="#a855f7" fill-opacity="0.10" stroke="#a855f7" stroke-opacity="0.5"/>
+    <text x="450" y="188" font-size="14" fill="#7e22ce" text-anchor="middle" font-family="monospace">참조 A</text>
+
+    <rect x="360" y="252" width="180" height="44" rx="12" fill="#a855f7" fill-opacity="0.10" stroke="#a855f7" stroke-opacity="0.5"/>
+    <text x="450" y="280" font-size="14" fill="#7e22ce" text-anchor="middle" font-family="monospace">참조 B</text>
+
+    <!-- 힙에서 Set 으로 넘어가는 점 -->
+    <circle r="6" fill="#059669" filter="url(#idglow)" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.08;0.18;0.20;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M 548 182 L 668 182" keyPoints="0;0;1;1" keyTimes="0;0.08;0.18;1" dur="12s" repeatCount="indefinite" calcMode="linear"/>
+    </circle>
+    <circle r="6" fill="#059669" filter="url(#idglow)" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.22;0.24;0.32;0.34;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M 548 274 L 668 274" keyPoints="0;0;1;1" keyTimes="0;0.22;0.32;1" dur="12s" repeatCount="indefinite" calcMode="linear"/>
+    </circle>
+
+    <rect x="676" y="152" width="164" height="60" rx="14" fill="#059669" fill-opacity="0.10" stroke="#059669" stroke-opacity="0.55" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;1" keyTimes="0;0.14;0.20;0.42;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <text x="758" y="178" font-size="13" fill="#047857" text-anchor="middle" font-family="monospace" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;1" keyTimes="0;0.14;0.20;0.42;1" dur="12s" repeatCount="indefinite"/>
+      참조 A 저장
+    </text>
+    <text x="758" y="198" font-size="12" fill="#059669" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;1" keyTimes="0;0.14;0.20;0.42;1" dur="12s" repeatCount="indefinite"/>
+      기존 참조와 일치 없음
+    </text>
+
+    <rect x="676" y="244" width="164" height="60" rx="14" fill="#059669" fill-opacity="0.10" stroke="#059669" stroke-opacity="0.55" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;1" keyTimes="0;0.28;0.34;0.42;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <text x="758" y="270" font-size="13" fill="#047857" text-anchor="middle" font-family="monospace" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;1" keyTimes="0;0.28;0.34;0.42;1" dur="12s" repeatCount="indefinite"/>
+      참조 B 저장
+    </text>
+    <text x="758" y="290" font-size="12" fill="#059669" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;1" keyTimes="0;0.28;0.34;0.42;1" dur="12s" repeatCount="indefinite"/>
+      A와 다른 참조
+    </text>
+
+    <text x="758" y="356" font-size="26" fill="#0f172a" text-anchor="middle" font-family="monospace" font-weight="700" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;1" keyTimes="0;0.34;0.38;0.42;1" dur="12s" repeatCount="indefinite"/>
+      size 2
+    </text>
+  </g>
+
+  <!-- ── 장면 2: 같은 참조 두 번 ── -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.48;0.54;0.92;1" dur="12s" repeatCount="indefinite"/>
+
+    <rect x="60" y="160" width="180" height="44" rx="12" fill="#0891b2" fill-opacity="0.10" stroke="#0891b2" stroke-opacity="0.45"/>
+    <text x="150" y="188" font-size="14" fill="#0e7490" text-anchor="middle" font-family="monospace">one</text>
+
+    <rect x="60" y="252" width="180" height="44" rx="12" fill="#0891b2" fill-opacity="0.10" stroke="#0891b2" stroke-opacity="0.45"/>
+    <text x="150" y="280" font-size="14" fill="#0e7490" text-anchor="middle" font-family="monospace">one</text>
+
+    <path d="M 248 182 L 300 182 L 300 228 L 352 228" fill="none" stroke="#94a3b8" stroke-opacity="0.5" stroke-width="1.5"/>
+    <path d="M 248 274 L 300 274 L 300 228 L 352 228" fill="none" stroke="#94a3b8" stroke-opacity="0.5" stroke-width="1.5"/>
+
+    <rect x="360" y="206" width="180" height="44" rx="12" fill="#a855f7" fill-opacity="0.10" stroke="#a855f7" stroke-opacity="0.5"/>
+    <text x="450" y="234" font-size="14" fill="#7e22ce" text-anchor="middle" font-family="monospace">참조 A</text>
+
+    <rect x="676" y="198" width="164" height="60" rx="14" fill="#059669" fill-opacity="0.10" stroke="#059669" stroke-opacity="0.55" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;1" keyTimes="0;0.58;0.64;0.92;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <text x="758" y="224" font-size="13" fill="#047857" text-anchor="middle" font-family="monospace" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;1" keyTimes="0;0.58;0.64;0.92;1" dur="12s" repeatCount="indefinite"/>
+      참조 A 저장
+    </text>
+    <text x="758" y="244" font-size="12" fill="#059669" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;1" keyTimes="0;0.58;0.64;0.92;1" dur="12s" repeatCount="indefinite"/>
+      첫 번째만 자리를 얻는다
+    </text>
+
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.70;0.74;0.86;0.90;1" dur="12s" repeatCount="indefinite"/>
+      <rect x="676" y="278" width="164" height="46" rx="14" fill="#fb7185" fill-opacity="0.12" stroke="#fb7185" stroke-opacity="0.7"/>
+      <text x="758" y="306" font-size="13" fill="#be123c" text-anchor="middle" font-family="monospace">두 번째 무시</text>
+    </g>
+
+    <text x="758" y="380" font-size="26" fill="#0f172a" text-anchor="middle" font-family="monospace" font-weight="700" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;1" keyTimes="0;0.76;0.80;0.92;1" dur="12s" repeatCount="indefinite"/>
+      size 1
+    </text>
+  </g>
+</svg>

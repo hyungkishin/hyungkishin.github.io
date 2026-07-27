@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 440" font-family="Pretendard, Apple SD Gothic Neo, sans-serif">
+  <defs>
+    <linearGradient id="cpbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#f1f5f9"/>
+    </linearGradient>
+    <filter id="cpglow" x="-70%" y="-70%" width="240%" height="240%">
+      <feGaussianBlur stdDeviation="3.5" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect x="0" y="0" width="900" height="440" rx="20" fill="url(#cpbg)"/>
+
+  <text x="40" y="52" font-size="22" font-weight="700" fill="#1e293b">복사도 동결도 한 겹에서 멈춘다</text>
+  <text x="40" y="78" font-size="14" fill="#64748b">첫 겹은 새 슬롯을 얻는다. 그 안의 객체는 원본과 같은 화살표를 쓴다.</text>
+
+  <!-- 경계선 -->
+  <line x1="450" y1="112" x2="450" y2="404" stroke="#a855f7" stroke-opacity="0.35" stroke-width="2" stroke-dasharray="7 7"/>
+  <text x="450" y="424" font-size="12" fill="#7e22ce" text-anchor="middle" font-family="monospace">{ ...user } 경계</text>
+
+  <text x="200" y="112" font-size="12" fill="#94a3b8" text-anchor="middle" font-family="monospace">user (원본)</text>
+  <text x="700" y="112" font-size="12" fill="#94a3b8" text-anchor="middle" font-family="monospace">copy (얕은 복사)</text>
+
+  <!-- 원본 컨테이너 -->
+  <rect x="60" y="128" width="280" height="150" rx="16" fill="#0891b2" fill-opacity="0.05" stroke="#0891b2" stroke-opacity="0.30"/>
+  <rect x="82" y="150" width="236" height="42" rx="10" fill="#0891b2" fill-opacity="0.12" stroke="#0891b2" stroke-opacity="0.45"/>
+  <text x="200" y="177" font-size="14" fill="#0e7490" text-anchor="middle" font-family="monospace">id: 1</text>
+  <rect x="82" y="212" width="236" height="42" rx="10" fill="#a855f7" fill-opacity="0.12" stroke="#a855f7" stroke-opacity="0.5"/>
+  <text x="200" y="239" font-size="14" fill="#7e22ce" text-anchor="middle" font-family="monospace">profile</text>
+
+  <!-- 복사본 컨테이너 -->
+  <rect x="560" y="128" width="280" height="150" rx="16" fill="#0891b2" fill-opacity="0.05" stroke="#0891b2" stroke-opacity="0.30"/>
+  <rect x="582" y="150" width="236" height="42" rx="10" fill="#0891b2" fill-opacity="0.12" stroke="#0891b2" stroke-opacity="0.45"/>
+  <text x="700" y="177" font-size="14" fill="#0e7490" text-anchor="middle" font-family="monospace">id: 1</text>
+  <rect x="582" y="212" width="236" height="42" rx="10" fill="#a855f7" fill-opacity="0.12" stroke="#a855f7" stroke-opacity="0.5"/>
+  <text x="700" y="239" font-size="14" fill="#7e22ce" text-anchor="middle" font-family="monospace">profile</text>
+
+  <!-- 공유되는 중첩 객체 -->
+  <rect x="330" y="312" width="240" height="62" rx="14" fill="#fbbf24" fill-opacity="0.12" stroke="#f59e0b" stroke-opacity="0.6"/>
+  <text x="450" y="338" font-size="14" fill="#b45309" text-anchor="middle" font-family="monospace">{ name: 'kim' }</text>
+  <text x="450" y="360" font-size="12" fill="#92400e" text-anchor="middle">한 개의 객체. 양쪽이 함께 가리킨다.</text>
+
+  <path d="M 200 254 L 200 343 L 322 343" fill="none" stroke="#f59e0b" stroke-opacity="0.55" stroke-width="1.8"/>
+  <path d="M 700 254 L 700 343 L 578 343" fill="none" stroke="#f59e0b" stroke-opacity="0.55" stroke-width="1.8"/>
+
+  <!-- 장면 1: copy.id = 9 → 원본 안전 -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;1;1;0;0;0" keyTimes="0;0.06;0.36;0.42;0.96;1" dur="12s" repeatCount="indefinite"/>
+    <rect x="582" y="150" width="236" height="42" rx="10" fill="none" stroke="#059669" stroke-width="2.5" filter="url(#cpglow)"/>
+    <text x="700" y="177" font-size="14" fill="#047857" text-anchor="middle" font-family="monospace">id: 9</text>
+    <text x="700" y="286" font-size="12" fill="#047857" text-anchor="middle" font-family="monospace">copy.id = 9</text>
+    <text x="200" y="286" font-size="12" fill="#059669" text-anchor="middle">원본 그대로</text>
+  </g>
+
+  <!-- 장면 2: copy.profile.name 변경 → 원본 오염 -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.46;0.52;0.88;0.94;1" dur="12s" repeatCount="indefinite"/>
+    <text x="700" y="286" font-size="12" fill="#be123c" text-anchor="middle" font-family="monospace">copy.profile.name = 'lee'</text>
+    <rect x="330" y="312" width="240" height="62" rx="14" fill="none" stroke="#fb7185" stroke-width="2.5" filter="url(#cpglow)"/>
+    <text x="450" y="338" font-size="14" fill="#be123c" text-anchor="middle" font-family="monospace">{ name: 'lee' }</text>
+    <text x="200" y="286" font-size="12" fill="#be123c" text-anchor="middle">user.profile.name 도 'lee'</text>
+  </g>
+
+  <!-- 오염이 원본 쪽으로 되돌아가는 펄스 -->
+  <circle r="6" fill="#fb7185" filter="url(#cpglow)" opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.54;0.58;0.70;0.74;1" dur="12s" repeatCount="indefinite"/>
+    <animateMotion path="M 578 343 L 322 343 L 200 343 L 200 254" keyPoints="0;0;1;1" keyTimes="0;0.56;0.70;1" dur="12s" repeatCount="indefinite" calcMode="linear"/>
+  </circle>
+</svg>
