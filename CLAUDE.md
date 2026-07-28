@@ -19,6 +19,7 @@ Gatsby 기반 기술 블로그. 실무에서 겪은 시스템 설계/성능 최�
 
 ### 구조
 - 쓰기 전에 무엇을 쓸지 고르는 절차는 `.claude/rules/discovery-protocol.md`. 이미 쓴 글을 깎는 규칙은 `tone-harness.md`. 후보를 발굴하면서 동시에 감산하지 않는다.
+- 기획 요건을 받아 영향을 가르는 절차는 `.claude/rules/requirement-impact-harness.md`. 글쓰기와 섞지 않는다.
 - TL;DR → 들어가며(왜) → 문제 구조 → 병목 분석 → 해결 → 구현 → 트레이드오프 → 정리
 - "왜 이런 구조가 생겼는지"를 먼저. 해결은 나중에.
 - 정리 섹션에서 구조적 한계 인정 (consumer 대응 vs 근본 해결)
