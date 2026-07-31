@@ -84,7 +84,7 @@ Docker는 멀쩡한데 Testcontainers만 Docker를 못 찾겠다네요.
 testImplementation("com.github.docker-java:docker-java-api:3.5.1")
 ```
 
-Spring Boot는 Dependency Management BOM을 통해 testcontainers, docker-java, junit-jupiter의 버전을 서로 맞물려 돌아가는 조합으로 고정합니다.  
+Spring Boot는 Dependency Management BOM을 통해 testcontainers, docker-java, junit-jupiter의 버전을 서로 호환되는 조합으로 고정합니다.  
 
 이 조합에는 이유가 있는데요,   
 특정 버전의 testcontainers가 특정 버전의 docker-java와 정상 동작하도록 미리 맞춰 둔 결과이기 때문입니다.

@@ -133,7 +133,7 @@ private DeliveryStatusView toDeliveryView(Order order) {
 
 프롬프트에 "주소는 절대 말하지 마세요"라고 부탁하는 방법도 있다. 하지만 부탁은 어길 수 있고, 타입은 어길 수 없다. 모델에게 주지 않은 데이터는 샐 방법이 없다. 유출 방어의 첫 층은 마스킹이 아니라 애초에 안 주는 것이었다.
 
-## description은 만능 손잡이가 아니다
+## description을 고쳐서 될 문제가 아니었다
 
 `@Tool`의 description은 모델이 Tool을 고를 때 읽는 사용 설명서다. 이걸 정성 들여 쓰면 호출률이 오를까? 궁금해서 세 가지 버전을 만들어 같은 발화를 5회씩 돌렸다.
 
@@ -149,7 +149,7 @@ private DeliveryStatusView toDeliveryView(Order order) {
 
 둘째, C의 응답 품질이 거의 정상이었다. description이 거짓이어도 Tool이 돌려준 실제 데이터 JSON이 우위였다. 뒤집어 말하면, Tool이 돌려주는 데이터가 거짓일 때가 description이 거짓일 때보다 훨씬 위험하다는 뜻이 된다.
 
-덧붙여 호출이 안 된 케이스들에서는 `ONGLUGE`, `ロン`, `.nlm` 같은 비정상 토큰이 응답 머리에 그대로 새어 나왔다. description을 고쳐서 될 문제가 아니었고, qwen2.5와 Spring AI, Ollama 조합의 tool-call 출력 한계로 보고 기록만 남겼다. 표본이 5회뿐이라 ±1만 흔들려도 순위가 뒤집힌다는 것도 적어둔다. "C가 A보다 낫다"는 결론이 아니라 "description은 만능 손잡이가 아니다"까지가 이번 실험의 사거리다.
+덧붙여 호출이 안 된 케이스들에서는 `ONGLUGE`, `ロン`, `.nlm` 같은 비정상 토큰이 응답 머리에 그대로 새어 나왔다. description을 고쳐서 될 문제가 아니었고, qwen2.5와 Spring AI, Ollama 조합의 tool-call 출력 한계로 보고 기록만 남겼다. 표본이 5회뿐이라 ±1만 흔들려도 순위가 뒤집힌다는 것도 적어둔다. "C가 A보다 낫다"는 결론이 아니라 "description을 고쳐서 될 문제가 아니다"까지가 이번 실험의 사거리다.
 
 ## Tool의 청구서
 
