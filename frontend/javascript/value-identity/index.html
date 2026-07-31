@@ -329,7 +329,7 @@ Array<span class="token punctuation">.</span><span class="token function">from</
 <div class="gatsby-highlight" data-language="js"><pre class="language-js"><code class="language-js"><span class="token number">NaN</span> <span class="token operator">===</span> <span class="token number">NaN</span>            <span class="token comment">// false</span>
 <span class="token keyword">new</span> <span class="token class-name">Set</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">NaN</span><span class="token punctuation">,</span> <span class="token number">NaN</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>size <span class="token comment">// 1</span></code></pre></div>
 <p><code class="language-text">Set</code>이 쓰는 판정은 <code class="language-text">===</code>가 아니라 SameValueZero다. 이름 그대로 <code class="language-text">Object.is</code>에서 <code class="language-text">+0</code>과 <code class="language-text">-0</code>의 구분만 뺀 규칙이다. <code class="language-text">Object.is</code>가 <code class="language-text">NaN</code>을 같다고 보는 성질은 그대로 가져온다.</p>
-<p>세 판정이 갈리는 지점은 두 개뿐이다.</p>
+<p>세 판정이 달라지는 곳은 두 개뿐이다.</p>
 <table>
 <thead>
 <tr>
@@ -412,7 +412,7 @@ Array<span class="token punctuation">.</span><span class="token function">from</
 </blockquote>
 <p>이 규칙이 보장하는 것은 순회 순서까지다. <code class="language-text">Set</code>의 조회 성능은 명세가 선형 탐색보다 빠른 방식을 요구하지만 구체적인 자료구조와 상수는 엔진에 달려 있다. 원소 수가 적을 때 배열 <code class="language-text">includes</code>보다 항상 빠르다는 근거는 여기에 없다.</p>
 <h2>두 문제가 남긴 규칙</h2>
-<p><code class="language-text">Set</code>을 쓰는 코드에서 어긋나는 지점은 자료구조가 아니라 비교 기준이었다.</p>
+<p><code class="language-text">Set</code>을 쓰는 코드에서 어긋나는 곳은 자료구조가 아니라 비교 기준이었다.</p>
 <ol>
 <li>중복 판정 기준은 자료구조가 아니라 판정 알고리즘이 정한다. <code class="language-text">new Set([{ id: 1 }, { id: 1 }]).size</code>가 2인 것이 증명이다. <code class="language-text">Set</code>은 정상 동작했고 참조 두 개는 실제로 다른 값이다.</li>
 <li>도메인 기준과 언어 기준이 다르면 도메인 기준을 키로 꺼내야 한다. <code class="language-text">id</code>를 키로 쓴 <code class="language-text">Map</code>이 답을 바꾼 것이 증명이다. 같은 데이터에 같은 자료구조를 썼는데 결과가 달라진 이유는 키뿐이다.</li>

@@ -373,7 +373,7 @@ Docker는 멀쩡한데 Testcontainers만 Docker를 못 찾겠다네요.</p>
 <p>코드 수정으로 해결이 안 되니, 다음 수순으로 docker-java를 수동 업그레이드했습니다.</p>
 <div class="gatsby-highlight" data-language="kotlin"><pre class="language-kotlin"><code class="language-kotlin"><span class="token comment">// 추가된 docker-java 의존성</span>
 <span class="token function">testImplementation</span><span class="token punctuation">(</span><span class="token string-literal singleline"><span class="token string">"com.github.docker-java:docker-java-api:3.5.1"</span></span><span class="token punctuation">)</span></code></pre></div>
-<p>Spring Boot는 Dependency Management BOM을 통해 testcontainers, docker-java, junit-jupiter의 버전을 서로 맞물려 돌아가는 조합으로 고정합니다.</p>
+<p>Spring Boot는 Dependency Management BOM을 통해 testcontainers, docker-java, junit-jupiter의 버전을 서로 호환되는 조합으로 고정합니다.</p>
 <p>이 조합에는 이유가 있는데요,<br>
 특정 버전의 testcontainers가 특정 버전의 docker-java와 정상 동작하도록 미리 맞춰 둔 결과이기 때문입니다.</p>
 <p>그런데 docker-java만 수동으로 override하면, Spring Boot가 의도한 버전 트리를 깨뜨리게 됩니다.<br>
