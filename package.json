@@ -71,6 +71,7 @@
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "lint:tone": "node scripts/tone-guard.mjs",
     "lint:mermaid": "node scripts/mermaid-guard.mjs",
+    "check:post": "node scripts/post-check.mjs",
     "start": "npm run develop",
     "serve": "gatsby serve",
     "clean": "gatsby clean",
