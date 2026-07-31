@@ -1,7 +1,7 @@
 ---
 title: "성능 최적화를 향해 - 2부"
 date: 2025-05-04
-update: 2024-05-04
+update: 2025-05-04
 tags:
   - front-end
   - performance

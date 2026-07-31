@@ -1,7 +1,7 @@
 ---
 title: "Rag"
 date: 2025-03-29
-update: 2024-03-29
+update: 2025-03-29
 tags:
   - AI
 ---

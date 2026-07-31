@@ -1,7 +1,7 @@
 ---
 title: "AMP는 왜 모바일 검색 진입의 첫 자리였을까요"
 date: 2025-05-01
-update: 2024-05-01
+update: 2025-05-01
 tags:
   - front-end
   - performance
