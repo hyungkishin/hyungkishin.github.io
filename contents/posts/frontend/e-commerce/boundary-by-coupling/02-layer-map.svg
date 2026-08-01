@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" font-family="Pretendard, Apple SD Gothic Neo, sans-serif">
+  <defs>
+    <linearGradient id="bgLayer" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#f1f5f9"/>
+    </linearGradient>
+    <marker id="down" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="900" height="600" rx="20" fill="url(#bgLayer)"/>
+
+  <text x="44" y="52" font-size="21" font-weight="700" fill="#1e293b">레이어와 슬라이스, 그리고 열지 않은 자리</text>
+  <text x="44" y="78" font-size="13.5" fill="#64748b">슬라이스 여덟 개 중 셋에만 공개 계약을 뒀다. 나머지 다섯은 열어 두었다.</text>
+
+  <!-- 의존 방향 -->
+  <line x1="806" y1="112" x2="806" y2="520" stroke="#64748b" stroke-opacity="0.4" stroke-width="1.5" marker-end="url(#down)"/>
+  <text x="806" y="96" font-size="12" fill="#64748b" text-anchor="middle">import</text>
+  <text x="806" y="546" font-size="12" fill="#64748b" text-anchor="middle">아래로만</text>
+
+  <!-- app -->
+  <g>
+    <rect x="44" y="100" width="720" height="58" rx="12" fill="#0f172a" fill-opacity="0.04" stroke="#0f172a" stroke-opacity="0.12"/>
+    <text x="66" y="134" font-size="14" font-weight="700" fill="#334155" font-family="monospace">app</text>
+    <text x="150" y="126" font-size="12.5" fill="#475569">layout · page · products/page · error · providers</text>
+    <text x="150" y="146" font-size="11.5" fill="#94a3b8">진입점으로만 남긴다. 화면 구현은 아래 슬라이스에 있다</text>
+  </g>
+
+  <!-- _pages -->
+  <g>
+    <rect x="44" y="172" width="720" height="58" rx="12" fill="#7c3aed" fill-opacity="0.07" stroke="#7c3aed" stroke-opacity="0.35"/>
+    <text x="66" y="206" font-size="14" font-weight="700" fill="#6d28d9" font-family="monospace">_pages</text>
+    <rect x="170" y="186" width="132" height="30" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-opacity="0.3"/>
+    <text x="182" y="206" font-size="12.5" fill="#334155" font-family="monospace">home</text>
+    <rect x="264" y="190" width="30" height="21" rx="6" fill="#059669" fill-opacity="0.14"/>
+    <text x="279" y="205" font-size="10.5" font-weight="700" fill="#047857" text-anchor="middle">API</text>
+    <rect x="314" y="186" width="176" height="30" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-opacity="0.3"/>
+    <text x="326" y="206" font-size="12.5" fill="#334155" font-family="monospace">product-list</text>
+    <rect x="452" y="190" width="30" height="21" rx="6" fill="#059669" fill-opacity="0.14"/>
+    <text x="467" y="205" font-size="10.5" font-weight="700" fill="#047857" text-anchor="middle">API</text>
+    <text x="508" y="206" font-size="11.5" fill="#94a3b8">model과 api를 숨긴다</text>
+  </g>
+
+  <!-- widgets -->
+  <g>
+    <rect x="44" y="244" width="720" height="58" rx="12" fill="#7c3aed" fill-opacity="0.07" stroke="#7c3aed" stroke-opacity="0.35"/>
+    <text x="66" y="278" font-size="14" font-weight="700" fill="#6d28d9" font-family="monospace">widgets</text>
+    <rect x="170" y="258" width="132" height="30" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-opacity="0.3"/>
+    <text x="182" y="278" font-size="12.5" fill="#334155" font-family="monospace">header</text>
+    <rect x="264" y="262" width="30" height="21" rx="6" fill="#059669" fill-opacity="0.14"/>
+    <text x="279" y="277" font-size="10.5" font-weight="700" fill="#047857" text-anchor="middle">API</text>
+    <rect x="314" y="258" width="176" height="30" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-opacity="0.3"/>
+    <text x="326" y="278" font-size="12.5" fill="#334155" font-family="monospace">product-grid</text>
+    <text x="508" y="278" font-size="11.5" fill="#94a3b8">상품 카드에 행위를 붙이는 자리</text>
+  </g>
+
+  <!-- features: 열지 않은 레이어 -->
+  <g>
+    <rect x="44" y="316" width="720" height="58" rx="12" fill="none" stroke="#94a3b8" stroke-opacity="0.55" stroke-width="1.5" stroke-dasharray="7 6"/>
+    <text x="66" y="350" font-size="14" font-weight="700" fill="#94a3b8" font-family="monospace">features</text>
+    <text x="170" y="343" font-size="12.5" font-weight="600" fill="#64748b">열지 않았다</text>
+    <text x="170" y="361" font-size="11.5" fill="#94a3b8">토글에 정책이 없어 슬라이스가 ui 파일 하나로 빈다. 파일 하나를 위한 레이어가 된다</text>
+  </g>
+
+  <!-- entities -->
+  <g>
+    <rect x="44" y="388" width="720" height="58" rx="12" fill="#7c3aed" fill-opacity="0.07" stroke="#7c3aed" stroke-opacity="0.35"/>
+    <text x="66" y="422" font-size="14" font-weight="700" fill="#6d28d9" font-family="monospace">entities</text>
+    <rect x="170" y="402" width="104" height="30" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-opacity="0.3"/>
+    <text x="182" y="422" font-size="12.5" fill="#334155" font-family="monospace">product</text>
+    <rect x="286" y="402" width="92" height="30" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-opacity="0.3"/>
+    <text x="298" y="422" font-size="12.5" fill="#334155" font-family="monospace">cart</text>
+    <rect x="390" y="402" width="112" height="30" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-opacity="0.3"/>
+    <text x="402" y="422" font-size="12.5" fill="#334155" font-family="monospace">wishlist</text>
+    <text x="520" y="422" font-size="11.5" fill="#94a3b8">cart와 wishlist는 서로를 모른다</text>
+  </g>
+
+  <!-- shared -->
+  <g>
+    <rect x="44" y="460" width="720" height="58" rx="12" fill="#7c3aed" fill-opacity="0.07" stroke="#7c3aed" stroke-opacity="0.35"/>
+    <text x="66" y="494" font-size="14" font-weight="700" fill="#6d28d9" font-family="monospace">shared</text>
+    <text x="170" y="486" font-size="12.5" fill="#334155" font-family="monospace">api/http · lib/formatWon · lib/parsePositiveInteger · ui/select · ui/dialog</text>
+    <text x="170" y="506" font-size="11.5" fill="#94a3b8">도메인을 모르는 코드. 가장 먼저 자리를 잡았다</text>
+  </g>
+
+  <rect x="44" y="546" width="30" height="21" rx="6" fill="#059669" fill-opacity="0.14"/>
+  <text x="59" y="561" font-size="10.5" font-weight="700" fill="#047857" text-anchor="middle">API</text>
+  <text x="86" y="561" font-size="12" fill="#64748b">index.ts 로 공개 계약을 명시한 슬라이스. 표시가 없는 다섯은 deep import가 열려 있다</text>
+</svg>
