@@ -20,7 +20,7 @@ tags:
 
 ## 하나의 store에 모으려다 화살표가 거꾸로 섰다
 
-장바구니와 위시리스트를 어떻게 담을지부터 정했다. 셋을 놓고 비교했다.
+장바구니와 위시리스트를 어떻게 담을지부터 정했다. 여기서 capability는 둘처럼 독립적으로 변경되는 기능 단위다. 셋을 놓고 비교했다.
 
 | 안 | 내용 |
 | --- | --- |
@@ -32,7 +32,9 @@ B를 골랐다. C를 반려한 근거는 `runtime을 분리해야 할 근거가 
 
 목표 트리를 그리다 이 결정이 레이어 방향과 충돌하는 것을 발견했다. 결정을 내릴 때는 각 조각이 어느 레이어에 앉을지 아직 정하지 않아서 보이지 않던 문제다.
 
-B의 공통 runtime 조립부는 두 capability를 함께 import한다. 두 capability가 `entities`에 있으니 조립부는 그보다 위 레이어에 있어야 한다. 그런데 토글 UI는 `entities/cart/ui`에 뒀다. 그 UI는 `useIsInCart` 같은 selector를 쓴다. selector는 store 인스턴스를 읽으므로 조립부에 있다. `entities`가 상위 레이어를 import하게 된다.
+B의 공통 runtime 조립부는 두 모델을 하나의 store 인스턴스로 묶고 selector를 만든다. 두 capability를 함께 import하므로 조립부는 `entities`보다 위 레이어에 있어야 한다. 그런데 토글 UI는 `entities/cart/ui`에 뒀다. 그 UI는 `useIsInCart` 같은 selector를 쓴다. selector가 상위 조립부에 있으니 `entities`가 위 레이어를 import하게 된다.
+
+![통합 store 조립부는 cart와 wish model을 import하지만 entities의 cart UI가 다시 상위 조립부의 selector를 import해 의존 방향을 거스른다. store와 selector를 capability 안으로 나누면 cart UI의 import가 entities 레이어 안에서 끝난다](./01-store-dependency-direction.svg)
 
 빠져나갈 길을 셋 검토했다.
 
@@ -105,7 +107,7 @@ queries: {
 
 ## `index.ts`를 몇 개 만들지 정하려 했다
 
-슬라이스가 여덟 개다. 몇 개에 Public API를 둘지 정해야 했다.
+슬라이스가 여덟 개다. Public API는 슬라이스 밖에서 접근을 허용한 진입점이고, deep import는 이 진입점을 거치지 않고 내부 파일을 직접 읽는 경로다. 몇 개에 Public API를 둘지 정해야 했다.
 
 처음 기준은 숨길 대상의 개수였다. 여럿이고 여러 세그먼트에 걸쳐 있으면 파일을 만든다. 하나면 검증 항목으로 처리한다. 이 기준으로 `widgets/header`는 파일 없이 갔다. 감출 것이 `HeaderCounts` 하나이고 소비자도 `app/layout.tsx` 하나였기 때문이다.
 
