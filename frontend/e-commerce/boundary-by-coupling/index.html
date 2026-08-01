@@ -293,7 +293,7 @@ data-styled.g53[id="Footer__HiddenWrapper-sc-1d9k77a-9"]{content:"ZwedX,"}/*!sc*
 <p>구조를 나누는 근거로 개수를 쓰면 매번 임계값을 정해야 한다. 슬라이스 여덟 개 중 몇 개에 <code class="language-text">index.ts</code>를 둘지, 상태 하나에 store를 몇 개 쓸지, status 몇 번대를 경계로 올릴지. 세 번 다 개수로 정했다가 세 번 다 뒤집혔다.</p>
 <p>이 구조에서는 판단 기준이 하나다. 그 둘이 서로를 알아야 하는가.</p>
 <h2>하나의 store에 모으려다 화살표가 거꾸로 섰다</h2>
-<p>장바구니와 위시리스트를 어떻게 담을지부터 정했다. 셋을 놓고 비교했다.</p>
+<p>장바구니와 위시리스트를 어떻게 담을지부터 정했다. 여기서 capability는 둘처럼 독립적으로 변경되는 기능 단위다. 셋을 놓고 비교했다.</p>
 <table>
 <thead>
 <tr>
@@ -318,7 +318,8 @@ data-styled.g53[id="Footer__HiddenWrapper-sc-1d9k77a-9"]{content:"ZwedX,"}/*!sc*
 </table>
 <p>B를 골랐다. C를 반려한 근거는 <code class="language-text">runtime을 분리해야 할 근거가 없고 reset 조율과 소비 방식의 복잡도만 증가한다</code>였다.</p>
 <p>목표 트리를 그리다 이 결정이 레이어 방향과 충돌하는 것을 발견했다. 결정을 내릴 때는 각 조각이 어느 레이어에 앉을지 아직 정하지 않아서 보이지 않던 문제다.</p>
-<p>B의 공통 runtime 조립부는 두 capability를 함께 import한다. 두 capability가 <code class="language-text">entities</code>에 있으니 조립부는 그보다 위 레이어에 있어야 한다. 그런데 토글 UI는 <code class="language-text">entities/cart/ui</code>에 뒀다. 그 UI는 <code class="language-text">useIsInCart</code> 같은 selector를 쓴다. selector는 store 인스턴스를 읽으므로 조립부에 있다. <code class="language-text">entities</code>가 상위 레이어를 import하게 된다.</p>
+<p>B의 공통 runtime 조립부는 두 모델을 하나의 store 인스턴스로 묶고 selector를 만든다. 두 capability를 함께 import하므로 조립부는 <code class="language-text">entities</code>보다 위 레이어에 있어야 한다. 그런데 토글 UI는 <code class="language-text">entities/cart/ui</code>에 뒀다. 그 UI는 <code class="language-text">useIsInCart</code> 같은 selector를 쓴다. selector가 상위 조립부에 있으니 <code class="language-text">entities</code>가 위 레이어를 import하게 된다.</p>
+<p><img src="/static/01-store-dependency-direction-0b15a7d4cfcf01ec4bec9794d04c5db1.svg" alt="통합 store 조립부는 cart와 wish model을 import하지만 entities의 cart UI가 다시 상위 조립부의 selector를 import해 의존 방향을 거스른다. store와 selector를 capability 안으로 나누면 cart UI의 import가 entities 레이어 안에서 끝난다"></p>
 <p>빠져나갈 길을 셋 검토했다.</p>
 <table>
 <thead>
@@ -404,7 +405,7 @@ data-styled.g53[id="Footer__HiddenWrapper-sc-1d9k77a-9"]{content:"ZwedX,"}/*!sc*
 <p><strong>포기한 것</strong>: 실패 UI 공통 컴포넌트. 두 화면이 같은 모양을 반복하면 묶을 후보인데, 출구가 서로 다르다. 목록은 조건 초기화이고 홈은 다른 화면 링크다. 모양이 달라서 묶을 것이 문구뿐이다.</p>
 </blockquote>
 <h2><code class="language-text">index.ts</code>를 몇 개 만들지 정하려 했다</h2>
-<p>슬라이스가 여덟 개다. 몇 개에 Public API를 둘지 정해야 했다.</p>
+<p>슬라이스가 여덟 개다. Public API는 슬라이스 밖에서 접근을 허용한 진입점이고, deep import는 이 진입점을 거치지 않고 내부 파일을 직접 읽는 경로다. 몇 개에 Public API를 둘지 정해야 했다.</p>
 <p>처음 기준은 숨길 대상의 개수였다. 여럿이고 여러 세그먼트에 걸쳐 있으면 파일을 만든다. 하나면 검증 항목으로 처리한다. 이 기준으로 <code class="language-text">widgets/header</code>는 파일 없이 갔다. 감출 것이 <code class="language-text">HeaderCounts</code> 하나이고 소비자도 <code class="language-text">app/layout.tsx</code> 하나였기 때문이다.</p>
 <p>외부 리뷰에서 반박을 받았다. 검증 항목은 사람이 지키는 규칙일 뿐 deep import를 기술적으로 막지 못한다. 그리고 임계값을 1과 2 사이에 두는 데는 근거가 없었다.</p>
 <p>기준을 유무로 바꿨다.</p>
