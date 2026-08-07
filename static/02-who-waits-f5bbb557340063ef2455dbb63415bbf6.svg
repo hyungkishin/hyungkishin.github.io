@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400" font-family="Pretendard, Apple SD Gothic Neo, sans-serif">
+  <defs>
+    <linearGradient id="bgWait" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#f1f5f9"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="900" height="400" rx="20" fill="url(#bgWait)"/>
+
+  <text x="44" y="52" font-size="21" font-weight="700" fill="#1e293b">조회 1.5초는 두 응답에서 같은 자리에 있지 않다</text>
+  <text x="44" y="78" font-size="13.5" fill="#64748b">total은 둘 다 1,507ms다. 첫 byte가 그 대기 앞에 있느냐 뒤에 있느냐만 다르다.</text>
+
+  <!-- 일반 브라우저 -->
+  <text x="44" y="176" font-size="13" font-weight="600" fill="#334155">일반 브라우저</text>
+  <text x="44" y="194" font-size="11.5" fill="#94a3b8">TTFB 4ms</text>
+
+  <rect x="190" y="152" width="630" height="46" rx="10" fill="#d97706" fill-opacity="0.12" stroke="#d97706" stroke-opacity="0.35"/>
+  <text x="505" y="181" font-size="13" fill="#92400e" text-anchor="middle">상품 목록 조회 1.5초</text>
+  <rect x="190" y="142" width="7" height="66" rx="3.5" fill="#059669"/>
+  <text x="204" y="136" font-size="12.5" font-weight="700" fill="#047857">첫 byte</text>
+  <text x="204" y="228" font-size="12" fill="#64748b">셸이 먼저 나가고 title은 조회가 끝난 뒤 스트리밍된다</text>
+
+  <!-- 크롤러 -->
+  <text x="44" y="296" font-size="11.5" font-weight="600" fill="#334155" font-family="monospace">facebookexternalhit</text>
+  <text x="44" y="314" font-size="11.5" fill="#94a3b8">TTFB 1,506ms</text>
+
+  <rect x="190" y="272" width="630" height="46" rx="10" fill="#d97706" fill-opacity="0.12" stroke="#d97706" stroke-opacity="0.35"/>
+  <text x="505" y="301" font-size="13" fill="#92400e" text-anchor="middle">상품 목록 조회 1.5초</text>
+  <rect x="813" y="262" width="7" height="66" rx="3.5" fill="#059669"/>
+  <text x="806" y="256" font-size="12.5" font-weight="700" fill="#047857" text-anchor="end">첫 byte</text>
+  <text x="806" y="348" font-size="12" fill="#64748b" text-anchor="end">metadata가 준비될 때까지 응답을 붙잡는다</text>
+
+  <line x1="44" y1="366" x2="856" y2="366" stroke="#cbd5e1"/>
+  <text x="44" y="390" font-size="12.5" fill="#64748b">두 막대의 긴 구간은 같은 대기다. 어느 쪽 TTFB만 봐도 다른 쪽 동작을 틀리게 설명한다.</text>
+</svg>
