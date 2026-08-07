@@ -52,10 +52,7 @@ FCP 중앙값은 1,360ms에서 2,259ms가 됐다. LCP를 39초 줄인 같은 화
 
 이제 선택지가 생겼다. 한글 셸을 다시 데이터 뒤로 숨기면 FCP 1,360ms를 되찾는다. 대신 사용자는 홈 제목이 아니라 로딩 문구를 먼저 본다.
 
-| 상태 | 첫 페인트에서 보이는 것 |
-| --- | --- |
-| Before | `Loading home…` 한 줄 |
-| After | 한글 제목, 설명, Hero가 있는 홈 셸 |
+![두 화면 모형을 나란히 놓은 그림. 왼쪽 Before는 FCP 1,360ms이고 빈 화면 가운데 Loading home 한 줄만 있다. 오른쪽 After는 FCP 2,259ms이고 매일 새롭게 발견하는 취향이라는 제목과 설명 두 줄과 Hero 영역이 자리를 잡고 있다. 둘 사이 간격은 899ms](./01-first-paint.svg)
 
 같은 FCP라는 이름 아래 서로 다른 장면을 놓고 있었다. Before는 로딩이 시작된 시간이고 After는 실제 홈이 시작된 시간이다.
 
@@ -69,10 +66,7 @@ FCP 중앙값은 1,360ms에서 2,259ms가 됐다. LCP를 39초 줄인 같은 화
 
 `/products?scenario=slow`에 일반 UA와 `facebookexternalhit` UA를 보냈다.
 
-| User-Agent | TTFB | total |
-| --- | ---: | ---: |
-| 일반 브라우저 | 4ms | 1,507ms |
-| facebookexternalhit | 1,506ms | 1,507ms |
+![같은 길이의 막대 두 개. 위쪽 일반 브라우저는 첫 byte 표시가 막대 맨 왼쪽 4ms 지점에 있고 그 뒤로 상품 목록 조회 1.5초가 이어진다. 아래쪽 facebookexternalhit는 같은 조회 1.5초가 먼저 오고 첫 byte 표시가 막대 맨 오른쪽 1,506ms 지점에 있다. total은 둘 다 1,507ms로 같다](./02-who-waits.svg)
 
 일반 UA에는 서버 셸이 먼저 왔다. metadata는 조회가 끝난 뒤 스트리밍됐다. 크롤러 UA는 metadata가 준비될 때까지 첫 byte도 받지 못했다.
 
