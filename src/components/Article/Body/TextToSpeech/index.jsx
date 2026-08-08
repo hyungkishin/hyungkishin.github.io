@@ -1,21 +1,21 @@
-import React, { useState, useEffect, useCallback, useRef } from "react"
+import React, { useState, useRef, useCallback, useEffect } from "react"
 import styled from "styled-components"
 
-const GOOGLE_TTS_API_KEY = process.env.GATSBY_GOOGLE_TTS_API_KEY || ""
+import ttsManifest from "data/ttsManifest.json"
 
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   margin-bottom: 24px;
   padding: 12px 16px;
   border-radius: 8px;
   background: ${props => props.theme.colors.inlineCodeBackground};
   border: 1px solid ${props => props.theme.colors.border};
-  flex-wrap: wrap;
 `
 
-const Button = styled.button`
+const PlayButton = styled.button`
+  flex: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -26,40 +26,35 @@ const Button = styled.button`
   background: ${props => props.theme.colors.accent};
   color: #fff;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.9rem;
+  line-height: 1;
   transition: opacity 0.2s;
 
   &:hover {
     opacity: 0.85;
   }
-
-  &:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
 `
 
-const StopButton = styled(Button)`
-  background: ${props => props.theme.colors.secondaryText};
+const Seek = styled.input`
+  flex: 1;
+  min-width: 0;
+  height: 4px;
+  accent-color: ${props => props.theme.colors.accent};
+  cursor: pointer;
 `
 
-const Label = styled.span`
-  font-size: 0.85rem;
+const Time = styled.span`
+  flex: none;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
   color: ${props => props.theme.colors.secondaryText};
-  margin-left: 4px;
   user-select: none;
 `
 
-const SelectGroup = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-left: auto;
-`
-
-const Select = styled.select`
-  font-size: 0.8rem;
-  padding: 4px 6px;
+const Rate = styled.select`
+  flex: none;
+  font-size: 0.78rem;
+  padding: 3px 4px;
   border-radius: 4px;
   border: 1px solid ${props => props.theme.colors.border};
   background: ${props => props.theme.colors.background};
@@ -67,256 +62,90 @@ const Select = styled.select`
   cursor: pointer;
 `
 
-const VOICE_OPTIONS = [
-  { name: "ko-KR-Neural2-A", label: "여성 1" },
-  { name: "ko-KR-Neural2-B", label: "여성 2" },
-  { name: "ko-KR-Neural2-C", label: "남성 1" },
-  { name: "ko-KR-Wavenet-A", label: "여성 3" },
-  { name: "ko-KR-Wavenet-C", label: "남성 2" },
-]
+const RATES = [0.9, 1, 1.15, 1.3, 1.5]
 
-// 텍스트를 ~4000바이트 이하 청크로 분할 (API 제한 5000바이트)
-const splitText = text => {
-  const maxLen = 1500
-  const sentences = text.split(/(?<=[.!?다요죠음됨함임]\s)|(?<=\n)/)
-  const chunks = []
-  let current = ""
-
-  for (const s of sentences) {
-    if ((current + s).length > maxLen) {
-      if (current.trim()) chunks.push(current.trim())
-      current = s
-    } else {
-      current += s
-    }
-  }
-  if (current.trim()) chunks.push(current.trim())
-  return chunks
+const clock = seconds => {
+  if (!Number.isFinite(seconds)) return "0:00"
+  const total = Math.floor(seconds)
+  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`
 }
 
-const getArticleText = () => {
-  const el = document.getElementById("article-body")
-  if (!el) return ""
-  const clone = el.cloneNode(true)
-  clone
-    .querySelectorAll("pre, code, .mermaid-diagram, .katex")
-    .forEach(n => n.remove())
-  return clone.textContent || ""
-}
+// gatsby의 slug를 tts.mjs가 쓰는 키로 바꾼다. /a/b/ 는 a-b 다.
+const manifestKey = slug => slug.replace(/^\/|\/$/g, "").split("/").join("-")
 
-// ── Google Cloud TTS ──
-const fetchGoogleTTS = async (text, voiceName, rate) => {
-  const res = await fetch(
-    `https://texttospeech.googleapis.com/v1/text:synthesize?key=${GOOGLE_TTS_API_KEY}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        input: { text },
-        voice: { languageCode: "ko-KR", name: voiceName },
-        audioConfig: {
-          audioEncoding: "MP3",
-          speakingRate: rate,
-          pitch: 0,
-        },
-      }),
-    }
-  )
-  if (!res.ok) throw new Error("Google TTS API error")
-  const data = await res.json()
-  return data.audioContent // base64
-}
-
-const base64ToAudio = base64 => {
-  const binary = atob(base64)
-  const bytes = new Uint8Array(binary.length)
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
-  const blob = new Blob([bytes], { type: "audio/mp3" })
-  return new Audio(URL.createObjectURL(blob))
-}
-
-// ── Web Speech API fallback ──
-const pickBestVoice = () => {
-  const voices = window.speechSynthesis.getVoices()
-  const korean = voices.filter(v => v.lang.startsWith("ko"))
-  return (
-    korean.find(v => v.name === "Google 한국의") || korean[0] || null
-  )
-}
-
-const TextToSpeech = () => {
-  const [status, setStatus] = useState("idle")
-  const [rate, setRate] = useState(1)
-  const [voiceName, setVoiceName] = useState(VOICE_OPTIONS[0].name)
+const TextToSpeech = ({ slug }) => {
   const audioRef = useRef(null)
-  const chunksRef = useRef([])
-  const chunkIndexRef = useRef(0)
-  const stoppedRef = useRef(false)
+  const [playing, setPlaying] = useState(false)
+  const [current, setCurrent] = useState(0)
+  const [duration, setDuration] = useState(0)
+  const [rate, setRate] = useState(1)
 
-  const useGoogleTTS = !!GOOGLE_TTS_API_KEY
-
-  // ── Google TTS 재생 ──
-  const playGoogleChunk = useCallback(
-    async index => {
-      if (stoppedRef.current) return
-      const chunks = chunksRef.current
-      if (index >= chunks.length) {
-        setStatus("idle")
-        return
-      }
-      chunkIndexRef.current = index
-      try {
-        const base64 = await fetchGoogleTTS(chunks[index], voiceName, rate)
-        if (stoppedRef.current) return
-        const audio = base64ToAudio(base64)
-        audioRef.current = audio
-        audio.onended = () => playGoogleChunk(index + 1)
-        audio.onerror = () => setStatus("idle")
-        audio.play()
-      } catch {
-        setStatus("idle")
-      }
-    },
-    [voiceName, rate]
-  )
-
-  // ── Web Speech fallback 재생 ──
-  const playSpeechChunk = useCallback(
-    index => {
-      if (stoppedRef.current) return
-      const chunks = chunksRef.current
-      if (index >= chunks.length) {
-        setStatus("idle")
-        return
-      }
-      chunkIndexRef.current = index
-      const utterance = new SpeechSynthesisUtterance(chunks[index])
-      utterance.lang = "ko-KR"
-      utterance.rate = rate
-      const voice = pickBestVoice()
-      if (voice) utterance.voice = voice
-      utterance.onend = () => playSpeechChunk(index + 1)
-      utterance.onerror = e => {
-        if (e.error !== "canceled") setStatus("idle")
-      }
-      window.speechSynthesis.speak(utterance)
-    },
-    [rate]
-  )
-
-  const handlePlay = useCallback(() => {
-    if (status === "paused") {
-      if (useGoogleTTS && audioRef.current) {
-        audioRef.current.play()
-      } else {
-        window.speechSynthesis.resume()
-      }
-      setStatus("speaking")
-      return
-    }
-
-    // 새로 시작
-    stoppedRef.current = false
-    const text = getArticleText()
-    if (!text.trim()) return
-
-    chunksRef.current = splitText(text)
-    chunkIndexRef.current = 0
-    setStatus("speaking")
-
-    if (useGoogleTTS) {
-      playGoogleChunk(0)
-    } else {
-      window.speechSynthesis.cancel()
-      playSpeechChunk(0)
-    }
-  }, [status, useGoogleTTS, playGoogleChunk, playSpeechChunk])
-
-  const handlePause = useCallback(() => {
-    if (useGoogleTTS && audioRef.current) {
-      audioRef.current.pause()
-    } else {
-      window.speechSynthesis.pause()
-    }
-    setStatus("paused")
-  }, [useGoogleTTS])
-
-  const handleStop = useCallback(() => {
-    stoppedRef.current = true
-    if (useGoogleTTS && audioRef.current) {
-      audioRef.current.pause()
-      audioRef.current.currentTime = 0
-      audioRef.current = null
-    } else {
-      window.speechSynthesis.cancel()
-    }
-    chunksRef.current = []
-    chunkIndexRef.current = 0
-    setStatus("idle")
-  }, [useGoogleTTS])
+  const entry = slug ? ttsManifest[manifestKey(slug)] : null
 
   useEffect(() => {
-    return () => {
-      stoppedRef.current = true
-      if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current = null
-      }
-      if ("speechSynthesis" in window) window.speechSynthesis.cancel()
+    if (audioRef.current) audioRef.current.playbackRate = rate
+  }, [rate])
+
+  const toggle = useCallback(() => {
+    const audio = audioRef.current
+    if (!audio) return
+    if (audio.paused) {
+      audio.playbackRate = rate
+      audio.play()
+    } else {
+      audio.pause()
     }
+  }, [rate])
+
+  const seek = useCallback(event => {
+    const audio = audioRef.current
+    if (audio) audio.currentTime = Number(event.target.value)
   }, [])
 
-  if (typeof window === "undefined") return null
-  if (!useGoogleTTS && !("speechSynthesis" in window)) return null
+  if (!entry) return null
 
   return (
     <Wrapper>
-      {status === "speaking" ? (
-        <Button onClick={handlePause} title="일시정지">
-          ⏸
-        </Button>
-      ) : (
-        <Button onClick={handlePlay} title="읽어주기">
-          ▶
-        </Button>
-      )}
-      <StopButton
-        onClick={handleStop}
-        disabled={status === "idle"}
-        title="정지"
+      {/* 본문이 길어 파일이 크다. 눌렀을 때만 받는다. */}
+      <audio
+        ref={audioRef}
+        src={`/tts/${manifestKey(slug)}.mp3`}
+        preload="none"
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
+        onEnded={() => setPlaying(false)}
+        onTimeUpdate={e => setCurrent(e.currentTarget.currentTime)}
+        onLoadedMetadata={e => setDuration(e.currentTarget.duration)}
+      />
+      <PlayButton
+        onClick={toggle}
+        aria-label={playing ? "낭독 일시정지" : "글 읽어주기"}
       >
-        ⏹
-      </StopButton>
-      <Label>
-        {status === "idle" && "글 읽어주기"}
-        {status === "speaking" && "읽는 중..."}
-        {status === "paused" && "일시정지"}
-      </Label>
-      <SelectGroup>
-        {useGoogleTTS && (
-          <Select
-            value={voiceName}
-            onChange={e => setVoiceName(e.target.value)}
-            title="음성 선택"
-          >
-            {VOICE_OPTIONS.map(v => (
-              <option key={v.name} value={v.name}>
-                {v.label}
-              </option>
-            ))}
-          </Select>
-        )}
-        <Select
-          value={rate}
-          onChange={e => setRate(Number(e.target.value))}
-          title="읽기 속도"
-        >
-          <option value={0.8}>느리게</option>
-          <option value={1}>보통</option>
-          <option value={1.2}>약간 빠르게</option>
-          <option value={1.5}>빠르게</option>
-        </Select>
-      </SelectGroup>
+        {playing ? "❚❚" : "▶"}
+      </PlayButton>
+      <Seek
+        type="range"
+        min={0}
+        max={duration || 0}
+        step={1}
+        value={current}
+        onChange={seek}
+        aria-label="재생 위치"
+      />
+      <Time>
+        {clock(current)} / {clock(duration)}
+      </Time>
+      <Rate
+        value={rate}
+        onChange={e => setRate(Number(e.target.value))}
+        aria-label="읽기 속도"
+      >
+        {RATES.map(r => (
+          <option key={r} value={r}>
+            {r}×
+          </option>
+        ))}
+      </Rate>
     </Wrapper>
   )
 }

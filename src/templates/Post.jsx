@@ -41,7 +41,7 @@ const Post = ({ data, pageContext }) => {
             currentId={post.id}
           />
         )}
-        <Article.Body html={post.html} />
+        <Article.Body html={post.html} slug={slug} />
         <Article.Footer
           previous={previous}
           next={next}

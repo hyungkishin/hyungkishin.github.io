@@ -78,7 +78,8 @@
     "test": "node --test src/utils/__tests__/",
     "deploy-gh": "gatsby build && gh-pages -d public",
     "deploy-gh-prefix-paths": "gatsby build --prefix-paths && gh-pages -d public",
-    "deploy": "gatsby build && gh-pages -d public -b master"
+    "deploy": "gatsby build && gh-pages -d public -b master",
+    "tts": "node scripts/tts.mjs"
   },
   "repository": {
     "type": "git",

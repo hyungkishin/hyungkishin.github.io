@@ -36,7 +36,7 @@ const PostBottomAdWrapper = styled.div`
   margin-top: 40px;
 `
 
-const Body = ({ html }) => {
+const Body = ({ html, slug }) => {
   const [toc, setToc] = useState([])
   const theme = useTheme()
   const [ref, offsetTop] = useOffsetTop()
@@ -116,7 +116,7 @@ const Body = ({ html }) => {
 
       <PrismTheme />
 
-      <TextToSpeech />
+      <TextToSpeech slug={slug} />
 
       <StyledMarkdown
         id="article-body"
