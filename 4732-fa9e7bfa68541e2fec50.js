@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkgatsby_starter_hyungki=self.webpackChunkgatsby_starter_hyungki||[]).push([[4732],{54732:function(e,t,r){r.d(t,{createTreemapServices:function(){return s.d}});var s=r(68562);r(47492)}}]);
