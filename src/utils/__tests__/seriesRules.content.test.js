@@ -122,37 +122,76 @@ test("콘텐츠 정합성", async t => {
     assert.equal(new Set(indexSlugs).size, indexSlugs.length)
   })
 
-  await t.test(
-    "시리즈 글의 이전/다음은 같은 시리즈이거나 시리즈 경계다",
-    () => {
-      const navigation = buildPostNavigation(posts)
+  await t.test("라벨이 이동할 글의 소속과 일치한다", () => {
+    const navigation = buildPostNavigation(posts)
 
-      posts.forEach(post => {
-        const rule = matchSeries(post.fields.slug)
-        if (!rule) return
+    posts.forEach(post => {
+      const rule = matchSeries(post.fields.slug)
+      const nav = navigation.get(post.fields.slug)
 
-        const nav = navigation.get(post.fields.slug)
-        const check = (neighbor, label, boundaryLabel) => {
-          if (!neighbor) return
-          const neighborRule = matchSeries(neighbor.fields.slug)
-          const sameSeries = neighborRule === rule
-          assert.ok(
-            sameSeries || label === boundaryLabel,
-            `${post.fields.slug} 의 이웃 ${neighbor.fields.slug} 가 다른 시리즈인데 라벨이 ${label}`
-          )
-          if (!sameSeries) {
-            assert.ok(
-              neighborRule,
-              `${post.fields.slug} 가 시리즈에 속하지 않은 ${neighbor.fields.slug} 로 이어진다`
-            )
-          }
+      const check = (neighbor, label, inSeriesLabel, boundaryLabel) => {
+        if (!neighbor) {
+          assert.equal(label, null)
+          return
         }
+        const neighborRule = matchSeries(neighbor.fields.slug)
+        const expected = !neighborRule
+          ? null
+          : rule && neighborRule.id === rule.id
+          ? inSeriesLabel
+          : boundaryLabel
+        assert.equal(
+          label,
+          expected,
+          `${post.fields.slug} 의 이웃 ${neighbor.fields.slug} 라벨이 ${label}`
+        )
+      }
 
-        check(nav.previous, nav.previousLabel, NAV_LABELS.previousSeries)
-        check(nav.next, nav.nextLabel, NAV_LABELS.nextSeries)
+      check(
+        nav.previous,
+        nav.previousLabel,
+        NAV_LABELS.previousInSeries,
+        NAV_LABELS.previousSeries
+      )
+      check(
+        nav.next,
+        nav.nextLabel,
+        NAV_LABELS.nextInSeries,
+        NAV_LABELS.nextSeries
+      )
+    })
+  })
+
+  await t.test("실제 글 전체에서 모든 링크가 대칭이다", () => {
+    // 이 리팩터링을 촉발한 증상. 단독 글의 next 가 시리즈 중간 편으로
+    // 들어가는데 그 편의 prev 는 시리즈 이전 편이라, 들어간 길로 못 돌아왔다.
+    const navigation = buildPostNavigation(posts)
+    navigation.forEach((nav, slug) => {
+      if (nav.next) {
+        const back = navigation.get(nav.next.fields.slug)
+        assert.equal(
+          back.previous && back.previous.fields.slug,
+          slug,
+          `${slug} → ${nav.next.fields.slug} 링크가 한 방향이다`
+        )
+      }
+    })
+  })
+
+  await t.test("시리즈 블록은 단독 글이 끼어들어도 쪼개지지 않는다", () => {
+    // 시리즈 안에서 next 를 따라가면 단독 글을 거치지 않고 끝 편까지 간다.
+    const navigation = buildPostNavigation(posts)
+    groupPostsBySeries(posts).forEach(({ rule, posts: seriesPosts }) => {
+      seriesPosts.slice(0, -1).forEach((episode, i) => {
+        const nav = navigation.get(episode.fields.slug)
+        assert.equal(
+          nav.next && nav.next.fields.slug,
+          seriesPosts[i + 1].fields.slug,
+          `${rule.id} 의 ${episode.fields.slug} 다음이 시리즈 다음 편이 아니다`
+        )
       })
-    }
-  )
+    })
+  })
 
   await t.test("최신 storefront 글 다음은 spring 단독 글이 아니다", () => {
     // 이 리팩터링을 촉발한 회귀. 시리즈에 안 묶여서 날짜순 이웃(Spring)이 붙었다.

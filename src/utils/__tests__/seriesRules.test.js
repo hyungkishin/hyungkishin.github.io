@@ -275,20 +275,32 @@ test("buildPostNavigation: 이전/다음 글", async t => {
     assert.equal(nav.nextLabel, NAV_LABELS.nextInSeries)
   })
 
-  await t.test("시리즈 마지막 편은 날짜가 붙은 단독 글로 새지 않는다", () => {
-    // 회귀: storefront 마지막 편 다음이 날짜상 이웃인 cpu-bound 나 round1 이면 안 된다.
-    const nav = navOf(posts, "/frontend/e-commerce/state-ownership-first/")
-    assert.equal(slugOf(nav.next), "/backend/spring/spring-ai/round1/")
-    assert.equal(nav.nextLabel, NAV_LABELS.nextSeries)
+  await t.test("시리즈 중간 편은 날짜가 끼어든 단독 글로 새지 않는다", () => {
+    // 회귀: cpu-bound(07-25)가 날짜상으로는 storefront 뒤, round1 앞에 있어도
+    // 시리즈 블록을 쪼개고 들어오면 안 된다.
+    const nav = navOf(posts, "/frontend/e-commerce/product-list-boundary/")
+    assert.equal(slugOf(nav.next), "/frontend/e-commerce/state-ownership-first/")
   })
 
-  await t.test("시리즈 첫 편은 이전 시리즈 마지막 편으로 이어진다", () => {
-    const nav = navOf(posts, "/backend/spring/spring-ai/round1/")
-    assert.equal(
-      slugOf(nav.previous),
-      "/frontend/e-commerce/state-ownership-first/"
-    )
-    assert.equal(nav.previousLabel, NAV_LABELS.previousSeries)
+  await t.test("시리즈 마지막 편은 순서상 다음 블록으로 이어진다", () => {
+    // 단독 글을 건너뛰지 않는다. 건너뛰면 그 글은 next 체인에서 고아가 된다.
+    const nav = navOf(posts, "/frontend/e-commerce/state-ownership-first/")
+    assert.equal(slugOf(nav.next), "/backend/spring/cpu-bound-vs-io-bound/")
+    assert.equal(nav.nextLabel, null)
+  })
+
+  await t.test("시리즈끼리 붙어 있으면 경계 라벨이 붙는다", () => {
+    const adjacent = [
+      post("/frontend/e-commerce/checkout-modeling/", "2026-06-26"),
+      post("/backend/spring/spring-ai/round1/", "2026-07-26"),
+    ]
+    const last = navOf(adjacent, "/frontend/e-commerce/checkout-modeling/")
+    assert.equal(slugOf(last.next), "/backend/spring/spring-ai/round1/")
+    assert.equal(last.nextLabel, NAV_LABELS.nextSeries)
+
+    const first = navOf(adjacent, "/backend/spring/spring-ai/round1/")
+    assert.equal(slugOf(first.previous), "/frontend/e-commerce/checkout-modeling/")
+    assert.equal(first.previousLabel, NAV_LABELS.previousSeries)
   })
 
   await t.test("첫 시리즈의 첫 편에는 이전 글이 없다", () => {
@@ -303,7 +315,9 @@ test("buildPostNavigation: 이전/다음 글", async t => {
     assert.equal(nav.nextLabel, null)
   })
 
-  await t.test("단독 글은 날짜순 이웃으로 이어지고 라벨이 없다", () => {
+  await t.test("단독 글은 양옆 시리즈와 대칭으로 이어진다", () => {
+    // 예전 회귀: 단독 글의 next 는 시리즈 중간 편(날짜순 이웃)인데
+    // 그 편의 prev 는 시리즈 이전 편이라 왕복이 안 됐다.
     const nav = navOf(posts, "/backend/spring/cpu-bound-vs-io-bound/")
     assert.equal(nav.seriesId, null)
     assert.equal(
@@ -311,8 +325,31 @@ test("buildPostNavigation: 이전/다음 글", async t => {
       "/frontend/e-commerce/state-ownership-first/"
     )
     assert.equal(slugOf(nav.next), "/backend/spring/spring-ai/round1/")
-    assert.equal(nav.previousLabel, null)
-    assert.equal(nav.nextLabel, null)
+    // 라벨은 이동할 글을 설명한다. 양옆이 시리즈면 시리즈 라벨이 붙는다.
+    assert.equal(nav.previousLabel, NAV_LABELS.previousSeries)
+    assert.equal(nav.nextLabel, NAV_LABELS.nextSeries)
+  })
+
+  await t.test("모든 링크가 대칭이다: A의 다음이 B면 B의 이전은 A다", () => {
+    const navigation = buildPostNavigation(posts)
+    navigation.forEach((nav, slug) => {
+      if (nav.next) {
+        const back = navigation.get(nav.next.fields.slug)
+        assert.equal(
+          slugOf(back.previous),
+          slug,
+          `${slug} → ${slugOf(nav.next)} 링크가 한 방향이다`
+        )
+      }
+      if (nav.previous) {
+        const forward = navigation.get(nav.previous.fields.slug)
+        assert.equal(
+          slugOf(forward.next),
+          slug,
+          `${slugOf(nav.previous)} → ${slug} 링크가 한 방향이다`
+        )
+      }
+    })
   })
 
   await t.test("입력 순서가 뒤섞여도 결과가 같다", () => {

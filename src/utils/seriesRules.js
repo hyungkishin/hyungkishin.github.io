@@ -176,9 +176,14 @@ const groupPostsBySeries = posts => {
 /**
  * 글마다 이전/다음 글을 정한다.
  *
- * 시리즈 글은 같은 시리즈 안에서만 이어진다. 시리즈의 양 끝에서는 인접한
- * 시리즈의 마지막 편 또는 첫 편으로 넘어간다. 시리즈에 속하지 않은 글은
- * 전체 날짜 순의 앞뒤 글로 잇는다.
+ * 읽기 순서는 하나다. 시리즈는 첫 편 날짜 자리에 통째로 놓인 블록이고,
+ * 시리즈에 속하지 않은 글은 자기 날짜 자리에 한 편짜리 블록으로 낀다.
+ * 이전/다음은 이 단일 순서의 이웃이다. 그래서 어떤 글에서도
+ * A의 다음이 B면 B의 이전은 A다. 시리즈 중간으로 끼어드는 경로가 없고,
+ * 시리즈 양 끝은 단독 글을 건너뛰지 않는다.
+ *
+ * 라벨은 이동할 글을 설명한다. 같은 시리즈면 "시리즈 이전/다음 편",
+ * 다른 시리즈면 "이전/다음 시리즈", 단독 글이면 라벨 없음.
  *
  * 입력 순서와 무관하게 같은 결과가 나온다.
  *
@@ -186,58 +191,49 @@ const groupPostsBySeries = posts => {
  * @returns {Map<string, {seriesId: string|null, previous: object|null, next: object|null, previousLabel: string|null, nextLabel: string|null}>} 슬러그로 찾는 내비게이션
  */
 const buildPostNavigation = posts => {
-  const chronological = [...posts].sort(compareByDateThenSlug)
-  const groups = groupPostsBySeries(posts)
-  const groupIndexById = new Map(groups.map(({ rule }, i) => [rule.id, i]))
+  const blocks = groupPostsBySeries(posts).map(({ rule, posts: grouped }) => ({
+    seriesId: rule.id,
+    posts: grouped,
+  }))
+
+  posts
+    .filter(post => !matchSeries(post.fields.slug))
+    .forEach(post => blocks.push({ seriesId: null, posts: [post] }))
+
+  blocks.sort((a, b) => compareByDateThenSlug(a.posts[0], b.posts[0]))
+
+  const sequence = blocks.flatMap(block =>
+    block.posts.map(post => ({ post, seriesId: block.seriesId }))
+  )
+
+  const labelFor = (current, neighbor, inSeries, acrossSeries) => {
+    if (!neighbor || !neighbor.seriesId) return null
+    if (neighbor.seriesId === current.seriesId) return inSeries
+    return acrossSeries
+  }
 
   const navigation = new Map()
 
-  chronological.forEach((post, index) => {
-    const rule = matchSeries(post.fields.slug)
+  sequence.forEach((entry, index) => {
+    const previous = sequence[index - 1] || null
+    const next = sequence[index + 1] || null
 
-    if (!rule) {
-      navigation.set(post.fields.slug, {
-        seriesId: null,
-        previous: chronological[index - 1] || null,
-        next: chronological[index + 1] || null,
-        previousLabel: null,
-        nextLabel: null,
-      })
-      return
-    }
-
-    const groupIndex = groupIndexById.get(rule.id)
-    const siblings = groups[groupIndex].posts
-    const position = siblings.findIndex(
-      sibling => sibling.fields.slug === post.fields.slug
-    )
-
-    const previousGroup = groups[groupIndex - 1]
-    const nextGroup = groups[groupIndex + 1]
-
-    const [previous, previousLabel] =
-      position > 0
-        ? [siblings[position - 1], NAV_LABELS.previousInSeries]
-        : previousGroup
-        ? [
-            previousGroup.posts[previousGroup.posts.length - 1],
-            NAV_LABELS.previousSeries,
-          ]
-        : [null, null]
-
-    const [next, nextLabel] =
-      position < siblings.length - 1
-        ? [siblings[position + 1], NAV_LABELS.nextInSeries]
-        : nextGroup
-        ? [nextGroup.posts[0], NAV_LABELS.nextSeries]
-        : [null, null]
-
-    navigation.set(post.fields.slug, {
-      seriesId: rule.id,
-      previous,
-      next,
-      previousLabel,
-      nextLabel,
+    navigation.set(entry.post.fields.slug, {
+      seriesId: entry.seriesId,
+      previous: previous ? previous.post : null,
+      next: next ? next.post : null,
+      previousLabel: labelFor(
+        entry,
+        previous,
+        NAV_LABELS.previousInSeries,
+        NAV_LABELS.previousSeries
+      ),
+      nextLabel: labelFor(
+        entry,
+        next,
+        NAV_LABELS.nextInSeries,
+        NAV_LABELS.nextSeries
+      ),
     })
   })
 
