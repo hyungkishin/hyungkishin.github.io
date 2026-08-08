@@ -1,5 +1,5 @@
 ---
-title: "세 번 틀렸는데 새로 잰 건 한 번뿐이었다"
+title: "Lighthouse는 죄가 없었다"
 date: 2026-08-08
 update: 2026-08-08
 tags:
