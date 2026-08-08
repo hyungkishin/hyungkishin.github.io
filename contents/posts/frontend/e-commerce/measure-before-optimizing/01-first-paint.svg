@@ -15,11 +15,11 @@
   <rect x="0" y="0" width="900" height="470" rx="20" fill="url(#bgPaint)"/>
 
   <text x="44" y="52" font-size="21" font-weight="700" fill="#1e293b">같은 FCP가 서로 다른 첫 화면을 가리켰다</text>
-  <text x="44" y="78" font-size="13.5" fill="#64748b">되돌리면 왼쪽으로 간다. 899ms를 아끼고 홈 대신 로딩 문구를 먼저 본다.</text>
+  <text x="44" y="78" font-size="13.5" fill="#64748b">되돌리면 왼쪽으로 간다. 시뮬레이션 899ms를 아끼고 홈 대신 로딩 문구를 먼저 본다.</text>
 
   <!-- Before -->
   <text x="80" y="132" font-size="13" font-weight="600" fill="#64748b">Before</text>
-  <text x="390" y="132" font-size="13" font-weight="700" fill="#64748b" text-anchor="end" font-family="monospace">FCP 1,360ms</text>
+  <text x="390" y="132" font-size="13" font-weight="700" fill="#64748b" text-anchor="end" font-family="monospace">시뮬레이션 FCP 1,360ms</text>
   <rect x="80" y="146" width="310" height="230" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
   <text x="235" y="266" font-size="14" fill="#94a3b8" text-anchor="middle" font-family="monospace">Loading home…</text>
   <text x="235" y="396" font-size="12.5" fill="#94a3b8" text-anchor="middle">글자 한 줄. 홈인지 알 수 없다</text>
@@ -30,7 +30,7 @@
 
   <!-- After -->
   <text x="510" y="132" font-size="13" font-weight="600" fill="#0e7490">After</text>
-  <text x="820" y="132" font-size="13" font-weight="700" fill="#0e7490" text-anchor="end" font-family="monospace">FCP 2,259ms</text>
+  <text x="820" y="132" font-size="13" font-weight="700" fill="#0e7490" text-anchor="end" font-family="monospace">시뮬레이션 FCP 2,259ms</text>
   <rect x="510" y="146" width="310" height="230" rx="12" fill="#ffffff" stroke="#0891b2" stroke-opacity="0.45" stroke-width="1.5"/>
 
   <text x="534" y="186" font-size="14.5" font-weight="700" fill="#334155">매일 새롭게 발견하는 취향</text>
