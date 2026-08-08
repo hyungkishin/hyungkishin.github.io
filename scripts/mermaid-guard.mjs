@@ -8,7 +8,13 @@ import { JSDOM } from "jsdom"
 const dom = new JSDOM("<!DOCTYPE html><body></body>", { url: "https://localhost/" })
 globalThis.window = dom.window
 globalThis.document = dom.window.document
-globalThis.navigator = dom.window.navigator
+// Node 22부터 globalThis.navigator가 getter 전용 접근자라 대입이 TypeError를 낸다.
+// 값을 갈아끼우려면 재정의해야 한다.
+Object.defineProperty(globalThis, "navigator", {
+  value: dom.window.navigator,
+  configurable: true,
+  writable: true,
+})
 globalThis.DOMPurify = undefined
 
 const { default: mermaid } = await import("mermaid")
