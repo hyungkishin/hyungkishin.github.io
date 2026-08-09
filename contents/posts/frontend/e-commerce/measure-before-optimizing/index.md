@@ -116,7 +116,7 @@ Before의 빠른 FCP가 칠한 것은 `Loading home...` 한 줄이다. After의 
 | simulated (Lantern) | 1,360ms | 2,259ms | 899ms |
 | applied (devtools) | 1,627ms | 1,705ms | 78ms |
 
-<iframe src="/diagrams/measure-before-optimizing/fcp-causality.html?embed=1&play=1&theme=light#view=estimate-path" title="899ms를 사용자 지연으로 읽었을 때 생기는 오판과 적용형 감속의 실제 순서를 비교하는 Archify 애니메이션" loading="lazy" style="display: block; width: 100%; aspect-ratio: 760 / 500; border: 0; border-radius: 20px;"></iframe>
+![위쪽은 simulated FCP 899ms 증가를 폰트 차단으로 단정한 경로다. 아래쪽은 applied FCP 차이가 78ms이고 첫 페인트 1,705ms 뒤 폰트가 4,040ms에 도착한 순서다](./fcp-causality.svg)
 
 적용형에서는 한글이 1,705ms, 라틴이 1,700ms로 문자 종류 차이도 없다. 실제 브라우저는 그 서브셋을 기다리지 않는다. Pretendard 서브셋 CSS의 `@font-face` 92개에 전부 `font-display: swap`이 걸려 있다. 셸 문구에 필요한 서브셋 6개가 4,040ms에 도착하는 동안 첫 페인트는 1,705ms에 이미 일어난다.
 

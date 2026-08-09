@@ -8,17 +8,18 @@
     "animation": "trace",
     "visual_preset": "editorial",
     "quality_profile": "showcase",
+    "legend": { "mode": "hidden" },
     "views": [
       {
         "id": "estimate-path",
         "label": "Lantern 추정",
-        "focus": ["simulated", "font-burst", "wrong-cause"],
+        "focus": ["simulated", "wrong-cause"],
         "note": "899ms 차이만 보면 폰트가 사용자의 첫 페인트를 막았다고 읽기 쉽다."
       },
       {
         "id": "browser-path",
         "label": "브라우저 관측",
-        "focus": ["applied", "first-paint", "font-arrival"],
+        "focus": ["applied", "observed-order"],
         "note": "첫 페인트는 1,705ms, 폰트 도착은 4,040ms다. swap이 먼저 그린다."
       }
     ]
@@ -28,33 +29,18 @@
     { "id": "browser", "label": "적용형 감속" }
   ],
   "phases": [
-    { "id": "measure", "label": "측정", "fromCol": 0, "toCol": 1 },
-    { "id": "interpret", "label": "해석", "fromCol": 2, "toCol": 3, "variant": "emphasis" }
+    { "id": "measure", "label": "측정값", "fromCol": 0, "toCol": 0 },
+    { "id": "interpret", "label": "판단", "fromCol": 2, "toCol": 2, "variant": "emphasis" }
   ],
-  "mainPath": ["applied", "first-paint", "font-arrival"],
+  "mainPath": ["applied", "observed-order"],
   "nodes": [
     { "id": "simulated", "lane": "estimate", "col": 0, "type": "external", "label": "Simulated FCP", "sublabel": "1,360 → 2,259ms", "tag": "+899ms" },
-    { "id": "font-burst", "lane": "estimate", "col": 1, "type": "messagebus", "label": "초기 폰트 요청", "sublabel": "64KB → 183KB" },
-    { "id": "wrong-cause", "lane": "estimate", "col": 3, "type": "security", "label": "잘못 고른 원인", "sublabel": "폰트가 페인트를 막았다" },
+    { "id": "wrong-cause", "lane": "estimate", "col": 2, "type": "security", "label": "원인으로 단정", "sublabel": "폰트가 페인트를 막았다" },
     { "id": "applied", "lane": "browser", "col": 0, "type": "frontend", "label": "Applied FCP", "sublabel": "1,627 → 1,705ms", "tag": "+78ms" },
-    { "id": "first-paint", "lane": "browser", "col": 1, "type": "frontend", "label": "첫 페인트", "sublabel": "1,705ms" },
-    { "id": "font-arrival", "lane": "browser", "col": 3, "type": "database", "label": "폰트 도착", "sublabel": "4,040ms", "tag": "swap 이후" }
+    { "id": "observed-order", "lane": "browser", "col": 2, "width": 120, "type": "frontend", "label": "첫 페인트가 먼저", "sublabel": "1,705ms → 폰트 4,040ms", "tag": "swap" }
   ],
   "edges": [
-    { "from": "simulated", "to": "font-burst", "variant": "security", "role": "branch" },
-    { "from": "font-burst", "to": "wrong-cause", "label": "원인으로 단정", "variant": "security", "role": "error" },
-    { "from": "applied", "to": "first-paint", "variant": "emphasis", "role": "main" },
-    { "from": "first-paint", "to": "font-arrival", "label": "2,335ms 뒤", "variant": "emphasis", "role": "main" }
-  ],
-  "cards": [
-    {
-      "dot": "orange",
-      "title": "판별 결과",
-      "items": [
-        "899ms는 Lantern의 내부 재생 결과다",
-        "적용형 차이는 78ms다",
-        "판별 변수를 찾은 것과 기전을 증명한 것은 다르다"
-      ]
-    }
+    { "from": "simulated", "to": "wrong-cause", "label": "숫자만 비교", "variant": "security", "role": "error" },
+    { "from": "applied", "to": "observed-order", "label": "도착 순서 확인", "variant": "emphasis", "role": "main" }
   ]
 }
