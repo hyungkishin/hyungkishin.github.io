@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "899ms를 사용자 지연으로 읽으면 생기는 오판",
+    "subtitle": "같은 빌드를 추정과 실제 감속으로 나눠 본다",
+    "output": "fcp-causality.html",
+    "animation": "trace",
+    "visual_preset": "editorial",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "estimate-path",
+        "label": "Lantern 추정",
+        "focus": ["simulated", "font-burst", "wrong-cause"],
+        "note": "899ms 차이만 보면 폰트가 사용자의 첫 페인트를 막았다고 읽기 쉽다."
+      },
+      {
+        "id": "browser-path",
+        "label": "브라우저 관측",
+        "focus": ["applied", "first-paint", "font-arrival"],
+        "note": "첫 페인트는 1,705ms, 폰트 도착은 4,040ms다. swap이 먼저 그린다."
+      }
+    ]
+  },
+  "lanes": [
+    { "id": "estimate", "label": "Lantern 시뮬레이션" },
+    { "id": "browser", "label": "적용형 감속" }
+  ],
+  "phases": [
+    { "id": "measure", "label": "측정", "fromCol": 0, "toCol": 1 },
+    { "id": "interpret", "label": "해석", "fromCol": 2, "toCol": 3, "variant": "emphasis" }
+  ],
+  "mainPath": ["applied", "first-paint", "font-arrival"],
+  "nodes": [
+    { "id": "simulated", "lane": "estimate", "col": 0, "type": "external", "label": "Simulated FCP", "sublabel": "1,360 → 2,259ms", "tag": "+899ms" },
+    { "id": "font-burst", "lane": "estimate", "col": 1, "type": "messagebus", "label": "초기 폰트 요청", "sublabel": "64KB → 183KB" },
+    { "id": "wrong-cause", "lane": "estimate", "col": 3, "type": "security", "label": "잘못 고른 원인", "sublabel": "폰트가 페인트를 막았다" },
+    { "id": "applied", "lane": "browser", "col": 0, "type": "frontend", "label": "Applied FCP", "sublabel": "1,627 → 1,705ms", "tag": "+78ms" },
+    { "id": "first-paint", "lane": "browser", "col": 1, "type": "frontend", "label": "첫 페인트", "sublabel": "1,705ms" },
+    { "id": "font-arrival", "lane": "browser", "col": 3, "type": "database", "label": "폰트 도착", "sublabel": "4,040ms", "tag": "swap 이후" }
+  ],
+  "edges": [
+    { "from": "simulated", "to": "font-burst", "variant": "security", "role": "branch" },
+    { "from": "font-burst", "to": "wrong-cause", "label": "원인으로 단정", "variant": "security", "role": "error" },
+    { "from": "applied", "to": "first-paint", "variant": "emphasis", "role": "main" },
+    { "from": "first-paint", "to": "font-arrival", "label": "2,335ms 뒤", "variant": "emphasis", "role": "main" }
+  ],
+  "cards": [
+    {
+      "dot": "orange",
+      "title": "판별 결과",
+      "items": [
+        "899ms는 Lantern의 내부 재생 결과다",
+        "적용형 차이는 78ms다",
+        "판별 변수를 찾은 것과 기전을 증명한 것은 다르다"
+      ]
+    }
+  ]
+}
