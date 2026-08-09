@@ -71,7 +71,7 @@ const firstBurst = fonts.filter((item) => item.networkRequestTime < 300)
 
 둘 다 사실이다. 하지만 두 번째 문장은 첫 번째 문장을 반박하지 않는다.
 
-<iframe src="/diagrams/comparison-not-value/01-first-burst.html" title="세 조건의 첫 300ms 폰트 요청과 최종 합계를 비교하는 Archify 뷰어" loading="lazy" style="width: 100%; height: min(86vh, 900px); min-height: 620px; border: 0; border-radius: 20px;" allowfullscreen></iframe>
+<iframe src="/diagrams/comparison-not-value/01-first-burst.html?embed=1&play=1&theme=light#view=early-burst" title="세 조건의 첫 300ms 폰트 요청과 최종 합계를 비교하는 Archify 애니메이션" loading="lazy" style="display: block; width: 100%; aspect-ratio: 760 / 520; border: 0; border-radius: 20px;"></iframe>
 
 총합은 마지막 요청까지 모두 더한다. 첫 주장은 navigation 이후 300ms라는 시간 범위만 센다. 전체가 같아도 앞부분의 배분은 달라질 수 있다.
 
@@ -103,7 +103,7 @@ document는 After 한글과 라틴 치환에서 모두 509ms다. 그런데 rende
 
 document 완료 시각만으로는 차이를 설명할 수 없었다. 세 조건에서 결과와 함께 달라진 관측값은 300ms 이전 폰트 바이트였다. 그 바이트가 Lantern 내부에서 어떤 계산을 거쳐 FCP에 반영되는지는 아직 모른다.
 
-<iframe src="/diagrams/comparison-not-value/02-causal-path.html" title="같은 변경이 Lantern 시뮬레이션과 적용형 감속에서 다르게 보인 경로를 탐색하는 Archify 뷰어" loading="lazy" style="width: 100%; height: min(86vh, 900px); min-height: 620px; border: 0; border-radius: 20px;" allowfullscreen></iframe>
+<iframe src="/diagrams/comparison-not-value/02-causal-path.html?embed=1&play=1&theme=light#view=simulated-path" title="같은 변경이 Lantern 시뮬레이션과 적용형 감속에서 다르게 보인 경로를 재생하는 Archify 애니메이션" loading="lazy" style="display: block; width: 100%; aspect-ratio: 760 / 600; border: 0; border-radius: 20px;"></iframe>
 
 > **포기한 것**: Lantern 내부 계산의 완전한 설명. document 완료 시각만으로는 세 조건의 차이를 설명할 수 없었지만, 폰트 바이트가 899ms로 계산되는 경로까지 증명하지는 않았다.
 
