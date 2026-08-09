@@ -1,7 +1,7 @@
 ---
 title: "가장 긴 LCP 구간을 줄였는데 전체 성능은 나빠졌다"
 date: 2026-08-07
-update: 2026-08-09
+update: 2026-08-10
 tags:
   - front-end
   - e-commerce
@@ -116,7 +116,38 @@ Before의 빠른 FCP가 칠한 것은 `Loading home...` 한 줄이다. After의 
 | simulated (Lantern) | 1,360ms | 2,259ms | 899ms |
 | applied (devtools) | 1,627ms | 1,705ms | 78ms |
 
-![위쪽은 simulated FCP 899ms 증가를 폰트 차단으로 단정한 경로다. 아래쪽은 applied FCP 차이가 78ms이고 첫 페인트 1,705ms 뒤 폰트가 4,040ms에 도착한 순서다](./fcp-causality.svg)
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 300" role="img" aria-labelledby="fcp-flow-title fcp-flow-desc" style="display:block;width:100%;height:auto;margin:2rem 0;color:inherit">
+  <title id="fcp-flow-title">같은 변경을 두 감속 방식으로 비교한 결과</title>
+  <desc id="fcp-flow-desc">Lantern은 FCP 차이를 899ms로 추정해 폰트를 원인으로 오판하게 했다. 적용형 감속에서는 차이가 78ms였고 첫 페인트가 폰트 도착보다 2,335ms 빨랐다.</desc>
+  <defs>
+    <marker id="fcp-bad-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0l10 5-10 5z" fill="#dc6648"/></marker>
+    <marker id="fcp-good-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0l10 5-10 5z" fill="#0f9f91"/></marker>
+    <filter id="fcp-glow"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect x="1" y="1" width="758" height="298" rx="16" fill="currentColor" fill-opacity=".035" stroke="currentColor" stroke-opacity=".12"/>
+  <text x="26" y="34" font-size="18" font-weight="700" fill="currentColor">899ms를 사용자 지연으로 읽으면 생기는 오판</text>
+  <text x="26" y="54" font-size="12" fill="currentColor" opacity=".58">같은 빌드 · 다른 감속 방식 · 같은 FCP 이름</text>
+
+  <rect x="22" y="72" width="716" height="88" rx="12" fill="currentColor" fill-opacity=".035" stroke="currentColor" stroke-opacity=".14"/>
+  <text x="38" y="94" font-size="11" font-weight="700" fill="currentColor" opacity=".58">LANTERN 시뮬레이션</text>
+  <rect x="38" y="106" width="184" height="40" rx="8" fill="#dc6648" fill-opacity=".09" stroke="#dc6648" stroke-width="1.5"/>
+  <text x="51" y="123" font-size="12" font-weight="700" fill="currentColor">Simulated FCP</text><text x="51" y="138" font-size="10.5" fill="currentColor" opacity=".62">1,360 → 2,259ms · +899ms</text>
+  <path id="fcp-bad-path" d="M222 126H514" fill="none" stroke="#dc6648" stroke-width="2" marker-end="url(#fcp-bad-arrow)"/>
+  <rect x="316" y="114" width="104" height="22" rx="11" fill="currentColor" fill-opacity=".08"/><text x="368" y="129" font-size="10.5" text-anchor="middle" fill="#dc6648">숫자만 비교</text>
+  <rect x="514" y="106" width="204" height="40" rx="8" fill="#dc6648" fill-opacity=".09" stroke="#dc6648" stroke-width="1.5"/>
+  <text x="527" y="123" font-size="12" font-weight="700" fill="currentColor">폰트가 막았다고 단정</text><text x="527" y="138" font-size="10.5" fill="currentColor" opacity=".62">추정값에서 고른 원인</text>
+  <circle r="4.5" fill="#dc6648" filter="url(#fcp-glow)"><animateMotion dur="2.8s" repeatCount="indefinite"><mpath href="#fcp-bad-path"/></animateMotion></circle>
+
+  <rect x="22" y="176" width="716" height="102" rx="12" fill="currentColor" fill-opacity=".035" stroke="currentColor" stroke-opacity=".14"/>
+  <text x="38" y="198" font-size="11" font-weight="700" fill="currentColor" opacity=".58">적용형 감속</text>
+  <rect x="38" y="212" width="184" height="48" rx="8" fill="#0f9f91" fill-opacity=".09" stroke="#0f9f91" stroke-width="1.5"/>
+  <text x="51" y="231" font-size="12" font-weight="700" fill="currentColor">Applied FCP</text><text x="51" y="248" font-size="10.5" fill="currentColor" opacity=".62">1,627 → 1,705ms · +78ms</text>
+  <path id="fcp-good-path" d="M222 236H514" fill="none" stroke="#0f9f91" stroke-width="2" marker-end="url(#fcp-good-arrow)"/>
+  <rect x="307" y="224" width="122" height="22" rx="11" fill="currentColor" fill-opacity=".08"/><text x="368" y="239" font-size="10.5" text-anchor="middle" fill="#0f9f91">도착 순서 확인</text>
+  <rect x="514" y="212" width="204" height="48" rx="8" fill="#0f9f91" fill-opacity=".09" stroke="#0f9f91" stroke-width="1.5"/>
+  <text x="527" y="231" font-size="12" font-weight="700" fill="currentColor">첫 페인트가 먼저</text><text x="527" y="248" font-size="10.5" fill="currentColor" opacity=".62">1,705ms → 폰트 4,040ms</text>
+  <circle r="4.5" fill="#0f9f91" filter="url(#fcp-glow)"><animateMotion dur="2.8s" begin=".7s" repeatCount="indefinite"><mpath href="#fcp-good-path"/></animateMotion></circle>
+</svg>
 
 적용형에서는 한글이 1,705ms, 라틴이 1,700ms로 문자 종류 차이도 없다. 실제 브라우저는 그 서브셋을 기다리지 않는다. Pretendard 서브셋 CSS의 `@font-face` 92개에 전부 `font-display: swap`이 걸려 있다. 셸 문구에 필요한 서브셋 6개가 4,040ms에 도착하는 동안 첫 페인트는 1,705ms에 이미 일어난다.
 
