@@ -473,7 +473,7 @@ data-styled.g52[id="Footer__HiddenWrapper-sc-1d9k77a-9"]{content:"ZwedX,"}/*!sc*
 </tr>
 </tbody>
 </table>
-<iframe src="/diagrams/measure-before-optimizing/fcp-causality.html?embed=1&play=1&theme=light#view=estimate-path" title="899ms를 사용자 지연으로 읽었을 때 생기는 오판과 적용형 감속의 실제 순서를 비교하는 Archify 애니메이션" loading="lazy" style="display: block; width: 100%; aspect-ratio: 760 / 500; border: 0; border-radius: 20px;"></iframe>
+<p><img src="/static/fcp-causality-38cb73722eda47b8383b3eb0742615b3.svg" alt="위쪽은 simulated FCP 899ms 증가를 폰트 차단으로 단정한 경로다. 아래쪽은 applied FCP 차이가 78ms이고 첫 페인트 1,705ms 뒤 폰트가 4,040ms에 도착한 순서다"></p>
 <p>적용형에서는 한글이 1,705ms, 라틴이 1,700ms로 문자 종류 차이도 없다. 실제 브라우저는 그 서브셋을 기다리지 않는다. Pretendard 서브셋 CSS의 <code class="language-text">@font-face</code> 92개에 전부 <code class="language-text">font-display: swap</code>이 걸려 있다. 셸 문구에 필요한 서브셋 6개가 4,040ms에 도착하는 동안 첫 페인트는 1,705ms에 이미 일어난다.</p>
 <p>그러면 Lantern은 무엇을 보고 899ms를 만들었나. 폰트 요청 총합은 세 조건 모두 10건 265,088B로 같다. 요청 시각으로 나누면 달라진다.</p>
 <table>
