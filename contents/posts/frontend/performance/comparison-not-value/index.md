@@ -103,9 +103,7 @@ document는 After 한글과 라틴 치환에서 모두 509ms다. 그런데 rende
 
 document 완료 시각만으로는 차이를 설명할 수 없었다. 세 조건에서 결과와 함께 달라진 관측값은 300ms 이전 폰트 바이트였다. 그 바이트가 Lantern 내부에서 어떤 계산을 거쳐 FCP에 반영되는지는 아직 모른다.
 
-<video autoplay loop muted playsinline controls preload="metadata" style="width: 100%; height: auto; border-radius: 20px;" aria-label="같은 서버 셸이 Lantern 시뮬레이션과 적용형 감속에서 서로 다른 결과로 이어지는 경로. 시뮬레이션에서는 첫 300ms 폰트 바이트와 FCP 899ms가 관측상 함께 변하고, 적용형 감속에서는 font-display swap으로 폰트보다 먼저 페인트한다.">
-  <source src="/diagrams/comparison-not-value/02-causal-path.webm" type="video/webm">
-</video>
+![같은 서버 셸이 Lantern 시뮬레이션과 적용형 감속에서 서로 다른 결과로 이어지는 경로. 시뮬레이션에서는 첫 300ms 폰트 바이트와 FCP 899ms가 관측상 함께 변하고, 적용형 감속에서는 font-display swap으로 폰트보다 먼저 페인트한다.](./02-causal-path.svg)
 
 > **포기한 것**: Lantern 내부 계산의 완전한 설명. document 완료 시각만으로는 세 조건의 차이를 설명할 수 없었지만, 폰트 바이트가 899ms로 계산되는 경로까지 증명하지는 않았다.
 
