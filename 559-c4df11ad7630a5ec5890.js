@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkgatsby_starter_hyungki=self.webpackChunkgatsby_starter_hyungki||[]).push([[559],{30559:function(e,t,n){n.d(t,{createInfoServices:function(){return r.v}});var r=n(21854);n(67739)}}]);
