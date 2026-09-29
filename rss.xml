@@ -1,102 +1,108 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Mon, 28 Sep 2026 05:01:58 GMT</lastBuildDate><item><title><![CDATA[10주 동안 검증이 내려간 자리]]></title><description><![CDATA[TL;DR 루프팩 프론트엔드 1기 10주를 마쳤다.
-매주 숫자를 남기게 만드는 과정이다.
-감으로 고친 것은 근거로 인정되지 않는다.
-10주 뒤에 바뀐 건 실력보다 질문이었다.
-1주차 질문은 "이 코드를 설명할 수 있는가"였다.
-1…]]></description><link>https://hyungkishin.github.io/frontend/loopers-fe-10-weeks/</link><guid isPermaLink="false">https://hyungkishin.github.io/frontend/loopers-fe-10-weeks/</guid><pubDate>Mon, 28 Sep 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;&lt;strong&gt;TL;DR&lt;/strong&gt;&lt;/p&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[RSS Feed of hyungkishin.blog]]></title><description><![CDATA[생각하는 삶]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Tue, 29 Sep 2026 03:04:56 GMT</lastBuildDate><item><title><![CDATA[10주가 지나도 커밋 버튼 앞에서 멈춘다]]></title><description><![CDATA[TL;DR 루프팩 프론트엔드 1기 10주를 마쳤다.
+마지막 주에 게이트를 여덟 개 붙이고 CI…]]></description><link>https://hyungkishin.github.io/frontend/loopers-fe-10-weeks/</link><guid isPermaLink="false">https://hyungkishin.github.io/frontend/loopers-fe-10-weeks/</guid><pubDate>Mon, 28 Sep 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;&lt;strong&gt;TL;DR&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;루프팩 프론트엔드 1기 10주를 마쳤다.
-매주 숫자를 남기게 만드는 과정이다.
-감으로 고친 것은 근거로 인정되지 않는다.
-10주 뒤에 바뀐 건 실력보다 질문이었다.
-1주차 질문은 &quot;이 코드를 설명할 수 있는가&quot;였다.
-10주차 질문은 &quot;이 실수가 다시 들어오면 무엇이 막는가&quot;였다.&lt;/p&gt;
-&lt;h2&gt;1주차에 막힌 자리는 코드가 아니었다&lt;/h2&gt;
-&lt;p&gt;ESLint와 Prettier, husky를 깔자고 AI에게 시켰다.
-세 개가 한 번에 쏟아졌다.
-파일은 전부 그럴듯했고 그냥 커밋하면 끝날 것 같았다.&lt;/p&gt;
-&lt;p&gt;문제는 그걸 설명할 수 없다는 거였다.
-왜 이 룰이 켜져 있는지 모른다.
-왜 이 값인지도 모른다.
-모른 채 통과시키면 내 환경이 아니라 AI가 깔아준 남의 환경이다.&lt;/p&gt;
-&lt;p&gt;과정이 요구한 건 룰을 많이 켜는 게 아니었다.
-룰마다 왜 error이고 왜 warn인지 적는 것이었다.
-이 요구가 10주 내내 형태만 바꿔 반복된다.&lt;/p&gt;
-&lt;h2&gt;매주 같은 절차를 돌린다&lt;/h2&gt;
-&lt;p&gt;주차마다 주제는 다른데 절차는 같다.&lt;/p&gt;
-&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;text&quot;&gt;&lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;측정 전에 채택 기준을 고정한다
+마지막 주에 게이트를 여덟 개 붙이고 CI가 전부 초록인 걸 보면서 끝났다고 생각했다.
+그 상태로 다시 훑었더니 막으려던 게 여섯 개 통과하고 있었다.
+더 아픈 건 그다음이었다. 그걸 고치는 과정에서 내가 새 결함 세 개를 만들었다.
+10주 동안 늘어난 건 코드 실력보다 의심하는 습관이었다.&lt;/p&gt;
+&lt;h2&gt;1주차, 커밋 버튼을 못 눌렀다&lt;/h2&gt;
+&lt;p&gt;첫 주 과제는 개발 환경을 세우는 거였다.
+ESLint랑 Prettier, husky를 깔자고 AI에게 시켰더니 몇 초 만에 파일 세 개가 쏟아졌다.
+열어보니 다 그럴듯했다. 룰도 촘촘하고 주석도 붙어 있었다.&lt;/p&gt;
+&lt;p&gt;커밋하려고 손을 올렸는데 거기서 멈췄다.&lt;/p&gt;
+&lt;p&gt;이 룰이 왜 켜져 있는지 모른다.
+왜 error고 왜 warn인지도 모른다.
+모르는 채로 통과시키면 이건 내 환경이 아니라 AI가 깔아준 남의 환경이다.&lt;/p&gt;
+&lt;p&gt;그날 한 일은 룰을 지우는 거였다.
+남긴 룰마다 왜 이 레벨인지 한 줄씩 적었다. 절반 넘게 날아갔다.
+멘토가 그걸 보고 &quot;왜 이 값이냐&quot;를 또 물었다.&lt;/p&gt;
+&lt;p&gt;이 질문이 10주 내내 모양만 바꿔서 돌아온다.&lt;/p&gt;
+&lt;h2&gt;숫자를 남기라는 말이 제일 귀찮았다&lt;/h2&gt;
+&lt;p&gt;과제마다 절차가 똑같다.&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;text&quot;&gt;&lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;측정 전에 채택 기준을 먼저 고정한다
   → 같은 조건에서 3회 잰다
-  → raw 값·중앙값·범위를 남긴다
-  → 기준을 충족하면 채택, 아니면 기각하고 기각 근거도 남긴다&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;효과가 없어서 버린 것도 제출물이다.
-처음엔 번거롭기만 했다.
-7주차에서 쓸모가 드러났다.&lt;/p&gt;
-&lt;p&gt;성능 과제에서 감으로 preload를 붙이는 대신 요청 시각과 hero geometry를 따로 쟀다.
-홈 LCP 중앙값이 42,175ms에서 3,384ms로 줄었다.
-범위는 각각 42,169&lt;del&gt;42,184ms와 3,264&lt;/del&gt;3,387ms였다.
-범위를 같이 적게 하는 이유는 10주차에 알았다.&lt;/p&gt;
-&lt;h2&gt;테스트 개수는 검출력이 아니다&lt;/h2&gt;
-&lt;p&gt;8주차 과제는 테스트를 늘리라고 하지 않는다.
-이미 쓴 테스트에 결함을 일부러 넣어보라고 한다.&lt;/p&gt;
-&lt;p&gt;7건을 주입했더니 3건이 살아남았다.&lt;/p&gt;
-&lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;주입한 결함&lt;/th&gt;
-&lt;th&gt;최초 결과&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;cookie &lt;code class=&quot;language-text&quot;&gt;httpOnly&lt;/code&gt; 제거&lt;/td&gt;
-&lt;td&gt;통과&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;보호 링크 prefetch 허용&lt;/td&gt;
-&lt;td&gt;통과&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;서버 초기 HTML 공백&lt;/td&gt;
-&lt;td&gt;통과&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;나머지 4건&lt;/td&gt;
-&lt;td&gt;검출&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-&lt;p&gt;단언을 보완한 뒤 다시 주입해서 셋 다 잡았다.
-그 전까지 이 테스트들은 통과하고 있었다.
-숫자만 보면 충분해 보이는 상태였다.&lt;/p&gt;
-&lt;p&gt;9주차 E2E 범위도 빈도가 아니라 실패 비용으로 골랐다.
-7,514개 유효 세션에서 로그인 성공은 7.8%, 주문 완료는 3.7%였다.
-비율은 낮은데 실패하면 거래 전체가 막힌다.
-반대로 목록 필터는 트래픽이 많지만 DOM 통합 테스트로 같은 보증을 더 싸게 얻는다.
-그래서 E2E는 12개로 끝냈다.&lt;/p&gt;
-&lt;h2&gt;초록불이 증명하는 범위는 좁다&lt;/h2&gt;
-&lt;p&gt;10주차에 CI 게이트를 붙였다.
-전부 초록이었다.
-그 상태로 다시 훑었더니 막으려던 것이 통과하는 자리가 여섯 군데 있었다.&lt;/p&gt;
-&lt;p&gt;가장 컸던 건 E2E 경로 필터다.
-문서만 고친 PR에서 E2E를 건너뛰려고 허용 목록을 만들었다.
-루트에 파일을 몇 개 두고 찍어봤다.&lt;/p&gt;
+  → raw 값, 중앙값, 범위를 전부 남긴다
+  → 기준에 못 미치면 기각하고, 기각한 이유도 제출한다&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;기각한 것도 제출물이라는 게 처음엔 이해가 안 됐다.
+안 쓴 걸 왜 내지? 되는 것만 내면 되는 거 아닌가?&lt;/p&gt;
+&lt;p&gt;7주차 성능 과제에서 좀 달라졌다.
+홈 화면이 느려서 감으로 preload를 붙이려다 멈췄다.
+대신 요청 시각이랑 hero geometry를 따로 쟀다.
+범인은 폰트 burst였다. preload를 붙였으면 엉뚱한 데를 고칠 뻔했다.&lt;/p&gt;
+&lt;p&gt;결과는 LCP 중앙값 42,175ms에서 3,384ms.
+숫자만 보면 통쾌한데, 사실 저기서 배운 건 42초가 3초 된 게 아니었다.
+&lt;strong&gt;감으로 짚은 원인이 틀렸다는 것&lt;/strong&gt;이었다.&lt;/p&gt;
+&lt;p&gt;그때도 범위를 적으라는 건 여전히 귀찮았다. 42,169&lt;del&gt;42,184ms, 3,264&lt;/del&gt;3,387ms.
+이걸 왜 적으라는 건지는 마지막 주에 알게 된다.&lt;/p&gt;
+&lt;h2&gt;내 테스트는 통과하고 있었다&lt;/h2&gt;
+&lt;p&gt;8주차가 제일 아팠다.&lt;/p&gt;
+&lt;p&gt;과제가 테스트를 늘리라고 안 한다.
+이미 쓴 테스트에 결함을 일부러 심어보라고 한다.&lt;/p&gt;
+&lt;p&gt;일곱 개를 심었다. 네 개는 잡혔다.
+세 개가 살아남았다.&lt;/p&gt;
+&lt;p&gt;쿠키에서 &lt;code class=&quot;language-text&quot;&gt;httpOnly&lt;/code&gt;를 떼도 통과했다.
+로그아웃 상태에서 보호 링크 prefetch를 열어도 통과했다.
+서버가 내려주는 초기 HTML을 비워도 통과했다.&lt;/p&gt;
+&lt;p&gt;저 테스트들은 그 전까지 매번 초록이었다.
+테스트가 375개 있었다. 나는 그게 꽤 촘촘하다고 생각하고 있었다.&lt;/p&gt;
+&lt;p&gt;개수는 검출력이 아니다.
+이 문장을 머리로는 알고 있었다.
+내 테스트가 세 번 뚫리는 걸 보고 나서야 손으로 알았다.&lt;/p&gt;
+&lt;h2&gt;다 붙였다고 생각한 날&lt;/h2&gt;
+&lt;p&gt;10주차는 검증을 기계에 새기는 주다.&lt;/p&gt;
+&lt;p&gt;게이트를 여덟 개 붙였다.
+계측 함수 직접 import 차단, 커밋 AI 서명 차단, 주석 문체 검사, 번들 예산, 환경 변수 검증, E2E 경로 판정, CI 구성 감사, 그리고 각 게이트의 테스트.&lt;/p&gt;
+&lt;p&gt;CI를 돌렸더니 전부 초록이었다.
+PR 올리고 제출하고 닫았다. 잘 끝났다고 생각했다.&lt;/p&gt;
+&lt;h2&gt;그런데 여섯 개가 통과하고 있었다&lt;/h2&gt;
+&lt;p&gt;며칠 뒤에 다시 훑었다.
+&quot;게이트를 붙였다&quot;와 &quot;게이트가 막는다&quot;가 같은 말인지 확인해보고 싶었다.&lt;/p&gt;
+&lt;p&gt;막혀야 할 입력을 직접 넣어봤다.&lt;/p&gt;
+&lt;p&gt;루트에 파일 몇 개를 만들고 E2E가 도는지 찍었다.&lt;/p&gt;
 &lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;text&quot;&gt;&lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;instrumentation.ts   -&gt; 생략
 middleware.ts        -&gt; 생략
 proxy.ts             -&gt; 생략
 src/foo.config.ts    -&gt; 실행&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;앞의 셋은 Next 런타임이 읽는 파일이다.
-루트에 런타임 파일을 새로 만들면 가장 비싼 게이트가 빠진다.
-로그에는 그 표시가 남지 않는다.&lt;/p&gt;
-&lt;p&gt;허용 목록은 목록에 없는 경로를 생략한다.
-거부 목록은 목록에 없는 경로를 실행한다.
+루트에 런타임 파일을 새로 만들면 제일 비싼 게이트가 그냥 빠진다.
+로그에는 흔적도 안 남는다.&lt;/p&gt;
+&lt;p&gt;내가 만든 필터는 허용 목록이었다.
+목록에 있는 경로가 바뀌면 돌린다. 없으면 건너뛴다.
+그러니까 모르는 경로는 전부 건너뛴다.&lt;/p&gt;
+&lt;p&gt;거부 목록이었으면 반대다. 모르는 경로는 전부 돌린다.
 같은 목적의 필터인데 기본값 하나가 안전과 위험을 가른다.&lt;/p&gt;
 &lt;p&gt;원인은 위치였다.
-판정이 workflow YAML 안의 bash 30줄이라 실행해볼 수단이 없었다.
-스크립트로 빼고 케이스를 쓰자 그 자리에서 드러났다.&lt;/p&gt;
-&lt;p&gt;나머지 다섯도 성격이 같다.
-번들 예산은 예산표의 키만 순회해서 새 라우트를 통과시켰다.
-Dockerfile은 필수 환경 변수에 기본값을 채워 환경 게이트를 앞에서 무력화했다.
-전부 CI가 초록인 상태에서 있었다.&lt;/p&gt;
-&lt;h2&gt;중앙값만 보면 순위가 틀린다&lt;/h2&gt;
+판정이 workflow YAML 안의 bash 30줄이라 실행해볼 방법이 없었다.
+스크립트로 빼내고 케이스를 쓰자마자 그 자리에서 드러났다.&lt;/p&gt;
+&lt;p&gt;가장 미묘한 로직이 가장 검사가 없는 자리에 있었다.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/static/01-green-but-passing-4f6924fa0fe32b19db9199a79f1ee9de.svg&quot; alt=&quot;CI 체크는 전부 초록인데 막으려던 여섯 가지가 그 아래로 빠져나가는 그림&quot;&gt;&lt;/p&gt;
+&lt;p&gt;나머지 다섯도 성격이 같았다.
+번들 예산은 예산표에 적힌 라우트만 돌았다. 새 라우트를 만들면 5MB든 뭐든 통과했다.
+Dockerfile은 필수 환경 변수에 기본값을 채워넣었다. 값을 안 줘도 build가 통과했다.
+환경 검사가 막으려던 사고가 환경 검사 안쪽에 있었다.&lt;/p&gt;
+&lt;p&gt;여섯 개 전부 CI가 초록인 상태로 있었다.&lt;/p&gt;
+&lt;h2&gt;더 아팠던 건 그다음이었다&lt;/h2&gt;
+&lt;p&gt;여섯 개를 다 고치고 점수를 다시 매겨봤다.
+83점에서 95점이 됐다.&lt;/p&gt;
+&lt;p&gt;그런데 깎인 5점을 들여다보니 셋 다 &lt;strong&gt;고치는 과정에서 내가 새로 만든 것&lt;/strong&gt;이었다.&lt;/p&gt;
+&lt;p&gt;질문 답변에 내용을 보태다가 &quot;2~4문장&quot; 규격을 넘겼다.
+E2E 필터를 갈아엎고 나서 문서가 인용하는 근거를 안 바꿔서, 이제 없는 구현의 로그를 가리키고 있었다.
+CI 구성을 바꿨는데 cold 측정을 다시 안 했다.&lt;/p&gt;
+&lt;p&gt;고치는 작업이 새 결함을 만드는 자리에는 게이트가 없었다.
+이건 아직도 답을 못 찾았다.&lt;/p&gt;
+&lt;h2&gt;훅이 내 손을 두 번 막았다&lt;/h2&gt;
+&lt;p&gt;작업하다 웃긴 일이 있었다.&lt;/p&gt;
+&lt;p&gt;팀 규칙에 &quot;커밋에 AI 서명을 넣지 않는다&quot;가 있었다.
+문서에만 있었다. 나는 그걸 읽었다.
+그러고도 서명이 붙은 커밋을 다섯 개 만들었다.
+눈으로 찾아서 지웠다.&lt;/p&gt;
+&lt;p&gt;그래서 그 규칙을 commit-msg 훅으로 내렸다.
+서명이 있던 원본 커밋 다섯 개를 그 스크립트에 넣어보니 전부 거부했다.&lt;/p&gt;
+&lt;p&gt;며칠 뒤에 내가 만든 그 훅한테 커밋을 거절당했다.
+그다음엔 중첩 삼항을 썼다가 lint-staged한테 막혔다.&lt;/p&gt;
+&lt;p&gt;문서로 적은 규칙은 지켜지지 않았고, 기계로 내린 규칙은 나부터 막았다.
+이게 10주에서 제일 선명했던 장면이다.&lt;/p&gt;
+&lt;h2&gt;범위를 왜 적으라고 했는지 마지막 날 알았다&lt;/h2&gt;
 &lt;p&gt;CI 시간을 줄이려고 스텝별로 나눠 쟀다.&lt;/p&gt;
 &lt;table&gt;
 &lt;thead&gt;
@@ -128,96 +134,47 @@ Dockerfile은 필수 환경 변수에 기본값을 채워 환경 게이트를 �
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;p&gt;2위인 의존성 설치는 건드리지 않고 4위인 다운로드를 줄이는 실험을 했다.
-중앙값이 11초에서 6초로 줄었는데 job 전체는 그대로였다.
-사전에 채택 기준을 정해둔 덕에 기각으로 끝났다.&lt;/p&gt;
-&lt;p&gt;마지막 제출 실행에서 그 순위가 틀렸다는 게 드러났다.
-job이 429초였고 그중 347초가 의존성 설치 한 스텝이었다.
+&lt;p&gt;2위인 의존성 설치는 손 안 대고 4위인 다운로드부터 줄였다.
+11초를 6초로 줄였는데 job 전체는 그대로였다.
+사전에 채택 기준을 정해둔 덕에 그냥 기각하고 넘어갔다.&lt;/p&gt;
+&lt;p&gt;마지막 제출 실행에서 job이 429초가 나왔다.
+스텝별로 열어봤더니 그중 347초가 의존성 설치 한 스텝이었다.
 같은 명령이 다른 러너에서는 13초에서 28초 사이였다.&lt;/p&gt;
-&lt;p&gt;중앙값 14초로 3위였던 스텝의 최악값이 나머지를 다 합친 것보다 크다.
-최악값과 폭을 같이 보지 않으면 순위가 계속 틀린 채로 남는다.
-범위를 적게 한 이유가 여기 있었다.&lt;/p&gt;
-&lt;h2&gt;관측에도 값이 있다&lt;/h2&gt;
-&lt;p&gt;같은 측정에서 예상하지 않은 값이 나왔다.&lt;/p&gt;
-&lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;구성&lt;/th&gt;
-&lt;th align=&quot;right&quot;&gt;warm 중앙값&lt;/th&gt;
-&lt;th align=&quot;right&quot;&gt;범위&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;pnpm check&lt;/code&gt; 한 줄&lt;/td&gt;
-&lt;td align=&quot;right&quot;&gt;103s&lt;/td&gt;
-&lt;td align=&quot;right&quot;&gt;101~112&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;스텝 12개로 분리&lt;/td&gt;
-&lt;td align=&quot;right&quot;&gt;119s&lt;/td&gt;
-&lt;td align=&quot;right&quot;&gt;106~130&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;job 2개로 분리한 임계경로&lt;/td&gt;
-&lt;td align=&quot;right&quot;&gt;90s&lt;/td&gt;
-&lt;td align=&quot;right&quot;&gt;75~118&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-&lt;p&gt;스텝을 나눈 구성이 한 줄 구성보다 16초 느리다.
-스텝마다 &lt;code class=&quot;language-text&quot;&gt;pnpm&lt;/code&gt;이 새로 뜨는 비용이다.
-어느 검증이 느린지 아는 대가가 13%였다.&lt;/p&gt;
-&lt;p&gt;그래도 나눈 구성을 유지한다.
-어느 스텝이 느린지 모르는 상태로 돌아가면 다음 측정의 출발점이 없다.&lt;/p&gt;
-&lt;p&gt;job을 둘로 나눈 건 채택했다.
-사람이 기다리는 시간은 119초에서 90초로 줄었다.
-총 러너 시간은 119초에서 137초로 늘었다.
-기다리는 시간을 러너 시간과 바꾼 것이다.&lt;/p&gt;
-&lt;p&gt;여기서 한 번 틀렸다.
-처음에 표본 3개를 보고 &quot;두 측정 범위가 겹치지 않는다&quot;고 적었다.
-같은 구성을 다시 재니 75~118로 넓어져 위쪽에서 겹쳤다.
-중앙값 차이는 남았지만 문장은 정정했다.&lt;/p&gt;
-&lt;h2&gt;문서로 적은 규칙은 지켜지지 않았다&lt;/h2&gt;
-&lt;p&gt;팀 규칙 문서에 &quot;커밋에 AI 서명을 넣지 않는다&quot;가 있었다.
-작업 중에 서명이 붙은 커밋 5개를 만들었다.
-사람이 눈으로 찾아서 지웠다.&lt;/p&gt;
-&lt;p&gt;주석의 문체 규칙도 같은 자리였다.
-의인화를 쓰지 않고 영어식 직역을 쓰지 않는다는 규칙이 문서에만 있었다.
-검사를 만들어 돌리자 첫 실행에서 직역 표현이 잡혔다.&lt;/p&gt;
-&lt;p&gt;10주차 마지막 과제가 &quot;AI가 반복 지적한 것 하나를 결정적 게이트로 내리기&quot;였다.
-하나를 내리고 나니 같은 형태가 계속 보였다.
-참·거짓을 문자열이나 구문으로 가를 수 있으면 문서에 두는 게 선택이 아니었다.&lt;/p&gt;
-&lt;p&gt;게이트마다 그 게이트의 테스트를 먼저 돌린다.
-룰이 약해져도 본 게이트는 초록으로 남기 때문이다.
-확인차 룰을 세 가지로 훼손했더니 해당 케이스만 떨어졌다.&lt;/p&gt;
-&lt;h2&gt;이 과정이 안 맞는 경우&lt;/h2&gt;
-&lt;p&gt;솔직한 한계를 적는다.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/static/02-median-vs-worst-b39aa75d31e1d0000a341531fe839e59.svg&quot; alt=&quot;같은 스텝의 중앙값 14초와 최악값 347초를 비교한 막대 그림&quot;&gt;&lt;/p&gt;
+&lt;p&gt;중앙값 14초로 3위였던 스텝의 최악값이 나머지를 다 합친 것보다 컸다.
+중앙값만 보면 이 스텝은 마지막까지 3위로 남는다.&lt;/p&gt;
+&lt;p&gt;7주차에 범위를 적으라고 했던 이유가 여기서 회수됐다.
+중앙값은 &quot;보통 이렇다&quot;를 말하고, 범위는 &quot;최악에 뭘 감당해야 하나&quot;를 말한다.
+둘을 같이 안 보면 순위가 틀린 채로 계속 간다.&lt;/p&gt;
+&lt;h2&gt;이 과정이 안 맞는 사람&lt;/h2&gt;
+&lt;p&gt;솔직하게 적는다.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;결과물을 빨리 쌓고 싶으면 안 맞는다.&lt;/strong&gt;
-10주 동안 만든 화면 수는 많지 않다.
-같은 화면을 두고 측정하고 기각하고 다시 재는 시간이 훨씬 길다.
-포트폴리오에 넣을 프로젝트 개수를 늘리는 과정이 아니다.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;AI에게 맡기고 결과만 받고 싶으면 안 맞는다.&lt;/strong&gt;
+10주 동안 만든 화면 수는 얼마 안 된다.
+같은 화면을 두고 재고 기각하고 다시 재는 시간이 훨씬 길다.
+포트폴리오 프로젝트 개수를 늘리는 과정이 아니다.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;AI한테 맡기고 결과만 받고 싶으면 안 맞는다.&lt;/strong&gt;
 과제는 AI 사용을 권장한다.
 대신 판단은 넘기지 말라고 매주 못박는다.
-무엇을 required로 둘지, 예산을 얼마로 할지, 무엇을 룰로 승격할지.
-이 결정을 넘기면 그 주에 남는 게 없다.&lt;/p&gt;
+무엇을 required로 둘지, 예산을 얼마로 할지, 무엇을 룰로 올릴지.
+이걸 넘기면 그 주에 남는 게 없다.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;리뷰에서 방어할 준비가 없으면 힘들다.&lt;/strong&gt;
 &quot;보통 이렇게 한다&quot;가 근거로 안 통한다.
-매번 왜 그 값이고 왜 그 레벨인지 물어본다.&lt;/p&gt;
-&lt;p&gt;반대로 이미 돌아가는 코드는 쓸 줄 아는데 그게 좋은 코드인지 설명이 막히는 상태라면, 그 지점을 정확히 건드린다.&lt;/p&gt;
-&lt;h2&gt;남은 한 줄&lt;/h2&gt;
-&lt;p&gt;1주차에 세운 기준은 이랬다.&lt;/p&gt;
+매번 왜 그 값이고 왜 그 레벨인지 물어본다. 나는 1주차에 이걸로 하루를 날렸다.&lt;/p&gt;
+&lt;p&gt;반대로 돌아가는 코드는 쓸 줄 아는데 그게 좋은 코드인지 설명이 막히는 상태라면, 정확히 그 지점을 건드린다.&lt;/p&gt;
+&lt;h2&gt;커밋 버튼 앞에서&lt;/h2&gt;
+&lt;p&gt;1주차에 세운 기준은 이거였다.&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;설명할 수 없는 코드는 커밋하지 않는다.&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;p&gt;10주차에 형태가 하나 붙었다.&lt;/p&gt;
+&lt;p&gt;10주차에 형태가 하나 더 붙었다.&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;이 실수가 다시 들어오면 무엇이 막는가.&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;p&gt;답이 &quot;리뷰에서 보겠다&quot;이면 그 실수는 다시 들어온다.
-10주 동안 배운 것 중 코드로 남은 건 얼마 안 된다.
-이 질문 하나가 남았다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[다운로드를 절반으로 줄였는데 CI 시간은 그대로였다]]></title><description><![CDATA[CI 로그를 열었더니 Playwright 설치가 176초였다. 전체 job이 4분 27초였으니 66%다. 여기를 줄이면 되겠다고 적었다. 틀렸다. 17…]]></description><link>https://hyungkishin.github.io/frontend/e-commerce/ci-measure-split/</link><guid isPermaLink="false">https://hyungkishin.github.io/frontend/e-commerce/ci-measure-split/</guid><pubDate>Fri, 11 Sep 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;CI 로그를 열었더니 Playwright 설치가 176초였다. 전체 job이 4분 27초였으니 66%다. 여기를 줄이면 되겠다고 적었다.&lt;/p&gt;
+&lt;p&gt;답이 &quot;리뷰에서 보겠다&quot;면 그 실수는 다시 들어온다.
+내가 여섯 번 확인했다.&lt;/p&gt;
+&lt;p&gt;10주가 지나도 커밋 버튼 앞에서 여전히 멈춘다.
+다른 게 있다면, 1주차에는 설명을 못 해서 멈췄고 지금은 막을 장치가 있는지 확인하느라 멈춘다.
+이 습관 하나 얻자고 10주를 썼다. 남는 장사였다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[다운로드를 절반으로 줄였는데 CI 시간은 그대로였다]]></title><description><![CDATA[CI 로그를 열었더니 Playwright 설치가 176초였다. 전체 job이 4분 27초였으니 66%다. 여기를 줄이면 되겠다고 적었다. 틀렸다. 17…]]></description><link>https://hyungkishin.github.io/frontend/e-commerce/ci-measure-split/</link><guid isPermaLink="false">https://hyungkishin.github.io/frontend/e-commerce/ci-measure-split/</guid><pubDate>Fri, 11 Sep 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;CI 로그를 열었더니 Playwright 설치가 176초였다. 전체 job이 4분 27초였으니 66%다. 여기를 줄이면 되겠다고 적었다.&lt;/p&gt;
 &lt;p&gt;틀렸다. 176초가 무엇 때문인지 그 로그로는 알 수 없었고, 다시 재보니 재현되지도 않았다.&lt;/p&gt;
 &lt;h2&gt;스텝 하나에 여덟 개가 들어 있었다&lt;/h2&gt;
 &lt;p&gt;GitHub Actions는 스텝 단위로만 시간을 기록한다. 명령을 몇 개 이어 붙이든 로그에는 한 줄로 나온다.&lt;/p&gt;

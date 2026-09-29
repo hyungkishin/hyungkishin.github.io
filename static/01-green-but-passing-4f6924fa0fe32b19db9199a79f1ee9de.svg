@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 340" width="720" height="340" role="img" aria-label="CI 체크는 전부 초록인데 막으려던 여섯 가지가 그 아래로 빠져나가는 그림">
+  <rect width="720" height="340" fill="#ffffff"/>
+  <rect x="1" y="1" width="718" height="338" fill="none" stroke="#e3e8ee" stroke-width="2" rx="10"/>
+
+  <text x="36" y="46" font-family="Pretendard, system-ui, sans-serif" font-size="13" fill="#8a94a6" letter-spacing="1.6">CI CHECKS</text>
+
+  <g font-family="Pretendard, system-ui, sans-serif">
+    <rect x="36" y="62" width="300" height="34" rx="6" fill="#edf9f2"/>
+    <circle cx="56" cy="79" r="6" fill="#1f9d63"/>
+    <text x="74" y="84" font-size="14" fill="#2c3542">lint</text>
+    <text x="316" y="84" font-size="13" fill="#1f9d63" text-anchor="end">passed</text>
+
+    <rect x="36" y="102" width="300" height="34" rx="6" fill="#edf9f2"/>
+    <circle cx="56" cy="119" r="6" fill="#1f9d63"/>
+    <text x="74" y="124" font-size="14" fill="#2c3542">typecheck</text>
+    <text x="316" y="124" font-size="13" fill="#1f9d63" text-anchor="end">passed</text>
+
+    <rect x="36" y="142" width="300" height="34" rx="6" fill="#edf9f2"/>
+    <circle cx="56" cy="159" r="6" fill="#1f9d63"/>
+    <text x="74" y="164" font-size="14" fill="#2c3542">test 375</text>
+    <text x="316" y="164" font-size="13" fill="#1f9d63" text-anchor="end">passed</text>
+
+    <rect x="36" y="182" width="300" height="34" rx="6" fill="#edf9f2"/>
+    <circle cx="56" cy="199" r="6" fill="#1f9d63"/>
+    <text x="74" y="204" font-size="14" fill="#2c3542">build</text>
+    <text x="316" y="204" font-size="13" fill="#1f9d63" text-anchor="end">passed</text>
+
+    <rect x="36" y="222" width="300" height="34" rx="6" fill="#edf9f2"/>
+    <circle cx="56" cy="239" r="6" fill="#1f9d63"/>
+    <text x="74" y="244" font-size="14" fill="#2c3542">bundle budget</text>
+    <text x="316" y="244" font-size="13" fill="#1f9d63" text-anchor="end">passed</text>
+
+    <rect x="36" y="262" width="300" height="34" rx="6" fill="#edf9f2"/>
+    <circle cx="56" cy="279" r="6" fill="#1f9d63"/>
+    <text x="74" y="284" font-size="14" fill="#2c3542">E2E</text>
+    <text x="316" y="284" font-size="13" fill="#1f9d63" text-anchor="end">skipped</text>
+  </g>
+
+  <path d="M352 175 L404 175" stroke="#c2ccd8" stroke-width="2" stroke-dasharray="6 5"/>
+
+  <g font-family="Pretendard, system-ui, sans-serif">
+    <rect x="410" y="52" width="278" height="254" rx="8" fill="#fdf1ef" stroke="#d9695c" stroke-width="2"/>
+    <text x="430" y="82" font-size="13" fill="#b3483c" letter-spacing="1.2">그 아래로 빠져나간 것</text>
+
+    <text x="430" y="114" font-size="13.5" fill="#3a2c2a">E2E 경로 필터가 런타임 파일을 생략</text>
+    <text x="430" y="144" font-size="13.5" fill="#3a2c2a">예산이 표에 없는 라우트를 통과</text>
+    <text x="430" y="174" font-size="13.5" fill="#3a2c2a">Dockerfile 기본값이 환경 검사를 무력화</text>
+    <text x="430" y="204" font-size="13.5" fill="#3a2c2a">배포 smoke가 secret과 함께 남의 코드 실행</text>
+    <text x="430" y="234" font-size="13.5" fill="#3a2c2a">승격한 룰의 자가검증이 문서 표뿐</text>
+    <text x="430" y="264" font-size="13.5" fill="#3a2c2a">커밋에 AI 서명 5건</text>
+
+    <text x="430" y="294" font-size="12" fill="#b3483c">여섯 개 전부, 저 초록불 상태에서.</text>
+  </g>
+</svg>

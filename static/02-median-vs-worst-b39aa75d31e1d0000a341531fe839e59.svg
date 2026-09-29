@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300" width="720" height="300" role="img" aria-label="같은 스텝의 중앙값 14초와 최악값 347초를 비교한 막대 그림">
+  <rect width="720" height="300" fill="#ffffff"/>
+  <rect x="1" y="1" width="718" height="298" fill="none" stroke="#e3e8ee" stroke-width="2" rx="10"/>
+
+  <text x="36" y="44" font-family="Pretendard, system-ui, sans-serif" font-size="13" fill="#8a94a6" letter-spacing="1.6">Install Playwright system deps</text>
+
+  <g font-family="Pretendard, system-ui, sans-serif">
+    <text x="36" y="92" font-size="14" fill="#2c3542">중앙값</text>
+    <rect x="130" y="76" width="22" height="22" rx="4" fill="#4a7fb5"/>
+    <text x="164" y="93" font-size="14" fill="#2c3542">14초</text>
+    <text x="230" y="93" font-size="13" fill="#8a94a6">순위로는 3위</text>
+  </g>
+
+  <g font-family="Pretendard, system-ui, sans-serif">
+    <text x="36" y="152" font-size="14" fill="#2c3542">최악값</text>
+    <rect x="130" y="136" width="540" height="22" rx="4" fill="#d9695c"/>
+    <text x="130" y="182" font-size="14" fill="#b3483c">347초</text>
+    <text x="196" y="182" font-size="13" fill="#8a94a6">나머지 스텝을 다 합친 것보다 길다</text>
+  </g>
+
+  <line x1="36" y1="214" x2="684" y2="214" stroke="#e3e8ee" stroke-width="1.5"/>
+
+  <g font-family="Pretendard, system-ui, sans-serif">
+    <text x="36" y="246" font-size="13.5" fill="#5a6474">같은 명령이 러너에 따라 13초에서 347초 사이를 오갔다.</text>
+    <text x="36" y="272" font-size="13.5" fill="#5a6474">중앙값만 보면 이 스텝은 마지막까지 3위로 남는다.</text>
+  </g>
+</svg>
