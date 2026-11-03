@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 670" role="img" aria-labelledby="title desc">
+  <title id="title">애플리케이션 증설과 공유 DB의 처리 능력</title>
+  <desc id="desc">서버마다 연결 풀 상한이 20이라는 설명용 가정이다. 서버 3대 구성의 상한 합은 60이고 서버 6대 구성의 상한 합은 120이다. 두 구성 모두 같은 공유 DB를 사용한다. 연결 상한 증가가 DB 처리 능력 증가를 뜻하지 않으며 실제 연결 수나 동시 SQL 실행 수도 별도로 확인해야 한다. 위아래 서버 그룹은 증설 전후의 대안 구성이며 동시에 존재하는 서버 묶음을 뜻하지 않는다.</desc>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#718397"/></marker></defs>
+  <style>
+    text { font-family: Pretendard, "Noto Sans KR", -apple-system, BlinkMacSystemFont, sans-serif; fill: #172338; }
+    .heading { font-size: 32px; font-weight: 750; }
+    .label { font-size: 27px; font-weight: 700; }
+    .body { font-size: 24px; }
+    .small { font-size: 22px; }
+    .muted { fill: #536477; }
+  </style>
+  <rect width="960" height="670" rx="18" fill="#fff"/>
+  <text x="42" y="57" class="heading">서버 증설 뒤에도 같은 DB로 모이는 요청</text>
+  <text x="42" y="97" class="body muted">비교 가정: 애플리케이션 서버당 커넥션 풀 상한 20개</text>
+
+  <rect x="48" y="150" width="355" height="170" rx="16" fill="#f3f7fe" stroke="#a8c1e3" stroke-width="2"/>
+  <text x="73" y="193" class="label">증설 전: 서버 3대</text>
+  <text x="73" y="240" class="body">서버당 최대 20개 연결</text>
+  <text x="73" y="286" class="label">풀 상한 합 60개</text>
+
+  <rect x="48" y="354" width="355" height="170" rx="16" fill="#eef7ff" stroke="#91b8df" stroke-width="2"/>
+  <text x="73" y="397" class="label">증설 후: 서버 6대</text>
+  <text x="73" y="444" class="body">서버당 최대 20개 연결</text>
+  <text x="73" y="490" class="label">풀 상한 합 120개</text>
+
+  <path d="M 415 235 H 510 Q 532 235 532 257 V 293 H 594" fill="none" stroke="#718397" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M 415 439 H 510 Q 532 439 532 417 V 379 H 594" fill="none" stroke="#718397" stroke-width="3" marker-end="url(#arrow)"/>
+  <rect x="610" y="241" width="302" height="192" rx="16" fill="#fff8ea" stroke="#d8bb81" stroke-width="2"/>
+  <text x="761" y="289" text-anchor="middle" class="label">공유 DB</text>
+  <text x="761" y="338" text-anchor="middle" class="body">같은 DB 자원</text>
+  <text x="761" y="381" text-anchor="middle" class="small muted">처리 능력 증설 가정 없음</text>
+
+  <path d="M 42 557 H 918" stroke="#e2e8f0" stroke-width="2"/>
+  <text x="42" y="598" class="small">60과 120은 설정 상한의 합이다. 실제 연결·동시 SQL 수는 따로 잰다.</text>
+  <text x="42" y="637" class="small muted">위·아래는 증설 전후 비교다. DB 대기가 늘어나는지는 측정으로 확인한다.</text>
+</svg>

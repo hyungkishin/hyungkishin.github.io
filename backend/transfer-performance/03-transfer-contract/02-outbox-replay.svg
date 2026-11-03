@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 720" role="img" aria-labelledby="title desc">
+  <title id="title">Outbox 재전송과 소비자 중복 제거</title>
+  <desc id="desc">업무 DB와 outbox를 함께 커밋한다. 발행기가 이벤트 E-42를 브로커에 전달하고 소비자는 inbox와 업무 변경을 같은 트랜잭션으로 커밋한다. 발행기가 발행 완료 기록 전에 종료되면 같은 E-42가 재전송될 수 있다. 소비자는 이미 처리한 식별자를 확인해 업무 효과를 반복하지 않는다. 애니메이션의 시간은 실측이 아니다. 움직임 감소 설정에서는 세 단계 설명과 연결 구조를 정적으로 표시한다.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/></marker>
+  </defs>
+  <style>
+    text { font-family: Pretendard, "Noto Sans KR", -apple-system, BlinkMacSystemFont, sans-serif; fill: #172338; }
+    .heading { font-size: 32px; font-weight: 750; }
+    .label { font-size: 24px; font-weight: 700; }
+    .body { font-size: 22px; }
+    .small { font-size: 20px; }
+    .muted { fill: #536477; }
+    .component { fill: #fff; stroke: #b8c6d6; stroke-width: 2; }
+    .stage { fill: #f7f9fc; stroke: #d9e1eb; stroke-width: 2; }
+    .stage-one { animation: first-stage 12s linear infinite; }
+    .stage-two { animation: second-stage 12s linear infinite; }
+    .stage-three { animation: third-stage 12s linear infinite; }
+    .first-packet { animation: first-packet 12s linear infinite; opacity: 0; }
+    .repeat-packet { animation: repeat-packet 12s linear infinite; opacity: 0; }
+    .relay-warning { animation: relay-warning 12s linear infinite; opacity: 0; }
+    @keyframes first-packet {
+      0%, 3% { opacity: 0; transform: translateX(0); }
+      4% { opacity: 1; transform: translateX(0); }
+      27% { opacity: 1; transform: translateX(514px); }
+      30%, 100% { opacity: 0; transform: translateX(514px); }
+    }
+    @keyframes repeat-packet {
+      0%, 52% { opacity: 0; transform: translateX(0); }
+      53% { opacity: 1; transform: translateX(0); }
+      76% { opacity: 1; transform: translateX(288px); }
+      79%, 100% { opacity: 0; transform: translateX(288px); }
+    }
+    @keyframes relay-warning {
+      0%, 33% { opacity: 0; }
+      35%, 51% { opacity: 1; }
+      53%, 100% { opacity: 0; }
+    }
+    @keyframes first-stage { 0%, 31% { fill: #eaf3ff; stroke: #78a8e8; } 34%, 100% { fill: #f7f9fc; stroke: #d9e1eb; } }
+    @keyframes second-stage { 0%, 32% { fill: #f7f9fc; stroke: #d9e1eb; } 35%, 65% { fill: #fff5e3; stroke: #d3aa55; } 68%, 100% { fill: #f7f9fc; stroke: #d9e1eb; } }
+    @keyframes third-stage { 0%, 66% { fill: #f7f9fc; stroke: #d9e1eb; } 69%, 98% { fill: #eaf7ef; stroke: #74b893; } 100% { fill: #f7f9fc; stroke: #d9e1eb; } }
+    @media (prefers-reduced-motion: reduce) {
+      .stage { animation: none; }
+      .first-packet, .repeat-packet, .relay-warning { animation: none; display: none; }
+    }
+  </style>
+  <rect width="960" height="720" rx="18" fill="#fff"/>
+  <text x="42" y="57" class="heading">같은 이벤트가 다시 도착하는 순간</text>
+  <text x="42" y="95" class="body muted">Outbox는 발행 의도를 남기고, 소비자는 중복 업무 반영을 막는다.</text>
+
+  <rect x="44" y="153" width="182" height="151" rx="14" class="component"/>
+  <text x="135" y="190" text-anchor="middle" class="label">업무 DB</text>
+  <text x="135" y="222" text-anchor="middle" class="small">+ outbox</text>
+  <text x="135" y="280" text-anchor="middle" class="small muted">같은 트랜잭션</text>
+  <path d="M 229 245 H 267" fill="none" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <rect x="276" y="153" width="176" height="151" rx="14" class="component"/>
+  <text x="364" y="190" text-anchor="middle" class="label">발행기</text>
+  <text x="364" y="222" text-anchor="middle" class="small">eventId: E-42</text>
+  <text x="364" y="280" text-anchor="middle" class="small muted">재시작 후 재전송</text>
+  <path d="M 455 245 H 493" fill="none" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <rect x="502" y="153" width="176" height="151" rx="14" class="component"/>
+  <text x="590" y="190" text-anchor="middle" class="label">브로커</text>
+  <text x="590" y="222" text-anchor="middle" class="small">E-42 전달</text>
+  <text x="590" y="280" text-anchor="middle" class="small muted">중복 가능</text>
+  <path d="M 681 245 H 719" fill="none" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <rect x="728" y="153" width="188" height="151" rx="14" class="component"/>
+  <text x="822" y="190" text-anchor="middle" class="label">소비자 DB</text>
+  <text x="822" y="222" text-anchor="middle" class="small">inbox + 업무 변경</text>
+  <text x="822" y="280" text-anchor="middle" class="small muted">eventId 유니크</text>
+
+  <circle cx="214" cy="245" r="9" fill="#3b82d0" class="first-packet"/>
+  <circle cx="440" cy="245" r="9" fill="#c38b24" class="repeat-packet"/>
+  <g class="relay-warning">
+    <circle cx="432" cy="145" r="16" fill="#fff2db" stroke="#c38b24" stroke-width="2"/>
+    <path d="M 426 139 L 438 151 M 438 139 L 426 151" stroke="#ac7012" stroke-width="3" stroke-linecap="round"/>
+  </g>
+
+  <rect x="44" y="355" width="872" height="80" rx="12" class="stage stage-one"/>
+  <text x="64" y="388" class="label">1. 첫 전달</text>
+  <text x="64" y="419" class="body">소비자가 E-42의 inbox 기록과 업무 변경을 함께 커밋</text>
+
+  <rect x="44" y="449" width="872" height="80" rx="12" class="stage stage-two"/>
+  <text x="64" y="482" class="label">2. 발행 완료 기록 전 종료</text>
+  <text x="64" y="513" class="body">발행기 재시작 후 같은 E-42가 다시 전달될 수 있음</text>
+
+  <rect x="44" y="543" width="872" height="80" rx="12" class="stage stage-three"/>
+  <text x="64" y="576" class="label">3. 중복 수신</text>
+  <text x="64" y="607" class="body">이미 처리한 E-42를 확인해 업무 효과를 반복하지 않음</text>
+
+  <text x="42" y="669" class="small muted">전제: inbox 기록과 업무 변경은 원자적으로 커밋한다.</text>
+  <text x="42" y="700" class="small muted">외부 송금 API에는 별도의 멱등 계약이 필요하다. 애니메이션은 실측이 아니다.</text>
+</svg>

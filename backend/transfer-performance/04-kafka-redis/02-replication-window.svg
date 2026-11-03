@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="550" viewBox="0 0 960 550" role="img" aria-labelledby="replication-title replication-desc">
+  <title id="replication-title">성공 응답 이후에도 남는 Redis 비동기 복제의 손실 구간</title>
+  <desc id="replication-desc">시간 순서로 네 상태를 표시한다. 첫째 primary가 변경 E를 반영하고 성공 응답한다. 둘째 replica가 아직 E를 받지 못했다. 셋째 복제 전에 primary가 장애를 겪는다. 넷째 E가 없는 replica가 새 primary로 승격되면 성공 응답을 받은 변경이 새 primary에 남지 않는다. 움직이는 점은 시간의 진행만 나타내며, 모든 단계와 손실 조건은 정적으로도 읽을 수 있다.</desc>
+  <style>
+    text{font-family:Pretendard,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a;font-size:22px}
+    .title{font-size:30px;font-weight:700}.heading{font-size:23px;font-weight:700}
+    .caption{font-size:20px;fill:#475569}.red{fill:#b91c1c}
+    .cursor{animation:advance 8s linear infinite;transform:translateX(0)}
+    @keyframes advance{0%,8%{transform:translateX(0);opacity:0}12%{opacity:1}84%{transform:translateX(660px);opacity:1}92%,100%{transform:translateX(660px);opacity:0}}
+    @media(prefers-reduced-motion:reduce){.cursor{animation:none;display:none}}
+  </style>
+  <defs>
+    <marker id="time-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker>
+  </defs>
+  <rect x="1" y="1" width="958" height="548" rx="24" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+  <text class="title" x="40" y="54">성공 응답과 replica 반영 사이의 간격</text>
+  <text class="caption" x="40" y="91">Redis 기본 비동기 복제의 장애 예시: 변경 E가 복제되기 전에 장애 발생</text>
+
+  <rect x="40" y="140" width="200" height="176" rx="18" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/>
+  <text class="heading" x="140" y="180" text-anchor="middle">1. 성공 응답</text>
+  <text x="140" y="225" text-anchor="middle">primary: E 반영</text>
+  <text class="caption" x="140" y="269" text-anchor="middle">클라이언트는 완료</text>
+
+  <rect x="260" y="140" width="200" height="176" rx="18" fill="#fffbeb" stroke="#fcd34d" stroke-width="2"/>
+  <text class="heading" x="360" y="180" text-anchor="middle">2. 복제 대기</text>
+  <text x="360" y="225" text-anchor="middle">replica: E 없음</text>
+  <text class="caption" x="360" y="269" text-anchor="middle">아직 이전 상태</text>
+
+  <rect x="480" y="140" width="200" height="176" rx="18" fill="#fff1f2" stroke="#fda4af" stroke-width="2"/>
+  <text class="heading red" x="580" y="180" text-anchor="middle">3. 장애 발생</text>
+  <text x="580" y="225" text-anchor="middle">primary 중단</text>
+  <text class="caption" x="580" y="269" text-anchor="middle">E 복제 전 장애</text>
+
+  <rect x="700" y="140" width="220" height="176" rx="18" fill="#fff1f2" stroke="#fda4af" stroke-width="2"/>
+  <text class="heading" x="810" y="180" text-anchor="middle">4. replica 승격</text>
+  <text x="810" y="225" text-anchor="middle">새 primary: E 없음</text>
+  <text class="caption" x="810" y="269" text-anchor="middle">승인된 변경 유실</text>
+
+  <path d="M95 353 H896" fill="none" stroke="#64748b" stroke-width="2.5" marker-end="url(#time-arrow)"/>
+  <g fill="#fff" stroke="#64748b" stroke-width="2.5"><circle cx="140" cy="353" r="6"/><circle cx="360" cy="353" r="6"/><circle cx="580" cy="353" r="6"/><circle cx="800" cy="353" r="6"/></g>
+  <circle class="cursor" cx="140" cy="353" r="8" fill="#2563eb"/>
+  <text class="caption" x="850" y="389">시간 →</text>
+  <path d="M140 376 V397 H580 V376" fill="none" stroke="#e11d48" stroke-width="2"/>
+  <text class="red" x="360" y="431" text-anchor="middle" font-weight="600">성공 응답 뒤에도 손실 가능한 구간</text>
+  <text class="caption" x="40" y="480">복제 확인 수, 승격 가능한 사본, 디스크 동기화는 각각 확인할 조건</text>
+  <text class="caption" x="40" y="515">WAIT도 모든 장애에서 강한 일관성이나 무손실을 보장하지 않는다</text>
+</svg>
