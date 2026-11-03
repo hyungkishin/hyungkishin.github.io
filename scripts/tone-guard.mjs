@@ -141,7 +141,8 @@ const sections = [...text.matchAll(sectionRegex)].map((match) => match[1].trim()
 // 코드 블록(```...```)과 인라인 코드(`...`)는 공백으로 마스킹.
 // banned phrase 검사가 코드 식별자/변수명을 false positive로 잡지 않도록.
 // 라인 번호 보존을 위해 줄바꿈은 유지한다.
-const prose = maskCode(text);
+// 외부 문서의 URL은 저자가 바꿀 수 없는 식별자다. 링크 라벨은 계속 검사한다.
+const prose = maskCode(text).replace(/https?:\/\/[^\s<>"')]+/g, url => " ".repeat(url.length));
 
 const errors = [];
 const warnings = [];
