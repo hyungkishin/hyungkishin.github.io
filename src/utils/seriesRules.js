@@ -9,6 +9,19 @@
 // 시리즈 = 슬러그 규칙. indexSlug 는 그 시리즈의 목록 페이지 경로다.
 const SERIES_RULES = [
   {
+    id: "transfer-performance",
+    name: "송금 한 건으로 읽는 백엔드",
+    tagline: "성능 측정과 JVM에서 송금 확정, 메시지 전달, 데이터 접근까지",
+    indexSlug: "/backend/transfer-performance/",
+    slugs: [
+      "/backend/transfer-performance/01-measurement/",
+      "/backend/transfer-performance/02-jvm-execution/",
+      "/backend/transfer-performance/03-transfer-contract/",
+      "/backend/transfer-performance/04-kafka-redis/",
+      "/backend/transfer-performance/05-jpa-access/",
+    ],
+  },
+  {
     id: "why",
     name: "why",
     tagline: "사고가 어디서 시작됐는지 짚어보는 글",

@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 880" role="img" aria-labelledby="title desc">
+  <title id="title">연관 데이터 건별 조회와 한 번의 DTO 조회</title>
+  <desc id="desc">송금 20건의 수신 계좌가 모두 다르고 캐시가 비어 있다는 가정이다. N+1 경로에서는 송금 목록 조회 한 번 뒤에 계좌별 조회 20번이 이어져 총 21번 왕복한다. 그림에서는 중간 계좌 조회를 생략해 표시한다. DTO 조인 조회 예는 필요한 데이터를 SQL 한 번으로 읽는다. 점의 움직임은 요청과 응답의 반복 순서만 나타내며 속도나 총 실행 시간을 측정한 결과가 아니다. 움직임 감소 설정에서는 모든 왕복과 횟수 설명이 정적으로 남는다.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8798ab"/></marker>
+  </defs>
+  <style>
+    text { font-family: Pretendard, "Noto Sans KR", -apple-system, BlinkMacSystemFont, sans-serif; fill: #172338; }
+    .heading { font-size: 32px; font-weight: 750; }
+    .label { font-size: 25px; font-weight: 700; }
+    .body { font-size: 23px; }
+    .small { font-size: 21px; }
+    .muted { fill: #536477; }
+    .node { fill: #f7f9fc; stroke: #bdc9d8; stroke-width: 2; }
+    .trip { stroke: #8798ab; stroke-width: 2.5; marker-start: url(#arrow); marker-end: url(#arrow); }
+    .token { opacity: 0; animation: round-trip 14s linear infinite; }
+    .second { animation-delay: 2.1s; }
+    .third { animation-delay: 4.2s; }
+    .last { animation-delay: 6.3s; }
+    @keyframes round-trip {
+      0% { opacity: 0; transform: translateX(0); }
+      1% { opacity: 1; transform: translateX(0); }
+      7% { opacity: 1; transform: translateX(484px); }
+      13% { opacity: 1; transform: translateX(0); }
+      15%, 100% { opacity: 0; transform: translateX(0); }
+    }
+    @media (prefers-reduced-motion: reduce) { .token { animation: none; display: none; } }
+  </style>
+  <rect width="960" height="880" rx="18" fill="#fff"/>
+  <text x="42" y="57" class="heading">객체를 순회할 때 반복되는 DB 왕복</text>
+  <text x="42" y="97" class="body muted">가정: 송금 20건, 서로 다른 수신 계좌, 비어 있는 캐시</text>
+  <text x="44" y="153" class="label">연관 데이터를 건별 조회</text>
+
+  <rect x="44" y="183" width="176" height="286" rx="15" class="node"/>
+  <text x="132" y="312" text-anchor="middle" class="label">APP</text>
+  <text x="132" y="350" text-anchor="middle" class="small muted">연관 객체 탐색</text>
+  <rect x="744" y="183" width="172" height="286" rx="15" class="node"/>
+  <text x="830" y="312" text-anchor="middle" class="label">DB</text>
+  <text x="830" y="350" text-anchor="middle" class="small muted">개별 SQL 실행</text>
+
+  <text x="482" y="214" text-anchor="middle" class="body">송금 목록 1회</text>
+  <path d="M 238 234 H 730" class="trip"/>
+  <text x="482" y="279" text-anchor="middle" class="body">계좌 1 조회</text>
+  <path d="M 238 299 H 730" class="trip"/>
+  <text x="482" y="344" text-anchor="middle" class="body">계좌 2 조회</text>
+  <path d="M 238 364 H 730" class="trip"/>
+  <text x="482" y="409" text-anchor="middle" class="body">… 계좌 20 조회</text>
+  <path d="M 238 429 H 730" class="trip"/>
+
+  <circle cx="242" cy="234" r="8" fill="#527fc1" class="token"/>
+  <circle cx="242" cy="299" r="8" fill="#527fc1" class="token second"/>
+  <circle cx="242" cy="364" r="8" fill="#527fc1" class="token third"/>
+  <circle cx="242" cy="429" r="8" fill="#527fc1" class="token last"/>
+  <text x="44" y="516" class="body">이 가정의 왕복 횟수: 1 + 20 = 21회</text>
+  <text x="44" y="550" class="small muted">계좌 3부터 19까지의 반복 조회는 그림에서 생략했다.</text>
+
+  <path d="M 42 578 H 918" stroke="#e2e8f0" stroke-width="2"/>
+  <text x="44" y="622" class="label">필요한 데이터를 DTO로 묶어 조회</text>
+  <rect x="44" y="647" width="176" height="112" rx="15" class="node"/>
+  <text x="132" y="712" text-anchor="middle" class="label">APP</text>
+  <rect x="744" y="647" width="172" height="112" rx="15" class="node"/>
+  <text x="830" y="712" text-anchor="middle" class="label">DB</text>
+  <text x="482" y="689" text-anchor="middle" class="body">송금·계좌 조인 SQL 1회</text>
+  <path d="M 238 716 H 730" class="trip"/>
+  <circle cx="242" cy="716" r="8" fill="#368a62" class="token"/>
+
+  <text x="42" y="808" class="small">SQL 수와 함께 반환 행 수·전송량·실행 계획도 확인한다.</text>
+  <text x="42" y="846" class="small muted">움직임은 왕복 순서만 표현한다. 이동 속도와 총 실행 시간은 실측값이 아니다.</text>
+</svg>

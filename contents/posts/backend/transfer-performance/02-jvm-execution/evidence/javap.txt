@@ -1,0 +1,36 @@
+Compiled from "HelloLoop.java"
+public class HelloLoop {
+  public HelloLoop();
+    Code:
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return
+      LineNumberTable:
+        line 1: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   LHelloLoop;
+
+  public static void main(java.lang.String[]);
+    Code:
+         0: iconst_0
+         1: istore_1
+         2: iload_1
+         3: bipush        10
+         5: if_icmpge     22
+         8: getstatic     #7                  // Field java/lang/System.out:Ljava/io/PrintStream;
+        11: ldc           #13                 // String Hello World
+        13: invokevirtual #15                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+        16: iinc          1, 1
+        19: goto          2
+        22: return
+      LineNumberTable:
+        line 3: 0
+        line 4: 8
+        line 3: 16
+        line 6: 22
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            2      20     1     i   I
+            0      23     0  args   [Ljava/lang/String;
+}
