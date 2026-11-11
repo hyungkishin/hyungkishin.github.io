@@ -1,62 +1,4 @@
-function bindDiagram(figure, window) {
-  const object = figure.querySelector('object[data-animated="true"]');
-  const button = figure.querySelector('.diagram-toggle');
-  if (!object || !button) return;
-  const preference = window.matchMedia?.('(prefers-reduced-motion: reduce)') || { matches: false };
-  const originalStyles = new WeakMap();
-  let paused = preference.matches;
-  let explicitPlayback = false;
-
-  function applyPlayback() {
-    let svgDocument;
-    try { svgDocument = object.contentDocument; }
-    catch (error) {
-      button.hidden = true;
-      button.setAttribute('aria-label', '이 그림의 애니메이션 제어를 사용할 수 없습니다');
-      return;
-    }
-    if (!svgDocument?.documentElement || svgDocument.documentElement.localName !== 'svg') return;
-    svgDocument.querySelectorAll('style:not(#reader-motion-state)').forEach(style => {
-      if (!originalStyles.has(style)) originalStyles.set(style, style.textContent);
-      const original = originalStyles.get(style);
-      const content = explicitPlayback && preference.matches
-        ? original.replace(/@media\s*\(\s*prefers-reduced-motion\s*:\s*no-preference\s*\)/gi, '@media all')
-          .replace(/@media\s*\(\s*prefers-reduced-motion\s*:\s*reduce\s*\)/gi, '@media not all')
-        : original;
-      if (style.textContent !== content) style.textContent = content;
-    });
-    let playbackStyle = svgDocument.querySelector('#reader-motion-state');
-    if (!playbackStyle) {
-      playbackStyle = svgDocument.createElementNS('http://www.w3.org/2000/svg', 'style');
-      playbackStyle.id = 'reader-motion-state';
-      svgDocument.documentElement.append(playbackStyle);
-    }
-    playbackStyle.textContent = paused ? '* { animation-play-state: paused !important; }' : '';
-    for (const animation of svgDocument.getAnimations?.() || []) {
-      if (paused) animation.pause();
-      else animation.play();
-    }
-    if (paused) svgDocument.documentElement.pauseAnimations?.();
-    else svgDocument.documentElement.unpauseAnimations?.();
-    svgDocument.documentElement.setAttribute('data-reader-motion', paused ? 'paused' : 'running');
-    button.hidden = false;
-    button.textContent = paused ? '애니메이션 재생하기' : '애니메이션 멈추기';
-    button.setAttribute('aria-pressed', String(paused));
-  }
-
-  object.addEventListener('load', applyPlayback);
-  button.addEventListener('click', () => {
-    paused = !paused;
-    if (!paused) explicitPlayback = true;
-    applyPlayback();
-  });
-  preference.addEventListener?.('change', event => {
-    paused = event.matches;
-    explicitPlayback = false;
-    applyPlayback();
-  });
-  applyPlayback();
-}
+import { bindDiagram } from './diagram.mjs';
 
 function bindTheme(document, window) {
   const button = document.querySelector('.theme-toggle');
@@ -68,7 +10,7 @@ function bindTheme(document, window) {
     button.dataset.dark = String(dark);
     button.title = dark ? '밝은 화면으로 전환' : '어두운 화면으로 전환';
     button.setAttribute('aria-label', button.title);
-    document.querySelector('meta[name="theme-color"]').content = dark ? '#162320' : '#f8f9f7';
+    document.querySelector('meta[name="theme-color"]').content = dark ? '#101929' : '#ffffff';
   }
   button.hidden = false;
   button.addEventListener('click', () => {

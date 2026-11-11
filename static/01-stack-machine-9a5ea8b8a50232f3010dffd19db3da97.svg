@@ -2,16 +2,16 @@
   <title id="title">첫 반복에서 달라지는 i와 피연산자 스택</title>
   <desc id="desc">i가 0일 때 iload_1은 스택에 0을 복사하고 bipush 10은 그 위에 10을 넣는다. if_icmpge는 두 값을 꺼내 비교한다. 출력 호출이 끝나면 iinc는 빈 스택을 그대로 두고 지역변수 슬롯 1의 i를 1로 늘린다. 모든 행은 각 명령 실행 직후의 상태를 보여 준다.</desc>
   <style>
-    text { font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif; fill: #1c2738; }
+    text { font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif; fill: #101d35; }
     .title { font-size: 25px; font-weight: 750; letter-spacing: -.7px; }
-    .column { font-size: 16.5px; font-weight: 650; fill: #42556a; }
+    .column { font-size: 16.5px; font-weight: 650; fill: #33445e; }
     .code text, .value text { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 19px; }
     .value { font-weight: 650; text-anchor: middle; }
-    .token { fill: #e5f4f1; stroke: #a7d5cb; }
-    .stack-value text { fill: #175f56; }
-    .empty { font-size: 17px; fill: #596a79; }
-    .note { font-size: 16.5px; fill: #43576a; }
-    .highlight { opacity: 0; fill: #eaf2ff; }
+    .token { fill: #e6edff; stroke: #a6bcf9; }
+    .stack-value text { fill: #214cbc; }
+    .empty { font-size: 17px; fill: #576984; }
+    .note { font-size: 16.5px; fill: #405574; }
+    .highlight { opacity: 0; fill: #eff4ff; stroke: #a9bff3; stroke-width: .6; }
     @media (prefers-reduced-motion: no-preference) {
       .highlight { animation: follow-row 12s step-end infinite; }
       .row-two { animation-delay: -9s; }
@@ -27,7 +27,7 @@
     <text x="20" y="76" class="column">실행한 명령</text>
     <text x="221" y="76" class="column" text-anchor="middle">i (슬롯 1)</text>
     <text x="300" y="76" class="column">스택 (바닥 → 위)</text>
-    <path d="M18 87H462" stroke="#b9c7d2"/>
+    <path d="M18 87H462" stroke="#bac9df"/>
 
     <rect x="14" y="93" width="452" height="34" rx="6" class="highlight"/>
     <rect x="14" y="134" width="452" height="34" rx="6" class="highlight row-two"/>
@@ -40,15 +40,15 @@
       <text x="20" y="199">if_icmpge 22</text>
       <text x="20" y="240">iinc 1, 1</text>
     </g>
-    <g fill="none" stroke="#e2e9ed">
+    <g fill="none" stroke="#dce5f2">
       <path d="M18 130H462 M18 171H462 M18 212H462"/>
     </g>
     <g class="value">
       <text x="221" y="117">0</text>
       <text x="221" y="158">0</text>
       <text x="221" y="199">0</text>
-      <rect x="201" y="220" width="40" height="25" rx="5" fill="#dceafe" stroke="#a9c6ec"/>
-      <text x="221" y="240" fill="#23518e">1</text>
+      <rect x="201" y="220" width="40" height="25" rx="5" fill="#dce5ff" stroke="#a0b8ed"/>
+      <text x="221" y="240" fill="#244dac">1</text>
     </g>
     <g class="token">
       <rect x="300" y="97" width="40" height="25" rx="5"/>
@@ -63,7 +63,7 @@
     <text x="300" y="199" class="empty">비었음</text>
     <text x="300" y="240" class="empty">비었음</text>
 
-    <path d="M18 260H462" stroke="#b9c7d2"/>
+    <path d="M18 260H462" stroke="#bac9df"/>
     <text x="20" y="289" class="note">비교가 끝나고 println에서 돌아오면 iinc가 i를 늘린다.</text>
   </g>
 </svg>
