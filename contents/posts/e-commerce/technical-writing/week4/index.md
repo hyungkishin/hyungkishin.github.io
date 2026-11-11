@@ -1,7 +1,8 @@
 ---
 title: "Kafka Consumer 병목의 진짜 원인: 잘못된 토픽 설계와 불필요한 파싱"
+description: "Kafka 메시지 1만 건 가운데 필요한 것은 10건이었다. 전체 역직렬화 전에 필요한 메시지를 선별하는 과정을 담았다."
 date: 2026-03-06
-update: 2026-09-06
+update: 2026-11-11
 tags:
   - loopers
   - technical-writing
@@ -9,20 +10,13 @@ tags:
   - performance
 ---
 
-## TL;DR
-
-Kafka Consumer가 느렸습니다.  
-원인은 단순했습니다.  
-안 봐도 되는 메시지를 너무 정성스럽게 처리하고 있었습니다.
-
-10,000건을 전부 파싱하고, 역직렬화하고, 실패하면 본문째 로그로 찍는 구조였는데요,  
-정작 필요한 건 그중 10건뿐이었습니다.
+Kafka Consumer가 메시지 1만 건을 받을 때 이 서비스에 필요한 것은 10건이었습니다. 당시에는 나머지 메시지도 전부 역직렬화했고, 실패하면 본문 전체를 로그에 남겼습니다. Jackson Streaming Parser로 필요한 종류부터 골라낸 뒤 전체 파싱을 수행하도록 바꿨습니다.
 
 Jackson Streaming Parser로 사전 필터링하면서 이 문제를 해결한 경험을 공유합니다.
 
 ---
 
-## 들어가며
+## 여러 서비스가 한 토픽을 쓸 때
 
 Kafka 토픽 하나에 여러 서비스의 메시지가 섞여 들어오는 구조, 실무에서 보신 적 있으신가요?
 
@@ -257,7 +251,7 @@ fun listen(message: ConsumerRecord<String, String>, ack: Acknowledgment) {
 
 ---
 
-## 왜 실패해도 ack을 하나요?
+<h2 id="왜-실패해도-ack을-하나요">왜 실패해도 ack을 하나요?</h2>
 
 "처리 실패했으면 ack 안 하고 재시도해야 하는 거 아냐?"
 

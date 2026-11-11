@@ -1,5 +1,6 @@
 ---
 title: "Java와 Spring으로 상담 에이전트를 만들기로 한 이유"
+description: "코드 작성에 쓰던 생성형 AI를 배달 문의에 연결하면서 Java와 Spring에서 직접 확인할 기능을 골랐다."
 date: 2025-03-29
 update: 2026-09-06
 tags:

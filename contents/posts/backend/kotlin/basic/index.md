@@ -1,17 +1,13 @@
 ---
-title: "코틀린의 현재와 미래"
+title: "자바 개발자가 읽는 코틀린의 데이터 클래스와 타입"
+description: "Kotlin의 데이터 클래스, 예외, 기본 자료형을 Java 예제와 비교한 학습 노트."
 date: 2024-01-12
-update: 2024-01-12
+update: 2026-11-11
 tags:
   - 코틀린
 ---
 
-# 코들린의 현재와 미래
-### 코틀린을 배워야하는 이유
-- 코틀린은 IntelliJ로 유명한 젯브레인사에서 만든 언어이기 때문에 IntelliJ에서 자동완성, 자 바-코틀린 변환, 코루틴 등 코틀린 관련 편의 기능을 완벽하게 지원
-- 자바는 발표된지 20년이 넘었지만 코틀린, C#, 스위프트와 같은 현대적 언어에 비해 기능 이 부족함
-- 자바에서 Best-Practice로 불리는 기법들을 언어적 차원에서 기본 제공
-- 자바에 비해 문법이 간결하기 때문에 가독성과 생산성이 높고 오류 가능성이 적어진다
+Java로 작성하던 회원 정보를 Kotlin으로 옮기면 생성자와 프로퍼티를 선언 한 곳에서 볼 수 있다. 아래 예제는 데이터 클래스, 싱글턴 객체, 클래스 바깥에 둘 수 있는 함수를 함께 쓴다. IntelliJ의 Java·Kotlin 코드 변환 기능으로 두 표현을 비교할 수도 있다.
 
 ```kotlin
 data class Person(
@@ -31,7 +27,7 @@ fun main() {
 }
 ```
 
-### 좀더 파해쳐 보자
+## 예제에 쓰인 코틀린 문법
 - 문법 간결
 - data class 라는 기능을 사용하게 되면
   - 자동으로 equals, hashcode, toString 을 자동으로 생성함
@@ -45,11 +41,11 @@ fun main() {
   - 서버개발
   - e.g ) 모바일 앱, 프론트 js, 안드로이드
 
-### 기업 도입 사례
+## 안드로이드의 코틀린 도입
 - google 의 경우 npe 를 33% 절감 함
 - 그로인해 npe 로 인한 사용자 측 크래시가 그만큼 줄었다.
 
-### 코틀린 타임라인
+### 코틀린과 스프링, 안드로이드의 주요 발표
 - 2016년 2월 코틀린 1.0 릴리즈
 - 2017년 1월 스프링 프레임워크 5.0 부터 코틀린 공식 지원 발표
 - 2017년 5월 구글 IO 에서 안드로이드 공식 지원 언어로 발표
@@ -57,8 +53,8 @@ fun main() {
 - 2022년 5월 코틀린 1.7 베타 릴리즈
 - ...
 
-# 자바에는 있는데 코틀린엔 없는기능
-### 체크드 익셉션(Checked Exception)
+## 자바 문법을 코틀린으로 옮기면
+### 체크 예외
 - 자바의 익셉션 계층
 - Throwable : 예외 계층의 최상위 클래스
 - Error : 시스템에 비정상적인 상황이 발생 예측이 어렵고 기본적으로 복구가 불가능 함
@@ -105,7 +101,7 @@ String str = String.valueOf(i);
 ```
 
 --
-### 정적멤버
+### 정적 멤버
 - 자바는 static 키워드로 정적멤버를 선언한다.
 ```java
 public class JavaClass {
@@ -128,7 +124,7 @@ class KotlinClass {
 }
 ```
 
-### 3항 연산자
+### 삼항 연산자
 - 자바
 ```java
 String animalSound = "호랑이".equals(animal) ? "어흥" : "야홍";
@@ -149,8 +145,8 @@ Boolean isAdmin = userService.isAdmin(userId);
 val isAdmin: Boolean = userService.isAdmin(userId)
 ```
 
-# 코틀린에는 있는데 자바에는 없는기능
-### 확장
+## 코틀린에서 쓸 수 있는 표현
+### 확장 함수
 - 개발자가 임의로 객체의 함수나 프로퍼티를 확장해서 사용할 수 있다.
 
 ```kotlin
@@ -196,7 +192,7 @@ public record Person(String name, int age) {
 ```
 --
 
-# 문자열 템플릿
+### 문자열 템플릿
 - 문자열에 변수를 사용하거나 여러행으로 된 텍스트 블록을 사용 할 수 있다.
 ```kotlin
 val text = "World"
@@ -219,7 +215,7 @@ fun sql(nameIncluded: Boolean) =
         """
 ```
 
-### 기타
+### 함께 살펴볼 언어 기능
 - 스마트 캐스트 실드 클래스 (Jdk15 추가)
 - 위임
 - 중위 표현식
@@ -228,13 +224,13 @@ fun sql(nameIncluded: Boolean) =
 - etc
 
 
-# 공식문서
+## 스프링 공식 문서에서 코틀린 예제 찾기
 - https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-servlet.html
 - 공식 문서의 샘플 코드를 보면 kotlin 탭을 제공
 
 ![img_1.png](img_1.png)
 
-# Spring initializr
+## Spring Initializr로 코틀린 프로젝트 만들기
 - 기본 언어로 코틀린을 선택할 수 있고 코틀린인 경우 Gradle Project를 선택하면 빌드 설정 을 기반으로 생성해준다
 - Spring initialzr 를 통해 생성된 build.gralde.kts
 
@@ -287,7 +283,7 @@ tasks.withType<Test> {
 이외에도 plugin.jpa, jackson-module-kotlin 등 프로젝트를 구성하면서 필요한 플러그인 과 <br/>
 코틀린 의존성이 있고 Springinitialzr에서 프로젝트를 구성할 경우 자동으로 세팅해준다
 
-# 스프링 부트
+## 스프링 부트 애플리케이션 실행하기
 ```
 @SpringBootApplication class DemoApplication
 

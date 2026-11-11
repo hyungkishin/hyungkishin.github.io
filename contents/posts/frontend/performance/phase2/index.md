@@ -1,18 +1,15 @@
 ---
 title: "AMP는 왜 모바일 검색 진입의 첫 자리였을까요"
+description: "에디터가 저장한 기사 HTML을 AMP 페이지로 제공하려면 태그와 스타일을 어디까지 변환해야 하는지 정리했다."
 date: 2025-05-01
-update: 2026-09-06
+update: 2026-11-11
 tags:
   - front-end
   - performance
   - series
 ---
 
-## 들어가며
-AMP 페이지가 동작하지 않았던 이유는 NextJs 에서 지원하지 않은 Router 방식임을 확인.
-Pages 디렉토리를 생성 후 하위에 amp 전용 페이지를 두는 것으로 진행하기로 했다.
-
-기사 본문의 내용은 기자님들이 별도 도메인에서 Editor로 작성한 본문이 string 형태로 DB 에 적재되니 응답 string 을 dom 으로 뿌려주면 되는 문제. 
+기사 페이지에 쓰던 라우터에서 AMP 경로가 동작하지 않았다. 이 프로젝트에서는 Next.js의 Pages Router 아래에 기사 전용 AMP 경로를 따로 만들었다. 기자가 에디터에 작성한 HTML은 문자열로 저장돼 있어 AMP가 허용하는 태그와 스타일로 변환해야 했다.
 
 AMP(Accelerated Mobile Pages)는 빠른 모바일 페이지 로딩을 위해 구글이 주도한 프레임워크다. **성능을 얻는 대신 엄격한 제약**을 동반한다.
 

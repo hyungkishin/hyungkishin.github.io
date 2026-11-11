@@ -1,7 +1,8 @@
 ---
 title: "CMS가 내려준 HTML을 그대로 그리면 LCP와 CLS가 함께 무너진다"
+description: "기자가 작성한 HTML에서 첫 사진은 즉시, 나머지는 늦게 불러오도록 기사 본문을 가공했다."
 date: 2025-12-28
-update: 2026-09-06
+update: 2026-11-11
 tags:
   - front-end
   - performance
@@ -10,18 +11,11 @@ tags:
   - series
 ---
 
-> **TL;DR** CMS 에디터에서 내려온 HTML 은 그냥 렌더링하면 LCP, CLS, 모바일 이미지 크기 문제가 한꺼번에 터진다. Cheerio 로 렌더링 전 가공 파이프라인을 만들어 첫 번째 이미지는 eager, 나머지는 lazy, 템플릿마다 이미지 폭 정책을 다르게 적용했다.
+홈의 기사 사진은 React 컴포넌트라 로딩 방식을 지정할 수 있었다. 기사 본문의 사진은 CMS가 보낸 HTML 문자열 안에 들어왔다. 첫 사진은 바로 내려받고, 아래 사진은 미루고, 모바일에서 쓸 폭까지 정하려면 서버에서 HTML을 읽어야 했다.
 
-## 들어가며
-5부까지 오면서 홈 화면은 어느 정도 정리됐다.
+## React 컴포넌트와 CMS에서 받은 HTML
 
-상단 이미지는 `OptimizedImage` 로 제어할 수 있었다.  
-RSC 로 첫 화면 HTML 도 더 빨리 내려줄 수 있었다.  
-CloudFront 로 공개 HTML 을 edge 에 태우는 구조도 잡았다.
-
-그런데 기사 상세로 들어가면 이야기가 또 달라졌다.
-
-홈 이미지는 React 컴포넌트다.
+홈에서 쓰던 이미지 컴포넌트에는 다음처럼 옵션을 넘겼다.
 
 ```tsx
 <OptimizedImage isLCP withSkeleton={false} />

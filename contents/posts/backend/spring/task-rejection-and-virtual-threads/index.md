@@ -1,7 +1,8 @@
 ---
 title: "5,235건이 사라진 자리, 코드 어느 줄에서 일어났을까요"
+description: "큐가 찬 실행기와 동시 실행 수를 제한한 가상 스레드 실행기에서, 제출한 작업과 호출 스레드에 무슨 일이 생기는지 비교했다."
 date: 2026-05-02
-update: 2026-05-02
+update: 2026-11-11
 tags:
 - Spring
 - ThreadPoolTaskExecutor
@@ -11,17 +12,12 @@ tags:
 - 런타임
 ---
 
-> **TL;DR**
->
-> 사고 회고는 [/why6/](/why6/) 에 있어요.  
-> 이 글은 그 사고가 코드 어느 줄에서 일어났는지를 봅니다.
->
-> - `ThreadPoolTaskExecutor`는 큐가 차면 작업을 버립니다. 의도된 동작이에요. `AbortPolicy`가 기본값입니다.
-> - `SimpleAsyncTaskExecutor` + `concurrencyLimit`는 큐 자체가 없어요. 대신 caller thread를 막습니다. `ReentrantLock + Condition.await()` 으로요.
-> - 이 전략이 성립하는 건 Virtual Thread 덕분입니다. Platform Thread였다면 caller blocking은 thread starvation으로 번져요.
-> - `concurrencyLimit = 50` 은 직관이 아니라 Little's Law로 잡혀야 합니다. 외부 latency × concurrency = throughput.
+[이벤트 5,235건이 유실된 장애 회고](/company/work/why6/)에서 큐가 꽉 찬 것까지 확인했다. 제출한 작업은 누가 거부하고, 예외는 어느 스레드에 남을까. 이번에는 실행기의 소스를 따라간다.
 
----
+- `ThreadPoolTaskExecutor`는 큐가 차면 작업을 버립니다. 의도된 동작이에요. `AbortPolicy`가 기본값입니다.
+- `SimpleAsyncTaskExecutor` + `concurrencyLimit`는 큐 자체가 없어요. 대신 caller thread를 막습니다. `ReentrantLock + Condition.await()` 으로요.
+- 이 전략이 성립하는 건 Virtual Thread 덕분입니다. Platform Thread였다면 caller blocking은 thread starvation으로 번져요.
+- `concurrencyLimit = 50` 은 직관이 아니라 Little's Law로 잡혀야 합니다. 외부 latency × concurrency = throughput.
 
 ## 회고에서 안 본 자리가 어디였을까요
 
@@ -850,7 +846,7 @@ executor pod이 죽으면 in-memory 상태는 유실됩니다.
 
 > **포기한 것**: caller blocking이 막는 건 큐 거부의 한 자리뿐이에요. pod 죽음에 의한 유실은 그대로 남습니다.
 
-근본 답은 [why6](/why6/) 에서 짚은 Outbox.  
+DB에 이벤트를 남기는 후속안은 [Outbox 도입을 검토한 회고](/company/work/why6/)에서 다룹니다.
 이 글은 그 봉합이 어떻게 작동하는가를 설명할 뿐, 봉합이 답이라고 말하지 않습니다.
 
 ---
@@ -927,4 +923,4 @@ executor pod이 죽으면 in-memory 상태는 유실됩니다.
 
 ### 사고 회고 (관련 글)
 
-- [why6: VT로 봉합하고 '큐 거부 0건'을 성공이라고 부른 직후, 진짜 답은 Outbox](/why6/): 이 글의 사고 회고 원본
+- [why6: VT로 봉합하고 '큐 거부 0건'을 성공이라고 부른 직후, 진짜 답은 Outbox](/company/work/why6/): 이 글의 사고 회고 원본

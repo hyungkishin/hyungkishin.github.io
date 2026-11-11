@@ -1,5 +1,6 @@
 ---
 title: "Lighthouse는 죄가 없었다"
+description: "Lighthouse의 899ms를 브라우저에서 직접 잰 지연으로 읽었을 때 어떤 결론이 틀어지는지 살폈다."
 date: 2026-08-08
 update: 2026-08-09
 tags:

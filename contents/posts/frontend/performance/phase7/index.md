@@ -1,7 +1,8 @@
 ---
 title: "결국 LCP가 아니라 TTFB였다"
+description: "홈을 서버에서 렌더링한 뒤에도 첫 바이트가 늦게 왔다. CloudFront가 HTML을 재사용하지 못하는 조건을 추적했다."
 date: 2025-12-27
-update: 2026-09-06
+update: 2026-11-11
 tags:
   - front-end
   - performance
@@ -11,15 +12,10 @@ tags:
   - series
 ---
 
-> **TL;DR**
->
-> 홈을 RSC/SSR로 옮기자 브라우저 작업은 줄었다.
-> 하지만 HTML이 매번 origin에서 생성되면 TTFB가 남고 LCP 작업의 효과도 작게 보였다.
->
-> CloudFront를 붙였지만 `private, no-store`와 dynamic route 때문에 hit률이 한 자리수였다.
-> 공개 콘텐츠, 개인화 페이지, RSC payload, redirect, prefetch, 압축 정책을 분리하면서 캐시 가능한 응답만 edge에 태웠다.
+홈의 주요 기사를 초기 HTML에 담으니 브라우저가 자바스크립트로 조립할 일이 줄었다. 이제는 그 HTML을 서버에서 매번 만드는 시간이 첫 바이트 도착을 늦췄다.
 
----
+CloudFront를 붙였지만 `private, no-store`와 dynamic route 때문에 hit률이 한 자리수였다.
+공개 콘텐츠, 개인화 페이지, RSC payload, redirect, prefetch, 압축 정책을 분리하면서 캐시 가능한 응답만 edge에 태웠다.
 
 ## 서버가 매번 HTML을 만들면 무엇이 달라졌나?
 4부에서 홈을 RSC/SSR 쪽으로 옮겼다.

@@ -1,5 +1,6 @@
 ---
 title: "이 글은 '지표와 실제 상태가 다를 때' 시리즈로 옮겼습니다"
+description: "에러율, Redis P95, Kafka lag를 별도 글로 나눈 관측성 시리즈의 이전 주소."
 date: 2026-02-22
 update: 2026-09-06
 tags:

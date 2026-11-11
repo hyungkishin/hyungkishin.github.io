@@ -1,5 +1,6 @@
 ---
 title: "Kafka와 Redis가 맡는 일과 잃을 수 있는 데이터"
+description: "송금 이벤트가 다시 도착하거나 캐시 값이 뒤처졌을 때 Kafka와 Redis에서 각각 지켜야 할 조건을 정리했다."
 date: 2026-11-04
 update: 2026-11-04
 tags:

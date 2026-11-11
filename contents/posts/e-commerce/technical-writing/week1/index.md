@@ -1,5 +1,6 @@
 ---
 title: "Docker 연결 실패를 코드 문제로 오판한 과정"
+description: "회원가입 E2E에서 Testcontainers가 시작되지 않았다. 새벽까지 의존성을 바꾼 뒤 처음 놓친 Docker 연결 문제로 돌아갔다."
 date: 2026-02-05
 update: 2026-09-06
 tags:
