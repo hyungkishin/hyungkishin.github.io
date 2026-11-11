@@ -14,7 +14,7 @@
 <main id="main" class="reader"><article>
 <header class="article-header"><a class="series-position" href="/backend/transfer-performance/">송금 한 건으로 읽는 백엔드 / 2편</a><h1>같은 자바 코드가 실행 중에 달라지는 이유</h1><div class="article-meta"><span>@hyungkishin</span><time datetime="2026-11-04T00:00:00.000Z">2026-11-04</time></div></header>
 <div class="reading-layout">
-<nav class="article-toc" aria-label="글의 목차"><details><summary>글 목차</summary><ol><li><a href="#section-1">반복문에서 바이트코드의 주소 읽기</a></li><li><a href="#section-2">수수료 계산의 호출 위치</a></li><li><a href="#section-3">두 JVM의 로그에서 같은 호출 찾기</a></li><li><a href="#section-4">송금 시간을 비교할 때의 워밍업</a></li></ol></details></nav>
+<nav class="article-toc" aria-label="글의 목차"><details><summary>글 목차</summary><ol><li><a href="#section-1">반복문에서 바이트코드의 주소 읽기</a></li><li><a href="#section-2">수수료 계산의 호출 위치</a></li><li><a href="#section-3">두 JVM의 로그에서 같은 호출 찾기</a></li><li><a href="#section-4">호출자의 기계어에 무엇이 남았나</a></li><li><a href="#section-5">송금 시간을 비교할 때의 워밍업</a></li></ol></details></nav>
 <div class="article-body"><p>자바 소스를 컴파일하면 CPU가 직접 실행할 수 있는 기계어 대신 JVM의 명령인 바이트코드가 나온다. HotSpot의 <strong>인터프리터</strong>는 이 명령을 하나씩 해석해 실행한다. 같은 메서드나 반복문이 자주 실행되면 <strong>JIT 컴파일러</strong>가 그 경로의 기계어를 만들 수 있다.</p>
 <p>이때 호출된 메서드의 연산을 호출자 안에 넣는 최적화가 <strong>인라이닝</strong>이다. 메서드를 건너가는 비용을 줄이고 호출 경계를 넘어 계산을 단순화할 여지도 생긴다. 클래스 파일의 호출 명령은 그대로다. 실행 중 어떤 호출이 사라졌는지는 JIT의 인라이닝 로그에서 읽을 수 있다.</p>
 <h2 id="section-1">반복문에서 바이트코드의 주소 읽기</h2>
@@ -67,7 +67,28 @@
      @ 2  FeeDemo$RateFee::fee     inline (hot)</code></pre></div>
 <p>HotSpot은 같은 메서드를 여러 단계에 걸쳐 컴파일할 수 있다. 첫 줄은 레벨 3에서 <code class="language-text">quote</code>를 컴파일한 기록이다. 이때 컴파일러는 호출 대상을 하나로 정하지 못해 인터페이스 호출을 인라인하지 않았다. 프로그램은 그대로 수수료를 계산했다. 뒤의 레벨 4 컴파일에서는 구체적인 이름 <code class="language-text">RateFee::fee</code>가 나타났다. <code class="language-text">inline (hot)</code>은 그 실행에서 자주 호출된 정률 계산을 <code class="language-text">quote</code> 안에 포함했다는 기록이다.</p>
 <p>정액 정책만 전달한 두 번째 JVM에서도 호출 위치는 <code class="language-text">@ 2</code>였다. 이번에 인라인된 메서드는 <code class="language-text">FlatFee::fee</code>다. 두 실행의 클래스 파일에는 같은 인터페이스 호출이 남아 있다. 서로 다른 것은 HotSpot이 메모리에 만든 코드에 포함한 수수료 계산이다. 이 로그로 인라이닝 여부는 알 수 있지만 절약한 시간은 알 수 없다. <a href="/backend/transfer-performance/02-jvm-execution/evidence/fee-jit-flat.txt">정액 실행 로그 발췌</a></p>
-<h2 id="section-4">송금 시간을 비교할 때의 워밍업</h2>
+<h2 id="section-4">호출자의 기계어에 무엇이 남았나</h2>
+<p>같은 <code class="language-text">FeeDemo.class</code>로 정률 정책만 실행하되, 이번에는 <code class="language-text">RateFee.fee</code>의 인라이닝을 허용한 JVM과 <code class="language-text">dontinline</code>으로 금지한 JVM을 비교했다. 비교 대상은 두 번 모두 <strong>호출자인 <code class="language-text">FeeDemo.quote</code>의 C2 기계어</strong>다. Linux ARM64의 Temurin 25.0.5+8에서 두 실행 모두 결과 합계는 <code class="language-text">4999510000</code>이었다.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="표: 가로로 스크롤할 수 있습니다"><table>
+<thead>
+<tr>
+<th>정률 정책이라는 타입 확인을 통과한 뒤</th>
+<th>호출자 안에 남은 일</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>인라이닝 허용</td>
+<td>곱셈(<code class="language-text">mul</code>), 산술 오른쪽 시프트(<code class="language-text">asr</code>), 뺄셈(<code class="language-text">sub</code>)으로 <code class="language-text">amountWon / 100</code>을 계산한다. 이 경로에서 <code class="language-text">fee</code>를 따로 호출하지 않는다.</td>
+</tr>
+<tr>
+<td><code class="language-text">RateFee.fee</code> 인라이닝 금지</td>
+<td>같은 호출 위치에 ARM64의 호출 명령 <code class="language-text">bl</code>이 남는다. 컴파일 로그에도 인라이닝을 금지한 옵션이 이유로 찍힌다.</td>
+</tr>
+</tbody>
+</table></div>
+<p>호출이 사라졌는지 확인하려면 <strong>어느 메서드로 가는 호출인지</strong>까지 봐야 한다. 허용한 쪽에도 타입에 대한 예측이 빗나갈 때 런타임으로 가는 <code class="language-text">bl</code>이 있다. 두 결과에서 달라진 것은 정률 정책을 처리하는 경로다. <a href="/backend/transfer-performance/02-jvm-execution/evidence/FeeDemo.java">실험에 쓴 FeeDemo.java</a> · <a href="/backend/transfer-performance/02-jvm-execution/evidence/inline-caller.txt">두 JVM의 컴파일 옵션·로그·역어셈블</a></p>
+<h2 id="section-5">송금 시간을 비교할 때의 워밍업</h2>
 <p>가령 송금 서비스가 배포 직후 정액 정책으로만 송금 요청을 미리 보내 워밍업했다고 하자. 곧이어 정률 정책을 쓰는 요청이 몰린다면, 준비 구간에서 JVM이 본 호출 대상과 실제 트래픽의 호출 대상이 달라진다. 위 실험은 정책별로 JVM을 새로 띄웠다. 한 JVM에서 중간에 정책을 바꿨을 때 기존 코드가 언제 무효화되거나 다시 컴파일되는지까지 보여 주지는 않는다.</p>
 <p><a href="/backend/transfer-performance/01-measurement/">앞 글</a>에서 정한 측정 구간에 이 차이를 반영할 수 있다. 배포 직후 첫 송금이 느린 문제라면 첫 요청을 측정에 남긴다. 충분히 실행한 서비스의 수수료 계산 비용을 비교한다면 각 버전을 별도 JVM에서 시작한 뒤 측정할 때와 비슷한 정책 비율로 워밍업한다. 벤치마크 도구 JMH에서 fork는 JVM을 새로 띄우는 설정이다. warmup 횟수는 그 JVM에서 측정 전에 몇 차례 연습할지를 정한다. <a href="https://github.com/openjdk/jmh/blob/master/jmh-samples/src/main/java/org/openjdk/jmh/samples/JMHSample_12_Forking.java">OpenJDK JMH의 fork 예제</a></p>
 <p>같은 바이트코드라도 실행 중 쌓인 정보가 달라지면 기계어도 달라진다. 그렇다면 빌드할 때 기계어를 만들어 배포하면 무엇이 달라질까? <a href="/backend/transfer-performance/jit-aot-linux/">다음 편에서 HotSpot의 컴파일 큐, Linux의 스레드와 ELF 로더, AOT 실행 파일을 따라간다.</a></p></div></div>
