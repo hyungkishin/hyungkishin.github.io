@@ -1,0 +1,38 @@
+# Run on an ARM64 Docker host in the directory containing AddWarmup.java.
+# javac and javap ran on the host (Temurin JDK 25.0.4.1).
+javac -g AddWarmup.java
+javap -c AddWarmup
+
+# Linux ARM64, Temurin JRE 25.0.5+8, executing the class built above.
+docker run --rm --network=none -v "$PWD:/app:ro" -w /app \
+  eclipse-temurin@sha256:ecdc0adb37bde1a281c4d245a3cd535004b1fc8322d560f5b09463b248c81df0 \
+  java -Xbatch -XX:-TieredCompilation -XX:CompileThreshold=100 \
+  -XX:CompileCommand=dontinline,AddWarmup::sum \
+  -XX:CompileCommand=print,AddWarmup::sum AddWarmup > jit.txt
+
+# javap excerpt
+static int sum(int, int);
+  0: iload_0
+  1: iload_1
+  2: iadd
+  3: ireturn
+
+# jit.txt excerpts, including the line with the add instruction
+Compiled method (c2) 19   13             AddWarmup::sum (4 bytes)
+0x0000ffff7b08a5c0: 1f20 03d5 | ff83 00d1 | fd7b 01a9 | 6802 0018 | 8923 40b9 | 1f01 09eb | 6101 0054 | 2000 020b
+
+# Extract this nmethod's emitted bytes. Relative offsets vary by build.
+python3 - <<'PYTHON'
+import re
+from pathlib import Path
+text = Path("jit.txt").read_text()
+entry = text.split("[Verified Entry Point]", 1)[1].split("[Exception Handler]", 1)[0]
+rows = re.findall(r"^  0x[0-9a-f]+: ([0-9a-f |]+)$", entry, re.M)
+Path("sum.bin").write_bytes(bytes.fromhex(" ".join(row.replace("|", " ") for row in rows)))
+PYTHON
+
+# Linux ARM64, GNU objdump 2.41. Actual output line from the recorded run.
+docker run --rm --network=none --entrypoint objdump -v "$PWD:/work:ro" \
+  ghcr.io/graalvm/native-image-community@sha256:0d936f32bb8acb5bc60c41b33e05f064d7a6aaf36b726538296c54949bd4a3c0 \
+  -D -b binary -m aarch64 /work/sum.bin
+1c:	0b020020 	add	w0, w1, w2

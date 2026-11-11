@@ -1,0 +1,48 @@
+실행 환경
+Linux 7.0.12-linuxkit aarch64 (Docker)
+javac 25.0.4.1 (Temurin, macOS arm64): FeeRuns.class를 한 번 컴파일
+HotSpot 컨테이너: eclipse-temurin@sha256:ecdc0adb37bde1a281c4d245a3cd535004b1fc8322d560f5b09463b248c81df0
+Native Image 빌드 컨테이너: ghcr.io/graalvm/native-image-community@sha256:0d936f32bb8acb5bc60c41b33e05f064d7a6aaf36b726538296c54949bd4a3c0
+네이티브 재실행 컨테이너: python@sha256:b18b261e1b4974b4f321451ad5251ded85abb22c2b8b262da527dda1d031ab30 (Debian 13)
+재현 시 FeeRuns.java가 있는 작업 디렉터리를 세 컨테이너에 공유한다. 셸 명령은 해당 작업 디렉터리 기준이다.
+
+$ javac -g FeeRuns.java
+$ jar --create --file fees.jar FeeRuns.class
+
+HotSpot 컨테이너
+$ java -version
+openjdk version "25.0.5" 2026-10-20 LTS
+OpenJDK Runtime Environment Temurin-25.0.5+8 (build 25.0.5+8-LTS)
+OpenJDK 64-Bit Server VM Temurin-25.0.5+8 (build 25.0.5+8-LTS, mixed mode, sharing)
+
+$ java -Xint FeeRuns
+totalWon=505000010000
+
+$ java -Xbatch -XX:+UnlockDiagnosticVMOptions -XX:+PrintCompilation -XX:+PrintInlining FeeRuns > jit-all.txt
+$ grep -E "FeeRuns::quote|FeeRuns::fee|totalWon=" jit-all.txt
+출력 발췌
+22    8    b  3       FeeRuns::quote (7 bytes)
+                              @ 2   FeeRuns::fee (5 bytes)   inline
+24    9    b  4       FeeRuns::quote (7 bytes)
+24    8       3       FeeRuns::quote (7 bytes)   made not entrant: not used
+                              @ 2   FeeRuns::fee (5 bytes)   inline (hot)
+totalWon=505000010000
+
+Native Image 빌드 컨테이너
+$ native-image --version
+native-image 25.0.2 2026-01-20
+GraalVM Runtime Environment GraalVM CE 25.0.2+10.1 (build 25.0.2+10-jvmci-b01)
+Substrate VM GraalVM CE 25.0.2+10.1 (build 25.0.2+10, serial gc)
+
+$ native-image --no-fallback -O1 -J-Xmx2400m -cp . -o fee-native FeeRuns
+빌드 출력 발췌
+ Java version: 25.0.2+10, vendor version: GraalVM CE 25.0.2+10.1
+ Graal compiler: optimization level: 1, target machine: armv8.1-a
+ Garbage collector: Serial GC (max heap size: 80% of RAM)
+Finished generating 'fee-native' in 22.4s.
+
+Debian 13 컨테이너 (빌드 결과만 필요)
+$ command -v java || echo "java: not found in PATH"
+java: not found in PATH
+$ ./fee-native
+totalWon=505000010000

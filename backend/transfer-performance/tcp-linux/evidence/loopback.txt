@@ -1,0 +1,8 @@
+Linux 7.0.12-linuxkit aarch64, Python 3.12.16
+send(b'T17 1000\n') -> 9
+send(b'T18 2000\n') -> 9
+capture: cumulative ACK +18; receiver recv() calls so far: 0
+recv(4) -> b'T17 '
+recv(8) -> b'1000\nT18'
+recv(6) -> b' 2000\n'
+newline-delimited records: [b'T17 1000', b'T18 2000']

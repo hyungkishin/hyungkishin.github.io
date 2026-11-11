@@ -1,0 +1,30 @@
+[26924084ns][gc,start] GC(6) Pause Young (Concurrent Start) (G1 Evacuation Pause)
+[27381792ns][gc      ] GC(6) Pause Young (Concurrent Start) (G1 Evacuation Pause) 80M->59M(96M) 0.457ms
+[27401792ns][gc      ] GC(7) Concurrent Mark Cycle
+[27411834ns][gc,marking] GC(7) Concurrent Scan Root Regions
+[27480792ns][gc,marking] GC(7) Concurrent Scan Root Regions 0.068ms
+[27486959ns][gc,marking] GC(7) Concurrent Mark
+[27492042ns][gc,marking] GC(7) Concurrent Mark From Roots
+[28486417ns][gc,start  ] GC(8) Pause Young (Normal) (G1 Evacuation Pause)
+[28905667ns][gc        ] GC(8) Pause Young (Normal) (G1 Evacuation Pause) (Evacuation Failure: Allocation) 88M->71M(96M) 0.419ms
+[28938750ns][gc,marking] GC(7) Concurrent Mark From Roots 1.446ms
+[28944709ns][gc,marking] GC(7) Concurrent Preclean
+[28954250ns][gc,marking] GC(7) Concurrent Preclean 0.009ms
+[29003875ns][gc,start  ] GC(7) Pause Remark
+[29095959ns][gc        ] GC(7) Pause Remark 73M->40M(96M) 0.091ms
+[29113459ns][gc,marking] GC(7) Concurrent Mark 1.626ms
+[29122250ns][gc,marking] GC(7) Concurrent Rebuild Remembered Sets and Scrub Regions
+[29512875ns][gc,start  ] GC(9) Pause Young (Normal) (G1 Evacuation Pause)
+[29929209ns][gc        ] GC(9) Pause Young (Normal) (G1 Evacuation Pause) 56M->38M(96M) 0.416ms
+[30134709ns][gc,marking] GC(7) Concurrent Rebuild Remembered Sets and Scrub Regions 1.012ms
+[30167167ns][gc,start  ] GC(7) Pause Cleanup
+[30178000ns][gc        ] GC(7) Pause Cleanup 46M->46M(96M) 0.010ms
+[30190375ns][gc,marking] GC(7) Concurrent Clear Claimed Marks
+[30198292ns][gc,marking] GC(7) Concurrent Clear Claimed Marks 0.008ms
+[30202542ns][gc,marking] GC(7) Concurrent Cleanup for Next Mark
+[30288375ns][gc,marking] GC(7) Concurrent Cleanup for Next Mark 0.086ms
+[30300917ns][gc        ] GC(7) Concurrent Mark Cycle 2.899ms
+[30992834ns][gc,start  ] GC(10) Pause Young (Prepare Mixed) (G1 Evacuation Pause)
+[31496875ns][gc        ] GC(10) Pause Young (Prepare Mixed) (G1 Evacuation Pause) 73M->46M(96M) 0.504ms
+[32224750ns][gc,start  ] GC(11) Pause Young (Mixed) (G1 Evacuation Pause)
+[32739791ns][gc        ] GC(11) Pause Young (Mixed) (G1 Evacuation Pause) 75M->52M(96M) 0.515ms

@@ -1,0 +1,37 @@
+같은 Linux aarch64 실험의 파일 헤더 및 스레드 이름. 실행 파일에 지정된 인터프리터는 ELF 동적 로더다.
+
+Temurin 컨테이너에서 java 런처 원본을 복사한 뒤 binutils의 readelf로 조사했다.
+$ cp -L "$(command -v java)" temurin-java-launcher
+$ readelf -hW temurin-java-launcher
+$ readelf -lW temurin-java-launcher
+해당 행 발췌
+Class:                             ELF64
+Type:                              DYN (Position-Independent Executable file)
+Machine:                           AArch64
+[Requesting program interpreter: /lib/ld-linux-aarch64.so.1]
+
+$ readelf -hW fee-native
+$ readelf -lW fee-native
+해당 행 발췌
+Class:                             ELF64
+Type:                              EXEC (Executable file)
+Machine:                           AArch64
+[Requesting program interpreter: /lib/ld-linux-aarch64.so.1]
+
+$ od -An -t x1 -N4 FeeRuns.class
+ ca fe ba be
+
+Temurin 컨테이너에서 관찰한 방법 (POSIX 셸)
+mkfifo /tmp/fee-input
+exec 3<>/tmp/fee-input
+java -cp fees.jar FeeRuns hold </tmp/fee-input > held.txt &
+jpid=$!
+# held.txt에 totalWon이 나온 뒤, 프로세스를 그대로 둔 채 조사
+for task in /proc/"$jpid"/task/*; do cat "$task/comm"; done | sort
+# 조사 후 표준 입력 한 바이트로 종료
+printf '\n' >&3
+wait "$jpid"
+
+이 실행에서 얻은 comm 중 컴파일러와 관련된 두 행 (커널의 짧은 이름 그대로)
+C1 CompilerThre
+C2 CompilerThre

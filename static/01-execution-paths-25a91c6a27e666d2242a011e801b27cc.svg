@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 436" role="img" aria-labelledby="t d">
+  <title id="t">인터프리터, JIT, Native Image가 기계어를 쓰는 시점</title>
+  <desc id="d">첫째 줄은 런타임의 인터프리터가 바이트코드를 읽어 이미 기계어로 준비된 처리 루틴을 실행한다. 둘째 줄은 HotSpot이 실행 중 관찰한 메서드를 코드 캐시에 기계어로 설치한 뒤 다음 호출이 이를 실행한다. 셋째 줄은 빌드 때 Native Image가 Linux용 ELF를 만들고 배포 후 CPU가 그 안의 코드를 실행한다. 청색 강조는 빌드, 기동, 반복 호출 순서로 해당 작업을 짚는다. 모션을 줄여도 모든 단계와 설명은 남는다.</desc>
+  <style>
+    text{font-family:Pretendard,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;fill:#152d4e}
+    .title{font-size:23px;font-weight:720}.name{font-size:18px;font-weight:700;fill:#1f4ead}
+    .stage{font-size:16px;fill:#40566f}.node{font-size:17px;font-weight:650}.rule{stroke:#cad7e9}
+    .arrow{fill:none;stroke:#3965be;stroke-width:2;marker-end:url(#head)}
+    .phase{font:650 16px Pretendard,-apple-system,"Apple SD Gothic Neo",sans-serif;fill:#234582}
+    .highlight{fill:none;stroke:#2459c9;stroke-width:2.7;opacity:0}
+    @media (prefers-reduced-motion: no-preference){
+      .during-build{animation:build 10s linear infinite}
+      .during-start{animation:start 10s linear infinite}
+      .during-hot{animation:hot 10s linear infinite}
+      .compile-hot{animation:compile 10s linear infinite}
+      .use-cached{animation:cached 10s linear infinite}
+      .from-start{animation:running 10s linear infinite}
+    }
+    @keyframes build{0%,22%{opacity:1}27%,100%{opacity:0}}
+    @keyframes start{0%,25%{opacity:0}30%,52%{opacity:1}57%,100%{opacity:0}}
+    @keyframes hot{0%,55%{opacity:0}60%,95%{opacity:1}100%{opacity:0}}
+    @keyframes compile{0%,55%{opacity:0}60%,72%{opacity:1}77%,100%{opacity:0}}
+    @keyframes cached{0%,73%{opacity:0}78%,95%{opacity:1}100%{opacity:0}}
+    @keyframes running{0%,25%{opacity:0}30%,95%{opacity:1}100%{opacity:0}}
+  </style>
+  <defs><marker id="head" markerWidth="5" markerHeight="6" refX="4" refY="3" orient="auto"><path d="m0 0 4 3-4 3" fill="none" stroke="#3965be" stroke-width="1.2"/></marker></defs>
+  <rect width="480" height="436" fill="#fff" rx="16"/>
+  <text x="20" y="35" class="title">어느 시점의 기계어를 실행할까?</text>
+  <g text-anchor="middle">
+    <rect x="20" y="52" width="113" height="29" rx="5" fill="#f0f4fb"/><rect x="20" y="52" width="113" height="29" rx="5" class="highlight during-build"/>
+    <text x="76.5" y="72" class="phase">빌드</text>
+    <path d="M141 66h19" class="arrow"/>
+    <rect x="169" y="52" width="113" height="29" rx="5" fill="#f0f4fb"/><rect x="169" y="52" width="113" height="29" rx="5" class="highlight during-start"/>
+    <text x="225.5" y="72" class="phase">기동</text>
+    <path d="M290 66h19" class="arrow"/>
+    <rect x="318" y="52" width="142" height="29" rx="5" fill="#f0f4fb"/><rect x="318" y="52" width="142" height="29" rx="5" class="highlight during-hot"/>
+    <text x="389" y="72" class="phase">반복 호출</text>
+  </g>
+  <g transform="translate(0 46)">
+  <path d="M20 52h440" class="rule"/>
+  <g transform="translate(20 78)">
+    <text class="name">인터프리터</text><text x="440" text-anchor="end" class="stage">실행 중 · 명령마다</text>
+    <rect y="15" width="172" height="42" rx="7" fill="#eff4fb"/><rect y="15" width="172" height="42" rx="7" class="highlight during-start"/><text x="86" y="42" text-anchor="middle" class="node">바이트코드 읽기</text>
+    <path d="M179 36h41" class="arrow"/><rect x="230" y="15" width="210" height="42" rx="7" fill="#e9f0ff"/><rect x="230" y="15" width="210" height="42" rx="7" class="highlight during-start"/><text x="335" y="42" text-anchor="middle" class="node">해당 처리 루틴 실행</text>
+  </g>
+  <path d="M20 157h440" class="rule"/>
+  <g transform="translate(20 183)">
+    <text class="name">HotSpot JIT</text><text x="440" text-anchor="end" class="stage">실행 중 · 선택된 메서드</text>
+    <rect y="15" width="172" height="42" rx="7" fill="#eff4fb"/><rect y="15" width="172" height="42" rx="7" class="highlight compile-hot"/><text x="86" y="42" text-anchor="middle" class="node">메서드 컴파일</text>
+    <path d="M179 36h41" class="arrow"/><rect x="230" y="15" width="210" height="42" rx="7" fill="#e9f0ff"/><rect x="230" y="15" width="210" height="42" rx="7" class="highlight use-cached"/><text x="335" y="42" text-anchor="middle" class="node">코드 캐시에서 실행</text>
+  </g>
+  <path d="M20 262h440" class="rule"/>
+  <g transform="translate(20 288)">
+    <text class="name">GraalVM Native Image</text><text x="440" text-anchor="end" class="stage">빌드 → 배포 후 실행</text>
+    <rect y="15" width="172" height="42" rx="7" fill="#eff4fb"/><rect y="15" width="172" height="42" rx="7" class="highlight during-build"/><text x="86" y="42" text-anchor="middle" class="node">ELF 파일 만들기</text>
+    <path d="M179 36h41" class="arrow"/><rect x="230" y="15" width="210" height="42" rx="7" fill="#e9f0ff"/><rect x="230" y="15" width="210" height="42" rx="7" class="highlight from-start"/><text x="335" y="42" text-anchor="middle" class="node">파일 속 기계어 실행</text>
+  </g>
+  <text x="20" y="373" class="stage">Native Image 행은 Linux용으로 빌드한 경우다.</text>
+  </g>
+</svg>
