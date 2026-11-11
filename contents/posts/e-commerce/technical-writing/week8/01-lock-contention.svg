@@ -12,7 +12,7 @@
   <rect width="460" height="580" rx="12" fill="#ffffff"/>
 
   <!-- Title -->
-  <text x="230" y="28" text-anchor="middle" fill="#374151" font-size="13" font-weight="700">FOR UPDATE 락 경합이 서비스 전체를 죽이는 과정</text>
+  <text x="230" y="28" text-anchor="middle" fill="#374151" font-size="13" font-weight="700">FOR UPDATE 락 경합이 서비스 전체로 장애가 전파되는 과정</text>
 
   <!-- Node 1: 1만 명 동시 요청 -->
   <rect x="130" y="46" width="200" height="48" rx="8" fill="#1a1a2e" filter="url(#shadow)"/>

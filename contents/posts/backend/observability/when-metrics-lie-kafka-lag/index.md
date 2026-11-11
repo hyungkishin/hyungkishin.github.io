@@ -1,7 +1,7 @@
 ---
-title: "계기가 거짓말할 때 : Kafka lag 0은 무엇을 의미할까"
+title: "Kafka lag 0은 무엇을 의미할까"
 date: 2026-02-25
-update: 2026-07-24
+update: 2026-09-06
 tags:
 - 관측성
 - 모니터링
@@ -13,9 +13,9 @@ tags:
 
 > **TL;DR**
 >
-> 이 사건에서 중요한 건 파티션 증설이 아니었다. lag이 어디서부터 어디까지를 재는지였다.
+> 파티션 증설을 결정하기 전에 lag의 측정 범위와 실제 적체량을 확인해야 했다.
 >
-> 발송 지연 신고에 봉투 계산이 먼저 답했다. 1.1만 건 × 건당 1.5초 = 약 5시간. 큐가 5시간 밀렸다는 가설과 파티션 증설 견적이 나왔다.
+> 발송 지연 신고를 받고 전체 처리 시간을 먼저 추산했다. 1.1만 건 × 건당 1.5초 = 약 5시간. 큐가 5시간 밀렸다는 가설과 파티션 증설 견적이 나왔다.
 > 실측 lag은 최대 12초, 대기 메시지 최대 1건이었다. 밀린 큐는 없었다. lag 0은 "느리지 않다"가 아니라 "쌓인 게 없다"에 가깝다.
 
 ---
@@ -51,28 +51,28 @@ tags:
   </defs>
 </svg>
 
-## 봉투 계산은 5시간을 그렸다
+## 전체 건수를 기준으로 추산한 처리 시간은 약 5시간이었다
 
 발송 대상 약 1.1만 건. "알림이 느리다"는 신고가 며칠째 이어졌다. 여기까지가 관측된 전부다. 지표는 아직 아무도 열지 않았다.
 
-첫 답은 봉투 뒷면 계산에서 나왔다.
+첫 답은 단순 추산에서 나왔다.
 1.1만 건 × 건당 1.5초 = 약 5시간. 파티션이 1개라 consumer를 늘려도 처리량이 오르지 않는 구조이니, 큐가 5시간 밀렸다는 가설과 파티션 증설 견적이 따라왔다.
-곱셈은 측정이 아니다. 큐가 밀렸을 "경우"를 그린 그림이다.
+이 계산은 전체 건을 순차 처리한다는 가정에 따른 추정치다. 실제 큐 적체 시간을 확인하려면 별도 측정이 필요하다.
 
-## 계기는 12초를 가리켰다
+## 측정된 time lag은 최대 12초였다
 
-곱셈 대신 lag 지표를 열면 다른 그림이 나온다.
+실제 lag을 확인한 결과는 추정치와 달랐다.
 
 | 단계 | 확인한 것 | 결과 |
 |---|---|---|
-| 봉투 계산 | 1.1만 × 1.5초 ≈ 5시간 | 가설(추정) |
+| 단순 추산 | 1.1만 × 1.5초 ≈ 5시간 | 가설(추정) |
 | offset lag | 최대 대기 메시지 1건 | "큐에 쌓였다"가 지워짐 |
 | time lag | 최대 12초 | "5시간 지연"이 지워짐 |
 | 처리량·입력량 곡선 | 밀린 구간 없음 | backlog 자체가 없음 |
 
 <figure class="metric-fig">
-  <div class="cap-head"><span class="cap-tag">envelope math vs measured lag</span><span class="cap-tag">11,260 msgs</span></div>
-  <svg viewBox="0 0 720 264" role="img" aria-label="같은 시작점에서 봉투계산은 5시간으로 치솟고 실측 지연은 12초에 붙어 있다" xmlns="http://www.w3.org/2000/svg">
+  <div class="cap-head"><span class="cap-tag">estimated processing time vs measured lag</span><span class="cap-tag">11,260 msgs</span></div>
+  <svg viewBox="0 0 720 264" role="img" aria-label="같은 시작점에서 단순 추산은 5시간으로 치솟고 실측 지연은 12초에 붙어 있다" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="g-env" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stop-color="var(--c-orange)" stop-opacity="0.32"/><stop offset="1" stop-color="var(--c-orange)" stop-opacity="0"/>
@@ -107,14 +107,14 @@ tags:
       <animateMotion path="M52 210 C 240 208, 430 150, 684 46" keyPoints="0;1;1;0" keyTimes="0;0.42;0.9;1" dur="6.5s" calcMode="spline" keySplines="0.45 0 0.15 1;0 0 1 1;0.45 0 0.15 1" repeatCount="indefinite"/>
     </circle>
     <circle cx="52" cy="211" r="4" fill="var(--fig-surface)" stroke="var(--fig-ink2)" stroke-width="1.6"/>
-    <g transform="translate(556,30)"><rect width="128" height="21" rx="7" fill="var(--c-orange)" opacity="0.16"/><text x="12" y="14.5" fill="var(--c-orangeink)" font-size="12" font-weight="700">봉투계산 · 약 5시간</text></g>
+    <g transform="translate(556,30)"><rect width="128" height="21" rx="7" fill="var(--c-orange)" opacity="0.16"/><text x="12" y="14.5" fill="var(--c-orangeink)" font-size="12" font-weight="700">단순 추산 · 약 5시간</text></g>
     <g transform="translate(520,224)"><rect width="164" height="21" rx="7" fill="var(--c-blue)" opacity="0.16"/><text x="12" y="14.5" fill="var(--c-blueink)" font-size="12" font-weight="700">실측 lag · 12초 (대기 1건)</text></g>
     <text x="56" y="230" fill="var(--fig-muted)" font-size="10.5" letter-spacing="0.03em">발송 시작</text>
   </svg>
-  <figcaption>같은 지점에서 출발한 두 선. 위는 <b>건수 x 건당시간</b>이 그린 추정, 아래는 컨슈머가 실제로 보고한 지연. 두 선의 벌어짐이 곧 잘못된 견적의 크기다.</figcaption>
+  <figcaption>같은 지점에서 출발한 두 선. 위는 <b>건수 x 건당시간</b>이 그린 추정, 아래는 컨슈머가 실제로 보고한 지연. 추정 처리 시간과 관측된 대기 시간은 측정 대상이 다르므로 직접 같은 값으로 해석할 수 없다.</figcaption>
 </figure>
 
-두 선의 간극이 곧 봉투 계산이 상상한 백로그의 크기다. 밀린 큐는 처음부터 없었다.
+관측 구간에서는 추정치에 해당하는 대규모 적체가 확인되지 않았다.
 (참고로 "대기 1건"과 "time lag 12초"는 같은 순간의 값이 아니라 각각의 최댓값이다. 12초는 리밸런싱 같은 순간의 1회 스파이크였다.)
 
 ## lag은 어디를 재고 있나
@@ -133,7 +133,7 @@ Kafka는 producer가 메시지를 broker의 파티션에 넣고 consumer가 순�
 그리고 Kafka 밖의 지연은 어느 쪽으로도 보이지 않는다. producer가 늦게 넣는 것, 벤더가 접수한 뒤 늦게 배송하는 것 모두.
 
 <figure class="metric-fig">
-  <div class="cap-head"><span class="cap-tag">a message's life · what lag sees</span><span class="cap-tag">queue only</span></div>
+  <div class="cap-head"><span class="cap-tag">a message's life · lag measurement scope</span><span class="cap-tag">queue only</span></div>
   <svg viewBox="0 0 660 196" role="img" aria-label="메시지 한 건이 네 단계를 지나는데 lag은 파티션 대기 구간 하나만 잰다. producer 투입 전, consumer 처리 중, 벤더 배송은 lag 사각지대다" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="e2-blue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--c-blue)"/><stop offset="1" stop-color="var(--c-blue)" stop-opacity="0.7"/></linearGradient>
@@ -164,27 +164,27 @@ Kafka는 producer가 메시지를 broker의 파티션에 넣고 consumer가 순�
     </g>
     <text x="330" y="166" text-anchor="middle" fill="var(--fig-muted)" font-size="10.5">파티션 대기만 lag(offset · time)에 잡힌다. 나머지 세 구간은 lag 사각지대.</text>
   </svg>
-  <figcaption>메시지 한 건은 네 구간을 지난다. lag이 재는 건 <b>파티션 대기</b> 하나뿐이다. producer 투입 전, consumer가 이미 읽어 처리 중, 벤더 접수 후 배송의 지연은 lag에 보이지 않는다.</figcaption>
+  <figcaption>메시지 한 건은 네 구간을 지난다. position 기준 lag은 <b>읽기 전 파티션 대기</b>를 확인하는 데 사용한다. producer 투입 전, consumer가 이미 읽어 처리 중, 벤더 접수 후 배송의 지연은 lag에 보이지 않는다.</figcaption>
 </figure>
 
-lag은 "큐에 쌓여 대기 중인 양"을 재는 지표지 "전체 지연"을 재는 지표가 아니다. 봉투 계산은 전자를 후자로 읽었다.
+lag은 "큐에 쌓여 대기 중인 양"을 재는 지표지 "전체 지연"을 재는 지표가 아니다. 단순 추산은 전자를 후자로 읽었다.
 
 ## 확정한 것과 확정하지 못한 것
 
 이 측정이 확정하는 것은 한 줄이다. **측정된 구간에서 Kafka backlog는 이 지연의 원인이 아니다.**
 
 파티션이 1개라 consumer를 늘려도 처리량이 오르지 않는 구조는 사실이다. 그런데 밀린 큐 자체가 없으니 그것은 지금 풀 문제가 아니다.
-그날 "안 온" 것의 상당수는 앞 편의 삼켜진 실패였다. "느리게 느껴진" 부분이 남았다면 그것은 Kafka 구간이 아니라 벤더 접수 후 배송처럼 lag 사각지대에 있을 가능성이 크다. 이 편이 닫는 선은 "Kafka backlog는 아니다"까지다.
+그날 미수신 건의 상당수는 앞 편에서 확인한 집계 누락에 해당했다. 남은 지연을 설명하려면 Kafka 투입 전이나 벤더 접수 후처럼 lag에 포함되지 않는 구간도 측정해야 한다. 이번 측정만으로 그 구간의 지연 원인을 특정할 수는 없다.
 
 ## 무엇이 바뀌었나
 
-- 근거 없던 파티션 증설이 보류됐다. 지표 하나가 불필요한 조치 하나를 막았다.
+- 관측 구간에 큰 적체가 없음을 확인하고 파티션 증설을 보류했다.
 - 진짜 원인(발송 성공 판정)은 1편에서 고쳐졌다.
 - lag(offset과 time)은 발송 대시보드의 상시 지표가 됐다.
 
-다시 잰 결과는 이렇다. 평시 offset lag은 0 근처, time lag 최대 12초 그대로. 월말 월간 리포트 1.1만 건 버스트 때 time lag 최대 약 10분. 봉투 계산의 5시간과는 자릿수가 다르다. 파티션은 늘리지 않았고 발송은 정상으로 돌아왔다.
+다시 잰 결과는 이렇다. 평시 offset lag은 0 근처, time lag 최대 12초 그대로. 월말 월간 리포트 1.1만 건 버스트 때 time lag 최대 약 10분. 단순 추산의 5시간과는 자릿수가 다르다. 파티션은 늘리지 않았고 발송은 정상으로 돌아왔다.
 
-측정할 수 있는 값을 곱셈으로 추정하지 않는다. 봉투 계산은 가설을 만들 때까지만 쓰고 결정은 계기가 한다.
+단순 추산으로 가설을 세운 뒤 실제 적체량과 처리량을 측정해 증설 여부를 판단한다.
 
 ## 이 지표로도 알 수 없는 것
 

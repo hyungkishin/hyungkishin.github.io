@@ -1,7 +1,7 @@
 ---
-title: "성능 최적화를 향해 - 5부"
+title: "결국 LCP가 아니라 TTFB였다"
 date: 2025-12-27
-update: 2025-12-27
+update: 2026-09-06
 tags:
   - front-end
   - performance
@@ -48,7 +48,7 @@ tags:
 
 ---
 
-## CloudFront는 왜 안 먹혔나?
+## CloudFront 캐시 hit률이 낮았던 이유
 
 응답 헤더를 까봤다.
 
@@ -205,7 +205,7 @@ gzip 응답을 압축 안 한 브라우저에 그대로 주면 그것도 깨진�
 
 `Vary` 가 늘어날수록 캐시 키가 잘게 쪼개진다.  
 hit률이 살짝 떨어진다.  
-근데 *틀린 응답을 퍼뜨리는 것* 보단 낫다.
+근데 *잘못된 응답을 캐시해 재사용하는 것* 보단 낫다.
 
 ---
 
@@ -239,7 +239,7 @@ return new Response(null, {
 
 ---
 
-## prefetch가 왜 origin을 30번씩 때렸나?
+## prefetch에서 origin 요청이 30번 발생한 이유
 
 Next 의 `<Link>` 는 viewport 에 들어온 링크를 자동으로 prefetch 한다.
 

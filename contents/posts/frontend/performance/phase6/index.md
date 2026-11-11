@@ -1,7 +1,7 @@
 ---
-title: "성능 최적화를 향해 - 4부"
+title: "이미지 우선순위를 올려도 소용없던 이유는 주소를 늦게 알아서였다"
 date: 2025-12-26
-update: 2025-12-26
+update: 2026-09-06
 tags:
   - front-end
   - performance
@@ -35,7 +35,7 @@ tags:
 LCP 이미지를 빨리 받게 해도 브라우저가 그 이미지 URL 을 아는 시점 자체가 늦으면 답이 없다.  
 이미지를 먼저 받으라 해놓고 정작 이미지 주소는 JS 실행하고 API 호출한 뒤에 알게 되는 상황.
 
-> 뭐지. 열심히 했는데 출발선이 너무 뒤에 있는 느낌인데?
+> 이미지 우선순위는 높였지만 요청 시작 시점이 여전히 늦었다.
 
 다시 홈 구조를 봤다.
 
@@ -48,7 +48,7 @@ LCP 이미지를 빨리 받게 해도 브라우저가 그 이미지 URL 을 아�
 
 ---
 
-## CSR에서는 왜 출발선이 늦었나?
+## CSR에서 이미지 요청 시작이 늦었던 이유
 
 CSR 구조에서는 브라우저가 할 일이 많다.
 
@@ -202,7 +202,7 @@ edition, section menu, trending topic, all section, notice, weather, mobile menu
 
 예전에는 `Suspense` 를 그냥 로딩 UI 보여주는 도구 정도로 생각했다.
 
-근데 RSC 로 홈을 나누다 보니, 얘는 로딩 UI 보다 경계에 가까웠다.
+근데 RSC 로 홈을 나누다 보니, Suspense는 로딩 UI와 함께 렌더링 대기 범위를 구분하는 역할을 했다.
 
 top 기사, 섹션 기사, 광고, opinion, MyTimes, Top Stories 가 다 같은 속도로 준비되지 않는다.
 
@@ -234,7 +234,7 @@ const [topArticlesRes, topStoriesRes] = await Promise.allSettled([
 
 처음엔 `Promise.all` 도 생각했다.
 
-근데 Top Stories 하나 실패했다고 top1 기사까지 죽으면 안 된다.
+근데 Top Stories 조회가 실패해도 top1 기사는 표시할 수 있어야 했다.
 뉴스 홈에서 가장 먼저 지켜야 하는 건 첫 화면의 대표 기사다.
 보조 데이터가 실패해도 그건 살려야 한다.
 
@@ -243,7 +243,7 @@ const [topArticlesRes, topStoriesRes] = await Promise.allSettled([
 이건 성능만의 문제가 아니었다.
 
 느린 API 하나가 전체를 늦추면 성능 문제고  
-실패한 API 하나가 전체를 죽이면 운영 문제가 된다.
+하나의 API 실패가 전체 화면의 렌더링 실패로 전파되지 않도록 해야 한다.
 
 홈에서는 둘 다 봐야 했다.
 

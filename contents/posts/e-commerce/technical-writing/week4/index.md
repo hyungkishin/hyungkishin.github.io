@@ -1,7 +1,7 @@
 ---
 title: "Kafka Consumer 병목의 진짜 원인: 잘못된 토픽 설계와 불필요한 파싱"
 date: 2026-03-06
-update: 2026-03-06
+update: 2026-09-06
 tags:
   - loopers
   - technical-writing
@@ -429,6 +429,6 @@ private fun classifyCause(e: Exception): String {
 partition stall은 실패 한 건보다 훨씬 큰 장애를 만들기 때문입니다.
 
 다만 이건 consumer 쪽의 대응입니다. 구조 자체의 문제는 남아 있습니다.
-하나의 토픽에 여러 서비스 메시지가 섞이는 구조는 producer 편의로 만들어진 것입니다. 그 비용을 consumer가 떠안는 형태죠.
+하나의 토픽에 여러 서비스 메시지가 섞여 있으면 consumer마다 대상 메시지를 구분하는 비용이 발생합니다.
 
-장기적으로는 도메인 단위 토픽 분리가 맞고, 이 작업은 그때까지의 버팀목입니다.
+장기적으로는 도메인별 토픽 분리를 검토할 수 있습니다. 이번 필터링은 producer를 변경하기 어려운 조건에서 처리 비용을 줄이기 위한 조치였습니다.

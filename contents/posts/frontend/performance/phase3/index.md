@@ -1,7 +1,7 @@
 ---
-title: "성능 최적화를 향해 - 1부"
+title: "JS 번들을 줄였는데 점수는 거의 그대로였다"
 date: 2025-05-03
-update: 2025-05-03
+update: 2026-09-06
 tags:
   - front-end
   - performance
@@ -14,7 +14,7 @@ tags:
 
 네트워크 텝을 열어보니 JS 가 프로젝트 사이즈에 비해 많은 용량을 차지하고 있었다.
 
-그래서 가장 먼저 손을 댄 건 JS 번들 다이어트.   
+그래서 가장 먼저 손을 댄 건 JS 번들 크기 축소.   
 JS 번들의 크기가 클수록 Core Web Vital 의 TBT 성능에도 영향을 주는데 main Thread 가 일을 너무 많이 하는 바람에 UI 를 그리기 힘들어진다.  
 
 그래서 사용되는 JS Library 들이 TreeShaking 잘 되고 있는지, 총 bundle 의 크기가 어떻게 되는지 파악 이 필요했다.
@@ -26,7 +26,7 @@ JS 번들의 크기가 클수록 Core Web Vital 의 TBT 성능에도 영향을 �
 
 ---
 
-## JS 번들을 정검 해보자
+## JS 번들 구성 점검
 
 ```bash
 
@@ -110,7 +110,7 @@ import debounce from "lodash.debounce";
 앞서 말했듯 lodash는 함수별로 npm 패키지가 분리되어 있거나 ES 모듈 구조라서 개별 함수만 import할 수 있지만,   
 moment/moment-timezone 는 하나의 큰 번들(모듈)로 배포되고 내부적으로 모든 기능이 단일 객체(moment)에 결합되어 있다.
 
-죽, moment-timezone은 하나의 큰 번들이다. 부분 import 안 된다. 구조 상 ESM도 아니고 트리셰이킹도 불가능.
+즉, moment-timezone은 하나의 큰 번들이다. 부분 import 안 된다. 구조 상 ESM도 아니고 트리셰이킹도 불가능.
 
 ```js
 import { tz } from "moment-timezone"; <- ❌
@@ -132,7 +132,7 @@ moment-timezone은 오래된 브라우저까지 호환성을 고려해 설계되
 $ npx moment-timezone-data-builder --zones="Asia/Seoul" --start-year=1990 --end-year=2026 > data/packed/latest.json
 ```
 
-## 영혼까지 끌어모아 다이어트
+## 추가로 줄일 수 있는 번들 확인
 next.config.js 내부 설정 중 `optimizePackageImports` 를 쓰면 소위말해 조금 더 영끌 다이어트가 된다.  
 
 date-fns, moment, swiper 같은 덩치 큰 라이브러리에서 "쓰는 것만 가져오도록" 자동 변환해줘서 번들 크기를 줄여준다. ( 아 물론 lodash-es 는 효과가 미미...)  
@@ -177,7 +177,7 @@ JS 줄이기만 해도 LCP, FID, CLS 등 모든 항목에 긍정적 영향 을 �
 
 ## 결론
 JS 번들 최적화는 용량만의 문제가 아니다.
-LCP, TTI, SEO 성능까지 직결된다.
+LCP와 TTI에 미치는 영향도 별도로 측정해야 한다. 번들 크기 감소만으로 검색 노출 개선을 단정할 수는 없다.
 
 개발 속도와 마감 기한에 쫓기다 보면, 무심코 라이브러리를 도입하고 의존성을 늘리기 쉽다.
 하지만 작은 습관 하나, "진짜 필요한가?" 라는 질문만으로도 많은 비용을 아낄 수 있다.

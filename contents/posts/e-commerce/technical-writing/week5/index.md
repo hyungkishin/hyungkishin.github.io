@@ -1,7 +1,7 @@
 ---
-title: "인덱스도 없이 캐시부터 붙이려 했냐;"
+title: "캐시 도입 전에 인덱스와 실행 계획을 확인한 이유"
 date: 2026-03-13
-update: 2026-03-13
+update: 2026-09-06
 tags:
   - 성능최적화
   - 인덱스
@@ -118,7 +118,7 @@ graph LR
 )
 ```
 
-**인덱스는 공짜가 아닙니다.**
+**인덱스에는 저장 공간과 쓰기 비용이 추가됩니다.**
 
 인덱스 하나를 추가하면, 모든 INSERT와 UPDATE에서 해당 B-Tree를 갱신해야 합니다.  
 
@@ -351,8 +351,8 @@ override fun getProductDetail(id: Long): ProductInfo? {
 ```
 
 모든 Redis 호출을 try-catch로 감쌌습니다.  
-Redis가 죽으면 전부 cache miss 처리되고 DB에서 직접 읽습니다.   
-느려지지만 서비스가 죽지는 않습니다.
+Redis에 장애가 발생하면 전부 cache miss 처리되고 DB에서 직접 읽습니다.   
+느려지지만 서비스 응답은 유지할 수 있습니다.
 
 읽기는 replica에서, 쓰기(SET/DEL)는 master에서.  
 Redis 인프라에 이미 master/replica가 구성되어 있었으니까 그대로 썼습니다.

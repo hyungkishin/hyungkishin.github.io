@@ -1,7 +1,7 @@
 ---
 title: "이름을 찾은 곳과 호출된 곳은 왜 다른가"
 date: 2026-07-27
-update: 2026-07-27
+update: 2026-09-06
 tags:
   - JavaScript
   - front-end
@@ -100,7 +100,7 @@ a.tricks.push('sit')
 b.tricks // [ 'sit' ]
 ```
 
-`a`에 가르친 기술이 `b`에도 있다. 인스턴스마다 별도 배열을 원하면 생성자 안에서 대입한다.
+`a`에서 추가한 배열 원소가 `b`에서도 조회된다. 인스턴스마다 별도 배열을 원하면 생성자 안에서 대입한다.
 
 ```js
 function Dog(name) {
