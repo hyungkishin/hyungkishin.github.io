@@ -1,7 +1,7 @@
 ---
 title: "같은 자바 코드가 실행 중에 달라지는 이유"
 date: 2026-11-04
-update: 2026-11-04
+update: 2026-11-11
 tags:
   - JVM
   - Java
@@ -9,45 +9,19 @@ tags:
   - 바이트코드
 ---
 
-자바 메서드의 실행 시간을 비교할 때는 JVM이 어떤 실행 경로를 사용했는지도 맞춰야 한다. 같은 `.class` 파일을 실행해도 처음 호출할 때와 반복해서 호출한 뒤의 기계어가 같다는 보장은 없다. HotSpot은 실행 중 모은 정보를 사용해 자주 실행되는 코드를 컴파일한다. 비교하는 두 코드의 실행 단계가 다르면 측정값에는 코드 변경의 효과와 JVM의 준비 비용이 섞인다.
+송금 수수료를 계산하는 자바 코드를 한 번 컴파일하고 두 번 실행했다. 한 JVM에는 송금액의 1%를 받는 정책을, 다른 JVM에는 건당 100원을 받는 정책을 넣었다. 두 실행은 같은 클래스 파일을 읽었다. 그런데 같은 호출 위치를 두고 HotSpot의 컴파일 로그에는 서로 다른 메서드 이름이 찍혔다.
 
-[이전 글](/backend/transfer-performance/01-measurement/)에서 정한 측정 구간과 부하 조건에 JVM 실행 조건을 더해야 하는 이유다. 서버 기동 직후의 응답 지연과 충분히 실행한 뒤의 처리량은 각각 따로 관찰할 대상이다. 정상 상태의 계산 비용을 비교하면서 첫 호출만 재면 준비 비용이 섞인다. 기동 직후의 문제를 조사하면서 준비 구간을 전부 버리면 필요한 현상을 놓친다.
+클래스 파일에서 **수수료를 호출하는 쪽**을 보면 어느 요금 정책의 이름도 나오지 않는다. “이 객체에 수수료를 물어보라”는 명령 하나만 있다. HotSpot의 JIT 컴파일러는 프로그램이 실행되는 동안 자주 쓰이는 코드를 기계어로 옮긴다. 이번에는 수수료 계산까지 호출하는 쪽에 포함했다. 이를 인라이닝이라고 한다. 바이트코드 한 줄과 로그 한 줄을 맞춰 보면 그 자리를 찾을 수 있다.
 
-아래 실행 예제는 OpenJDK 25.0.4.1에서 컴파일과 출력을 확인한 결과다. 바이트코드의 의미는 Java SE 25 명세를 기준으로 설명한다. JIT와 메모리 최적화는 HotSpot의 구현에 관한 설명이다. 예제에서 해당 최적화가 발생했다고 측정한 결과는 없다.
+## 반복문에서 바이트코드의 주소 읽기
 
-## 소스, 바이트코드, 기계어의 역할
-
-`javac`가 만드는 `.class` 파일에는 JVM이 실행할 바이트코드가 들어간다. 바이트코드는 특정 CPU의 명령어와 독립적인 형식이다. JVM 명세는 각 명령의 동작과 실행에 필요한 자료 구조를 정한다. 이를 인터프리트할지 기계어로 번역할지는 구현에 맡긴다. [JVM 명세 2장](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html)
-
-일반적인 HotSpot 실행에서는 인터프리터와 JIT 컴파일러가 함께 쓰인다. JIT는 실행 시점에 바이트코드를 해당 CPU가 실행할 기계어로 컴파일한다. 자주 호출되는 메서드나 반복되는 루프가 컴파일 대상이 될 수 있다. 생성한 기계어는 code cache에 저장한다. 소스 파일을 다시 작성하거나 `.class` 파일을 덮어써서 실행을 바꾸는 과정은 아니다.
-
-단계별 컴파일인 tiered compilation은 프로파일을 수집하는 컴파일 코드와 더 많은 최적화를 적용하는 코드를 함께 사용한다. C1과 C2라는 이름은 HotSpot의 두 JIT 컴파일러를 가리킨다. 모든 메서드가 동일한 순서와 시점에 두 컴파일러를 거치는 것은 아니다. 컴파일 대상과 시점은 실행 횟수, 수집한 정보, JVM 설정 등에 영향을 받는다. [HotSpot의 단계별 컴파일과 code cache](https://docs.oracle.com/en/java/javase/25/vm/java-hotspot-virtual-machine-performance-enhancements.html)
-
-이 구조에서 warmup은 측정 전에 정해진 시간만 기다리는 행동으로 끝나지 않는다. 비교할 코드 경로를 실제 입력으로 실행해야 그 경로의 프로파일이 쌓인다. 준비 구간에 사용한 입력 타입이나 분기가 측정 구간과 다르면, 측정을 시작한 뒤에도 컴파일과 실행 경로의 변화가 이어질 수 있다.
-
-## 반복문을 컴파일한 실제 바이트코드
-
-피연산자 스택의 동작은 짧은 반복문으로 확인할 수 있다. 다음 코드는 `Hello World`를 열 번 출력한다. 콘솔 출력 시간이 포함되므로 이 예제를 정수 증가 연산의 성능 측정에 사용하지는 않는다.
+`Hello World`를 열 번 출력하는 반복문부터 보자. `javac -g HelloLoop.java`로 컴파일하고 `javap -c -l HelloLoop`로 클래스 파일을 열면, 소스의 한 줄이 여러 명령으로 나뉜다. [예제 소스](./evidence/HelloLoop.java) · [전체 바이트코드](./evidence/javap.txt) · [실행 출력](./evidence/stdout.txt)
 
 ```java
-public class HelloLoop {
-    public static void main(String[] args) {
-        for (int i = 0; i < 10; i++) {
-            System.out.println("Hello World");
-        }
-    }
+for (int i = 0; i < 10; i++) {
+    System.out.println("Hello World");
 }
 ```
-
-실행 환경은 Temurin OpenJDK `25.0.4.1+1-LTS`, 컴파일러는 `javac 25.0.4.1`이다. 아래 명령을 실행했고 컴파일, 프로그램 실행, 바이트코드 출력이 모두 정상 종료했다. 프로그램의 표준 출력에는 같은 문장이 정확히 열 줄 있었다. [소스](./evidence/HelloLoop.java), [JDK 버전](./evidence/java-version.txt), [표준 출력](./evidence/stdout.txt), [javap 출력](./evidence/javap.txt)을 함께 보관했다.
-
-```bash
-javac -g HelloLoop.java
-java HelloLoop
-javap -c -l HelloLoop
-```
-
-`javap -c`는 클래스 파일의 바이트코드를 출력한다. `-l`은 줄 번호와 지역변수 테이블을 출력한다. 컴파일할 때 사용한 `-g`는 지역변수 이름을 포함한 디버깅 정보를 남긴다. 아래는 실제 출력에서 `main`의 명령 부분을 발췌하고 주석을 줄인 것이다. [javap 명령 문서](https://docs.oracle.com/en/java/javase/25/docs/specs/man/javap.html)
 
 ```text
  0: iconst_0
@@ -55,102 +29,76 @@ javap -c -l HelloLoop
  2: iload_1
  3: bipush        10
  5: if_icmpge     22
- 8: getstatic     #7    // System.out
-11: ldc           #13   // String Hello World
-13: invokevirtual #15   // PrintStream.println:(String)V
+ 8: getstatic     #7     // System.out
+11: ldc           #13    // String Hello World
+13: invokevirtual #15    // PrintStream.println
 16: iinc          1, 1
 19: goto          2
 22: return
 ```
 
-왼쪽 숫자는 메서드의 바이트코드 시작점을 기준으로 한 바이트 오프셋이다. 명령 길이가 다르므로 `3` 다음은 `5`이고 `5` 다음은 `8`이다. `#7`, `#13`, `#15`는 이 클래스 파일의 상수 풀 인덱스다. 다른 컴파일 결과에서는 같은 필드와 메서드가 다른 번호로 표시될 수 있다.
+왼쪽의 `2`, `3`, `5`는 메서드 첫 바이트부터 센 거리다. 명령마다 길이가 달라 숫자가 하나씩 늘지는 않는다. 오른쪽의 `goto 2`는 오프셋 2의 명령으로 돌아가라는 뜻이다. 반면 `iload_1`의 `1`은 지역변수 번호다. 이 메서드에서 슬롯 0에는 `main`의 인자 `args`가, 슬롯 1에는 `i`가 들어 있다.
 
-이 출력에서는 지역변수 슬롯 `0`이 `args`, 슬롯 `1`이 `i`다. `main`이 `static` 메서드라서 첫 인자를 슬롯 `0`부터 받는다. 인스턴스 메서드의 슬롯 `0`에는 호출 대상 객체의 참조인 `this`가 들어간다. 지역변수 슬롯 번호와 명령의 바이트 오프셋은 서로 다른 번호다.
+첫 반복에서 `iload_1`은 슬롯 1의 값 `0`을 피연산자 스택에 복사한다. `bipush 10`이 그 위에 비교값 `10`을 얹는다. `if_icmpge`는 두 값을 꺼낸다. 아직 `0 >= 10`이 거짓이므로 출력으로 이어진다. 출력이 끝난 뒤 `iinc 1, 1`은 슬롯 1에 바로 1을 더한다. 다음 바퀴의 비교는 `1`에서 시작한다. [JVM의 명령 정의](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.iinc)
 
-## 피연산자 스택에서 이동하는 값
+![첫 반복에서 비교 명령은 스택의 0과 10을 꺼내고, 출력 뒤 iinc는 지역변수 i를 1로 바꾼다.](./01-stack-machine.svg)
 
-JVM의 스택 기반 명령은 연산에 필요한 값을 피연산자 스택에 넣고 꺼내 사용한다. `iconst_0`은 정수 `0`을 넣는다. 이어지는 `istore_1`은 그 값을 꺼내 지역변수 슬롯 `1`에 저장한다. 이 시점의 `i`는 `0`이고 피연산자 스택은 비어 있다.
+피연산자 스택은 메서드 하나의 계산 공간이다. `println`을 호출할 때 이 스택에서 꺼내는 값은 출력 대상인 `PrintStream` 참조와 문자열 참조다. 메서드가 호출될 때마다 생기는 프레임을 쌓는 **호출 스택**과는 용도가 다르다. 이 구분은 수수료 예제에서도 드러난다. 바이트코드에 호출 명령이 있어도 JIT가 만든 기계어에 별도의 호출과 프레임이 그대로 남는다는 보장은 없다. [JVM 명세의 프레임](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.6)
 
-`iload_1`은 슬롯 `1`의 값을 스택에 복사한다. `bipush 10`이 정수 `10`을 넣으면 스택에는 아래부터 `[0, 10]`이 놓인다. `if_icmpge`는 두 값을 꺼내 먼저 들어간 값이 나중 값 이상인지 비교한다. 첫 반복의 `0 >= 10`은 거짓이므로 다음 명령을 실행한다. `i`가 `10`이 되면 오프셋 `22`로 이동해 `return`을 실행한다.
+## 수수료 계산의 호출 위치
 
-![지역변수와 피연산자 스택에서 값이 이동하고 iinc가 슬롯을 직접 증가시키는 과정](./01-stack-machine.svg)
+예제의 `quote`는 송금액을 받아 수수료를 돌려준다. 금액은 원 단위 정수다. 인자로 받은 객체가 정률 정책이면 금액을 100으로 나눠 원 미만을 버린다. 정액 정책이면 100원을 반환한다. `quote`의 소스에는 어느 정책을 쓸지 고르는 분기가 없다. [실행 가능한 FeeDemo.java](./evidence/FeeDemo.java)
 
-그림에서 `iinc 1, 1`은 별도의 경로를 사용한다. 피연산자 스택을 거치지 않고 지역변수 슬롯 `1`의 정숫값에 `1`을 더한다. 스택 기반이라는 분류가 모든 명령에 push와 pop이 필요하다는 뜻은 아니다. [JVM 명령 정의: iload, if_icmp, iinc](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html)
+```java
+static int quote(FeePolicy policy, int amountWon) {
+    return policy.fee(amountWon);
+}
+```
 
-출력 명령에서는 객체의 참조가 움직인다. `getstatic`은 `System.out` 정적 필드의 값을 읽어 스택에 넣는다. 이어지는 `ldc`는 `Hello World` 문자열 객체의 참조를 넣는다. `invokevirtual`은 호출 대상인 `PrintStream` 참조와 문자열 인자를 꺼내 `println`을 호출한다. 이 메서드의 반환 타입은 `void`이므로 호출이 정상 종료한 뒤 반환값을 스택에 넣지 않는다.
+`javap -c FeeDemo`로 읽은 `quote`에는 명령이 네 개 있다. 앞의 두 명령은 정책 객체와 금액을 스택에 올린다. 오프셋 **2**에서 인터페이스 메서드 `fee`를 호출한다. 오프셋 7에서 계산된 정수를 반환한다. 아래 주석은 읽기 쉽게 줄였다. [javap 출력](./evidence/fee-javap.txt)
 
-이 과정을 설명할 때 문자열 객체 전체가 스택으로 복사된다고 해석하면 안 된다. 피연산자 스택에 놓이는 것은 해당 객체를 가리키는 참조다. `getstatic`의 역할을 필드 이름의 해석으로만 설명하는 것도 부족하다. 필드를 확인한 다음 그 필드에 저장된 값을 스택에 넣는 동작까지 포함한다. [JVM 명령 정의: getstatic, ldc, invokevirtual](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html)
+```text
+0: aload_0
+1: iload_1
+2: invokeinterface #7,  2    // FeePolicy.fee(int)
+7: ireturn
+```
 
-## 호출 스택과 프레임 안의 스택
+이제 찾을 곳은 하나다. HotSpot이 실행 중에 `quote`를 기계어로 컴파일할 때, **오프셋 2의 호출**을 어떻게 처리했는지 보면 된다.
 
-JVM 스택에는 메서드 호출의 프레임이 쌓인다. 각 프레임은 지역변수 배열과 피연산자 스택을 포함한다. `main`이 `println`을 호출하는 동안 `main`의 지역변수 `i`와 호출받은 메서드의 지역변수는 각자의 프레임에 속한다. 호출이 끝나면 호출한 쪽의 실행으로 돌아간다. [프레임과 지역변수의 정의](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.6)
+## 두 JVM의 로그에서 같은 호출 찾기
 
-호출 스택은 어느 메서드로 돌아갈지를 포함한 호출 상태를 다룬다. 피연산자 스택은 현재 메서드의 명령에 필요한 값을 다룬다. 힙은 객체와 배열을 저장하는 실행 영역이다. 지역변수나 피연산자 스택에 객체 참조가 들어 있다는 사실만으로 그 객체의 저장 위치가 스택이라고 결론 내릴 수 없다.
+아래 명령은 Temurin OpenJDK 25.0.4.1에서 실행했다. 소스는 한 번만 컴파일한다. 두 프로세스 모두 두 정책 객체를 만들어 두지만 각 프로세스가 `quote`에 넘기는 정책은 한 종류다. 송금액을 1원부터 100만 원까지 1원씩 늘리며 호출한다. 마지막 줄의 합계는 정률 실행에서 4,999,510,000원, 정액 실행에서 100,000,000원이었다. [JDK 버전](./evidence/java-version.txt)
 
-이 설명은 JVM이 보장하는 실행 의미다. JIT가 인라이닝한 호출에는 독립된 기계어 호출과 물리적인 프레임이 남지 않을 수 있다. 바이트코드의 스택 연산도 기계어에서는 레지스터 연산으로 표현되거나 다른 연산과 합쳐질 수 있다. 바이트코드 명령 수를 세어 실제 CPU 명령 수나 실행 시간을 계산할 수 없는 이유다. HotSpot의 컴파일 과정에는 레지스터 할당과 기계어 생성이 포함된다. [HotSpot 컴파일러 구조](https://www.oracle.com/java/technologies/whitepaper.html)
+```bash
+javac -g FeeDemo.java
+java -Xbatch -XX:+UnlockDiagnosticVMOptions \
+  -XX:+PrintCompilation -XX:+PrintInlining FeeDemo > rate.log
+java -Xbatch -XX:+UnlockDiagnosticVMOptions -DflatFee=true \
+  -XX:+PrintCompilation -XX:+PrintInlining FeeDemo > flat.log
+```
 
-## 실행 프로파일에 의존하는 JIT
+`PrintCompilation`은 어떤 메서드를 컴파일했는지, `PrintInlining`은 그 안의 호출을 어떻게 처리했는지 기록한다. `-Xbatch`는 컴파일을 포그라운드에서 실행하도록 한 옵션이다. 여기서 보는 것은 컴파일 결정이다. 이 옵션을 켠 실행 시간으로 운영 지연을 추정할 수는 없다. [Java 25 진단 옵션](https://docs.oracle.com/en/java/javase/25/docs/specs/man/java.html#advanced-jit-compiler-options-for-java)
 
-인라이닝은 호출할 메서드의 내용을 호출 지점에 포함하는 최적화다. 호출과 반환에 필요한 작업을 줄이는 것과 함께, 호출 경계 너머의 계산을 한꺼번에 분석할 여지를 만든다. 소스에서 메서드를 읽기 좋은 단위로 나눴다고 해서 모든 호출이 실행 시점의 비용으로 그대로 남는 것은 아니다.
+각 로그에서 `FeeDemo::quote`를 찾으면 그 아래에 `@ 2`로 시작하는 줄이 나온다. **이 숫자 2가 앞에서 본 바이트코드의 주소다.** 아래는 정률 실행에서 컴파일 레벨과 호출 위치만 남긴 발췌다. 왼쪽 숫자는 `quote`의 컴파일 레벨이고, 들여쓴 줄은 그때의 인라이닝 결정이다. [정률 실행 로그 발췌](./evidence/fee-jit-rate.txt)
 
-가령 수수료 계산 인터페이스를 호출하는 지점에서 실제로 들어오는 객체가 한 구현 타입에 집중된다고 가정하자. HotSpot은 실행 중 수집한 타입 정보 등을 사용해 해당 구현을 인라이닝할 수 있다. 이때 특정 타입만 나타난다는 전제는 프로그램 전체의 영구적인 계약이 아니다. 이후 입력이나 로딩된 클래스가 바뀌면 전제가 성립하지 않을 수 있다.
+```text
+3  FeeDemo::quote
+     @ 2  FeeDemo$FeePolicy::fee   failed to inline: no static binding
+4  FeeDemo::quote
+     @ 2  FeeDemo$RateFee::fee     inline (hot)
+```
 
-HotSpot은 가드나 의존 관계를 사용해 이런 전제를 확인한다. 전제를 더 이상 사용할 수 없으면 해당 코드의 실행을 deoptimization으로 전환할 수 있다. 필요한 실행 상태를 복원하고 인터프리터 등의 경로에서 이어서 실행한다. 이후 수집한 정보로 다시 컴파일할 수도 있다. 프로그램의 의미를 유지하면서 실행 전략을 바꾸는 과정이다. [HotSpot의 인라이닝과 동적 deoptimization](https://www.oracle.com/java/technologies/whitepaper.html)
+HotSpot은 같은 메서드를 여러 단계에 걸쳐 컴파일할 수 있다. 첫 줄은 레벨 3에서 `quote`를 컴파일한 기록이다. 이때 컴파일러는 호출 대상을 하나로 정하지 못해 인터페이스 호출을 인라인하지 않았다. 프로그램은 그대로 수수료를 계산했다. 뒤의 레벨 4 컴파일에서는 구체적인 이름 `RateFee::fee`가 나타났다. `inline (hot)`은 그 실행에서 자주 호출된 정률 계산을 `quote` 안에 포함했다는 기록이다.
 
-![실행 프로파일로 컴파일한 뒤 가정이 무효화되면 실행 상태를 복원하고 재컴파일할 수 있는 흐름](./02-jit-lifecycle.svg)
+![두 JVM 모두 바이트코드 오프셋 2에서 수수료를 호출한다. 같은 위치의 JIT 로그에는 각 실행에서 사용한 수수료 정책이 나타난다.](./02-jit-lifecycle.svg)
 
-그림은 가능한 전환 순서를 보여 준다. 시간 간격이나 처리 속도는 실측값이 아니다. 새 타입을 만날 때의 전환 여부는 생성한 코드와 가드에 달려 있다. 특정 메서드의 인라이닝 여부와 컴파일 시점을 판정하려면 해당 실행의 컴파일 로그나 프로파일이 필요하다.
+정액 정책만 전달한 두 번째 JVM에서도 호출 위치는 `@ 2`였다. 이번에 인라인된 메서드는 `FlatFee::fee`다. 두 실행의 클래스 파일에는 같은 인터페이스 호출이 남아 있다. 서로 다른 것은 HotSpot이 메모리에 만든 코드에 포함한 수수료 계산이다. 이 로그로 인라이닝 여부는 알 수 있지만 절약한 시간은 알 수 없다. [정액 실행 로그 발췌](./evidence/fee-jit-flat.txt)
 
-JIT 자체도 CPU와 메모리를 사용한다. 시작 직후의 CPU 사용량에는 애플리케이션 계산과 컴파일 작업이 함께 들어갈 수 있다. 같은 부하를 주더라도 한쪽 JVM만 이미 해당 경로를 충분히 실행했다면 비교 조건이 어긋난다. 단 한 번의 실행 시간에서 나타난 차이를 코드 변경의 효과로 분리하기 어렵다.
+## 송금 시간을 비교할 때의 워밍업
 
-## 객체 할당과 풀링에 붙는 조건
+가령 송금 서비스가 배포 직후 정액 정책으로만 송금 요청을 미리 보내 워밍업했다고 하자. 곧이어 정률 정책을 쓰는 요청이 몰린다면, 준비 구간에서 JVM이 본 호출 대상과 실제 트래픽의 호출 대상이 달라진다. 위 실험은 정책별로 JVM을 새로 띄웠다. 한 JVM에서 중간에 정책을 바꿨을 때 기존 코드가 언제 무효화되거나 다시 컴파일되는지까지 보여 주지는 않는다.
 
-소스에 `new`가 있다고 해서 그 위치의 힙 할당이 기계어에도 그대로 남는 것은 아니다. HotSpot의 escape analysis는 객체가 분석한 범위 밖으로 노출되는지를 판단한다. 조건이 맞으면 scalar replacement로 객체의 필드를 개별 값처럼 다루고 객체 할당을 제거할 수 있다. Oracle의 Java 25 문서는 이를 객체를 힙에서 스택으로 통째로 옮기는 최적화와 구분한다. [HotSpot의 escape analysis](https://docs.oracle.com/en/java/javase/25/vm/java-hotspot-virtual-machine-performance-enhancements.html)
+[앞 글](/backend/transfer-performance/01-measurement/)에서 정한 측정 구간에 이 차이를 반영할 수 있다. 배포 직후 첫 송금이 느린 문제라면 첫 요청을 측정에 남긴다. 충분히 실행한 서비스의 수수료 계산 비용을 비교한다면 각 버전을 별도 JVM에서 시작한 뒤 측정할 때와 비슷한 정책 비율로 워밍업한다. 벤치마크 도구 JMH에서 fork는 JVM을 새로 띄우는 설정이다. warmup 횟수는 그 JVM에서 측정 전에 몇 차례 연습할지를 정한다. [OpenJDK JMH의 fork 예제](https://github.com/openjdk/jmh/blob/master/jmh-samples/src/main/java/org/openjdk/jmh/samples/JMHSample_12_Forking.java)
 
-인라이닝을 거친 분석 범위 밖으로 객체가 실제 노출되거나 분석이 충분하지 않으면 할당이 남을 수 있다. 소스에서 메서드가 객체를 반환하더라도 호출자에 인라인된 뒤에는 할당 제거 대상이 될 수 있다. 탈출하지 않는 객체라고 해서 모든 경우에 할당 제거가 적용되는 것도 아니다. 소스만 읽고 “이 객체는 스택에 생성된다”거나 “이 `new`는 비용이 없다”고 단정할 근거는 부족하다. 해당 JDK와 실행 경로에서 할당량을 확인해야 한다.
-
-작은 임시 객체를 줄이려고 전역 풀을 도입하면 다른 비용이 생긴다. 풀에서 찾고 반환하는 작업, 재사용 전 상태 초기화, 스레드 사이의 동기화를 설계해야 한다. 풀의 참조가 객체를 오래 유지할 수도 있다. 반대로 DB 연결처럼 생성 과정에 외부 자원 확보가 필요한 대상은 재사용 비용과 생성 비용의 관계가 다르다. 객체 수만 같다고 같은 풀링 전략을 적용할 수는 없다. [Oracle의 객체 풀링 비용 논의](https://www.oracle.com/technical-resources/articles/java/garbagecollection-in-java-applications.html)
-
-풀링 문서는 오래된 JVM을 대상으로 쓰였으므로 당시 GC 설정과 수치를 현재 환경에 옮겨 쓰지 않는다. 여기서 가져올 판단 기준은 생성 비용을 줄이는 대신 어떤 유지 비용을 추가하는지 비교하는 것이다. 실제 애플리케이션에서는 요청당 할당량, GC, 유지되는 객체 크기와 지연을 함께 확인해야 풀의 효과를 판정할 수 있다.
-
-## 측정 코드도 컴파일 대상이다
-
-계산 결과를 사용하지 않는 반복문은 측정하려던 계산 자체를 잃을 수 있다. 컴파일러가 외부에서 관찰할 효과가 없는 계산이라고 판단하면 dead code elimination으로 제거하기 때문이다. 반복 횟수를 늘려도 없어진 계산이 돌아오지는 않는다. 이때 잰 시간은 소스에 적힌 작업의 비용과 다를 수 있다.
-
-JMH는 JVM에서 작은 코드 구간을 측정하기 위한 벤치마크 도구다. 공식 예제는 계산 결과를 벤치마크 메서드의 반환값으로 넘기거나 `Blackhole`로 소비하는 방식을 보여 준다. 출력으로 결과를 소비하면 콘솔 I/O의 비용이 섞인다. 실제 출력 성능을 측정하는 경우가 아니라면 계산과 출력을 분리해야 한다. [JMH의 dead code elimination 예제](https://github.com/openjdk/jmh/blob/master/jmh-samples/src/main/java/org/openjdk/jmh/samples/JMHSample_08_DeadCode.java)
-
-결과를 반환하더라도 입력이 컴파일 시점에 충분히 예측 가능하면 constant folding이 개입한다. 매번 계산하려던 결과를 미리 구하거나 반복문 밖으로 옮길 여지가 생긴다. JMH의 공식 예제는 `@State` 객체의 변경 가능한 필드에서 입력을 읽는 방법을 설명한다. 업무 입력이 바뀌는 계산을 측정하면서 리터럴 하나만 넣으면 실제 요청과 다른 코드를 측정할 수 있다. [JMH의 constant folding 예제](https://github.com/openjdk/jmh/blob/master/jmh-samples/src/main/java/org/openjdk/jmh/samples/JMHSample_10_ConstantFold.java)
-
-같은 JVM에서 A와 B를 차례로 실행하는 것도 실행 순서의 영향을 받는다. 앞선 측정이 남긴 타입 프로파일이 다음 측정의 컴파일에 영향을 줄 수 있기 때문이다. JMH의 fork는 별도 JVM 프로세스에서 실행해 이 영향을 줄인다. warmup은 각 프로세스 안에서 코드 경로를 준비하는 역할이므로 fork와 같은 설정이 아니다. [JMH의 프로파일 혼합과 fork 예제](https://github.com/openjdk/jmh/blob/master/jmh-samples/src/main/java/org/openjdk/jmh/samples/JMHSample_12_Forking.java)
-
-측정 횟수와 warmup 횟수에 모든 코드에 통하는 정답은 없다. iteration별 결과가 계속 움직이는지, fork 사이의 차이가 큰지, 입력이 실제 호출 형태를 반영하는지를 확인해야 한다. JMH 결과도 정해진 조건에서의 작은 코드 구간을 설명한다. 그 수치를 HTTP 요청 전체의 지연으로 바꾸려면 DB 대기와 네트워크를 포함한 별도 측정이 필요하다.
-
-## 문자열 연결 팁에도 컴파일 조건이 있다
-
-문자열의 `+`를 발견할 때마다 `StringBuilder`로 바꾸는 규칙은 컴파일러의 현재 동작을 생략한다. JDK 9의 JEP 280은 문자열 연결을 `invokedynamic`으로 표현하는 방향을 도입했다. `StringConcatFactory`는 알려진 인자의 타입과 개수 등을 바탕으로 연결 동작을 구성한다. 소스의 `+` 개수와 중간 객체의 개수가 일대일로 대응한다고 가정할 수 없다. [StringConcatFactory 문서](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/invoke/StringConcatFactory.html), [JEP 280 도입에 관한 OpenJDK 릴리스 문서](https://docs.redhat.com/en/documentation/red_hat_build_of_openjdk/17/html/release_notes_for_red_hat_build_of_openjdk_17.0.14/rn_openjdk-17014-features_openjdk)
-
-이 변화가 반복문에서 문자열을 누적하는 모든 형태의 비용을 없애지는 않는다. 길어지는 문자열에 매번 내용을 덧붙이는 코드는 누적 길이에 따른 할당과 복사 비용을 확인해야 한다. 이런 용도에서는 하나의 `StringBuilder`에 순차적으로 추가하는 형태가 비교 대상이 된다. 짧은 연결식 하나와 긴 누적 반복문은 같은 측정 대상으로 취급하지 않는다.
-
-JVM 버전만 확인하는 것으로도 부족하다. 같은 런타임에서 실행해도 어떤 컴파일러와 target으로 `.class`를 만들었는지에 따라 바이트코드 형태가 달라질 수 있다. 문자열 연결의 비용을 비교한다면 생성한 바이트코드를 먼저 확인한다. 같은 입력 길이와 문자 구성으로 할당량과 실행 시간을 함께 측정한다. Kotlin 코드에도 Java 컴파일러의 결과를 그대로 가정하지 않고 해당 Kotlin 컴파일 결과를 확인한다.
-
-## 실행 조건을 기록한 뒤 업무 경로로 돌아가기
-
-성능 비교에는 JDK 배포판과 버전, JVM 옵션, CPU·메모리 제한을 남긴다. 시작 직후를 측정했는지, warmup 뒤를 측정했는지와 입력 분포도 함께 적는다. 이 조건들이 달라지면 동일한 소스 코드에서도 생성한 기계어와 실제 대기 시간이 달라질 수 있다.
-
-본문에서 실행으로 확인한 범위는 `HelloLoop`의 컴파일 결과, 지역변수 슬롯과 열 번의 출력이다. JIT 인라이닝 비율, 할당 제거 여부, `StringBuilder` 전환의 성능 차이는 측정하지 않았다. 이 값들은 설명한 최적화가 존재한다는 사실에서 자동으로 따라오지 않는다.
-
-작은 계산의 실행 구조를 확인한 뒤에는 요청이 완료되는 조건으로 범위를 넓혀야 한다. [다음 글](/backend/transfer-performance/03-transfer-contract/)에서는 송금 요청이 성공했다는 응답과 실제 잔액 변경의 관계를 다룬다. 메서드 하나의 실행 시간을 줄여도 업무 결과가 늦게 확정되거나 중복 반영된다면, 사용자가 기다리는 요청을 올바르게 처리했다고 볼 수 없다.
-
-## 용어와 확인 위치
-
-| 용어 | 이 글에서 가리키는 대상 | 확인 위치 |
-|---|---|---|
-| 바이트코드 | JVM 명령으로 표현한 클래스의 코드 | 소스, 바이트코드, 기계어의 역할 |
-| 프레임 | 한 번의 메서드 호출에 필요한 실행 상태 | 호출 스택과 프레임 안의 스택 |
-| 지역변수 슬롯 | 프레임 안의 인자와 지역변수를 저장하는 위치 | 반복문을 컴파일한 실제 바이트코드 |
-| 피연산자 스택 | 현재 메서드의 명령에 필요한 값을 넣고 꺼내는 공간 | 피연산자 스택에서 이동하는 값 |
-| JIT | 실행 중 바이트코드를 기계어로 컴파일하는 기능 | 실행 프로파일에 의존하는 JIT |
-| 인라이닝 | 호출할 메서드 내용을 호출 지점에 포함하는 최적화 | 실행 프로파일에 의존하는 JIT |
-| deoptimization | 적용했던 전제를 사용할 수 없을 때 실행 상태를 복원하는 전환 | 실행 프로파일에 의존하는 JIT |
-| scalar replacement | 객체의 필드를 개별 값처럼 다루어 할당을 제거하는 최적화 | 객체 할당과 풀링에 붙는 조건 |
-| fork | 벤치마크를 실행할 별도 JVM 프로세스 | 측정 코드도 컴파일 대상이다 |
+수수료 호출이 인라인됐다는 로그가 있어도 송금 한 건이 언제 끝났는지는 여전히 모른다. 그 시간에는 잔액을 기록하고 송금을 확정하기까지의 대기도 들어간다. [다음 글에서는 송금 성공을 언제 약속할 수 있는지 살펴본다.](/backend/transfer-performance/03-transfer-contract/)

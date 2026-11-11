@@ -1,71 +1,45 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 650" role="img" aria-labelledby="title desc">
-  <title id="title">실행 프로파일과 가정 무효화에 따른 JIT 실행 경로</title>
-  <desc id="desc">프로파일 수집 뒤 컴파일한 기계어를 실행한다. 전제가 무효화된 경우 deoptimization으로 실행 상태를 복원하고 이어서 실행한다. 새 프로파일에 따라 재컴파일할 수 있다. 화살표는 가능한 전환 순서이며 실제 측정 시간을 표현하지 않는다. 애니메이션이 꺼져도 모든 단계와 조건이 표시된다.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 425" role="img" aria-labelledby="title desc">
+  <title id="title">같은 호출 위치를 두 JVM이 컴파일한 결과</title>
+  <desc id="desc">FeeDemo.quote의 바이트코드 오프셋 2에 FeePolicy.fee 인터페이스 호출이 있다. 두 JVM 모두 레벨 3에서는 그 구현을 인라인하지 않았다. 레벨 4에서 정률 수수료만 받은 JVM은 같은 위치에 RateFee.fee를 인라인했고, 정액 수수료만 받은 JVM은 FlatFee.fee를 인라인했다. 두 로그의 @ 2가 바이트코드의 위치 2를 가리킨다.</desc>
   <style>
-    text { font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif; fill: #1c2738; font-size: 22px; }
-    .heading { font-size: 32px; font-weight: 750; }
-    .label { font-size: 24px; font-weight: 700; }
-    .muted { font-size: 20px; fill: #58677b; }
-    .box { fill: #f4f7fc; stroke: #cdd8e8; stroke-width: 2; }
-    .conditional { fill: #fff5ec; stroke: #e9b783; stroke-width: 2; }
-    .focus { fill: none; stroke: #2862ce; stroke-width: 4; opacity: 0; }
-    @media (prefers-reduced-motion: no-preference) {
-      .focus { animation: focus 18s linear infinite; }
-      .f1 { animation-delay: -15s; }
-      .f2 { animation-delay: -12s; }
-      .f3 { animation-delay: -9s; }
-      .f4 { animation-delay: -6s; }
-      .f5 { animation-delay: -3s; }
-    }
-    @keyframes focus { 0%, 13% { opacity: 1; } 16.66%, 100% { opacity: 0; } }
-    @media (prefers-reduced-motion: reduce) { .focus { animation: none; opacity: 0; } }
+    text { font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif; fill: #1c2738; }
+    .title { font-size: 24px; font-weight: 750; letter-spacing: -.7px; }
+    .label { font-size: 18px; font-weight: 600; fill: #40576a; }
+    .code text { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 20px; }
+    .offset { font-weight: 700; fill: #194f86; }
+    .code .result { font-size: 18.5px; font-weight: 650; fill: #175f56; }
+    .note { font-size: 17px; fill: #43576a; }
   </style>
-  <defs>
-    <marker id="arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M1 1L10 6L1 11" fill="none" stroke="#7b8da6" stroke-width="2"/></marker>
-  </defs>
-  <rect width="960" height="650" rx="24" fill="#fff"/>
-  <text x="36" y="55" class="heading">실행 중 바뀔 수 있는 컴파일 전제</text>
-  <text x="36" y="92" class="muted">HotSpot에서 가능한 전환 경로: 세부 컴파일 단계는 생략</text>
-  <g fill="none" stroke="#7b8da6" stroke-width="3" marker-end="url(#arrow)">
-    <path d="M308 208H344"/>
-    <path d="M624 208H660"/>
-    <path d="M802 278V374"/>
-    <path d="M664 448H628"/>
-    <path d="M348 448H312"/>
+  <rect width="500" height="425" fill="#fff"/>
+  <text x="20" y="35" class="title">같은 호출 위치를 두 JVM이 컴파일한 결과</text>
+
+  <rect x="19" y="55" width="462" height="82" rx="9" fill="#f4f7fb" stroke="#c9d6e3"/>
+  <text x="34" y="82" class="label">FeeDemo.quote의 바이트코드</text>
+  <rect x="33" y="96" width="38" height="28" rx="5" fill="#dceafe"/>
+  <g class="code">
+    <text x="39" y="117" class="offset">2:</text>
+    <text x="82" y="117">invokeinterface</text>
+    <text x="276" y="117">FeePolicy.fee</text>
   </g>
-  <rect x="32" y="138" width="276" height="140" rx="18" class="box"/>
-  <rect x="348" y="138" width="276" height="140" rx="18" class="box"/>
-  <rect x="664" y="138" width="264" height="140" rx="18" class="box"/>
-  <rect x="664" y="378" width="264" height="140" rx="18" class="conditional"/>
-  <rect x="348" y="378" width="276" height="140" rx="18" class="box"/>
-  <rect x="32" y="378" width="276" height="140" rx="18" class="box"/>
-  <rect x="32" y="138" width="276" height="140" rx="18" class="focus f0"/>
-  <rect x="348" y="138" width="276" height="140" rx="18" class="focus f1"/>
-  <rect x="664" y="138" width="264" height="140" rx="18" class="focus f2"/>
-  <rect x="664" y="378" width="264" height="140" rx="18" class="focus f3"/>
-  <rect x="348" y="378" width="276" height="140" rx="18" class="focus f4"/>
-  <rect x="32" y="378" width="276" height="140" rx="18" class="focus f5"/>
-  <text x="54" y="182" class="label">1. 프로파일 수집</text>
-  <text x="54" y="220" class="muted">호출 타입·실행 경로</text>
-  <text x="54" y="252" class="muted">빈도 등의 정보</text>
-  <text x="370" y="182" class="label">2. JIT 컴파일</text>
-  <text x="370" y="220" class="muted">인라이닝 등 적용</text>
-  <text x="370" y="252" class="muted">전제에 맞춘 코드 생성</text>
-  <text x="686" y="182" class="label">3. 기계어 실행</text>
-  <text x="686" y="220" class="muted">가드·의존 관계로</text>
-  <text x="686" y="252" class="muted">전제를 확인</text>
-  <text x="36" y="328" class="muted">전제가 유지되면 기계어 실행을 이어간다.</text>
-  <text x="585" y="329" class="muted">전제가 무효화된 경우</text>
-  <text x="686" y="422" class="label">4. deoptimization</text>
-  <text x="686" y="460" class="muted">실행 상태 복원</text>
-  <text x="686" y="492" class="muted">인터프리터 등으로 전환</text>
-  <text x="370" y="422" class="label">5. 실행·정보 수집</text>
-  <text x="370" y="460" class="muted">프로그램 의미를 유지</text>
-  <text x="370" y="492" class="muted">새 실행 경로의 정보</text>
-  <text x="54" y="422" class="label">6. 재컴파일 가능</text>
-  <text x="54" y="460" class="muted">새 프로파일에 맞춰</text>
-  <text x="54" y="492" class="muted">컴파일 여부를 판단</text>
-  <path d="M36 560H924" stroke="#d6deeb"/>
-  <text x="36" y="597" class="muted">전환 간격과 속도는 실측값이 아니다. 모든 메서드가 이 경로를 거치지는 않는다.</text>
-  <text x="36" y="628" class="muted">새 타입을 만났을 때의 동작은 생성한 코드와 가드에 따라 달라진다.</text>
+
+  <text x="20" y="170" class="note">레벨 3에서는 두 JVM 모두 이 호출을 인라인하지 않았다.</text>
+  <path d="M29 185V342 M29 223H47 M29 342H47" fill="none" stroke="#91a5b4" stroke-width="2"/>
+
+  <rect x="48" y="190" width="433" height="87" rx="9" fill="#f5faf8" stroke="#bfd6cc"/>
+  <text x="63" y="219" class="label">정률 수수료만 호출한 JVM · 레벨 4</text>
+  <rect x="63" y="234" width="49" height="28" rx="5" fill="#dceafe"/>
+  <g class="code">
+    <text x="69" y="255" class="offset">@ 2</text>
+    <text x="126" y="255">RateFee::fee</text>
+    <text x="297" y="255" class="result">inline (hot)</text>
+  </g>
+
+  <rect x="48" y="308" width="433" height="87" rx="9" fill="#f5faf8" stroke="#bfd6cc"/>
+  <text x="63" y="337" class="label">정액 수수료만 호출한 JVM · 레벨 4</text>
+  <rect x="63" y="352" width="49" height="28" rx="5" fill="#dceafe"/>
+  <g class="code">
+    <text x="69" y="373" class="offset">@ 2</text>
+    <text x="126" y="373">FlatFee::fee</text>
+    <text x="297" y="373" class="result">inline (hot)</text>
+  </g>
 </svg>
