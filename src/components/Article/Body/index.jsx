@@ -4,6 +4,8 @@ import mediumZoom from "medium-zoom"
 import mermaid from "mermaid"
 
 import Toc from "./Toc"
+import prepareDiagrams from "./prepareDiagrams.mjs"
+import "../../../series-reader/diagram.css"
 import StyledMarkdown from "./StyledMarkdown"
 import PrismTheme from "./PrismTheme"
 import GoogleAdvertise from "components/GoogleAdsense"
@@ -32,9 +34,18 @@ const Body = ({ html, slug }) => {
   const ref = useRef(null)
 
   useEffect(() => {
-    if (!toc.length) return
-    const target = toc.find(heading => `#${heading.id}` === window.location.hash)
-    if (target) document.getElementById(target.id)?.scrollIntoView()
+    const scrollToFragment = () => {
+      const hash = window.location.hash.slice(1)
+      if (!hash) return
+      const target = document.getElementById(hash)
+      if (target && ref.current?.contains(target)) target.scrollIntoView()
+    }
+    const frame = window.requestAnimationFrame(scrollToFragment)
+    window.addEventListener("hashchange", scrollToFragment)
+    return () => {
+      window.cancelAnimationFrame(frame)
+      window.removeEventListener("hashchange", scrollToFragment)
+    }
   }, [toc])
 
   const zoom = useMemo(() => {
@@ -46,14 +57,34 @@ const Body = ({ html, slug }) => {
   }, [theme.colors.zoomBackground])
 
   const renderMermaid = useCallback(async () => {
-    const codeBlocks = document.querySelectorAll(
-      "#article-body pre code.language-mermaid"
-    )
+    const codeBlocks = ref.current.querySelectorAll("pre code.language-mermaid")
     if (codeBlocks.length === 0) return
 
     mermaid.initialize({
       startOnLoad: false,
-      theme: theme.name === "dark" ? "dark" : "default",
+      theme: "base",
+      themeVariables: {
+        background: "#ffffff",
+        primaryColor: "#f1f6ff",
+        primaryTextColor: "#101d35",
+        primaryBorderColor: "#6187d2",
+        secondaryColor: "#ffffff",
+        secondaryBorderColor: "#88a1c5",
+        tertiaryColor: "#f8faff",
+        tertiaryBorderColor: "#b5c8e8",
+        lineColor: "#435f91",
+        edgeLabelBackground: "#ffffff",
+        actorBkg: "#f1f6ff",
+        actorBorder: "#6187d2",
+        actorTextColor: "#101d35",
+        actorLineColor: "#88a1c5",
+        signalColor: "#435f91",
+        signalTextColor: "#101d35",
+        noteBkgColor: "#edf3ff",
+        noteBorderColor: "#88a1c5",
+        noteTextColor: "#101d35",
+        fontFamily: 'Pretendard, "Apple SD Gothic Neo", sans-serif',
+      },
     })
 
     for (let i = 0; i < codeBlocks.length; i++) {
@@ -74,6 +105,12 @@ const Body = ({ html, slug }) => {
         const wrapper = document.createElement("div")
         wrapper.className = "mermaid-diagram"
         wrapper.innerHTML = svg
+        wrapper.tabIndex = 0
+        wrapper.setAttribute("role", "region")
+        wrapper.setAttribute("aria-label", "본문 다이어그램")
+        const chart = wrapper.querySelector("svg")
+        const width = chart?.viewBox.baseVal.width
+        if (width) wrapper.style.setProperty("--chart-width", `${Math.ceil(width * 0.9)}px`)
         pre.replaceWith(wrapper)
       } catch {
         // 렌더링 실패 시 코드블록 유지.
@@ -85,9 +122,10 @@ const Body = ({ html, slug }) => {
         if (orphan) orphan.remove()
       }
     }
-  }, [theme.name])
+  }, [])
 
   useEffect(() => {
+    const unbindDiagrams = prepareDiagrams(ref.current, window)
     ref.current.querySelectorAll("table").forEach(table => {
       if (table.parentElement.classList.contains("table-scroll")) return
       const scroll = document.createElement("div")
@@ -103,6 +141,7 @@ const Body = ({ html, slug }) => {
       if (!heading.id) heading.id = `article-section-${index + 1}`
       return { id: heading.id, text: heading.textContent, depth: heading.tagName.slice(1) }
     }))
+    return unbindDiagrams
   }, [html])
 
   useEffect(() => {
@@ -110,7 +149,7 @@ const Body = ({ html, slug }) => {
 
     if (zoom) {
       zoom.detach()
-      zoom.attach("#article-body img:not(.no-zoom)")
+      zoom.attach("#article-body img:not(.no-zoom, object img)")
     }
 
     return () => {

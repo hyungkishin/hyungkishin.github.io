@@ -34,7 +34,7 @@ const Theme = css`
 
   code[class*="language-"],
   pre[class*="language-"] {
-    background-color: #f7f6f3;
+    background-color: #f1f6ff;
     color: hsl(230, 8%, 24%);
   }
 
@@ -56,7 +56,7 @@ const Theme = css`
   .token.comment,
   .token.prolog,
   .token.cdata {
-    color: hsl(230, 4%, 64%);
+    color: #54637b;
   }
 
   .token.doctype,
@@ -175,7 +175,7 @@ const Theme = css`
 
   .language-markdown .token.blockquote.punctuation,
   .language-markdown .token.hr.punctuation {
-    color: hsl(230, 4%, 64%);
+    color: #54637b;
     font-style: italic;
   }
 

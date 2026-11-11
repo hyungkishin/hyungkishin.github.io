@@ -13,7 +13,7 @@ const GlobalStyles = createGlobalStyle`
     --line: ${p => p.theme.colors.border};
     --surface: ${p => p.theme.colors.background};
     --accent: ${p => p.theme.colors.accent};
-    --cover: ${p => p.theme.name === "dark" ? "#193831" : "#e4efe9"};
+    --on-accent: ${p => p.theme.name === "dark" ? "#101929" : "#ffffff"};
     color-scheme: ${p => p.theme.name};
     margin: 0;
     background: var(--paper);

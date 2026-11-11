@@ -6,11 +6,11 @@ import { sortSeriesPosts } from "utils/seriesRules"
 
 const Collection = styled.section`
   width: min(100%, 790px);
-  margin: clamp(18px, 4vw, 56px) auto 64px;
+  margin: clamp(18px, 4vw, 46px) auto 64px;
   word-break: keep-all;
   overflow-wrap: anywhere;
   > header {
-    padding-bottom: 26px;
+    padding-bottom: 23px;
     border-bottom: 1px solid ${p => p.theme.colors.border};
   }
   > header a { color: ${p => p.theme.colors.accent}; font-size: 14px; text-underline-offset: 3px; }
@@ -20,9 +20,10 @@ const Collection = styled.section`
     line-height: 1.25;
     font-weight: 750;
     letter-spacing: -.045em;
-    margin: 16px 0 11px;
+    margin: 14px 0 12px;
+    text-wrap: balance;
   }
-  > header p { font-size: 17px; line-height: 1.7; color: ${p => p.theme.colors.secondaryText}; }
+  > header p { font-size: 17px; line-height: 1.75; color: ${p => p.theme.colors.secondaryText}; }
   small { display: block; margin-top: 15px; color: ${p => p.theme.colors.tertiaryText}; font-size: 14px; }
 `
 

@@ -70,8 +70,8 @@ module.exports = {
         short_name: title,
         description: description,
         start_url: `/`,
-        background_color: `#f8f9f7`,
-        theme_color: `#126756`,
+        background_color: `#ffffff`,
+        theme_color: `#2455df`,
         display: `standalone`,
         icon: `src/images/journal-icon.png`,
       },
@@ -89,6 +89,7 @@ module.exports = {
         footnotes: true,
         gfm: true,
         plugins: [
+          `gatsby-remark-diagram-anchors`,
           {
             resolve: `gatsby-remark-images`,
             options: {

@@ -3,12 +3,11 @@ import styled from "styled-components"
 const StyledMarkdown = styled.div`
   & {
     font-size: clamp(17px, 1.3vw, 18px);
-    color: ${props => props.theme.colors.text};
-    line-height: 1.88;
+    color: ${props => props.theme.colors.secondaryText};
+    line-height: 1.85;
     word-break: keep-all;
     overflow-wrap: anywhere;
-    letter-spacing: -0.01em;
-
+    letter-spacing: -0.012em;
   }
 
   & h1:first-child,
@@ -29,7 +28,8 @@ const StyledMarkdown = styled.div`
     margin-bottom: 16px;
   }
 
-  & > p { margin-bottom: 1.35em; }
+  & > p { margin-bottom: 1.25em; }
+  & > p:first-child, & strong { color: ${props => props.theme.colors.text}; }
   & :is(h1, h2, h3, h4) { scroll-margin-top: 90px; }
 
   & h1,
@@ -50,7 +50,8 @@ const StyledMarkdown = styled.div`
 
   & h2 {
     font-size: clamp(24px, 2.4vw, 31px);
-    margin: 2.05em 0 .65em;
+    margin: 2.15em 0 .65em;
+    text-wrap: balance;
     line-height: 1.42;
     letter-spacing: -.035em;
   }
@@ -95,7 +96,7 @@ const StyledMarkdown = styled.div`
 
     & p {
       color: ${props => props.theme.colors.secondaryText};
-      font-style: italic;
+      font-style: normal;
     }
   }
 
@@ -234,7 +235,7 @@ const StyledMarkdown = styled.div`
   & :not(pre) > code {
     padding: .09em .27em;
     font: .87em/1.5 "SFMono-Regular", Consolas, monospace;
-    color: ${props => props.theme.colors.text};
+    color: ${props => props.theme.colors.inlineCode};
     background: ${props => props.theme.colors.inlineCodeBackground};
     border-radius: 3px;
     overflow-wrap: anywhere;
@@ -289,13 +290,18 @@ const StyledMarkdown = styled.div`
     margin: 20px 0 26px;
     border: 1px solid ${props => props.theme.colors.border};
     border-radius: 7px;
-    line-height: 1.65;
+    line-height: 1.72;
+    tab-size: 4;
+    overscroll-behavior-x: contain;
     font-size: 14px;
+    color: ${props => props.theme.colors.text};
     background-color: ${props => props.theme.colors.background};
   }
   & pre code, & pre code[class*="language-"] {
     font: inherit;
     font-family: "SFMono-Regular", Consolas, monospace;
+    white-space: pre;
+    color: inherit;
     background: none;
   }
 
@@ -319,7 +325,7 @@ const StyledMarkdown = styled.div`
     cursor: zoom-in;
   }
 
-  & figcaption {
+  & :not(.diagram) > figcaption {
     margin: .55rem 0 1.7rem;
     color: ${props => props.theme.colors.tertiaryText};
     font-size: .84rem;
@@ -348,12 +354,21 @@ const StyledMarkdown = styled.div`
   & .mermaid-diagram {
     margin-top: 0;
     margin-bottom: 32px;
-    text-align: center;
+    padding: 14px;
+    border: 1px solid ${props => props.theme.colors.border};
+    border-radius: 10px;
+    background: #fff;
+    color-scheme: light;
+    color: #101d35;
     overflow-x: auto;
+    overscroll-behavior-x: contain;
 
     svg {
-      max-width: 100%;
+      display: block;
+      min-width: var(--chart-width, 0px);
+      width: 100%;
       height: auto;
+      margin-inline: auto;
     }
   }
 `

@@ -29,7 +29,7 @@ async function fixture(t) {
     const html = '<h2 id="original-heading">측정 조건</h2><p>실행으로 확인한 범위만 주장한다.</p>'
       + '<p><a href="#original-heading">같은 절로 돌아가기</a></p>'
       + '<h2>해석의 한계</h2><p>운영 결과로 확대하지 않는다.</p>'
-      + (index === 1 ? '<p><img src="/static/01-stack-machine-f403285c3ec9eb52068d1448cba586f5.svg" alt="JVM 값의 이동"></p>'
+      + (index === 1 ? '<p><img id="diagram-01-stack-machine" src="/static/01-stack-machine-f403285c3ec9eb52068d1448cba586f5.svg" alt="JVM 값의 이동"></p>'
         + '<p><a href="./evidence/HelloLoop.java">재현 소스</a></p>' : '');
     await writeFile(path.join(dataDir, 'page-data.json'), JSON.stringify({
       path: slugs[index], result: { data: { markdownRemark: {
@@ -107,13 +107,31 @@ test('SVG를 별도 문서로 연결하고 재현 파일과 자체 자산만 복
   assert.equal(document.querySelector('.diagram-expand').getAttribute('target'), '_blank');
   assert.equal(document.querySelector('a[href$="HelloLoop.java"]').getAttribute('href'), `${slugs[1]}evidence/HelloLoop.java`);
   assert.match(await readFile(path.join(paths.outputDir, slugs[1], 'evidence/HelloLoop.java'), 'utf8'), /class HelloLoop/);
-  assert.match(await readFile(path.join(paths.outputDir, slugs[1], '01-stack-machine.svg'), 'utf8'), /viewBox="0 0 960 620"/);
+  const source = path.join(projectRoot, 'contents/posts', slugs[1], '01-stack-machine.svg');
+  assert.deepEqual(await readFile(path.join(paths.outputDir, slugs[1], '01-stack-machine.svg')), await readFile(source));
   for (const element of document.querySelectorAll('script[src], link[rel="stylesheet"]')) {
     const url = element.getAttribute('src') || element.getAttribute('href');
     assert.ok(url.startsWith('/backend/transfer-performance/assets/'), url);
     await readFile(path.join(paths.outputDir, url));
   }
   assert.equal(document.querySelector('[src*="gatsby"], [href*="app-data"]'), null);
+});
+
+test('시리즈 색인의 재생 가능한 그림에서 원문 속 같은 그림으로 이동한다', async t => {
+  const paths = await fixture(t);
+  const result = runBuild(paths);
+  assert.equal(result.status, 0, result.stderr);
+  const hub = await page(paths, '/backend/transfer-performance/');
+  const preview = hub.querySelector('.series-preview');
+  assert.ok(preview?.querySelector('object[data-animated="true"]'));
+  assert.ok(preview.querySelector('.diagram-toggle'));
+  const link = preview.querySelector('a[href*="#diagram-"]');
+  assert.equal(link.getAttribute('href'), slugs[1] + '#diagram-01-stack-machine');
+
+  const chapter = await page(paths, slugs[1]);
+  const figure = chapter.getElementById(new URL(link.getAttribute('href'), 'https://hyungkishin.github.io').hash.slice(1));
+  assert.equal(preview.querySelector('object').getAttribute('data'), figure.querySelector('object').getAttribute('data'));
+  assert.equal(figure.querySelector('.diagram-zoom').getAttribute('aria-controls'), figure.querySelector('.diagram-frame').id);
 });
 
 test('누락한 편이 있으면 일부 시리즈를 발행하지 않고 실패한다', async t => {
@@ -139,6 +157,21 @@ function readerFixture(reducedMotion = false) {
   dom.window.matchMedia = () => ({ matches: reducedMotion, addEventListener() {} });
   return { dom, svgDocument, animation, object, button: dom.window.document.querySelector('button') };
 }
+
+test('일반 글의 그림 URL은 빌드 해시가 달라져도 같은 ID를 유지하고 기존 앵커를 보존한다', async () => {
+  const { default: prepareDiagrams } = await import('../src/components/Article/Body/prepareDiagrams.mjs');
+  const source = '/static/01-first-paint-b689ab78528740539aa165e75a0d8b55.svg';
+  const dom = new JSDOM(`<main><p id="old-name"><img id="diagram-01-first-paint" src="${source}" alt="첫 화면이 나타나는 시간"></p><p><img src="/photo.jpg" alt="화면 캡처"></p></main>`);
+  const main = dom.window.document.querySelector('main');
+  const cleanup = prepareDiagrams(main, dom.window);
+  const figure = main.querySelector('#diagram-01-first-paint');
+  assert.equal(figure.querySelector('object').getAttribute('data'), source);
+  assert.equal(figure.querySelector('.diagram-expand').getAttribute('href'), source);
+  assert.equal(main.querySelectorAll('#diagram-01-first-paint').length, 1);
+  assert.ok(main.querySelector('#old-name'));
+  assert.ok(main.querySelector('p > img[src="/photo.jpg"]'));
+  cleanup();
+});
 
 test('그림 버튼이 SVG 애니메이션을 멈추고 다시 재생한다', async () => {
   const reader = await import('../src/series-reader/reader.mjs');
@@ -174,6 +207,24 @@ test('모션 감소 설정에서는 정지로 시작하고 명시적 재생만 �
   assert.equal(animation.playState, 'running');
   assert.match(svgDocument.querySelector('style').textContent, /@media all/);
   assert.match(svgDocument.querySelector('style').textContent, /@media not all/);
+});
+
+test('그림을 확대하면 키보드로 도판을 탐색하고 Escape로 원래 크기로 돌아온다', async () => {
+  const { initReader } = await import('../src/series-reader/reader.mjs');
+  const dom = new JSDOM('<figure class="diagram"><div class="diagram-frame"></div><button class="diagram-zoom" hidden aria-expanded="false">그림 확대</button></figure>', { pretendToBeVisual: true });
+  const { document, KeyboardEvent } = dom.window;
+  initReader(document, dom.window);
+  const button = document.querySelector('button');
+  const frame = document.querySelector('.diagram-frame');
+  assert.equal(button.hidden, false);
+  button.click();
+  assert.equal(button.getAttribute('aria-expanded'), 'true');
+  assert.equal(frame.getAttribute('tabindex'), '0');
+  assert.equal(document.activeElement, frame);
+  frame.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  assert.equal(button.getAttribute('aria-expanded'), 'false');
+  assert.equal(frame.hasAttribute('tabindex'), false);
+  assert.equal(document.activeElement, button);
 });
 
 test('읽기 진행률은 문서의 실제 스크롤 범위로 계산하고 백분율 범위를 넘지 않는다', async () => {

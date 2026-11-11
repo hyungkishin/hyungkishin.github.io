@@ -4,8 +4,8 @@ import styled from "styled-components"
 import { author } from "../../../../blog-config"
 
 const Wrapper = styled.header`
-  margin: clamp(18px, 4vw, 56px) 0 26px;
-  padding-bottom: 25px;
+  margin: clamp(18px, 4vw, 46px) 0 24px;
+  padding-bottom: 22px;
   border-bottom: 1px solid ${props => props.theme.colors.border};
 
   > a {
@@ -21,7 +21,7 @@ const Wrapper = styled.header`
     font-size: clamp(30px, 4vw, 46px);
     font-weight: 750;
     line-height: 1.25;
-    letter-spacing: -.045em;
+    letter-spacing: -.05em;
     word-break: keep-all;
     overflow-wrap: anywhere;
     text-wrap: balance;

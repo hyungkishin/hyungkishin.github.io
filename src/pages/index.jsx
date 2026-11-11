@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { graphql, Link } from "gatsby"
-import { FiArrowRight, FiArrowUpRight, FiBookOpen } from "react-icons/fi"
+import { FiActivity, FiArrowRight, FiBox, FiChevronRight, FiLayers } from "react-icons/fi"
+import TransferFlow from "components/TransferFlow"
 import Layout from "components/Layout"
 import SEO from "components/SEO"
 import ReadingLink from "components/ReadingLink"
@@ -10,6 +11,11 @@ import { groupPostsBySeries } from "utils/seriesRules"
 import { title, description, siteUrl } from "../../blog-config"
 
 const batchSize = 10
+const illustratedPosts = [
+  { slug: "/backend/transfer-performance/02-jvm-execution/#diagram-01-stack-machine", label: "JVM의 피연산자 스택", Icon: FiLayers },
+  { slug: "/frontend/javascript/value-identity/#diagram-01-reference-identity", label: "Set의 객체 참조", Icon: FiBox },
+  { slug: "/frontend/e-commerce/measure-before-optimizing/#diagram-01-first-paint", label: "브라우저의 첫 페인트", Icon: FiActivity },
+]
 
 export default function BlogIndex({ data }) {
   const posts = data.allMarkdownRemark.nodes
@@ -26,17 +32,25 @@ export default function BlogIndex({ data }) {
       {featured && (
         <section className="cover-story" aria-labelledby="cover-title">
           <div className="cover-copy">
-            <p className="cover-kicker"><FiBookOpen aria-hidden="true" /> 추천 시리즈 <span>· {featured.posts.length}편</span></p>
-            <h1 id="cover-title">{featured.rule.name}</h1>
-            <p className="cover-deck">송금 버튼을 누른 뒤, 돈은 언제 도착할까? JVM이 수수료를 계산하는 순간부터 잔액이 바뀌고 메시지가 전달될 때까지 한 건의 요청을 따라갑니다.</p>
-            <ReadingLink className="cover-link" to={featured.rule.indexSlug}>시리즈 읽기 <FiArrowRight aria-hidden="true" /></ReadingLink>
+            <p className="cover-kicker">{featured.rule.name}<span>{featured.posts.length}편</span></p>
+            <h1 id="cover-title">송금은 언제 <br /><em>끝난 걸까?</em></h1>
+            <p className="cover-deck">서버가 접수를 알린 뒤에도 받는 사람의 잔액은 그대로일 수 있습니다. 수수료 계산부터 입금 확인까지, 송금 한 건의 실행 경로를 따라갑니다.</p>
+            <div className="cover-actions">
+              <ReadingLink className="cover-link" to={featured.posts[0].fields.slug}>첫 편 읽기 <FiArrowRight aria-hidden="true" /></ReadingLink>
+              <ReadingLink className="cover-contents" to={featured.rule.indexSlug}>시리즈 목차</ReadingLink>
+            </div>
           </div>
-          <picture>
-            <source media="(max-width: 600px)" srcSet="/images/transfer-cover-sm.webp" />
-            <img src="/images/transfer-cover.webp" width="1050" height="700" alt="" fetchpriority="high" />
-          </picture>
+          <TransferFlow />
         </section>
       )}
+      <nav className="illustration-index" aria-label="그림으로 읽기">
+        <h2>그림으로 읽기</h2>
+        <ul>{illustratedPosts.map(({ slug, label, Icon }) => (
+          <li key={slug}><ReadingLink to={slug}>
+            <Icon aria-hidden="true" /><span>{label}</span><FiChevronRight aria-hidden="true" />
+          </ReadingLink></li>
+        ))}</ul>
+      </nav>
       <div className="journal-index">
         <section id="posts" aria-labelledby="posts-title">
           <div className="section-title">
@@ -58,8 +72,7 @@ export default function BlogIndex({ data }) {
           <div className="section-title"><h2 id="series-title">시리즈</h2><span>{groups.length}개</span></div>
           <ul>{groups.map(({ rule, posts: parts }) => (
             <li key={rule.id}><ReadingLink to={rule.indexSlug}>
-              <div><span>{parts.length}편</span><strong>{rule.name}</strong></div>
-              <FiArrowUpRight aria-hidden="true" />
+              <strong>{rule.name}</strong><span>{parts.length}편</span>
             </ReadingLink></li>
           ))}</ul>
           <Link className="shelf-tags" to="/tags/">태그로 찾아보기 <FiArrowRight aria-hidden="true" /></Link>

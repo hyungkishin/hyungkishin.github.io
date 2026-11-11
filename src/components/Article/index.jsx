@@ -6,7 +6,7 @@ import Body from "./Body"
 import Footer from "./Footer"
 
 const Article = styled.article`
-  width: min(100%, 688px);
+  width: min(100%, 696px);
   margin-inline: auto;
   min-width: 0;
 `

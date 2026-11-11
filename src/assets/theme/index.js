@@ -1,33 +1,33 @@
 // ---- Accent (light/dark 공유) ----
-const ACCENT = "#126756"
-const ACCENT_HOVER = "#0c5144"
+const ACCENT = "#2455df"
+const ACCENT_HOVER = "#153daf"
 
 // ---- Light ----
-const LIGHT_BG = "#f8f9f7"
-const LIGHT_BG_SOFT = "#eef1ee"
-const LIGHT_CARD = "#f8f9f7"
-const LIGHT_BORDER = "#cfd9d2"
-const LIGHT_BORDER_SOFT = "#dbe2dd"
-const LIGHT_DIVIDER = "#dbe2dd"
+const LIGHT_BG = "#ffffff"
+const LIGHT_BG_SOFT = "#f1f6ff"
+const LIGHT_CARD = "#ffffff"
+const LIGHT_BORDER = "#dce5f2"
+const LIGHT_BORDER_SOFT = "#e2eaf5"
+const LIGHT_DIVIDER = "#e2eaf5"
 
-const LIGHT_TEXT = "#19282b"
-const LIGHT_TEXT_BODY = "#364847"
-const LIGHT_TEXT_MUTED = "#526661"
-const LIGHT_TEXT_FAINT = "#6b7773"
+const LIGHT_TEXT = "#101d35"
+const LIGHT_TEXT_BODY = "#33445e"
+const LIGHT_TEXT_MUTED = "#576984"
+const LIGHT_TEXT_FAINT = "#667790"
 
 // ---- Dark ----
-const DARK_BG = "#142024"
-const DARK_BG_SOFT = "#1e3032"
-const DARK_BORDER = "#3b4f4d"
-const DARK_BORDER_SOFT = "#334644"
-const DARK_DIVIDER = "#334644"
+const DARK_BG = "#101929"
+const DARK_BG_SOFT = "#1b2a44"
+const DARK_BORDER = "#3c4e6c"
+const DARK_BORDER_SOFT = "#2d405e"
+const DARK_DIVIDER = "#2d405e"
 
-const DARK_TEXT = "#fafafa"
-const DARK_TEXT_BODY = "#d4d4d4"
-const DARK_TEXT_MUTED = "#a3a3a3"
-const DARK_TEXT_FAINT = "#737373"
+const DARK_TEXT = "#f4f7ff"
+const DARK_TEXT_BODY = "#cfdbef"
+const DARK_TEXT_MUTED = "#a5b6d1"
+const DARK_TEXT_FAINT = "#92a3bf"
 
-const DARK_ACCENT = "#86d7ba"
+const DARK_ACCENT = "#9ab8ff"
 
 export const light = {
   name: "light",
@@ -72,7 +72,7 @@ export const light = {
     textFieldActivatedBorder: ACCENT,
     tableBackground: LIGHT_BG_SOFT,
     accent: ACCENT,
-    inlineCode: "#245b53",
+    inlineCode: "#244dba",
     zoomBackground: "rgba(255, 255, 255, 0.95)",
     tldrBackground: "#fefce8",
     tldrBorder: "#eab308",
@@ -141,7 +141,7 @@ export const dark = {
     textFieldActivatedBorder: DARK_ACCENT,
     tableBackground: DARK_BG_SOFT,
     accent: DARK_ACCENT,
-    inlineCode: "#a3d8c8",
+    inlineCode: "#acc8ff",
     zoomBackground: "rgba(10, 10, 10, 0.95)",
     tldrBackground: "#422006",
     tldrBorder: "#eab308",

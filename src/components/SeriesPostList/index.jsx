@@ -11,13 +11,13 @@ const List = styled.ol`
     display: grid;
     grid-template-columns: 2.25rem minmax(0, 1fr);
     gap: 16px;
-    padding: 24px 0;
+    padding: 21px 0;
     color: ${p => p.theme.colors.text};
     text-decoration: none;
   }
   span { padding-top: 4px; font-size: 15px; font-variant-numeric: tabular-nums; color: ${p => p.theme.colors.accent}; }
-  h2 { font-size: clamp(18px, 2.1vw, 23px); font-weight: 680; line-height: 1.45; letter-spacing: -.025em; }
-  a:hover h2 { color: ${p => p.theme.colors.accent}; }
+  h2 { font-size: clamp(18px, 2.1vw, 23px); font-weight: 680; line-height: 1.45; letter-spacing: -.035em; }
+  a:hover h2 { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .2em; color: ${p => p.theme.colors.accent}; }
   p { margin: 6px 0 0; color: ${p => p.theme.colors.secondaryText}; line-height: 1.7; font-size: 15px; }
   time { display: block; margin-top: 7px; color: ${p => p.theme.colors.tertiaryText}; font-size: 13px; }
   @media (max-width: 600px) {

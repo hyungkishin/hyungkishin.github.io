@@ -3,11 +3,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { JSDOM } from 'jsdom';
+import { createDiagramFigure } from './diagram.mjs';
 
 const require = createRequire(import.meta.url);
 const React = require('react');
 const { renderToStaticMarkup } = require('react-dom/server');
-const { FiBookOpen, FiMoon, FiSearch, FiSun } = require('react-icons/fi');
+const { FiArrowRight, FiBookOpen, FiMoon, FiSearch, FiSun } = require('react-icons/fi');
 const { author, links, title: siteTitle } = require('../../blog-config.js');
 const icon = component => renderToStaticMarkup(React.createElement(component, { 'aria-hidden': 'true' }));
 const { findSeriesById } = require('../utils/seriesRules.js');
@@ -57,11 +58,9 @@ function createDiagram(document, image, post) {
   const information = svgInformation(post.assets.get(fileName), fileName);
   const label = image.getAttribute('alt') || information.title;
   const url = post.slug + fileName;
-  const figure = document.createElement('figure');
-  figure.className = 'diagram';
-  figure.innerHTML = `<div class="diagram-frame"><object type="image/svg+xml" data="${escapeHtml(url)}" aria-label="${escapeHtml(label)}" style="aspect-ratio:${information.width}/${information.height}"${information.animated ? ' data-animated="true"' : ''}><img src="${escapeHtml(url)}" alt="${escapeHtml(label)}" width="${information.width}" height="${information.height}"></object></div>
-    <figcaption>${escapeHtml(label)}</figcaption><div class="diagram-controls">${information.animated ? '<button type="button" class="diagram-toggle" hidden>애니메이션 멈추기</button>' : ''}<a class="diagram-expand" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">그림 확대<span class="visually-hidden">: 새 탭에서 열기</span></a></div>`;
-  return figure;
+  const stem = 'diagram-' + fileName.slice(0, -4);
+  const id = image.id || (document.getElementById(stem) ? stem + '-' + (document.querySelectorAll('figure.diagram').length + 1) : stem);
+  return createDiagramFigure(document, { ...information, id, url, label });
 }
 
 function prepareArticle(post) {
@@ -109,7 +108,8 @@ function prepareArticle(post) {
     table.replaceWith(wrapper);
     wrapper.append(table);
   });
-  return { html: article.innerHTML, headings };
+  const animated = article.querySelector('object[data-animated="true"]')?.closest('figure');
+  return { html: article.innerHTML, headings, preview: animated && { html: animated.outerHTML, id: animated.id } };
 }
 
 function pageShell({ title, description, slug, content, rule, jsonLd }) {
@@ -122,8 +122,8 @@ function pageShell({ title, description, slug, content, rule, jsonLd }) {
 <meta property="og:title" content="${escapeHtml(title)}"><meta property="og:description" content="${escapeHtml(description)}"><meta property="og:url" content="${escapeHtml(canonical)}"><meta property="og:type" content="${jsonLd ? 'article' : 'website'}"><meta property="og:site_name" content="hyungkishin.blog">
 <meta property="og:image" content="${origin}/og-image.png"><meta name="twitter:card" content="summary_large_image">
 <link rel="alternate" type="application/rss+xml" href="/rss.xml" title="hyungkishin.blog RSS">
-<link rel="icon" href="/icons/icon-48x48.png"><meta name="theme-color" content="#f8f9f7">
-<script>try{const theme=localStorage.getItem('theme');if(theme==='dark'||theme==='light')document.documentElement.dataset.theme=theme}catch{}</script><link rel="stylesheet" href="${assetPath}journal.css"><link rel="stylesheet" href="${assetPath}reader.css"><script type="module" src="${assetPath}reader.mjs"></script>
+<link rel="icon" href="/icons/icon-48x48.png"><meta name="theme-color" content="#ffffff">
+<script>try{const theme=localStorage.getItem('theme');if(theme==='dark'||theme==='light')document.documentElement.dataset.theme=theme}catch{}</script><link rel="stylesheet" href="${assetPath}journal.css"><link rel="stylesheet" href="${assetPath}reader.css"><link rel="stylesheet" href="${assetPath}diagram.css"><script type="module" src="${assetPath}reader.mjs"></script>
 ${jsonLd ? `<script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, '\\u003c')}</script>` : ''}
 </head><body><a class="skip-link" href="#main">본문으로 건너뛰기</a><progress class="reading-progress" max="100" value="0" aria-label="읽은 위치"></progress>
 <header class="journal-header"><div class="journal-bar"><a class="journal-brand" href="/" aria-label="${escapeHtml(siteTitle)} 홈">${icon(FiBookOpen)}${escapeHtml(siteTitle)}</a>
@@ -133,7 +133,7 @@ ${content}
 }
 
 function renderPost(post, index, posts, rule) {
-  const article = prepareArticle(post);
+  const article = post.article;
   const previous = posts[index - 1];
   const next = posts[index + 1];
   const date = post.frontmatter.isoDate || post.frontmatter.date || '';
@@ -157,8 +157,12 @@ ${tagList ? `<ul class="tags" aria-label="글 태그">${tagList}</ul>` : ''}
 }
 
 function renderHub(posts, rule) {
-  const content = `<main id="main" class="reader series-index"><header class="article-header"><a class="series-position" href="/#posts">글 목록</a><h1>${escapeHtml(rule.name)}</h1><p class="series-introduction">${escapeHtml(rule.tagline)}</p><p class="collection-count">연재 ${posts.length}편</p></header>
-<section aria-labelledby="series-contents"><h2 id="series-contents">시리즈 목차</h2><ol class="chapter-list">${posts.map((post, index) => `<li><span class="chapter-number">${String(index + 1).padStart(2, '0')}</span><div><h3><a href="${post.slug}">${escapeHtml(post.title)}</a></h3><p>${escapeHtml(post.excerpt)}</p></div></li>`).join('')}</ol></section></main>`;
+  const featured = posts.find(post => post.slug.endsWith('/02-jvm-execution/'));
+  const diagram = featured?.article.preview;
+  const preview = diagram ? `<section class="series-preview" aria-label="JVM 실행 그림">
+    ${diagram.html}<a class="preview-link" href="${featured.slug}#${escapeHtml(diagram.id)}">JVM 글에서 이 그림 읽기 ${icon(FiArrowRight)}</a></section>` : '';
+  const content = `<main id="main" class="reader series-index"><div class="series-overview"><header class="article-header"><a class="series-position" href="/#series">시리즈 목록</a><h1>${escapeHtml(rule.name)}</h1><p class="series-introduction">${escapeHtml(rule.tagline)}</p><a class="collection-count" href="#series-contents">연재 ${posts.length}편 목차 ${icon(FiArrowRight)}</a></header>
+${preview}</div><section aria-labelledby="series-contents"><h2 id="series-contents">시리즈 목차</h2><ol class="chapter-list">${posts.map((post, index) => `<li><span class="chapter-number">${index + 1}</span><div><h3><a href="${post.slug}">${escapeHtml(post.title)}</a></h3><p>${escapeHtml(post.excerpt)}</p></div></li>`).join('')}</ol></section></main>`;
   return pageShell({ title: rule.name, description: rule.tagline, slug: rule.indexSlug, content, rule });
 }
 
@@ -176,12 +180,13 @@ export async function buildTransferSeries({ publicDir, outputDir, sourceRoot = p
       throw new Error(`글의 본문, 제목, 경로가 올바르지 않습니다: ${slug}`);
     }
     const assets = await readSourceAssets(path.join(sourceRoot, slug));
-    posts.push({ ...post, slug, title: post.frontmatter.title, excerpt: post.frontmatter.description || post.excerpt || '', assets });
+    const chapter = { ...post, slug, title: post.frontmatter.title, excerpt: post.frontmatter.description || post.excerpt || '', assets };
+    posts.push({ ...chapter, article: prepareArticle(chapter) });
   }
   // 모든 입력을 읽고 렌더한 뒤 쓰기 시작해, 누락된 편이 있는 시리즈를 남기지 않는다.
   const pages = posts.map((post, index) => ({ slug: post.slug, html: renderPost(post, index, posts, rule) }));
   pages.unshift({ slug: rule.indexSlug, html: renderHub(posts, rule) });
-  const readerAssets = await Promise.all(['reader.css', 'reader.mjs'].map(async name => [name, await readFile(path.join(readerDirectory, name))]));
+  const readerAssets = await Promise.all(['reader.css', 'reader.mjs', 'diagram.mjs', 'diagram.css'].map(async name => [name, await readFile(path.join(readerDirectory, name))]));
   readerAssets.push(['journal.css', await readFile(path.join(projectRoot, 'src/assets/journal.css'))]);
   for (const page of pages) {
     const directory = path.join(outputDir, page.slug);
