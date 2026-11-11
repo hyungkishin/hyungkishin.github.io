@@ -2,7 +2,7 @@
 title: "5,235건이 사라진 자리, 코드 어느 줄에서 일어났을까요"
 description: "작업 큐가 차면 누가 예외를 받을까? 이벤트 5,235건이 사라진 서비스에서 작업을 제출한 스레드와 실행하는 스레드를 따라갔다."
 date: 2026-05-02
-update: 2026-11-11
+update: 2026-11-12
 tags:
 - Spring
 - ThreadPoolTaskExecutor
@@ -16,8 +16,8 @@ tags:
 
 - `ThreadPoolTaskExecutor`는 큐가 차면 작업을 버립니다. 의도된 동작이에요. `AbortPolicy`가 기본값입니다.
 - `SimpleAsyncTaskExecutor` + `concurrencyLimit`는 큐 자체가 없어요. 대신 caller thread를 막습니다. `ReentrantLock + Condition.await()` 으로요.
-- 이 전략이 성립하는 건 Virtual Thread 덕분입니다. Platform Thread였다면 caller blocking은 thread starvation으로 번져요.
-- `concurrencyLimit = 50` 은 직관이 아니라 Little's Law로 잡혀야 합니다. 외부 latency × concurrency = throughput.
+- 제출자가 가상 스레드면 지원되는 대기 지점에서 운반 스레드를 내놓습니다. 플랫폼 스레드를 쓰는 경우에는 풀에서 대기 중인 스레드 수를 함께 봐야 합니다.
+- Little의 법칙에서 평균 동시 작업 수는 평균 처리율 × 평균 체류 시간입니다. 외부 API의 초당 요청 한도는 별도로 지켜야 합니다.
 
 ## 회고에서 안 본 자리가 어디였을까요
 
@@ -283,389 +283,109 @@ protected void doExecute(Runnable task) {
 }
 ```
 
-큐가 없으니 `RejectedExecutionException`도 없다.
+이 설정은 큐 포화로 인한 거부를 대기로 바꾼다. 종료된 실행기에 제출하면 Spring 6.2.8도 `TaskRejectedException`을 던진다.
 대신 **무한히 스레드를 만들 수 있다는 게 문제**가 된다: 외부 API가 느려지면 스레드가 무한히 누적.
 
 `concurrencyLimit`이 그걸 막는 자리.
 
-### `concurrencyLimit`은 caller를 막는다
+### 작업을 제출한 스레드는 어디서 기다리나
 
-`SimpleAsyncTaskExecutor.execute()`에서 `concurrencyLimit > 0`이면
-
-```java
-// SimpleAsyncTaskExecutor.execute(Runnable task, long startTimeout)
-if (isThrottleActive() && startTimeout > TIMEOUT_IMMEDIATE) {
-    this.concurrencyThrottle.beforeAccess();   // <- 여기서 막힌다
-    try {
-        doExecute(new TaskTrackingRunnable(taskToUse, future));
-    }
-    catch (Throwable ex) {
-        this.concurrencyThrottle.afterAccess();
-        throw new TaskRejectedException("Failed to start execution thread", ex);
-    }
-}
-```
-
-`beforeAccess()`는 부모 클래스 `ConcurrencyThrottleSupport`에 있다.
-
-`ReentrantLock + Condition` 구현은 **Spring 6.1+ 부터** (2023-11 릴리즈). 그 전엔 `synchronized + wait/notify`였다: VT 환경에서 carrier pin이 일어나는 코드. **6.1 이후로 pin 회피 가능해진 게 의미 있다.** 우리 환경(Spring 6.2.8)도 안전 구간.
+Spring 6.2.8의 일반 제출 경로에는 다음 두 호출이 차례로 있다. 한도 검사를 통과해야 작업 스레드가 시작된다.
 
 ```java
-// org.springframework.util.ConcurrencyThrottleSupport (Spring 6.1+)
-private final Lock concurrencyLock = new ReentrantLock();
-private final Condition concurrencyCondition = this.concurrencyLock.newCondition();
-private int concurrencyLimit = UNBOUNDED_CONCURRENCY;
-private int concurrencyCount = 0;
-
-protected void beforeAccess() {
-    if (this.concurrencyLimit > 0) {
-        this.concurrencyLock.lock();
-        try {
-            if (this.concurrencyCount >= this.concurrencyLimit) {
-                onLimitReached();   // <- await()
-            }
-            this.concurrencyCount++;
-        }
-        finally {
-            this.concurrencyLock.unlock();
-        }
-    }
-}
-
-protected void onLimitReached() {
-    while (this.concurrencyCount >= this.concurrencyLimit) {
-        try {
-            this.concurrencyCondition.await();   // <- caller가 여기서 멈춘다
-        }
-        catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-        }
-    }
-}
+this.concurrencyThrottle.beforeAccess();
+doExecute(new TaskTrackingRunnable(taskToUse));
 ```
 
-`Semaphore`가 아니다. `ReentrantLock` + `Condition.await()`.
-효과는 동등하지만 **잡는 자리는 다르다**: Semaphore는 `acquire()`가 막는다. 여기는 `Condition.await()`이 막는다.
+`beforeAccess()`는 락 안에서 진행 중인 작업 수를 비교한다. 제한에 닿으면 기본 구현은 `Condition.await()`로 기다린다. 작업 하나가 끝나 `afterAccess()`에서 카운터를 줄이고 신호를 주면 대기자가 조건을 다시 검사한다. 이 동작을 적용하려면 `rejectTasksWhenLimitReached`가 기본값인 `false`여야 한다. `true`로 바꾸면 초과 제출을 거부한다. 같은 Spring 6.x 안에서도 구현은 다르다. 6.1.0 소스는 모니터의 `wait`를 쓰고 6.2.8은 `ReentrantLock`과 `Condition`을 쓴다. [Spring 6.2.8의 제출과 거부 분기](https://github.com/spring-projects/spring-framework/blob/v6.2.8/spring-core/src/main/java/org/springframework/core/task/SimpleAsyncTaskExecutor.java#L273-L291) · [6.2.8의 대기와 해제](https://github.com/spring-projects/spring-framework/blob/v6.2.8/spring-core/src/main/java/org/springframework/util/ConcurrencyThrottleSupport.java#L111-L180) · [6.1.0의 구현](https://github.com/spring-projects/spring-framework/blob/v6.1.0/spring-core/src/main/java/org/springframework/util/ConcurrencyThrottleSupport.java#L105-L154)
 
-### 정리
+작업이 끝날 때 `TaskTrackingRunnable`이 호출 슬롯을 되돌려준다. 제출 시점과 종료 시점의 카운터를 보면 작업 수가 왜 한도를 넘지 않는지 드러난다.
 
-| 비교 | `ThreadPoolTaskExecutor` (BEFORE) | `SimpleAsyncTaskExecutor` + `concurrencyLimit` (AFTER) |
+```text
+제출   lock → count ≥ limit이면 await → count 증가 → unlock → 작업 시작
+종료   lock → count 감소 → signal → unlock
+```
+
+| 그때 쓰던 설정 | 작업을 받아들일 공간이 없을 때 | 호출자가 보는 것 |
 |---|---|---|
-| 큐 | 유계 큐 (`queueCapacity`) | 없음 |
-| 한도 초과 시 | `RejectedExecutionException` -> 작업 drop | `Condition.await()` -> caller blocking |
-| 작업 운명 | **유실** | 지연 후 실행 |
-| 호출자에게 보이는 것 | 예외 | 호출이 안 돌아옴 |
+| ThreadPoolTaskExecutor + 유계 큐 + AbortPolicy | 제출 시 거부 | TaskRejectedException |
+| SimpleAsyncTaskExecutor + concurrencyLimit + 기본 대기 정책 | 작업이 하나 끝날 때까지 제출자 대기 | 제출 호출이 아직 반환하지 않음 |
 
-큐가 아니라 caller가 막힌다.  
-거부가 아니라 지연이 발생한다.
+이 사고에서는 이전 실행기의 유계 큐가 차면 예외를 처리하지 못해 이벤트가 유실됐다. 바꾼 설정에서는 제출자가 자리가 날 때까지 기다린다. 프로세스가 내려가는 동안 이벤트를 보존하려면 별도의 내구성 있는 저장소가 필요하다.
 
-이건 정합성 보장이 아니다: 회고에서 짚었듯, 유실 자리만 옮긴 것이다.  
-근데 그 옮김이 작동하는 건 다음 절의 이유 때문이다.
+## 3. 플랫폼 스레드와 가상 스레드는 대기 비용이 다르다
+
+플랫폼 스레드를 쓰는 풀에서는 외부 응답이나 동시성 자리를 기다리는 동안에도 작업자가 풀 한 칸을 차지한다. 기다리는 작업이 모든 자리를 차지하고 그 대기를 풀 작업까지 같은 풀에 제출하면 풀 안에서 서로를 기다리는 상황이 생긴다. 가상 스레드에서도 무엇이 기다리는지 봐야 한다. `setVirtualThreads(true)`는 제출한 **작업을 실행할 스레드**를 정한다. 이미 실행 중인 **제출자**가 플랫폼 스레드라면 `beforeAccess()`에서 대기하는 쪽은 여전히 플랫폼 스레드다. [Spring 6.2.8의 스레드 생성](https://github.com/spring-projects/spring-framework/blob/v6.2.8/spring-core/src/main/java/org/springframework/core/task/SimpleAsyncTaskExecutor.java#L330-L350)
+
+가상 스레드가 지원되는 대기 지점에서 중단되면 스케줄러는 운반 스레드(carrier)에 다른 가상 스레드를 올릴 수 있다. 대기가 끝난 가상 스레드는 이전과 다른 운반 스레드에서 재개될 수도 있다. 네트워크 연결이나 외부 API의 용량은 별도로 제한한다. [JEP 444의 스케줄링과 블로킹](https://openjdk.org/jeps/444)
+
+### Spring에서 Continuation.yield까지
+
+이 사례가 사용한 Spring 6.2.8과 JDK 21 계열 소스를 펼치면 대기 호출이 다음 순서로 내려간다. 신호가 이미 왔거나 인터럽트가 걸려 바로 끝나는 길도 있다. 아래는 실제로 대기가 필요한 경우의 경로다.
+
+```text
+SimpleAsyncTaskExecutor.execute
+  ConcurrencyThrottleAdapter.beforeAccess
+    ConcurrencyThrottleSupport.beforeAccess / onLimitReached
+      AbstractQueuedSynchronizer.ConditionObject.await
+        ForkJoinPool.managedBlock / ConditionNode.block
+          LockSupport.park
+            VirtualThread.park
+              yieldContinuation
+                Continuation.yield / yield0
+```
+
+AQS의 `ConditionObject`는 조건 대기열에 현재 스레드를 등록하고 락을 놓는다. `ConditionNode.block()`은 깨울 조건이 생길 때까지 `LockSupport.park()`를 호출한다. 신호를 받은 쪽은 락을 다시 얻고 나서 동시 작업 수를 검사한다. [JDK 21u의 대기 노드](https://github.com/openjdk/jdk21u/blob/jdk-21.0.12%2B7/src/java.base/share/classes/java/util/concurrent/locks/AbstractQueuedSynchronizer.java#L492-L524) · [ConditionObject.await](https://github.com/openjdk/jdk21u/blob/jdk-21.0.12%2B7/src/java.base/share/classes/java/util/concurrent/locks/AbstractQueuedSynchronizer.java#L1728-L1774)
+
+`VirtualThread.park()`는 이미 허가를 받았거나 인터럽트된 상태면 반환한다. 기다려야 하면 `PARKING` 상태에서 continuation 양도를 시도한다. 성공한 스레드는 나중에 재개되어 이 호출에서 돌아온다. 양도가 실패한 경우 다음 분기가 운반 스레드 자체를 재운다.
+
+```java
+if (!yielded) {
+    parkOnCarrierThread(false, 0);
+}
+```
+
+JDK 21u의 `parkOnCarrierThread`는 시간 제한 유무에 따라 `TIMED_PINNED` 또는 `PINNED` 상태를 기록하고 빠져나올 때 `RUNNING`으로 되돌린다. 해당 경로에서 JFR 이벤트의 측정을 시작하고 끝낸다. [VirtualThread.park의 분기](https://github.com/openjdk/jdk21u/blob/jdk-21.0.12%2B7/src/java.base/share/classes/java/lang/VirtualThread.java#L585-L608) · [Continuation.yield 구현](https://github.com/openjdk/jdk21u/blob/jdk-21.0.12%2B7/src/java.base/share/classes/jdk/internal/vm/Continuation.java#L343-L383) · [parkOnCarrierThread와 JFR 기록](https://github.com/openjdk/jdk21u/blob/jdk-21.0.12%2B7/src/java.base/share/classes/java/lang/VirtualThread.java#L660-L696)
+
+### JDK 21과 25에서 같은 코드를 관측한 결과
+
+JDK 21에서는 `synchronized` 안에서 긴 블로킹 작업을 하면 운반 스레드에 고정될 수 있다. JDK 24에 정식 반영된 JEP 491은 모니터를 잡은 가상 스레드도 그 상태로 운반 스레드에서 분리될 수 있게 했다. JDK 25에서는 네이티브 호출이 다시 Java로 들어와 블로킹하는 경로 등이 남아 있다. JFR의 `jdk.VirtualThreadPinned` 이벤트에서 JDK 버전·스택·지속 시간을 함께 본다. JDK 21의 `-Djdk.tracePinnedThreads`는 JDK 24부터 효과가 없다. 모니터를 잡고 외부 응답을 기다리면 JDK 25에서도 같은 락을 기다리는 요청은 지연된다. [JEP 491의 변경 범위와 진단](https://openjdk.org/jeps/491) · [JDK 21과 25에서 직접 실행한 JFR 실험](/backend/transfer-performance/parallel-io/#section-4)
+
+운영에서 기록을 다시 열 때는 `jfr print --events jdk.VirtualThreadPinned recording.jfr`로 이벤트의 스택과 시간을 확인한다. JDK 21의 `-Djdk.tracePinnedThreads=full`은 별도 재현 환경에서 스택을 확인하는 용도다. JFR 설정의 threshold보다 짧은 대기는 기록에서 빠질 수 있다. JDK 25를 조사하면서 21의 이벤트 스택과 같은 원인을 전제하면 대기 자리를 놓친다.
 
 ---
 
-## 3. Virtual Thread가 이 전략을 가능하게 한 이유
+## 4. 동시성 50과 초당 요청 한도
 
-### Platform Thread로 같은 짓을 하면
+Little의 법칙은 관측 창과 시스템 경계가 같은 세 평균값을 연결한다. 평균 진행 건수 `L = λ × W`에서 `λ`는 초당 처리 건수, `W`는 건당 평균 체류 시간(초)이다. 처리율이 초당 100건이고 평균이 0.2초라면 평균 진행 건수는 20건이다. p50이나 p99를 평균 자리에 넣을 수 없다. 20은 관측한 평균이므로 풀의 안전한 상한을 바로 결정해 주지도 않는다. [평균과 풀 크기의 차이](/backend/transfer-performance/01-measurement/)
 
-`concurrencyLimit = 50`을 Platform Thread에서 걸면
+**동시성 한도**는 시작한 뒤 아직 끝나지 않은 호출을 센다. **요청률 한도**는 일정 시간에 시작하는 호출을 제한한다. 동시성을 1로 정해도 응답이 매번 100ms면 한 스레드에서 초당 약 10건이 순차로 시작한다. Slack 같은 목적지의 할당량은 메서드·채널·워크스페이스 범위를 먼저 확인한다. 그 범위의 토큰 버킷으로 시작 속도와 버스트를 관리하고, 별도의 세마포어로 동시에 점유할 연결 수를 제한할 수 있다. [Slack의 메시지 게시 한도](https://docs.slack.dev/apis/web-api/rate-limits/#posting-messages) · [외부 조회의 동시성·속도 제한 예](/backend/transfer-performance/parallel-io/#section-3)
 
-- 50개가 외부 API 호출 중 -> 모두 OS thread에서 blocking I/O
-- 51번째 작업이 들어옴 -> caller thread가 `Condition.await()`에서 멈춤
-- caller thread도 OS thread
+### 같은 실행기를 쓰던 Slack 전송과 Amplitude 적재
 
-배치가 2,100건을 일직선으로 submit한다고 보자.
-51번째부터 모두 caller blocking -> caller thread도 다 OS thread를 점유.
-배치 스레드 자체가 멈춰서 다음 작업을 못 만든다.
+회고에서 50은 "외부 API rate limit이 100이니까 절반"으로 잡은 초기 설정이었다. Slack 메시지 전송 한 건과 Amplitude 이벤트 한 묶음을 같은 작업자 풀에 제출해도, 할당량 적용 단위와 처리 시간은 다를 수 있다. Slack은 채널별 게시 제한과 워크스페이스 제약을 함께 확인한다. Amplitude는 쓰는 API 버전·프로젝트의 이벤트 처리 및 throttling 조건을 확인한다. 이벤트 수와 HTTP 요청 수도 따로 센다. [Slack chat.postMessage](https://docs.slack.dev/reference/methods/chat.postMessage/) · [Amplitude HTTP V2](https://amplitude.com/docs/apis/analytics/http-v2)
 
-OS thread는 비싸다. 일반적으로 200~2,000개가 한계.
-**caller blocking + OS thread = thread starvation의 다른 이름.**
+가령 목표를 각각 0.8건/초와 800건/초로 놓고 평균 외부 호출 시간이 양쪽 모두 0.2초라고 가정해 보자. 평균 진행 건수는 각각 **0.16건과 160건**이다. 이는 계산 예시다. 첫 번째 API의 동시성을 1로 반올림하는 것만으로는 초당 시작 건수를 제한하지 못한다. 반대로 두 번째 숫자를 그대로 풀 크기로 쓰면 지연이 증가했을 때 필요한 대기 시간과 상대의 허용 범위를 놓친다.
 
-### Virtual Thread는 blocking이 다르다
-
-JDK 21+ Virtual Thread
-
-- VT는 **carrier thread**(OS thread) 위에서 실행
-- VT가 blocking I/O / `Condition.await()` 같은 걸 만나면 -> **carrier에서 unmount**
-- carrier는 다른 VT를 실행할 수 있게 풀려남
-- blocking이 끝나면 VT는 다시 schedule되어 carrier 위에 mount
-
-`concurrencyLimit`의 `Condition.await()`도 Loom의 instrumentation 대상.
-caller가 막히면 그 caller의 VT는 unmount된다. carrier는 다른 일을 한다.
-
-### 변태 디깅: 무엇이 unmount를 가능하게 하는가
-
-VT가 blocking을 만났을 때 carrier에서 unmount되려면: 그 blocking 지점이 **JDK가 instrument한 자리**여야 한다. 모든 blocking이 unmount되는 게 아니다.
-
-**Unmount 되는 자리 (안전):**
-- `Object.wait()` (Loom이 가로챔)
-- `Thread.sleep()`
-- `LockSupport.park()` / `parkNanos()`
-- `java.util.concurrent.locks.ReentrantLock.lock()`
-- `Condition.await()`
-- `BlockingQueue.take()`
-- NIO `Selector.select()`, `SocketChannel` blocking I/O
-
-**Pin 되는 자리 (carrier 못 풀어줌):**
-- `synchronized` 블록 / 메서드 (JVM 모니터 락)
-- JNI native call 안의 blocking
-- `Object.wait()`도 `synchronized` 안에서 호출되면 monitor 점유 상태로 wait -> 실제로 pinned
-
-### 왜 synchronized는 pin하고 ReentrantLock은 안 하나
-
-핵심 차이는 **락의 구현 레벨**이다.
-
-`synchronized`는 JVM 레벨 모니터 락이다. JVM이 carrier thread의 OS thread에 락 ownership을 새긴다: `monitorenter` / `monitorexit`. 바이트코드가 OS thread를 점유.  
-
-VT가 unmount되려면 carrier에서 분리되어야 한다. 분리되면 OS thread가 가진 모니터 락 ownership이 깨짐. 그래서 Loom은 분리를 포기하고 carrier를 그대로 점유한 채 wait: 이게 "pin".
-
-`ReentrantLock`은 `AbstractQueuedSynchronizer`(AQS) 기반으로 Java 레벨에서 구현.  
-락 대기는 결국 `LockSupport.park(this)` 호출.  
-
-`LockSupport.park`는 Loom이 명시적으로 instrument한 메서드: VT면 carrier에서 unmount, 깨워질 때 다시 schedule.
-
-```java
-// java.util.concurrent.locks.AbstractQueuedSynchronizer
-private void acquireQueued(...) {
-    ...
-    LockSupport.park(this);   // <- VT라면 여기서 carrier unmount
-    ...
-}
-```
-
-즉 Spring 6.1이 `ConcurrencyThrottleSupport`를 `synchronized + wait/notify` 에서 `ReentrantLock + Condition`으로 바꾼 게: **VT 환경에서 pin 안 일어나게 하기 위해** 였다.
-
-### 코드 체인: Spring부터 Continuation.yield까지
-
-`concurrencyLimit`이 caller를 막는 자리에서, 코드가 어디까지 내려가는지 한 줄씩 따라가 보면:
-
-```
-SimpleAsyncTaskExecutor.execute(task)
-  └ ConcurrencyThrottleAdapter.beforeAccess()     // Spring
-      └ ConcurrencyThrottleSupport.onLimitReached()
-          └ this.concurrencyCondition.await()     // ReentrantLock.Condition
-              └ AbstractQueuedSynchronizer.ConditionObject.await()
-                  └ LockSupport.park(this)        // JDK
-                      └ if (Thread.currentThread().isVirtual()) {
-                            JLA.parkVirtualThread();
-                        }
-                        └ VirtualThread.park()    // JDK
-                            └ yieldContinuation() // <- 여기가 unmount의 진짜 자리
-```
-
-`LockSupport.park()`의 JDK 21+ 실제 코드
-```java
-// java.util.concurrent.locks.LockSupport
-public static void park() {
-    if (Thread.currentThread().isVirtual()) {
-        JLA.parkVirtualThread();   // <- VT면 분기
-    } else {
-        U.park(false, 0L);
-    }
-}
-```
-
-`JLA`는 `JavaLangAccess`: internal API로 `VirtualThread.park()` 호출.
-
-### `VirtualThread.park()`: pin이 일어나는 정확한 자리
-
-```java
-// java.lang.VirtualThread (OpenJDK main)
-@Override
-void park() {
-    assert Thread.currentThread() == this;
-
-    // permit 있으면 즉시 return
-    if (getAndSetParkPermit(false) || interrupted)
-        return;
-
-    // park 시도
-    boolean yielded = false;
-    setState(PARKING);
-    try {
-        yielded = yieldContinuation();   // <- Continuation.yield() 시도
-    } catch (OutOfMemoryError e) {
-        // park on carrier
-    } finally {
-        if (!yielded) {
-            setState(RUNNING);
-        }
-    }
-
-    // yield 실패 -> carrier에 park (= PIN)
-    if (!yielded) {
-        parkOnCarrierThread(false, 0);   // <- 여기 도달하면 pin
-    }
-}
-```
-
-결정 자리는 `yieldContinuation()`. 이게 **`true` 반환하면 unmount 성공.** carrier OS thread가 풀려나서 다른 VT를 실행한다.
-
-`yieldContinuation()`이 **`false` 반환하면: yield 실패.** 그 다음 줄에서 `parkOnCarrierThread`로 fallback.  
-
-이 자리가 **pin의 정확한 자리**.
-
-```java
-// VirtualThread.parkOnCarrierThread
-private void parkOnCarrierThread(boolean timed, long nanos) {
-    assert state() == RUNNING;
-
-    setState(timed ? TIMED_PINNED : PINNED);   // <- 상태 자체가 PINNED
-    try {
-        if (!parkPermit) {
-            ...
-        }
-    } finally {
-        ...
-    }
-}
-```
-
-상태 머신에 `PINNED` 라는 명시적 상태가 있다. JFR이 감지하는 게 이 상태 전이.
-
-### `yieldContinuation()`이 실패하는 자리 = `synchronized`
-
-`Continuation.yield()`는: 현재 스택 프레임을 heap에 저장하고 carrier를 풀어준다. 근데 스택에 **VM이 unmount할 수 없는 프레임**이 있으면 yield 실패.
-
-VM이 unmount 못 하는 프레임:
-1. **`monitorenter` 바이트코드로 잡은 모니터 락**: JVM이 carrier OS thread에 ownership을 새겼다. 분리 불가.
-2. **JNI native frame**: native call 안에서는 Java VM이 스택을 저장 못 함.
-3. **Class initializer (`<clinit>`)**: 초기화 중 yield하면 클래스 로딩 깨짐.
-
-대부분의 운영 환경에서 1번이 거의 전부다. third-party 라이브러리(JDBC 드라이버, HTTP 클라이언트)가 `synchronized`를 쓰면 거기서 pin.
-
-### Pin 감지: JFR과 -Djdk.tracePinnedThreads
-
-VT가 pin되는지 운영에서 확인하려면:
-
-```bash
-# 시스템 프로퍼티로 stack trace 출력
--Djdk.tracePinnedThreads=full
-
-# 또는 JFR 이벤트
-jfr configure jdk.VirtualThreadPinned=enabled
-```
-
-JFR `jdk.VirtualThreadPinned` 이벤트가 발생하면: 어디선가 synchronized로 carrier를 점유하고 있다는 신호.  
-
-third-party 라이브러리(드라이버, 클라이언트)가 synchronized를 쓰면 거기서 pin. 우리가 모르고 도입할 수 있는 자리.
-
-### JEP 491: Java 24 (preview)에서 synchronized pin 해소
-
-JDK 24 preview의 [JEP 491: Synchronize Virtual Threads without Pinning](https://openjdk.org/jeps/491)는: synchronized 블록도 unmount 가능하게 바꾼다. 정확히는 JVM 모니터 락의 ownership을 OS thread가 아니라 **VT 자체**로 옮긴다. 이게 들어오면:
-
-- 기존 synchronized 코드도 VT-friendly
-- 그래도 ReentrantLock의 다른 이점(timeout, fairness)은 남음
-- 마이그레이션 부담이 줄어듦
-
-지금 우리 환경(Java 21)에서는 이게 아직 없으니 **synchronized 회피가 운영 룰**.
-
-### 즉, 이렇게 묶인다
-
-`SimpleAsyncTaskExecutor`의 디자인은: 매 작업마다 새 스레드를 만든다.
-이게 Platform Thread 시대엔 안티패턴이었다 (스레드 생성 비용 + 한도).
-VT 시대엔 **딱 맞는 모델**이 된다: 생성 비용 거의 0, 한도는 메모리 한도까지.
-
-거기에 `concurrencyLimit`을 얹으면: 외부 시스템 보호용 throttle.
-caller blocking이 일어나도 carrier는 자유로움: **`ReentrantLock + Condition` 으로 구현된 덕분.**
-
-```
-Platform Thread:  concurrencyLimit + blocking = thread starvation
-Virtual Thread:   concurrencyLimit + blocking = scheduler가 알아서 (단, pin 없을 때)
-```
-
-VT 없이는 이 전략이 성립하지 않는다.
-Spring 6.0 이하 + VT 조합에서는 이 전략이 **반쯤만** 성립한다 (synchronized pin).
-
----
-
-## 4. concurrency 50은 어디서 나와야 하는 숫자인가: Little's Law
-
-회고에서 솔직하게 적은 부분
-
-> **VT concurrencyLimit 50**: 50이라는 숫자가 운영 측정값이 아니라 "외부 API rate limit이 100이니까 절반" 직관
-
-이 숫자는 **Little's Law**로 잡혀야 한다.
-
-### Little's Law
-
-> L = λ × W
->
-> - L: 시스템 안의 평균 작업 수 (concurrency)
-> - λ: 처리량 (throughput, req/s)
-> - W: 평균 응답 시간 (latency)
-
-직관적으로
-
-```
-초당 처리량 = concurrency / latency
-```
-
-즉: concurrency를 정하려면 **latency와 목표 throughput**을 알아야 한다.
-
-### 우리 자리: 두 외부 API가 한 executor에 묶여 있었다
-
-| API | 실제 rate limit |
-|---|---|
-| Slack `chat.postMessage` | 분당 ~60건 (= **1 req/s**, Tier 1 standard) |
-| Amplitude `httpapi/track` | ~1000 req/s+ |
-
-**Slack이 진짜 병목.** rate limit이 두 자릿수 차이.
-
-`concurrency = 50` + p50 200ms 가정으로 계산:
-
-| 기준 API | 산출 throughput | rate limit 대비 |
-|---|---|---|
-| Slack | 250 req/s | **rate limit의 250배**: 49건이 즉시 429 |
-| Amplitude | 250 req/s | 여유 통과 |
-
-같은 concurrency 숫자 하나로 두 API를 잡을 수 없다.
-
-### 단일 executor + 단일 concurrencyLimit의 한계
-
-Slack 기준으로 안전한 concurrency
-- 목표 throughput 0.8 req/s (rate limit 80%)
-- p50 200ms -> `concurrency = 0.8 × 0.2 = 0.16` -> **현실적으로 1**
-
-Amplitude 기준 안전 concurrency
-- 목표 throughput 800 req/s
-- p50 200ms -> `concurrency = 800 × 0.2 = 160`
-
-같은 executor로 가면 **둘 중 하나는 항상 잘못 잡힌다.**
-
-### 진짜 답: API별 separate throttle
+다음은 원래 검토했던 목적지별 실행기 구성이다. 한 요청률 제한기의 토큰은 해당 목적지로 외부 요청을 보내기 직전에 소비한다. 여러 메시지를 한 요청에 묶는 경우에는 공급자가 세는 단위에 맞춰 소비량을 정한다.
 
 ```kotlin
-// 각 API별 독립 throttle
 val slackExecutor = SimpleAsyncTaskExecutor("slack-").apply {
     setVirtualThreads(true)
-    concurrencyLimit = 1     // Slack tier 1
+    concurrencyLimit = 1
 }
 
 val amplitudeExecutor = SimpleAsyncTaskExecutor("amp-").apply {
     setVirtualThreads(true)
-    concurrencyLimit = 100   // Amplitude는 여유
+    concurrencyLimit = 100
 }
 ```
 
-또는 token bucket throttle을 API별로
+별도의 토큰 버킷은 저장할 토큰 수와 재충전 속도를 정한다. 앞 예제에서 `slackExecutor`가 잠깐 비어도 토큰이 없다면 호출을 시작하지 않는다. 한 곳의 대기가 다른 곳의 작업자를 다 차지하는 상황을 막고, 429가 발생하면 해당 할당량 범위의 `Retry-After`를 따른다. [Slack의 429와 Retry-After](https://docs.slack.dev/apis/web-api/rate-limits/#headers)
 
-```kotlin
-val slackBucket = Bucket.builder()
-    .addLimit(Bandwidth.simple(1, Duration.ofSeconds(1)))
-    .build()
-```
+### 운영에서 숫자를 다시 정할 때
 
-`50`이라는 숫자가 **API 비대칭을 못 본** 결과라는 게 정확한 진단.
-"100의 절반이니까 50"이라는 직관은: 어느 100을 쓰는지 자체가 두 API에서 다르다는 걸 놓쳤다.
-
-### 측정값 없이 잡으면 안 되는 자리
-
-이게 회고의 "안 푼 것"에 들어간 이유.
-숫자 자체보다 **숫자의 근거가 측정이어야 한다**는 게 핵심.
-P0(Outbox) 머지 전에는 50으로 간다. 실측 + API별 분리 후 재산정해야 한다.
-
----
+사고 당시 50은 실측 전의 설정값이다. 목적지별 평균 응답 시간, 지연 분포, 연결 풀 획득 대기, 429와 시간 초과를 함께 기록하고 부하를 올려 대기가 급증하는 지점을 찾는다. 느린 API 하나가 다른 API의 자리를 전부 차지하면 목적지별로 한도를 나눌 이유가 생긴다.
 
 ## 5. 변태 디깅: 분산 환경에서 in-memory throttle은 안전한가
 
@@ -679,48 +399,26 @@ EKS rolling deploy 후 admin-api pod이 4대라고 보자.
 
 배치는 한 pod에서 실행되니 그 pod의 50만 활성. 여기까진 OK.
 
-근데 알림 리스너는 다른 pod에서도 발동될 수 있다: `app-api`,   `core-domain`도 같은 enum 변경에 반응.  
+다른 pod에서도 독립적인 이벤트가 생겨 같은 외부 API로 요청을 보낸다고 가정하자.
 즉 **클러스터 전체 동시 호출이 4 × 50 = 200까지 가능.**
 
-Slack rate limit 1 req/s 기준으로는 200배 over.
+200은 동시에 진행할 수 있는 호출 수다. 실제 초당 시작 건수는 응답 시간과 별도의 요청률 제한에 따라 달라진다.
 
-### in-memory throttle의 한계
+### 여러 프로세스가 같은 한도를 쓸 때
 
-- `ConcurrencyThrottleSupport`는 JVM heap 안의 카운터
-- 다른 pod의 카운터를 모름
-- 진정한 cluster-wide throttle은 **외부 카운터** 필요
+각 JVM의 카운터는 자기 프로세스 안의 호출만 센다. 할당량을 공유하는 목적지라면 호출 주체를 한 곳으로 모으는 방법이 있다. 인스턴스에 나누어 할당한 예산의 합을 총량 안에 두거나 공유 제한기에서 원자적으로 차감하는 방법도 있다. 공유 제한기를 두면 그 저장소까지의 왕복과 장애 시 거부·지연 정책이 새 비용이 된다.
 
-### 후보들
+Spring의 애플리케이션 이벤트는 한 컨텍스트 안에서 전달된다. 여러 pod에 리스너가 등록됐다는 사실만으로 같은 이벤트가 다른 pod에 전파되지는 않는다. 여러 pod에서 실제 외부 호출이 시작되는지는 배치의 실행 위치, 브로커 구독과 publisher 배치를 확인해야 한다.
 
-**Resilience4j `RateLimiter`**
-- in-memory, 같은 한계
-- 단일 JVM 안에서는 token bucket으로 작동
-- 클러스터 throttle은 못 함
+### 검토한 운영 대안
 
-**Bucket4j + Hazelcast / Redis / Ignite**
-- 분산 카운터 백업
-- Redis 기준: `INCR` + TTL로 token bucket 구현
-- 한 토큰 소비 = Redis round trip (~1ms intra-AZ)
-- Slack tier 1 (1 req/s) 같은 빡빡한 rate에서는 OK
-- Amplitude (1000 req/s)에서는 round trip 비용이 throughput을 깎음
+| 제한을 두는 곳 | 유지하는 상태와 대가 |
+|---|---|
+| Resilience4j의 JVM별 RateLimiter | 프로세스 안에서 기간별 허용 횟수를 갱신한다. 모든 pod가 같은 전체 한도를 복제하면 총 허용량도 늘어난다. |
+| Bucket4j와 공유 저장소 | 같은 quota key의 남은 토큰과 마지막 충전 시각을 원자적으로 갱신한다. 저장소 왕복 지연과 단절 시 실패 정책이 필요하다. |
+| 공통 egress 게이트웨이 | 외부로 나가는 모든 발신 경로가 게이트웨이를 지나야 정책이 적용된다. 우회 경로, 게이트웨이 장애, 다중 복제의 상태 공유가 운영 조건이다. |
 
-**API Gateway / Service Mesh 레벨 throttle**
-- Istio EnvoyFilter, AWS API Gateway throttle
-- 외부 호출 자체에 hard limit
-- pod 죽음과 무관, 외부 의존 죽음에도 깨지지 않음. 대신 운영 추가
-
-### 우리 자리의 정답
-
-배치는 한 pod에서만 실행 + 알림 리스너는 같은 pod 안에서만 처리되도록 설계 -> **single-pod throttle로 충분.**
-
-근데 그게 보장되는 구조인가?
-- `@EventListener`가 모든 pod에 등록되어 있으면 같은 enum 변경 이벤트가 여러 pod에서 발동
-- 우리 사고는 단일 pod 배치에서 시작했으니 영향 받은 건 한 pod의 in-memory 큐
-- 향후 Outbox + publisher 분리 -> publisher가 단독 pod이면 single-pod throttle OK
-- publisher가 여러 pod이면 분산 throttle 필수
-
-**진짜 답은 "어디에 throttle 책임을 둘지" 의 아키텍처 결정.**
-in-memory `concurrencyLimit`은 publisher pod 1대일 때만 정답. 그 외엔 분산 카운터 또는 gateway 레벨.
+P0에서 Outbox publisher를 한 개만 둘 수 있고 다른 발신 경로가 없다면 프로세스 내 제한으로 시작한다. 인스턴스를 늘리면 같은 제한 키를 공유하는 pod 수와 롤링 배포 중 겹치는 수까지 포함해 다시 계산한다. 이 판단은 작업이 유실되지 않게 DB에 기록하는 트랜잭션 경계와 별개다. [Resilience4j의 JVM별 구현](https://resilience4j.readme.io/docs/ratelimiter) · [Bucket4j 분산 버킷](https://bucket4j.com/)
 
 ---
 
@@ -834,7 +532,7 @@ fun publish() {
 |---|---|
 | 메모리 | VT가 carrier에서 unmount될 때 stack은 heap에 남아요. 무한히 늘어나면 OOM. |
 | 모니터링 | VT는 thread dump에서 안 보일 수 있어요. JFR + `jcmd Thread.dump_to_file` 필요. |
-| pinned | `synchronized` 블록이 carrier를 pin 시켜서 unmount 안 됩니다. `ReentrantLock` 은 pin 안 합니다 (Spring 6.1+ 변경이 의미 있는 이유). |
+| 운반 스레드 고정 | JDK 21의 모니터 내부 블로킹과 JDK 24 이후의 네이티브 경로를 구분해 JFR에서 확인합니다. |
 | `ThreadLocal` | VT마다 새 인스턴스 생성. `ThreadLocal` heavy한 코드는 메모리가 폭발합니다. |
 
 ### 이 전략이 풀지 못하는 것이 있어요
@@ -857,9 +555,9 @@ DB에 이벤트를 남기는 후속안은 [Outbox 도입을 검토한 회고](/c
 
 1. **5,235건은 어디서 사라졌나요**. `AbortPolicy` 에서 `RejectedExecutionException` 으로, `TaskRejectedException` 으로, `AsyncExecutionInterceptor` 가 그대로 propagate, `AFTER_COMMIT` runner 에서 잡히지 않고 끝났습니다. `AsyncUncaughtExceptionHandler` 는 이 흐름에 개입 안 했어요.
 2. **`concurrencyLimit` 은 어떻게 막나요**. `ReentrantLock + Condition.await()`. Semaphore 아님. 큐도 없음. 한도까지 fire-and-forget, 초과 시 caller blocking.
-3. **VT가 왜 필수일까요**. caller blocking이 OS thread를 점유하지 않게 해주는 유일한 방법이에요. 단, `synchronized` 로 감싸면 pin이 됩니다. Spring 6.1+의 `ReentrantLock` 변경이 의미 있는 자리예요.
-4. **50은 어디서 나와야 하나요**. Little's Law (`L = λW`). Slack 1 req/s, Amplitude 1000 req/s 비대칭이라 단일 concurrency로 못 잡습니다. API별 separate throttle이 답.
-5. **분산 환경에서 in-memory throttle 안전할까요**. pod N대면 클러스터 한도는 N × `concurrencyLimit`. publisher가 단독 pod일 때만 정답. 그 외엔 Bucket4j + Redis 또는 gateway 레벨.
+3. **누가 기다리나요?** 제출자와 작업 스레드는 다를 수 있습니다. 제출자가 가상 스레드면 지원되는 대기 지점에서 운반 스레드를 내놓을 수 있습니다.
+4. **50은 어디서 나와야 하나요**. Little's Law (`L = λW`). 목적지마다 평균 체류 시간, 연결 대기, 할당량을 확인해 동시성과 초당 시작 건수를 각각 정합니다.
+5. **분산 환경에서 in-memory throttle 안전할까요**. pod N대면 클러스터 한도는 N × `concurrencyLimit`. 같은 외부 할당량을 공유하면 인스턴스별 예산을 나누거나 공통 제한기를 둡니다.
 6. **왜 Outbox가 답인가요**. `@TransactionalEventListener(AFTER_COMMIT) + @Async` 조합은 DB commit 후 발행이라, 거부되면 정합성이 깨져요. Outbox는 DB 변경과 outbox INSERT를 같은 트랜잭션에 묶어 정합성 경계를 DB로 통일합니다.
 
 회고 글이 "무엇을 깨달았는가" 라면, 이 글은 그 깨달음이 코드 어느 줄에 박혀 있는가 입니다.  
@@ -872,7 +570,7 @@ DB에 이벤트를 남기는 후속안은 [Outbox 도입을 검토한 회고](/c
 ### JEP / 공식 문서
 
 - [JEP 444: Virtual Threads](https://openjdk.org/jeps/444): Java 21 final, Loom의 unmount/mount 모델 정의
-- [JEP 491: Synchronize Virtual Threads without Pinning](https://openjdk.org/jeps/491): Java 24 preview, `synchronized` pin 해소
+- [JEP 491: Synchronize Virtual Threads without Pinning](https://openjdk.org/jeps/491): JDK 24 정식 반영, 모니터 관련 고정 해소
 - [JEP 425: Virtual Threads (Preview)](https://openjdk.org/jeps/425): JDK 19 preview, 초기 설계 의도
 - [JEP 480: Structured Concurrency](https://openjdk.org/jeps/480): VT 시대의 task 묶음 모델
 - [Java Language Specification §17 Threads and Locks](https://docs.oracle.com/javase/specs/jls/se21/html/jls-17.html): 모니터 락 정의
@@ -886,27 +584,27 @@ DB에 이벤트를 남기는 후속안은 [Outbox 도입을 검토한 회고](/c
 
 ### Spring Framework 소스
 
-- [`ThreadPoolTaskExecutor.execute()`](https://github.com/spring-projects/spring-framework/blob/main/spring-context/src/main/java/org/springframework/scheduling/concurrent/ThreadPoolTaskExecutor.java): `RejectedExecutionException` -> `TaskRejectedException` wrap
-- [`SimpleAsyncTaskExecutor.java`](https://github.com/spring-projects/spring-framework/blob/main/spring-core/src/main/java/org/springframework/core/task/SimpleAsyncTaskExecutor.java): `doExecute`, `setVirtualThreads`, `concurrencyLimit`
-- [`ConcurrencyThrottleSupport.java`](https://github.com/spring-projects/spring-framework/blob/main/spring-core/src/main/java/org/springframework/util/ConcurrencyThrottleSupport.java): `ReentrantLock + Condition` 구현 (Spring 6.1+)
-- [`AsyncExecutionInterceptor.java`](https://github.com/spring-projects/spring-framework/blob/main/spring-aop/src/main/java/org/springframework/aop/interceptor/AsyncExecutionInterceptor.java): `@Async` AOP intercept
-- [`AsyncExecutionAspectSupport.handleError()`](https://github.com/spring-projects/spring-framework/blob/main/spring-aop/src/main/java/org/springframework/aop/interceptor/AsyncExecutionAspectSupport.java): task 실행 중 예외 처리 (submit 거부에는 도달 X)
-- [`SimpleApplicationEventMulticaster.java`](https://github.com/spring-projects/spring-framework/blob/main/spring-context/src/main/java/org/springframework/context/event/SimpleApplicationEventMulticaster.java): `multicastEvent`, `invokeListener`, `errorHandler`
+- [`ThreadPoolTaskExecutor.execute()`](https://github.com/spring-projects/spring-framework/blob/v6.2.8/spring-context/src/main/java/org/springframework/scheduling/concurrent/ThreadPoolTaskExecutor.java): `RejectedExecutionException` -> `TaskRejectedException` wrap
+- [`SimpleAsyncTaskExecutor.java`](https://github.com/spring-projects/spring-framework/blob/v6.2.8/spring-core/src/main/java/org/springframework/core/task/SimpleAsyncTaskExecutor.java): `doExecute`, `setVirtualThreads`, `concurrencyLimit`
+- [`ConcurrencyThrottleSupport.java`](https://github.com/spring-projects/spring-framework/blob/v6.2.8/spring-core/src/main/java/org/springframework/util/ConcurrencyThrottleSupport.java): Spring 6.2.8의 대기와 해제
+- [`AsyncExecutionInterceptor.java`](https://github.com/spring-projects/spring-framework/blob/v6.2.8/spring-aop/src/main/java/org/springframework/aop/interceptor/AsyncExecutionInterceptor.java): `@Async` AOP intercept
+- [`AsyncExecutionAspectSupport.handleError()`](https://github.com/spring-projects/spring-framework/blob/v6.2.8/spring-aop/src/main/java/org/springframework/aop/interceptor/AsyncExecutionAspectSupport.java): task 실행 중 예외 처리 (submit 거부에는 도달 X)
+- [`SimpleApplicationEventMulticaster.java`](https://github.com/spring-projects/spring-framework/blob/v6.2.8/spring-context/src/main/java/org/springframework/context/event/SimpleApplicationEventMulticaster.java): `multicastEvent`, `invokeListener`, `errorHandler`
 
 ### Spring 릴리즈 노트
 
-- [Spring Framework 6.1 Release Notes](https://github.com/spring-projects/spring-framework/wiki/What%27s-New-in-Spring-Framework-6.x#whats-new-in-spring-framework-61): `setVirtualThreads`, `ConcurrencyThrottleSupport` Loom-friendly 변경
+- [Spring Framework 6.1 Release Notes](https://github.com/spring-projects/spring-framework/wiki/What%27s-New-in-Spring-Framework-6.x#whats-new-in-spring-framework-61): 가상 스레드 지원
 - [Spring Framework 6.0 Release Notes](https://github.com/spring-projects/spring-framework/wiki/Upgrading-to-Spring-Framework-6.x)
 
 ### 외부 API rate limit 공식 문서
 
-- [Slack `chat.postMessage` rate limits](https://api.slack.com/methods/chat.postMessage#rate_limiting): Tier 1 standard = 1 req/s
+- [Slack `chat.postMessage` rate limits](https://api.slack.com/methods/chat.postMessage#rate_limiting): 메시지 게시 범위별 한도
 - [Slack rate limit tiers](https://api.slack.com/apis/rate-limits): Tier 1~4 + special
 - [Amplitude HTTP API V2](https://amplitude.com/docs/apis/analytics/http-v2): events 처리 한도
 
 ### Pin 감지 / 모니터링
 
-- [`-Djdk.tracePinnedThreads`](https://docs.oracle.com/en/java/javase/21/core/virtual-threads.html#GUID-DC4306FC-D6C1-4BCC-AECE-48C32C1A8DAA): JVM 옵션, pin 발생 시 stack trace
+- [`-Djdk.tracePinnedThreads`](https://docs.oracle.com/en/java/javase/21/core/virtual-threads.html#GUID-DC4306FC-D6C1-4BCC-AECE-48C32C1A8DAA): JDK 21 진단 옵션
 - JFR `jdk.VirtualThreadPinned` 이벤트: `jfr configure` 또는 `jcmd JFR.start`
 - [JDK Flight Recorder Event Reference](https://docs.oracle.com/en/java/javase/21/jfapi/flight-recorder-configurations.html)
 

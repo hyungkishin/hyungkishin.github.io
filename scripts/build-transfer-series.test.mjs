@@ -9,14 +9,17 @@ import { JSDOM } from 'jsdom';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const cli = path.join(projectRoot, 'scripts/build-transfer-series.mjs');
+const executionSlug = '/backend/transfer-performance/02-jvm-execution/';
 const slugs = [
   '/backend/transfer-performance/01-measurement/',
-  '/backend/transfer-performance/02-jvm-execution/',
+  '/backend/transfer-performance/class-loading/',
+  executionSlug,
   '/backend/transfer-performance/jit-aot-linux/',
   '/backend/transfer-performance/jvm-memory/',
   '/backend/transfer-performance/system-arraycopy/',
   '/backend/transfer-performance/gc-timeline/',
   '/backend/transfer-performance/tcp-linux/',
+  '/backend/transfer-performance/parallel-io/',
   '/backend/transfer-performance/03-transfer-contract/',
   '/backend/transfer-performance/04-kafka-redis/',
   '/backend/transfer-performance/05-jpa-access/',
@@ -30,11 +33,11 @@ async function fixture(t) {
   for (let index = 0; index < slugs.length; index += 1) {
     const dataDir = path.join(publicDir, 'page-data', slugs[index]);
     await mkdir(dataDir, { recursive: true });
-    const title = index === 1 ? 'JVM "<script>unsafe()</script>" & 실행' : `백엔드 ${index + 1}편`;
+    const title = slugs[index] === executionSlug ? 'JVM "<script>unsafe()</script>" & 실행' : `백엔드 ${index + 1}편`;
     const html = '<h2 id="original-heading">측정 조건</h2><p>실행으로 확인한 범위만 주장한다.</p>'
       + '<p><a href="#original-heading">같은 절로 돌아가기</a></p>'
       + '<h2>해석의 한계</h2><p>운영 결과로 확대하지 않는다.</p>'
-      + (index === 1 ? '<p><img id="diagram-01-stack-machine" src="/static/01-stack-machine-f403285c3ec9eb52068d1448cba586f5.svg" alt="JVM 값의 이동"></p>'
+      + (slugs[index] === executionSlug ? '<p><img id="diagram-01-stack-machine" src="/static/01-stack-machine-f403285c3ec9eb52068d1448cba586f5.svg" alt="JVM 값의 이동"></p>'
         + '<p><a href="./evidence/HelloLoop.java">재현 소스</a></p>' : '');
     await writeFile(path.join(dataDir, 'page-data.json'), JSON.stringify({
       path: slugs[index], result: { data: { markdownRemark: {
@@ -70,7 +73,7 @@ test('빌더가 등록된 시리즈 경로를 모두 만들고 기존 출력 경
   for (const slug of slugs) assert.equal((await page(paths, slug)).querySelectorAll('h1').length, 1);
   assert.equal(await readFile(path.join(paths.outputDir, 'existing/keep.txt'), 'utf8'), '기존 배포 파일');
   assert.deepEqual((await readdir(path.join(paths.outputDir, 'backend/transfer-performance'))).sort(), [
-    '01-measurement', '02-jvm-execution', '03-transfer-contract', '04-kafka-redis', '05-jpa-access', 'assets', 'gc-timeline', 'index.html', 'jit-aot-linux', 'jvm-memory', 'system-arraycopy', 'tcp-linux',
+    '01-measurement', '02-jvm-execution', '03-transfer-contract', '04-kafka-redis', '05-jpa-access', 'assets', 'class-loading', 'gc-timeline', 'index.html', 'jit-aot-linux', 'jvm-memory', 'parallel-io', 'system-arraycopy', 'tcp-linux',
   ]);
 });
 
@@ -78,7 +81,7 @@ test('제목을 HTML로 실행하지 않고 원문과 절 링크를 보존한다
   const paths = await fixture(t);
   const result = runBuild(paths);
   assert.equal(result.status, 0, result.stderr);
-  const document = await page(paths, slugs[1]);
+  const document = await page(paths, executionSlug);
 
   assert.equal(document.querySelector('h1').textContent, 'JVM "<script>unsafe()</script>" & 실행');
   assert.equal(document.title, 'JVM "<script>unsafe()</script>" & 실행 | hyungkishin.blog');
@@ -89,8 +92,8 @@ test('제목을 HTML로 실행하지 않고 원문과 절 링크를 보존한다
   assert.deepEqual([...document.querySelectorAll('.article-body h2')].map(h => h.id), ['section-1', 'section-2']);
   assert.deepEqual([...document.querySelectorAll('.article-toc a')].map(a => a.hash), ['#section-1', '#section-2']);
   assert.equal(document.querySelector('.article-body a').hash, '#section-1');
-  assert.equal(document.querySelector('[rel="prev"]').getAttribute('href'), slugs[0]);
-  assert.equal(document.querySelector('[rel="next"]').getAttribute('href'), slugs[2]);
+  assert.equal(document.querySelector('[rel="prev"]').getAttribute('href'), '/backend/transfer-performance/class-loading/');
+  assert.equal(document.querySelector('[rel="next"]').getAttribute('href'), '/backend/transfer-performance/jit-aot-linux/');
   for (const [index, slug] of slugs.entries()) {
     const chapter = await page(paths, slug);
     assert.equal(chapter.querySelector('[rel="prev"]')?.getAttribute('href'), slugs[index - 1]);
@@ -104,19 +107,19 @@ test('SVG를 별도 문서로 연결하고 재현 파일과 자체 자산만 복
   const paths = await fixture(t);
   const result = runBuild(paths);
   assert.equal(result.status, 0, result.stderr);
-  const document = await page(paths, slugs[1]);
+  const document = await page(paths, executionSlug);
   const object = document.querySelector('figure object[type="image/svg+xml"]');
 
   assert.ok(object);
-  assert.equal(object.getAttribute('data'), `${slugs[1]}01-stack-machine.svg`);
+  assert.equal(object.getAttribute('data'), `${executionSlug}01-stack-machine.svg`);
   assert.equal(object.getAttribute('aria-label'), 'JVM 값의 이동');
   assert.ok(object.querySelector('img[alt="JVM 값의 이동"]'));
   assert.equal(document.querySelector('.diagram-toggle').textContent, '애니메이션 멈추기');
   assert.equal(document.querySelector('.diagram-expand').getAttribute('target'), '_blank');
-  assert.equal(document.querySelector('a[href$="HelloLoop.java"]').getAttribute('href'), `${slugs[1]}evidence/HelloLoop.java`);
-  assert.match(await readFile(path.join(paths.outputDir, slugs[1], 'evidence/HelloLoop.java'), 'utf8'), /class HelloLoop/);
-  const source = path.join(projectRoot, 'contents/posts', slugs[1], '01-stack-machine.svg');
-  assert.deepEqual(await readFile(path.join(paths.outputDir, slugs[1], '01-stack-machine.svg')), await readFile(source));
+  assert.equal(document.querySelector('a[href$="HelloLoop.java"]').getAttribute('href'), `${executionSlug}evidence/HelloLoop.java`);
+  assert.match(await readFile(path.join(paths.outputDir, executionSlug, 'evidence/HelloLoop.java'), 'utf8'), /class HelloLoop/);
+  const source = path.join(projectRoot, 'contents/posts', executionSlug, '01-stack-machine.svg');
+  assert.deepEqual(await readFile(path.join(paths.outputDir, executionSlug, '01-stack-machine.svg')), await readFile(source));
   for (const element of document.querySelectorAll('script[src], link[rel="stylesheet"]')) {
     const url = element.getAttribute('src') || element.getAttribute('href');
     assert.ok(url.startsWith('/backend/transfer-performance/assets/'), url);
@@ -134,9 +137,9 @@ test('시리즈 색인의 재생 가능한 그림에서 원문 속 같은 그림
   assert.ok(preview?.querySelector('object[data-animated="true"]'));
   assert.ok(preview.querySelector('.diagram-toggle'));
   const link = preview.querySelector('a[href*="#diagram-"]');
-  assert.equal(link.getAttribute('href'), slugs[1] + '#diagram-01-stack-machine');
+  assert.equal(link.getAttribute('href'), executionSlug + '#diagram-01-stack-machine');
 
-  const chapter = await page(paths, slugs[1]);
+  const chapter = await page(paths, executionSlug);
   const figure = chapter.getElementById(new URL(link.getAttribute('href'), 'https://hyungkishin.github.io').hash.slice(1));
   assert.equal(preview.querySelector('object').getAttribute('data'), figure.querySelector('object').getAttribute('data'));
   assert.equal(figure.querySelector('.diagram-zoom').getAttribute('aria-controls'), figure.querySelector('.diagram-frame').id);

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 432 335" role="img" aria-labelledby="title desc">
+  <title id="title">두 외부 조회가 응답을 기다리는 구간</title>
+  <desc id="desc">첫 조회가 150밀리초, 두 번째가 300밀리초 기다리는 모형. 순차로 실행하면 두 번째 조회가 150밀리초 뒤 시작해 450밀리초에 끝난다. 동시에 시작하면 두 번째 조회가 끝나는 300밀리초에 결과를 합친다. 네트워크와 스케줄링 비용은 생략했다.</desc>
+  <style>
+    text { font-family: Pretendard, -apple-system, "Apple SD Gothic Neo", sans-serif; fill: #152f51; }
+    .head { font-size: 24px; font-weight: 740; }
+    .label { font-size: 18px; font-weight: 650; }
+    .body { font-size: 17px; }
+    .tick { font: 16px ui-monospace, monospace; text-anchor: middle; }
+    .a { fill: #4685be; }
+    .b { fill: #204d93; }
+    .cursor { opacity: 0; }
+    @media (prefers-reduced-motion: no-preference) {
+      .cursor { opacity: 1; animation: read 6s linear infinite; }
+    }
+    @keyframes read { from { transform: translateX(0); } to { transform: translateX(300px); } }
+  </style>
+  <rect x="1" y="1" width="430" height="333" rx="13" stroke="#cbddeb" fill="white"/>
+  <text x="21" y="36" class="head">두 응답이 모두 도착하는 시점</text>
+  <text x="21" y="65" class="body">A는 150 ms, B는 300 ms 기다린다고 하자.</text>
+  <rect x="15" y="83" width="402" height="91" rx="10" fill="#f2f7fd"/>
+  <text x="24" y="107" class="label">순차 조회</text>
+  <text x="24" y="132" class="body">A</text><rect x="78" y="119" width="100" height="14" rx="4" class="a"/>
+  <text x="24" y="157" class="body">B</text><rect x="178" y="144" width="200" height="14" rx="4" class="b"/>
+  <rect x="15" y="184" width="402" height="91" rx="10" fill="#f2f7fd"/>
+  <text x="24" y="208" class="label">동시 조회</text>
+  <text x="24" y="233" class="body">A</text><rect x="78" y="220" width="100" height="14" rx="4" class="a"/>
+  <text x="24" y="258" class="body">B</text><rect x="78" y="245" width="200" height="14" rx="4" class="b"/>
+  <g stroke="#a1b7ca" fill="none"><path d="M78 285h300 M78 285v7 M178 285v7 M278 285v7 M378 285v7"/></g>
+  <g class="tick"><text x="78" y="313">0</text><text x="178" y="313">150</text><text x="278" y="313">300</text><text x="378" y="313">450 ms</text></g>
+  <path d="M78 115v47 M78 216v47" class="cursor" fill="none" stroke="#17304f" stroke-width="2" stroke-dasharray="3 3"/>
+</svg>

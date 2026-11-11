@@ -29,6 +29,26 @@ CPU는 기계어를 실행한다. 그런데 `javac`로 만든 클래스 파일�
 
 덧셈 메서드가 호출자 속으로 사라지지 않도록 이 실험에서만 인라이닝을 껐다. Linux에서 C2가 만든 코드의 바이트 `20 00 02 0b`를 역어셈블한 결과는 `add w0, w1, w2`였다. 두 입력을 담은 32비트 레지스터 `w1`, `w2`의 합을 결과 레지스터 `w0`에 쓴다. [덧셈 예제](./evidence/AddWarmup.java) · [javap부터 기계어까지 재현한 명령과 출력](./evidence/add-aarch64.txt)
 
+### 한 번 호출한 루프에 두 진입점이 생긴 이유
+
+`longLoop`는 누적값을 갱신하는 반복문을 1,200만 번 돌고 한 번 반환한다. Linux ARM64의 Temurin 25.0.5+8에서 로그를 켜자 같은 메서드에 다음 세 기록이 남았다. 맨 왼쪽은 컴파일 작업 번호다.
+
+```text
+54  %  3  HotPathProbe::longLoop @ 6
+55     3  HotPathProbe::longLoop
+56  %  4  HotPathProbe::longLoop @ 6
+```
+
+55번은 메서드 시작으로 들어올 호출을 위한 코드다. **`%`와 `@ 6`이 붙은 코드는 이미 실행 중인 호출을 위한 진입점**이다. 바이트코드 오프셋 6은 반복 조건을 읽는 곳이다. 이때 해석 중인 프레임의 인덱스와 누적값, 잡고 있는 모니터가 있다면 그 상태까지 넘겨 실행을 잇는다. 이를 온스택 치환(on-stack replacement, OSR)이라고 한다. 이 한 번의 호출이 끝날 무렵에는 56번 OSR 코드의 반복 종료 분기에서 역최적화 이벤트도 찍혔다. 인터프리터 전용 실행과 JIT 실행의 최종 체크섬은 같았다. [실행 코드](./evidence/HotPathProbe.java) · [javap와 실제 컴파일 기록](./evidence/osr-windows.txt) · [OpenJDK의 OSR 상태 이동](https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/share/runtime/sharedRuntime.cpp#L3269-L3279)
+
+54번이 큐에 들어갔을 때 메서드 진입은 **1회**, 반복문 뒤에서 앞으로 돌아가는 백에지(backedge)의 계수는 **60,416**이었다. 다른 메서드 `quote`는 관측한 진입 횟수 256에서 C1 레벨 3, 6,656에서 C2 레벨 4 작업이 등록됐다. 이 실행에서 C1은 실행 횟수와 수신 객체 타입 등의 프로파일을 모았고 C2는 그 정보를 사용했다. HotSpot의 진입 컴파일 정책은 호출 계수 또는 최소 호출 계수와 호출·백에지 합계를 본다. OSR 정책은 백에지 계수를 본다. 설정, 현재 단계, 컴파일 큐의 부하가 기준을 바꾸므로 ‘메서드를 2만 번 부르면 JIT가 돈다’는 규칙은 성립하지 않는다. [진입·백에지 정책](https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/share/compiler/compilationPolicy.cpp#L307-L361) · [큐에 따른 기준 조정](https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/share/compiler/compilationPolicy.cpp#L386-L403)
+
+### 정률만 보던 호출에 정액 정책이 처음 들어오면
+
+두 수수료 클래스는 실험 시작 때 이미 로드했다. 같은 인터페이스 호출에 정률 객체만 20만 번 넘긴 뒤 정액 객체를 넘겼다. 정률 타입을 가정해 컴파일된 `quote`에서 JFR은 **컴파일 번호 58, 호출 위치 3, 사유 `class_check`**를 기록했다. 가정이 깨진 실행을 기존 기계어에서 빠져나오게 하는 역최적화다. 타입 가드가 있는 코드 중에는 대체 분기로 다른 타입을 직접 처리하는 경우도 있다. 여기서는 실제 trap 이벤트로 경로를 확인했다. [타입 교체와 trap 결과](./evidence/osr-windows.txt)
+
+인라이닝으로 여러 자바 호출이 물리 프레임 하나에 들어가도 HotSpot은 역최적화 지점에 논리 호출별 메서드, 바이트코드 위치, 지역 변수와 피연산자 위치를 기록해 둔다. 복구 시 레지스터와 스택의 값을 읽어 해당 지점에 필요한 인터프리터 프레임들로 펼친다. 이번 타입 검사 실패는 정액 메서드 본문에 들어가기 전이어서 `quote`의 인터페이스 호출을 다시 처리한다. 로그는 실패 지점을 보여 주고 프레임 복구 과정은 구현에서 확인할 수 있다. [논리 호출의 디버그 정보](https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/share/code/scopeDesc.hpp#L46-L83) · [인터프리터 프레임 복구](https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/share/runtime/deoptimization.cpp#L888-L905)
+
 ## 컴파일을 맡은 스레드를 누가 실행할까?
 
 HotSpot의 한 스레드가 요청을 처리하는 사이 다른 스레드가 그 요청에서 자주 호출된 메서드를 컴파일할 수 있다. `CompileBroker`는 컴파일 작업을 큐에 넣는다. 컴파일러 스레드는 큐에서 작업을 꺼내고 C1이나 C2 같은 컴파일러를 호출한다. 아래에서 인용하는 OpenJDK 코드는 실험에서 쓴 JDK와 같은 `25.0.5+8` 소스에 고정했다. [컴파일 작업 등록](https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/share/compiler/compileBroker.cpp#L1626-L1638) · [작업을 꺼내는 compiler_thread_loop](https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/share/compiler/compileBroker.cpp#L1936-L1975)
@@ -36,6 +56,8 @@ HotSpot의 한 스레드가 요청을 처리하는 사이 다른 스레드가 �
 소스에서 `CompilerThread`의 부모 타입은 `JavaThread`다. 여기서 `JavaThread`는 HotSpot 내부의 C++ 타입이다. 애플리케이션이 플랫폼 스레드를 시작할 때는 `JVM_StartThread`가 자바의 `run`으로 이어질 진입 함수를 지정한다. 컴파일러 스레드의 진입 함수는 컴파일 작업 루프로 간다. 각 스레드는 자기 진입 함수를 실행하고 종료 시 정리 절차를 밟는다. [플랫폼 스레드 생성](https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/share/prims/jvm.cpp#L2820-L2828) · [CompilerThread의 타입](https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/share/compiler/compilerThread.hpp#L38-L47) · [컴파일러 스레드의 진입점](https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/share/compiler/compilerThread.cpp#L61-L68) · [JavaThread 실행과 종료](https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/share/runtime/javaThread.cpp#L762-L790)
 
 Linux에서 이 네이티브 스레드를 만드는 호출은 `pthread_create`다. 사용자 공간에서는 HotSpot이 C2에게 어떤 메서드를 줄지 정한다. 커널 스케줄러는 실행 가능한 태스크 중 다음에 CPU를 쓸 태스크를 고른다. 실행 중인 JVM의 `/proc/<pid>/task`를 열어 보니 `C1 CompilerThre`와 `C2 CompilerThre`가 각각 한 줄씩 있었다. 이 이름은 Linux의 `comm`에 보인 그대로다. [HotSpot의 pthread_create](https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/os/linux/os_linux.cpp#L1086-L1092) · [스레드 관찰 명령과 출력](./evidence/elf-and-threads.txt)
+
+같은 버전의 Windows 구현도 플랫폼 스레드를 만든다. `os::create_thread`가 C 런타임의 `_beginthreadex`를 호출해 스레드 핸들을 받는다. Linux 쪽의 `pthread_create`와 Windows 쪽의 이 호출이 같은 자바 API 아래에서 갈라지는 지점이다. 위의 실행 기록은 Linux에서 수집했다. [OpenJDK의 Windows 스레드 생성](https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/os/windows/os_windows.cpp#L758-L772)
 
 커널 코드에서 **kthread**라는 이름을 만날 때는 출발점이 다르다. Linux가 자기 작업을 실행하려고 만드는 커널 스레드로, 커널의 `kthread()`가 넘겨받은 `threadfn(data)`를 부른다. JVM 프로세스 안에서 네이티브 스레드로 일하는 C2와는 진입 함수도 일감도 다르다. 커널 코드는 Linux v6.12에서 읽었다. 실제 실행 환경의 커널 버전은 아래 실험에 따로 적었다. [커널 스레드의 진입 함수](https://github.com/torvalds/linux/blob/adc218676eef25575469234709c2d87185ca223a/kernel/kthread.c#L341-L393) · [스케줄러의 다음 태스크 선택과 문맥 교환](https://github.com/torvalds/linux/blob/adc218676eef25575469234709c2d87185ca223a/kernel/sched/core.c#L6642-L6695)
 
@@ -82,6 +104,18 @@ static int quote(int amountWon) {
 JIT 로그에서 `quote`의 레벨 4 컴파일 기록에는 `@ 2   FeeRuns::fee (5 bytes)   inline (hot)`이 따라왔다. `quote` 안의 오프셋 2에 있던 `fee` 호출을 컴파일러가 인라인했다는 기록이다. 두 실행은 같은 값을 냈고 두 번째 실행의 로그에서는 인라이닝 결정을 확인했다. 어느 쪽이 몇 초 빨랐는지는 재지 않았다.
 
 세 번째에는 Linux arm64의 GraalVM CE 25.0.2로 같은 클래스에서 `fee-native`를 빌드했다. 빌드 출력에는 대상 CPU `armv8.1-a`와 Serial GC가 나왔다. 이 파일을 Java 런처가 PATH에 없는 Debian 13 컨테이너에서 `./fee-native`로 실행해도 같은 합계가 나왔다. Linux 커널은 Docker가 제공한 `7.0.12-linuxkit`이었다. 이 결과는 OS·CPU와 동적 라이브러리가 맞는 환경에서 실행한 사례다. [빌드·실행에 사용한 이미지와 로그](./evidence/execution.txt)
+
+### 워밍업 중 1ms를 무엇이 차지했나
+
+첫 정률 호출 묶음과 같은 입력의 두 번째 묶음에 JFR 사용자 이벤트로 경계를 표시했다. 각 경계 안에서 컴파일 이벤트와 겹친 횟수, 애플리케이션 정지 이벤트의 겹친 시간, 메인 스레드의 CPU 시간을 셌다. Linux의 `/proc/thread-self/schedstat` 둘째 값은 이 스레드가 실행 가능했지만 CPU를 배정받기까지 기다린 시간을 합산한다. 구간 앞뒤의 차이를 쟀다. [구간을 기록한 코드](./evidence/HotPathProbe.java) · [Linux schedstat 필드](https://docs.kernel.org/scheduler/sched-stats.html)
+
+| 한 JVM의 연속 구간 | 경과 | 메인 스레드 CPU | 겹친 컴파일 | GC 정지 |
+| --- | ---: | ---: | ---: | ---: |
+| 정률 첫 10만 호출 | 1.923ms | 1.704ms | 2건 | 0ms |
+| 같은 정률 다음 10만 호출 | 1.280ms | 1.214ms | 0건 | 0ms |
+| 별도 배열 할당 구간 | 8.726ms | 4.547ms | 0건 | 4.009ms |
+
+두 정률 구간의 실행 큐 대기는 기록상 0이었다. 컴파일러 스레드는 메인 스레드와 동시에 일할 수 있어 0.643ms 차이를 컴파일 시간으로 환산할 수 없다. 배열을 반복 할당한 대조 구간에서는 4.009ms가 실제 GC 정지와 겹쳤다. GC 정지는 이미 경과 시간에 들어 있으므로 합계에 다시 더하면 안 된다. 이 표는 한 JVM의 진단용 관찰이다. 운영 지연을 비교할 때는 같은 입력으로 새 JVM을 반복 실행해 첫 요청과 정상 상태의 분포를 따로 구하고, 진단 옵션을 끈 실행에서도 차이가 남는지 확인한다. [기록을 집계하는 코드](./evidence/window-report.py) · [재현 명령과 구간별 결과](./evidence/osr-windows.txt)
 
 ## JDK의 AOT 캐시로도 실행 파일을 만들 수 있을까?
 

@@ -1,0 +1,60 @@
+$ java -version
+openjdk version "25.0.4.1" 2026-08-18 LTS
+OpenJDK Runtime Environment Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS)
+OpenJDK 64-Bit Server VM Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS, mixed mode, sharing)
+$ javac -d v1 v1/plug/Entry.java
+$ jar --create --file v1.jar -C v1 plug/Entry.class
+$ javac -d v2 v2/plug/Entry.java
+$ jar --create --file v2.jar -C v2 plug/Entry.class
+$ jar tf v1.jar
+META-INF/
+META-INF/MANIFEST.MF
+plug/Entry.class
+$ javac -cp v1.jar -d app Caller.java LoaderLab.java
+$ javap -v -c -cp app Caller
+  #21 = Methodref          #22.#23        // plug/Entry.text:()Ljava/lang/String;
+        17: invokestatic  #21                 // Method plug/Entry.text:()Ljava/lang/String;
+$ java -cp app:v1.jar Caller
+v1
+$ java -cp app Caller reflect
+Exception in thread "main" java.lang.ClassNotFoundException: plug.Entry
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:580)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:490)
+	at java.base/java.lang.Class.forName0(Native Method)
+	at java.base/java.lang.Class.forName(Class.java:467)
+	at java.base/java.lang.Class.forName(Class.java:458)
+	at Caller.main(Caller.java:3)
+$ java -cp app Caller
+Exception in thread "main" java.lang.NoClassDefFoundError: plug/Entry
+	at Caller.main(Caller.java:4)
+Caused by: java.lang.ClassNotFoundException: plug.Entry
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:580)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:490)
+	... 1 more
+$ java -cp app:v2.jar Caller
+Exception in thread "main" java.lang.NoSuchMethodError: 'java.lang.String plug.Entry.text()'
+	at Caller.main(Caller.java:4)
+$ java -Xlog:class+load=info -cp app:v1.jar Caller
+[0.016s][info][class,load] plug.Entry source: file:<lab>/v1.jar
+$ java -Xmx48m -XX:+UseG1GC -Xlog:class+unload=info -cp app LoaderLab chain
+app
+platform
+String defining loader = null
+$ java -Xmx48m -XX:+UseG1GC -Xlog:class+unload=info -cp app LoaderLab initialization
+recursive read = 1
+attempt 1 = ExceptionInInitializerError, cause = NumberFormatException
+attempt 2 = NoClassDefFoundError, cause = ExceptionInInitializerError
+$ java -Xmx48m -XX:+UseG1GC -Xlog:class+unload=info -cp app LoaderLab identity v1.jar
+same name = true, same Class = false
+java.lang.ClassCastException: Cannot cast plug.Entry to plug.Entry
+$ java -Xmx48m -XX:+UseG1GC -Xlog:class+unload=info -cp app LoaderLab unload v1.jar
+registry populated; loader reachable = true
+[0.021s][info][class,unload] unloading class plug.Entry 0x0000380001040800
+registry cleared; loader collected = true
+$ java -cp app LoaderLab cycle
+both initializers entered
+$ jcmd 12017 Thread.print
+"init-A" #25 [27139] daemon prio=5 os_prio=31 cpu=0.25ms elapsed=0.17s tid=0x0000007a1713c800 nid=27139 in Object.wait()  [0x000000017216d000]
+	- waiting on the Class initialization monitor for LoaderLab$B
+"init-B" #26 [32771] daemon prio=5 os_prio=31 cpu=0.15ms elapsed=0.17s tid=0x0000007a1713d000 nid=32771 in Object.wait()  [0x0000000172379000]
+	- waiting on the Class initialization monitor for LoaderLab$A

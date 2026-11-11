@@ -29,6 +29,18 @@ OpenJDK 25의 ARM64용 HotSpot 소스에서 큰 복사 구간을 따라가면 `a
 
 **복사량은 10배, 이 장비에서 관찰한 평균 시간은 약 20.1배였다.** Θ(n)은 옮겨야 할 원소 수가 어떻게 늘어나는지를 설명한다. 실제 나노초까지 같은 비율로 늘어난다는 예측은 아니다. 두 크기의 시간 차이에서 캐시가 얼마를 차지했는지는 이 측정만으로 분리할 수 없다. [측정 코드](./evidence/CopyLengthBench.java) · [재현 명령과 JVM별 측정값](./evidence/copy-length.txt)
 
+### 4KiB씩 복사하고 다시 찾는 주소만 바꾸면
+
+한 번에 `int` 1,024개를 복사하는 두 번째 JMH 실험에서는 **매번 4KiB를 쓰도록 고정했다.** 두 배열을 미리 채워 두고 한 블록을 반복하거나, 일정한 보폭으로 다음 블록을 골라 끝까지 순회했다. 두 배열에서 만지는 데이터의 합계를 작업 집합으로 잡았다.
+
+| 순회하는 블록 수 | 입력과 출력의 작업 집합 | 복사 한 번의 평균 |
+| ---: | ---: | ---: |
+| 1 | 8KiB | 35.8ns |
+| 256 | 2MiB | 83.4ns |
+| 16,384 | 128MiB | 377.0ns |
+
+작업 집합만 바꿔도 시간 차이가 났다. 호스트 M4 Pro의 성능 코어 L1 데이터 캐시는 128KiB, 해당 클러스터의 L2는 16MiB다. 이 세 크기는 각각 그 경계 안팎에 있다. 게스트 vCPU가 항상 같은 코어를 썼는지, 각 접근이 어느 캐시에 적중했는지는 측정하지 않았다. 특정 계층의 미스를 원인으로 판단하려면 측정 스레드의 코어를 고정한 환경에서 같은 실험과 대조 루프에 지원되는 캐시·TLB 성능 카운터를 함께 기록해야 한다. [블록 순회 코드](./evidence/CopyWindowBench.java) · [작업 집합·CPU 조건과 fork별 결과](./evidence/jni-window.txt)
+
 ## 원본과 목적지가 겹치면 어느 쪽부터 쓸까?
 
 복사할 양을 알았으니 이번에는 한 배열 안에서 값을 옮겨 보자. 아직 읽지 않은 칸에 먼저 써 버리면 어떻게 될까?
@@ -81,6 +93,20 @@ stur x4, [x16, #-8]  // 목적지 끝쪽에 쓴다
 ```
 
 **첫 번째 쓰기 전에 네 값이 모두 레지스터에 있다.** 그래서 목적지의 앞쪽부터 써도 원래 값이 살아남는다. 이름표 그림은 손으로 풀 수 있는 해법 하나다. 이 ARM64 코드에서는 레지스터 두 개로 같은 문제를 풀었다. 위 네 줄은 해당 JVM이 생성한 코드를 역어셈블한 발췌다. CPU가 실행한 명령을 한 줄씩 기록한 트레이스와는 구별된다. [실행 옵션·호출 주소·역어셈블 원본](./evidence/intrinsic.txt)
+
+### 직접 만든 JNI 함수에서 C의 memcpy를 부르면
+
+`int[]`는 자바 힙에 있다. C 함수는 JNI를 통해 배열 원소에 접근해야 한다. `GetIntArrayElements`가 돌려주는 포인터가 원래 배열의 원소를 가리킬지 임시 복사본을 가리킬지는 VM이 정한다. 이 HotSpot에서 16칸과 4,096칸을 따로 확인하니 둘 다 `isCopy=true`였다. 소스와 목적지의 임시 복사본을 얻고 `memcpy`를 한 뒤, 목적지 버퍼만 원래 배열에 반영했다. 다른 C 함수는 256원소짜리 스택 버퍼 하나로 `GetIntArrayRegion`과 `SetIntArrayRegion`을 반복했다. [JNI 배열 접근 계약](https://docs.oracle.com/en/java/javase/25/docs/specs/jni/functions.html#getprimitivetypearrayelements-routines) · [HotSpot의 복사본 생성](https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/share/prims/jni.cpp#L2418-L2446) · [목적지 반영과 버퍼 해제](https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/share/prims/jni.cpp#L2478-L2493)
+
+| 같은 두 배열 사이의 복사 한 번 | 16개(64바이트) | 4,096개(16KiB) |
+| --- | ---: | ---: |
+| `System.arraycopy` | 1.46ns | 144.6ns |
+| JNI 전체 배열 접근 후 `memcpy` | 34.19ns | 947.4ns |
+| JNI 구간 읽기·쓰기 | 29.65ns | 801.2ns |
+
+별도 대조 실험에서는 같은 정수를 돌려주는 데 자바 코드가 평균 0.30ns, 빈 계산을 하는 JNI 함수가 3.92ns 걸렸다. 이 장비에서는 같은 정수 하나를 네이티브 호출로 돌려받는 데 걸린 시간이 16원소의 자바 복사보다 길었다. 큰 배열에서는 네이티브 버퍼에 넣고 돌려주는 복사와 할당도 비용이다. 두 길이 모두 여기서는 C로 건너갈 이득이 없었다. 네이티브 방식에 이득이 생기는 조건은 한 번에 묶어 처리한 계산에서 아끼는 시간이 **호출 경계와 데이터 왕복 비용의 합**을 넘는 경우다. 입력을 네이티브 공간에 계속 두거나 여러 변환을 한 호출로 묶으면 손익을 다시 재야 한다. [JMH 호출 코드](./evidence/JniCopyBench.java) · [실제로 컴파일한 C 함수](./evidence/copybench.c) · [분리한 실험과 측정 오차](./evidence/jni-window.txt)
+
+`GetPrimitiveArrayCritical`로 접근할 때 이 HotSpot은 배열을 이동하지 못하게 고정(pin)한 뒤 주소를 준다. 사용 후 즉시 해제하면 배열의 이동 제한이 풀린다. JNI 명세는 critical 구간을 짧게 유지하고 다른 JNI 호출이나 다른 자바 스레드를 기다리는 블로킹을 피하도록 제한한다. 이 방식은 위 벤치마크에 넣지 않았다. [JNI critical 배열 접근](https://docs.oracle.com/en/java/javase/25/docs/specs/jni/functions.html#getprimitivearraycritical-releaseprimitivearraycritical) · [HotSpot의 고정과 해제](https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/share/prims/jni.cpp#L2804-L2826)
 
 ## 42에서 실패하면 첫 칸은 무엇일까?
 

@@ -63,4 +63,4 @@ recv(6) -> b' 2000\n'
 docker run --rm --network none -i python:3.12-slim python - < ack_before_read.py
 ```
 
-송금 서비스에서 클라이언트가 ACK를 받았는데 응답이 오지 않았다면 어느 단계에 와 있을까? [앞 글에서 본 GC 정지](/backend/transfer-performance/gc-timeline/) 중에도 커널은 버퍼 여유가 있는 동안 TCP 데이터를 받아 둘 수 있다. 또 서버가 이미 금액을 읽어 계좌에 기록한 후 응답만 유실됐을 수도 있다. 결과가 불명확한 송금을 다시 보내기 전에는 기존 식별자로 처리 상태를 확인해야 한다. [다음 글에서는 서버가 언제 송금 성공을 약속할 수 있는지 살펴본다.](/backend/transfer-performance/03-transfer-contract/)
+송금 서비스에서 클라이언트가 ACK를 받았는데 응답이 오지 않았다면 어느 단계에 와 있을까? [앞 글에서 본 GC 정지](/backend/transfer-performance/gc-timeline/) 중에도 커널은 버퍼 여유가 있는 동안 TCP 데이터를 받아 둘 수 있다. 또 서버가 이미 금액을 읽어 계좌에 기록한 후 응답만 유실됐을 수도 있다. 결과가 불명확한 송금을 다시 보내기 전에는 기존 식별자로 처리 상태를 확인해야 한다. 그렇다면 서로 독립적인 조회 두 건을 기다릴 때는 어떻게 시간을 줄일 수 있을까? [다음 글에서 외부 API 호출을 동시에 시작하고 실패한 작업을 정리하는 과정을 살펴본다.](/backend/transfer-performance/parallel-io/)

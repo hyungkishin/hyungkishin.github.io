@@ -76,4 +76,20 @@ python3 run.py results
 
 JDK 9는 서버 구성의 기본 수집기를 G1으로 바꿨다. 긴 정지를 줄이기 위해 일부 추적을 애플리케이션과 겹치고, 한 번에 비우는 범위를 제한하는 선택이었다. JDK 11에서 실험 기능으로 등장해 JDK 15에서 정식 기능이 된 ZGC는 객체를 다른 위치로 옮기는 작업까지 애플리케이션과 동시에 진행한다. 객체에 접근할 때 쓰는 장벽이 이동 중에도 올바른 참조를 찾도록 돕는다. JDK 21의 Generational ZGC는 여기에 세대를 나눠 젊은 객체를 더 자주 수집할 수 있게 했다. [JDK 9의 G1 기본화](https://openjdk.org/jeps/248) · [ZGC의 동시 이동 설계](https://openjdk.org/jeps/333) · [JDK 15 정식 기능 전환](https://openjdk.org/jeps/377) · [JDK 21의 세대별 ZGC](https://openjdk.org/jeps/439)
 
+## 큰 배열 세 개가 리전 여섯 개를 차지한 이유
+
+G1은 큰 객체(humongous object)를 오래된 세대의 **연속된 리전**에 배치한다. JDK 25 안내서는 대략 리전 절반부터 이 범주로 설명한다. 실험 버전의 HotSpot은 헤더·정렬을 포함한 객체 크기를 워드 단위로 계산해 절반 **초과**인지 검사한다. `byte[]`의 `length`는 데이터의 바이트 수이므로 객체 전체 크기와 차이가 있다. [JDK 25의 큰 객체 할당](https://docs.oracle.com/en/java/javase/25/gctuning/garbage-first-g1-garbage-collector1.html) · [실험 버전의 크기 비교](https://github.com/openjdk/jdk25u/blob/7b65d74bcbd7c3a0b4c1f5c5bd85e64aa2e51b4a/src/hotspot/share/gc/g1/g1CollectedHeap.hpp#L1190-L1197)
+
+리전 하나를 1 MiB로 고정하고 같은 크기의 배열 세 개를 살아 있게 한 뒤 GC를 요청했다. 배열 길이가 각각 500,000바이트인 실행에서는 로그의 `Humongous regions`가 `0->0`, 600,000바이트에서는 `3->3`, 1,100,000바이트에서는 `6->6`이었다. 마지막 경우에는 각 배열이 리전 두 개를 차지한다. 마지막 리전에 남은 공간은 그 객체가 회수될 때까지 다른 객체에 줄 수 없다. [할당 코드](./evidence/HumongousProbe.java) · [세 JVM의 옵션과 로그](./evidence/humongous.txt)
+
+운영 로그에서는 먼저 `-Xlog:gc*,gc+heap=info`의 리전 크기, `Humongous regions`, Full GC의 원인과 회수 전후를 맞춰 본다. 큰 할당에는 연속 공간이 필요해 흩어진 빈 리전의 합계만으로 성공을 예측하기 어렵다. 리전 수만으로 단편화를 확정할 수도 없다. JFR 할당 표본에서 배열 타입·크기·호출 위치를 확인하고, 같은 부하에서 버퍼를 나누거나 리전 크기를 조정했을 때 여유 공간과 정지가 어떻게 변하는지 비교한다. 위 실험에서 확인한 것은 점유 리전 수다. 연속 리전 부족으로 인한 할당 실패는 발생하지 않았다. [큰 객체와 Full GC 진단](https://docs.oracle.com/en/java/javase/25/gctuning/garbage-first-garbage-collector-tuning.html)
+
+## 객체가 오래 남을 때 수집기를 다시 고르는 기준
+
+96 MiB 힙에서 한 스레드가 4 KiB 배열 262,144개를 할당했다. 최근 32개만 보관하자 GC 직후 Old 리전 수의 최댓값은 **3**, Full GC는 **0회**였다. 최근 8,192개를 보관하자 최댓값이 **96**, Full GC가 **16회**였다. 나이 1인 생존 객체들의 바이트 합계도 한 번의 수집에서 기록된 최댓값이 214,152바이트에서 4,194,240바이트로 늘었다. 전체 할당량은 같았다. 오래된 리전 수에는 승격 이외의 요인도 반영되므로 이 수치를 그대로 초당 승격 바이트로 환산할 수는 없다. [참조를 유지하는 실험 코드](./evidence/SurvivalWindow.java) · [명령·로그와 집계 기준](./evidence/survival.txt)
+
+서비스에서 같은 현상을 만나면 할당률과 `gc+age=trace`의 연령별 생존 바이트, 승격·Old 점유량 변화, 마킹을 마친 뒤의 생존 집합을 같은 시간축에 둔다. 정지 목표를 계속 넘기는 구간에는 대피 실패와 Full GC가 있었는지를 함께 본다. 재배포 때마다 클래스 메타데이터가 늘면 먼저 로더가 해제되는지도 확인한다. [정의 로더를 붙들었다가 놓는 실험](/backend/transfer-performance/class-loading/)
+
+객체를 보관할 이유가 사라졌는데 계속 참조한다면 참조 수명부터 고친다. 유지가 필요한 데이터라면 운영의 할당률·생존 분포를 재현해 같은 CPU·메모리 예산과 요청 부하에서 G1과 후보 수집기를 비교한다. 짧은 꼬리 지연이 목표면 ZGC의 동시 작업이 애플리케이션의 CPU·메모리 여유를 얼마나 쓰는지, 처리량이 목표면 Parallel GC의 정지 시간이 허용 범위인지 본다. 선택 기준은 요청 p99·p99.9, 목표 처리량과 오류율이며 GC 정지 분포와 GC CPU는 차이의 원인을 설명한다. 위 실험은 수집기 간 우열을 측정한 결과가 아니다. [JDK 25 수집기 선택 기준](https://docs.oracle.com/en/java/javase/25/gctuning/available-collectors.html)
+
 서버가 응답을 기다리는 동안 G1이 실제로 애플리케이션을 멈췄는지는 같은 시간대의 정지 로그에서 확인할 수 있다. 그 밖의 대기는 어느 계층에서 생겼을까? [다음 편에서는 애플리케이션을 떠난 바이트가 TCP와 리눅스 커널을 거치는 과정을 살펴본다.](/backend/transfer-performance/tcp-linux/)

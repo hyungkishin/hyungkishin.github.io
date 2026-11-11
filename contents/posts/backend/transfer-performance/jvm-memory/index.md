@@ -83,4 +83,14 @@ GC는 실행 중인 스레드가 계속 사용할 참조 등에서 출발해 객
 
 두 실행 모두 Temurin 25.0.4.1과 32MiB 힙을 썼다. 큐 통지는 GC가 약한 참조를 처리했다는 관찰값이다. 영수증이 차지하던 바이트를 다음 객체가 재사용한 시각까지 알려 주지는 않는다. [기본 실행 출력](./evidence/receipt-stdout.txt) · [G1 로그](./evidence/receipt-gc.txt) · [대조 실행 명령과 출력](./evidence/receipt-no-explicit-gc.txt)
 
+## 자료의 그림을 실제 코드와 맞춰 보기
+
+네이버 D2의 2011년 글에서 런타임 데이터 영역 그림을 펴고 스레드 하나를 더 그려 보자. 스택과 PC는 하나씩 늘고 두 스레드는 같은 힙을 본다. 그림에 나오는 당시 HotSpot의 PermGen은 JDK 25에서 클래스 메타데이터를 찾을 위치와 다르다. 위 실험에서 본 환경은 메타스페이스를 쓴다. [D2의 JVM Internal](https://d2.naver.com/helloworld/1230)
+
+Pratik T의 예제처럼 지역 변수에서 객체를 가리키는 화살표를 그린 뒤, 그 객체 안에 `int` 필드 하나를 추가해 보자. 프레임의 지역 변수와 객체의 필드는 서로 다른 자리에 있다. 이렇게 그리면 “기본형은 어디에 저장되나?”에도 변수의 위치를 짚어 답할 수 있다. JIT가 할당을 제거한 실행에서는 소스의 상자 하나가 실제 힙의 객체 하나에 그대로 대응하지 않을 수도 있다. [Understanding JVM Memory Allocation](https://medium.com/@pratik.941/understanding-jvm-memory-allocation-a-tutorial-d06e830e615f) · [HotSpot의 탈출 분석](https://docs.oracle.com/en/java/javase/25/vm/java-hotspot-virtual-machine-performance-enhancements.html)
+
+AdoptOpenJDK의 보관된 JDK 11 소스에서는 `ClassFileParser`가 로더 데이터를 넘겨 상수 풀을 할당한 뒤 클래스 파일의 항목을 읽는 두 호출을 차례로 볼 수 있다. 위에서 그린 ‘클래스별 상수 풀’에 대응하는 구현이다. [JDK 11의 상수 풀 할당과 파싱](https://github.com/AdoptOpenJDK/openjdk-jdk11/blob/19fb8f93c59dfd791f62d41f332db9e306bc1422/src/hotspot/share/classfile/classFileParser.cpp#L6061-L6070) · [클래스 로딩 오류 재현](/backend/transfer-performance/class-loading/)
+
+책을 덮고 설명할 때는 먼저 호출 프레임에서 참조 하나가 사라지는 순간을 그린다. 그런 다음 그 객체가 여전히 살아 있을 조건을 하나만 바꿔 본다. [JVM 면접 연습 25문항과 『자바 최적화』 6·7장 복습](./evidence/interview.html)
+
 배열에 담긴 참조를 다른 칸으로 복사하면 객체도 하나 더 생길까? 같은 배열 안에서 아직 읽지 않은 칸을 덮으면 어떻게 될까? [다음 편에서 System.arraycopy 호출 한 줄을 CPU 명령까지 따라간다.](/backend/transfer-performance/system-arraycopy/)
