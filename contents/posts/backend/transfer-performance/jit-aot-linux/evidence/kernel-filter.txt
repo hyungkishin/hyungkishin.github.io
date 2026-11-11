@@ -1,0 +1,17 @@
+# Docker Desktop, Linux/arm64. Run in a directory containing KernelFilter.c.
+docker run --rm -v "$PWD/KernelFilter.c:/src/KernelFilter.c:ro" alpine:3.22 sh -ec '
+  apk add --quiet --no-cache gcc musl-dev linux-headers
+  uname -srmo
+  cc -dumpfullversion
+  zcat /proc/config.gz | grep -E "^CONFIG_BPF_JIT(=|_ALWAYS_ON=)"
+  cc -std=c11 -D_GNU_SOURCE -Wall -Wextra -Werror -O2 /src/KernelFilter.c -o /tmp/filter
+  /tmp/filter
+'
+
+# Output
+Linux 7.0.12-linuxkit aarch64 Linux
+14.2.0
+CONFIG_BPF_JIT=y
+CONFIG_BPF_JIT_ALWAYS_ON=y
+RET 0: A sent, receiver queue empty
+RET UINT_MAX: B sent, B received

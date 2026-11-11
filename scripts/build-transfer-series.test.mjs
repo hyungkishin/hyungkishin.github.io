@@ -12,7 +12,10 @@ const cli = path.join(projectRoot, 'scripts/build-transfer-series.mjs');
 const slugs = [
   '/backend/transfer-performance/01-measurement/',
   '/backend/transfer-performance/02-jvm-execution/',
+  '/backend/transfer-performance/jit-aot-linux/',
   '/backend/transfer-performance/jvm-memory/',
+  '/backend/transfer-performance/gc-timeline/',
+  '/backend/transfer-performance/tcp-linux/',
   '/backend/transfer-performance/03-transfer-contract/',
   '/backend/transfer-performance/04-kafka-redis/',
   '/backend/transfer-performance/05-jpa-access/',
@@ -66,7 +69,7 @@ test('빌더가 등록된 시리즈 경로를 모두 만들고 기존 출력 경
   for (const slug of slugs) assert.equal((await page(paths, slug)).querySelectorAll('h1').length, 1);
   assert.equal(await readFile(path.join(paths.outputDir, 'existing/keep.txt'), 'utf8'), '기존 배포 파일');
   assert.deepEqual((await readdir(path.join(paths.outputDir, 'backend/transfer-performance'))).sort(), [
-    '01-measurement', '02-jvm-execution', '03-transfer-contract', '04-kafka-redis', '05-jpa-access', 'assets', 'index.html', 'jvm-memory',
+    '01-measurement', '02-jvm-execution', '03-transfer-contract', '04-kafka-redis', '05-jpa-access', 'assets', 'gc-timeline', 'index.html', 'jit-aot-linux', 'jvm-memory', 'tcp-linux',
   ]);
 });
 
@@ -87,12 +90,11 @@ test('제목을 HTML로 실행하지 않고 원문과 절 링크를 보존한다
   assert.equal(document.querySelector('.article-body a').hash, '#section-1');
   assert.equal(document.querySelector('[rel="prev"]').getAttribute('href'), slugs[0]);
   assert.equal(document.querySelector('[rel="next"]').getAttribute('href'), slugs[2]);
-  const memory = await page(paths, slugs[2]);
-  assert.equal(memory.querySelector('[rel="prev"]').getAttribute('href'), slugs[1]);
-  assert.equal(memory.querySelector('[rel="next"]').getAttribute('href'), slugs[3]);
-  assert.equal((await page(paths, slugs[3])).querySelector('[rel="prev"]').getAttribute('href'), slugs[2]);
-  assert.equal((await page(paths, slugs[0])).querySelector('[rel="prev"]'), null);
-  assert.equal((await page(paths, slugs.at(-1))).querySelector('[rel="next"]'), null);
+  for (const [index, slug] of slugs.entries()) {
+    const chapter = await page(paths, slug);
+    assert.equal(chapter.querySelector('[rel="prev"]')?.getAttribute('href'), slugs[index - 1]);
+    assert.equal(chapter.querySelector('[rel="next"]')?.getAttribute('href'), slugs[index + 1]);
+  }
   const jsonLd = JSON.parse(document.querySelector('script[type="application/ld+json"]').textContent);
   assert.equal(jsonLd.headline, 'JVM "<script>unsafe()</script>" & 실행');
 });

@@ -1,0 +1,15 @@
+execution.txt에 적은 같은 Temurin 25.0.5+8, 같은 fees.jar로 실행했다.
+
+$ java -XX:AOTCacheOutput=fees.aot -cp fees.jar FeeRuns
+totalWon=505000010000
+Temporary AOTConfiguration recorded: fees.aot.config
+Launching child process /opt/java/openjdk/bin/java to assemble AOT cache fees.aot using configuration fees.aot.config
+Picked up JAVA_TOOL_OPTIONS: -Djava.class.path=fees.jar -XX:AOTCacheOutput=fees.aot -XX:AOTConfiguration=fees.aot.config -XX:AOTMode=create
+Reading AOTConfiguration fees.aot.config and writing AOTCache fees.aot
+AOTCache creation is complete: fees.aot 9306112 bytes
+Removed temporary AOT configuration file fees.aot.config
+
+$ java -Xlog:aot=info,class+load=info -XX:AOTCache=fees.aot -cp fees.jar FeeRuns
+출력 발췌
+[0.026s][info][class,load] FeeRuns source: shared objects file
+totalWon=505000010000

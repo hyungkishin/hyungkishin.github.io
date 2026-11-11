@@ -11,12 +11,15 @@ const SERIES_RULES = [
   {
     id: "transfer-performance",
     name: "송금 한 건으로 읽는 백엔드",
-    tagline: "성능 측정부터 JVM 실행과 메모리, 송금 확정과 잔액 갱신까지",
+    tagline: "JVM 컴파일과 메모리, GC 정지 시간, TCP 전송에서 송금 확정까지",
     indexSlug: "/backend/transfer-performance/",
     slugs: [
       "/backend/transfer-performance/01-measurement/",
       "/backend/transfer-performance/02-jvm-execution/",
+      "/backend/transfer-performance/jit-aot-linux/",
       "/backend/transfer-performance/jvm-memory/",
+      "/backend/transfer-performance/gc-timeline/",
+      "/backend/transfer-performance/tcp-linux/",
       "/backend/transfer-performance/03-transfer-contract/",
       "/backend/transfer-performance/04-kafka-redis/",
       "/backend/transfer-performance/05-jpa-access/",
