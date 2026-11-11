@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 508" role="img" aria-labelledby="title desc">
-  <title id="title">영수증을 만드는 일곱 명령과 피연산자 스택</title>
-  <desc id="desc">make(100)의 실제 바이트코드 순서다. new는 아직 초기화되지 않은 객체 참조 U를 하나 남긴다. dup은 같은 U를 복제하고 iload_0이 수수료 100을 올린다. invokespecial은 U 하나와 인자를 소비해 생성자를 부른다. 정상 반환 뒤 남은 U를 초기화된 참조 R로 사용할 수 있다. astore_1은 R을 지역 변수 receipt에 저장하고 aload_1은 이를 다시 읽고 areturn은 호출자에 반환한다. 강조 행은 읽는 순서를 나타낸다.</desc>
+  <title id="title">Box를 만드는 일곱 명령과 피연산자 스택</title>
+  <desc id="desc">make(7)의 실제 바이트코드 순서다. new는 아직 초기화되지 않은 객체 참조 U를 하나 남긴다. dup은 같은 U를 복제하고 iload_0이 인자 값 7을 올린다. invokespecial은 U 하나와 인자를 소비해 생성자를 부른다. 정상 반환 뒤 남은 U를 초기화된 참조 R로 사용할 수 있다. astore_1은 R을 지역 변수 box에 저장하고 aload_1은 이를 다시 읽고 areturn은 호출자에 반환한다. 강조 행은 읽는 순서를 나타낸다.</desc>
   <style>
     text { font-family: Pretendard, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; fill: #101d35; }
     .title { font-weight: 750; font-size: 24px; letter-spacing: -.7px; }
@@ -17,7 +17,7 @@
     @media (prefers-reduced-motion: no-preference) {
       .row { animation: follow-instruction 14s step-end infinite; }
       .dup { animation-delay: -12s; }
-      .load-fee { animation-delay: -10s; }
+      .load-value { animation-delay: -10s; }
       .init { animation-delay: -8s; }
       .store { animation-delay: -6s; }
       .load-ref { animation-delay: -4s; }
@@ -26,9 +26,9 @@
     @keyframes follow-instruction { 0% { opacity: 1; } 14.285714%, 100% { opacity: 0; } }
   </style>
   <rect width="460" height="508" rx="12" fill="#fff"/>
-  <text x="18" y="35" class="title">make(100)의 피연산자 스택</text>
+  <text x="18" y="35" class="title">make(7)의 피연산자 스택</text>
   <text x="18" y="69" class="label">U는 초기화 전 참조, R은 초기화를 마친 참조다.</text>
-  <text x="18" y="94" class="label">U와 R은 같은 영수증을 가리킨다.</text>
+  <text x="18" y="94" class="label">U와 R은 같은 Box 객체를 가리킨다.</text>
 
   <text x="19" y="134" class="column">위치</text>
   <text x="66" y="134" class="column">명령</text>
@@ -38,7 +38,7 @@
   <g>
     <rect x="13" y="151" width="434" height="35" rx="6" class="row"/>
     <rect x="13" y="193" width="434" height="35" rx="6" class="row dup"/>
-    <rect x="13" y="235" width="434" height="35" rx="6" class="row load-fee"/>
+    <rect x="13" y="235" width="434" height="35" rx="6" class="row load-value"/>
     <rect x="13" y="277" width="434" height="35" rx="6" class="row init"/>
     <rect x="13" y="319" width="434" height="35" rx="6" class="row store"/>
     <rect x="13" y="361" width="434" height="35" rx="6" class="row load-ref"/>
@@ -64,7 +64,7 @@
     <rect x="285" y="240"/><text x="299" y="259">U</text>
   </g>
   <rect x="319" y="240" width="47" height="26" rx="5" fill="#fff" stroke="#acbad0"/>
-  <text x="342" y="259" class="op" text-anchor="middle">100</text>
+  <text x="342" y="259" class="op" text-anchor="middle">7</text>
   <g class="chip ready">
     <rect x="251" y="282"/><text x="265" y="301">R</text>
     <rect x="251" y="366"/><text x="265" y="385">R</text>
@@ -73,6 +73,6 @@
   <text x="251" y="343" class="label">비었음</text>
   <text x="251" y="427" class="label">호출자로 R 반환</text>
   <path d="M17 448H443" stroke="#b7c8de"/>
-  <text x="18" y="474" class="label">dup으로 늘어나는 것은 같은 영수증의 참조다.</text>
-  <text x="18" y="497" class="label">생성자 &lt;init&gt;에는 U 하나와 수수료 100을 넘긴다.</text>
+  <text x="18" y="474" class="label">dup으로 늘어나는 것은 같은 Box 객체의 참조다.</text>
+  <text x="18" y="497" class="label">생성자 &lt;init&gt;에는 U 하나와 정수 7을 넘긴다.</text>
 </svg>

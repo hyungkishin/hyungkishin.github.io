@@ -1,8 +1,8 @@
 ---
-title: "메서드가 끝났는데 영수증은 왜 남아 있을까?"
-description: "JVM 메모리에서 수수료 100원짜리 영수증을 따라간다. 메서드가 끝난 뒤 힙에 무엇이 남는지, 마지막 참조를 놓으면 GC가 언제 반응하는지 그림과 실행 로그로 살펴봤다."
+title: "JVM 메모리 구조와 객체의 생명주기"
+description: "스레드마다 갖는 PC와 스택, 모든 스레드가 쓰는 힙과 메서드 영역을 한 장에 그렸다. 메서드가 반환한 뒤 객체가 남는 이유와 GC가 힙의 공간을 다시 쓰는 과정을 설명한다."
 date: 2026-11-11
-update: 2026-11-11
+update: 2026-11-12
 tags:
   - JVM
   - Java
@@ -11,83 +11,72 @@ tags:
   - GC
 ---
 
-송금 수수료 100원을 영수증에 담아 돌려주는 메서드가 있다. 메서드가 끝나면 그 안에서 쓰던 지역 변수에는 더 이상 접근할 수 없다. 그런데 호출한 쪽은 그 뒤에도 수수료를 읽는다. 100원은 어디에 남아 있을까?
+JVM에서 각 스레드는 **자기 스택**에 진행 중인 메서드 호출을 쌓는다. 호출 중에 만든 객체는 스레드들이 함께 쓰는 **힙**에 놓인다. 메서드가 끝나면 그 호출은 스택에서 빠진다. 다른 곳에서 여전히 쓰는 객체는 힙에 남는다.
 
-![반환 전에는 make의 receipt가, 반환 뒤에는 호출자의 local이 수수료 100원인 같은 영수증을 가리킨다.](./01-frame-and-heap.svg)
+## JVM의 런타임 데이터 영역
 
-그림에서 영수증을 향한 화살표의 출발점을 보자. 반환 직전에는 `make`의 변수 `receipt`다. 반환하고 나면 호출자의 변수 `local`이다. 두 장면에 등장하는 영수증은 하나다.
+![스레드가 하나 늘면 실행 위치와 호출 스택도 하나씩 늘어난다. 두 스레드는 같은 힙과 메서드 영역을 쓴다.](./00-runtime-areas.svg)
 
-## 메서드에서 돌아오는 값은 무엇일까?
+**스레드마다** 프로그램 카운터(PC)와 JVM 스택이 있다. PC는 현재 실행 중인 JVM 명령의 위치를 가리킨다. JVM 스택에는 아직 끝나지 않은 메서드 호출이 차례로 쌓인다. 네이티브 메서드를 실행하는 동안에는 JVM 명세가 PC 값을 정하지 않는다. C로 작성한 메서드 등을 실행할 때 네이티브 메서드 스택을 쓰는 구현도 있다.
 
-영수증에는 원 단위 수수료 하나만 담았다. 아래는 실행한 예제의 일부다. `make`의 마지막 줄에서 어떤 값이 호출자에게 넘어갈까? [전체 Java 소스](./evidence/ReceiptMemoryDemo.java)
+**모든 스레드가 공유하는** 힙에는 클래스의 인스턴스와 배열이 놓인다. 메서드 영역에는 클래스별 필드·메서드 정보와 메서드의 바이트코드가 있다. 각 클래스나 인터페이스의 **런타임 상수 풀**도 여기에 속한다. 바이트코드가 다른 클래스의 메서드를 이름과 타입으로 가리킬 때 쓰는 정보가 그 예다. [JVM 명세 §2.5 런타임 데이터 영역](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.5)
+
+명세에서는 메서드 영역을 논리적으로 힙에 포함한다. 그림에서는 객체를 담는 역할과 클래스 정보를 보관하는 역할을 따로 표시했다.
+
+OpenJDK의 JVM 구현인 HotSpot에서는 클래스 메타데이터가 주로 네이티브 메모리의 **메타스페이스**에 놓인다. JIT가 만든 기계어는 **코드 캐시**에 놓인다. 직접 버퍼가 쓰는 데이터도 힙 밖에 있을 수 있다. 그래서 `-Xmx`로 힙의 최댓값을 정해도 프로세스 전체 메모리는 그보다 커질 수 있다. [HotSpot의 클래스 메타데이터](https://docs.oracle.com/en/java/javase/25/gctuning/other-considerations.html) · [HotSpot 코드 캐시](https://docs.oracle.com/en/java/javase/25/vm/java-hotspot-virtual-machine-performance-enhancements.html) · [Java 직접 버퍼](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/ByteBuffer.html#direct)
+
+## 스택 프레임 하나가 생기고 사라질 때
+
+메서드를 한 번 호출할 때마다 JVM 스택에 **프레임**이 하나 생긴다. 같은 메서드를 재귀 호출해도 호출마다 별도의 프레임을 쓴다. 프레임에는 인자와 지역 변수를 담는 슬롯, 명령이 계산할 값을 잠시 올려놓는 **피연산자 스택**, 현재 메서드가 속한 클래스의 런타임 상수 풀에 대한 참조가 들어 있다. 재귀 호출이 너무 깊어져 스레드가 허용된 스택 크기를 넘으면 `StackOverflowError`가 발생한다. [JVM 명세 §2.6 프레임](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.6)
 
 ```java
-record Receipt(int feeWon) {}
+record Box(int value) {}
 
-static Receipt make(int feeWon) {
-    Receipt receipt = new Receipt(feeWon);
-    return receipt;
+static Box make(int value) {
+    Box box = new Box(value);
+    return box;
 }
 ```
 
-JVM에서 메서드를 호출하면 그 호출에 쓸 **프레임**이 생긴다. 지금 실행하는 스레드의 스택에 놓이는 작업 공간이다. `make`의 프레임에는 인자인 정수 `feeWon`과 지역 변수 `receipt`가 있다. `receipt`에 담긴 값은 영수증을 가리키는 **참조**다. 영수증 같은 객체는 JVM의 여러 스레드가 공유하는 **힙**에 할당된다. [JVM 명세의 프레임](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.6) · [JVM 명세의 힙](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.5.3)
+호출자가 `Box result = make(7)`을 실행한다고 하자. `make`의 지역 변수 `value`에는 정수 7이, `box`에는 힙의 객체를 가리키는 참조가 들어간다. 객체 안의 필드에도 정수 7이 저장된다. 같은 `int`라도 인자로 전달한 값과 객체에 저장한 값은 자리가 다르다.
 
-`return receipt`는 그 참조를 호출자에게 건넨다. `make`의 프레임은 호출이 끝나면 사라진다. 호출자 `saveForLater`는 반환받은 참조를 자기 프레임의 `local`에 저장한다. 나중에도 읽으려고 클래스의 `static` 필드 `saved`에 대입한다.
+![make가 반환하면 그 프레임은 사라진다. 호출자의 result는 반환받은 참조로 같은 Box를 읽는다.](./01-frame-and-heap.svg)
 
-```java
-Receipt local = make(100);
-saved = local;
-System.out.println("local == saved: " + (local == saved));
-```
+`return box`가 호출자에게 건네는 값은 참조 하나다. 호출자는 자기 프레임에 저장한 `result`로 객체의 필드를 읽는다.
 
-`==`가 비교하는 것은 두 변수가 **같은 객체**를 가리키는지다. 이 줄의 출력은 `true`였다. `saveForLater`까지 끝난 뒤에는 `main`에서 `saved.feeWon()`을 호출했고 `100`을 읽었다. 여전히 영수증으로 가는 길이 하나 남아 있었기 때문이다. [실행 출력](./evidence/receipt-stdout.txt)
+## new가 공간을 얻고 생성자가 값을 채우는 순서
 
-## new 한 줄에서 참조는 어떻게 생길까?
+`new Box(value)`를 컴파일하면 객체를 위한 공간을 확보하는 명령과 생성자를 호출하는 명령이 따로 나온다. JVM이 아직 `Box` 클래스를 초기화하지 않았다면 클래스 초기화부터 수행한다. JVM은 새 인스턴스의 필드를 기본값으로 준비한다. `int` 필드는 0에서 시작한다. 이어서 `Box` 생성자가 인자로 받은 7을 필드에 쓴다. [JVM 명세의 new 명령](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.new)
 
-[앞 글](/backend/transfer-performance/02-jvm-execution/)에서는 `javap`로 수수료 계산을 호출한 위치를 찾았다. 이번에는 `make`의 `new Receipt(feeWon)`을 열어 보자. 아래 그림은 각 명령을 실행한 직후 프레임 안의 **피연산자 스택**에 무엇이 남는지 보여 준다. 이 스택은 계산에 넣을 값이나 호출 직후 돌려받은 값을 잠시 두는 곳이다.
+![각 행은 명령 하나가 끝난 직후다. dup 다음의 U 두 개는 같은 객체를 가리킨다. 생성자 호출이 끝나면 초기화된 참조 R 하나가 남는다.](./02-new-and-init.svg)
 
-![new와 dup가 같은 미초기화 객체의 참조를 스택에 놓는다. 생성자 호출이 끝나면 초기화된 영수증의 참조 하나가 남는다.](./02-new-and-init.svg)
+`dup`은 맨 위의 참조를 복제한다. `invokespecial`이 참조 하나와 정수 7을 소비해 생성자를 호출해도 원래 참조 하나는 남는다. 이어서 `astore_1`이 그 값을 지역 변수 `box`에 저장한다. `aload_1`이 값을 다시 올리면 `areturn`이 호출자에게 돌려준다. [앞 글에서 본 피연산자 스택](/backend/transfer-performance/02-jvm-execution/#diagram-01-stack-machine)
 
-오프셋 `0`의 `new`는 새 영수증의 참조를 스택에 놓는다. 아직 생성자를 호출하기 전이라 그림에 `U`로 표시했다. `3: dup` 뒤에 U가 두 개 보인다. 복사한 것은 맨 위의 참조 값이다. 둘 다 같은 영수증을 가리킨다. 이어서 `4: iload_0`이 인자 `100`을 올린다.
+HotSpot 객체에는 필드 외에도 타입과 잠금 상태 등을 기록하는 헤더가 있다. `Box` 하나를 만들 때 필요한 공간에는 이 헤더와 정렬에 필요한 여백까지 들어간다. [HotSpot 객체 헤더](https://docs.oracle.com/en/java/javase/25/gctuning/other-considerations.html)
 
-`5: invokespecial`은 참조 하나와 `100`을 꺼내 생성자 `<init>(int)`를 호출한다. 생성자가 정상적으로 끝나면 남겨 둔 참조로 초기화된 영수증을 쓸 수 있다. 그림의 `R`이다. 생성자의 반환 타입은 `void`다. 여기서 쓸 수 있는 참조는 `dup`에서 한 벌 남겨 둔 값이다. [JVM 명세의 new 명령](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.new)
+스레드는 공유 힙의 일부를 **TLAB**(스레드별 할당 버퍼)으로 받아 쓸 수 있다. 남은 공간이 충분하면 그 안에서 다음 빈 위치를 객체 크기만큼 옮겨 할당한다. 스레드끼리 매번 같은 할당 위치를 갱신할 필요가 줄어든다. 그 객체의 참조를 다른 스레드에 전달하면 다른 스레드도 객체에 접근할 수 있다. [OpenJDK 25의 TLAB 할당 코드](https://github.com/openjdk/jdk/blob/jdk-25-ga/src/hotspot/share/gc/shared/memAllocator.cpp)
 
-마지막 세 명령은 그림에서 본 화살표를 코드와 연결해 준다. `8: astore_1`은 그 참조를 지역 변수 슬롯 1에 저장한다. `9: aload_1`이 같은 값을 다시 스택에 올리면 `10: areturn`이 호출자에게 돌려준다. 클래스 파일의 지역 변수 표에서 슬롯 1의 이름도 `receipt`로 확인할 수 있다. [javap 출력](./evidence/receipt-javap.txt)
+JIT가 필요한 필드 값만으로 계산을 끝낼 수 있으면 실제 할당을 생략하기도 한다. 바이트코드의 `new` 개수만 세서는 힙 사용량을 계산하기 어렵다. [HotSpot의 탈출 분석](https://docs.oracle.com/en/java/javase/25/vm/java-hotspot-virtual-machine-performance-enhancements.html#GUID-6BD8FCB5-995B-4AE9-BFAA-B2C7DE2BA5CD)
 
-여기서 읽은 것은 클래스 파일의 명령이다. 그림 속 화살표는 어느 변수가 어느 객체를 가리키는지 보여 준다. HotSpot은 힙에서 객체를 만들 때 스레드별로 확보해 둔 공간인 TLAB을 쓸 수 있다. 컴파일러는 객체의 쓰임에 따라 필드 값을 따로 계산해 객체 할당을 생략하기도 한다. `javap`의 `new` 한 줄로 이 실행이 어느 할당 경로를 탔는지 알 수는 없다. [HotSpot의 탈출 분석](https://docs.oracle.com/en/java/javase/25/vm/java-hotspot-virtual-machine-performance-enhancements.html#GUID-6BD8FCB5-995B-4AE9-BFAA-B2C7DE2BA5CD) · [Java 실행 옵션의 TLAB 설명](https://docs.oracle.com/en/java/javase/25/docs/specs/man/java.html)
+## GC가 살아 있는 객체를 찾고 공간을 회수하는 과정
 
-## 마지막 참조를 놓으면 바로 사라질까?
+GC는 실행 중인 스레드가 계속 사용할 참조 등에서 출발해 객체 사이의 연결을 따라간다. 이런 출발점을 **GC 루트**라고 한다. 루트에서 일반 참조를 따라 도달하는 객체는 살아 있다. 메서드가 끝난 뒤에도 다른 객체의 필드나 배열에 참조가 남아 있으면 그 경로를 통해 계속 사용할 수 있다.
 
-`main`은 수수료를 읽은 직후 `saved = null`을 실행한다. 그때 무슨 일이 일어나는지 보려고 `saveForLater`에서 작은 관찰 장치를 하나 준비했다. 영수증을 `WeakReference`로 감싸 두고 그 약한 참조가 처리되면 통지를 받을 `ReferenceQueue`를 연결했다.
+![루트에서 보관 목록을 거쳐 객체에 닿는다. 목록에서 마지막 연결을 끊으면 GC가 그 객체의 공간을 회수할 수 있다.](./03-gc-reachability.svg)
 
-![saved를 비우기 전에는 클래스의 필드를 통해 영수증에 닿는다. 비운 뒤에는 WeakReference에서 출발하는 약한 연결만 남는다.](./03-gc-reachability.svg)
+그림에서 목록의 항목을 지우는 순간 바뀌는 것은 **도달 가능성**이다. 서로만 가리키는 두 객체도 루트에서 둘 중 어느 쪽으로도 닿지 않으면 회수 대상이 된다. 반대로 사용 기한이 지난 항목을 계속 목록에 보관하면 GC가 여러 번 실행돼도 살아남는다. [Java의 도달 가능성 정의](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/ref/package-summary.html#reachability)
 
-위 그림에서 `saved`를 비우기 전에는 살아 있는 클래스의 필드를 따라 영수증에 닿을 수 있다. 가비지 컬렉터(GC)는 프로그램이 계속 쓸 수 있는 객체를 찾으려고 참조를 따라간다. 그 출발점이 **GC 루트**다. 실행 중인 스레드가 앞으로 사용할 지역 참조도 그런 출발점의 예다. 루트에서 일반 참조를 따라 닿는 동안에는 영수증이 **강하게 도달 가능**하다. [Java의 도달 가능성 정의](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/ref/package-summary.html#reachability)
+실제로 빈 공간을 만드는 방식은 수집기마다 다르다. **G1**은 힙을 같은 크기의 리전(region)으로 나눈다. 작은 새 객체는 보통 Eden 리전에 들어간다. 젊은 세대 수집에서 살아남은 객체는 Survivor나 Old 리전으로 옮긴다. 일반적인 대피(evacuation) 과정에서는 선택한 리전의 살아 있는 객체를 다른 리전으로 복사하고 참조를 고친다. 대피를 마친 리전은 통째로 다시 할당에 쓸 수 있다. [JDK 25 G1의 힙 배치와 회수 과정](https://docs.oracle.com/en/java/javase/25/gctuning/garbage-first-g1-garbage-collector1.html)
 
-이제 `make`와 `saveForLater`는 모두 끝났고 `saved`도 비었다. `main`에 남은 것은 약한 참조 객체 `watched`다. 약한 참조는 가리키는 영수증을 계속 살려 두지 않는다. GC가 영수증에 약한 참조로만 닿는다고 판정하면 그 연결을 지운다. 큐에 등록한 약한 참조는 그때 또는 그 뒤에 큐에 들어간다. 큐에서 꺼낸 값이 우리가 등록한 `watched`인지 비교하면, 영수증을 다시 꺼내지 않고도 통지가 왔는지 알 수 있다. [WeakReference API](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/ref/WeakReference.html)
+## 짧은 실험으로 확인한 객체의 수명
 
-## 같은 코드에서 GC 요청만 바꿔 봤다
+송금 수수료 100원을 담은 영수증으로 두 시점을 확인했다. 먼저 메서드가 영수증의 참조를 클래스의 `static` 필드 `saved`에 저장하고 반환했다. 그 뒤 호출자에서 `saved.feeWon()`을 읽은 값은 100이었다. 이어서 `saved = null`로 마지막 강한 참조를 끊었다. 영수증에 연결해 둔 약한 참조(`WeakReference`)가 지워져 큐에 들어오는지 최대 2초 동안 기다렸다. [실행할 Java 소스](./evidence/ReceiptMemoryDemo.java) · [바이트코드 발췌](./evidence/receipt-javap.txt)
 
-Temurin OpenJDK 25.0.4.1에서 가비지 컬렉터로 G1을 쓰고 힙을 32MiB로 고정했다. 첫 실행에서는 `saved`를 비운 뒤 `System.gc()`를 호출했다. 큐에서 기다릴 시간은 2초로 설정했다.
+| 같은 코드, 다른 실행 조건 | 2초 안에 큐에서 약한 참조를 받았나? |
+| --- | --- |
+| G1에서 `System.gc()` 요청 허용 | 새 JVM에서 다섯 번 모두 받았다. |
+| `-XX:+DisableExplicitGC`로 명시적 요청 무시 | 한 번 실행했다. 기다리는 동안 통지는 없었다. |
 
-```bash
-javac -g ReceiptMemoryDemo.java
-java -Xms32m -Xmx32m -XX:+UseG1GC -Xlog:gc:file=receipt-gc.txt ReceiptMemoryDemo
-```
+두 실행 모두 Temurin 25.0.4.1과 32MiB 힙을 썼다. 큐 통지는 GC가 약한 참조를 처리했다는 관찰값이다. 영수증이 차지하던 바이트를 다음 객체가 재사용한 시각까지 알려 주지는 않는다. [기본 실행 출력](./evidence/receipt-stdout.txt) · [G1 로그](./evidence/receipt-gc.txt) · [대조 실행 명령과 출력](./evidence/receipt-no-explicit-gc.txt)
 
-아래는 프로그램이 출력한 네 줄이다. 셋째 줄은 기다리던 `watched`를 큐에서 받았는지를 보여 준다. 마지막 줄은 `watched.refersTo(null)`로 확인한 결과다.
-
-```text
-local == saved: true
-saved.feeWon(): 100
-enqueued within 2 s: true
-weak reference cleared: true
-```
-
-같은 조건으로 새 JVM에서 다섯 번 실행해 모두 큐 통지를 받았다. 한 실행의 G1 로그에는 `Pause Full (System.gc())`와 `1M->1M(32M)`이 찍혔다. 앞뒤의 `1M`은 힙 전체의 사용량을 이 단위로 표시한 값이다. 영수증 하나의 크기나 그 메모리가 재사용된 순간은 이 줄에서 읽을 수 없다. [G1 로그](./evidence/receipt-gc.txt)
-
-대조 실행에서는 같은 명령에 `-XX:+DisableExplicitGC`만 더했다. 애플리케이션이 요청한 명시적 GC를 무시하는 옵션이다. 이번에도 수수료는 `100`이었지만 2초 동안 큐 통지가 오지 않았다. 확인할 때까지 약한 참조도 지워지지 않았다. 두 실행 모두 같은 줄에서 마지막 강한 참조를 끊었다. 그 줄에 도달한 시점과 GC가 약한 참조를 처리한 시점은 이렇게 다를 수 있다. [대조 실행 명령과 출력](./evidence/receipt-no-explicit-gc.txt) · [System.gc()의 동작 범위](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/System.html#gc())
-
-송금 서비스에서 영수증이 오래 남는다면 먼저 누가 그 영수증을 계속 가리키는지 본다. 재조회에 필요해 보관하는 동안에는 살아 있는 게 맞다. 보관 기한이 끝났는데도 영수증을 목록에서 지우지 않아 계속 쌓인다면 메모리 누수를 의심할 수 있다. GC는 그 보관 기한을 알지 못한다.
-
-이 예제의 `saved`는 실행 중인 JVM 안에만 있는 값이다. 프로세스가 재시작해도 고객에게 송금 결과를 알려 주려면 무엇을 기록해야 할까? [다음 글에서 송금 접수와 확정을 구분하는 이유로 이어진다.](/backend/transfer-performance/03-transfer-contract/)
+힙의 영수증은 이 JVM이 실행되는 동안에만 다시 읽을 수 있다. [다음 편에서는 프로세스가 재시작해도 송금 성공을 알려 줄 수 있도록 무엇을 기록하는지 살펴본다.](/backend/transfer-performance/03-transfer-contract/)

@@ -2,7 +2,7 @@
 title: "같은 자바 코드가 실행 중에 달라지는 이유"
 description: "수수료 계산을 한 번 컴파일하고 JVM 두 개에서 돌렸다. 똑같은 호출 위치에 서로 다른 메서드 이름이 찍혔다."
 date: 2026-11-04
-update: 2026-11-11
+update: 2026-11-12
 tags:
   - JVM
   - Java
@@ -102,4 +102,4 @@ HotSpot은 같은 메서드를 여러 단계에 걸쳐 컴파일할 수 있다. 
 
 [앞 글](/backend/transfer-performance/01-measurement/)에서 정한 측정 구간에 이 차이를 반영할 수 있다. 배포 직후 첫 송금이 느린 문제라면 첫 요청을 측정에 남긴다. 충분히 실행한 서비스의 수수료 계산 비용을 비교한다면 각 버전을 별도 JVM에서 시작한 뒤 측정할 때와 비슷한 정책 비율로 워밍업한다. 벤치마크 도구 JMH에서 fork는 JVM을 새로 띄우는 설정이다. warmup 횟수는 그 JVM에서 측정 전에 몇 차례 연습할지를 정한다. [OpenJDK JMH의 fork 예제](https://github.com/openjdk/jmh/blob/master/jmh-samples/src/main/java/org/openjdk/jmh/samples/JMHSample_12_Forking.java)
 
-여기까지는 수수료를 정수로 돌려줬다. 수수료 100원을 영수증 객체에 담아 돌려주면 어떻게 될까? 메서드는 이미 끝났는데, 호출자는 여전히 영수증을 열어 볼 수 있다. [다음 글에서 영수증 하나로 JVM의 스택과 힙, GC를 따라간다.](/backend/transfer-performance/jvm-memory/)
+바이트코드의 피연산자 스택은 메서드 호출 하나에 속한다. 메서드가 값을 반환하면 그 자리는 사라지지만, 반환한 참조가 가리키는 객체는 계속 쓸 수 있다. [다음 편에서 JVM 메모리의 전체 구조와 프레임·힙·GC의 관계를 살펴본다.](/backend/transfer-performance/jvm-memory/)
