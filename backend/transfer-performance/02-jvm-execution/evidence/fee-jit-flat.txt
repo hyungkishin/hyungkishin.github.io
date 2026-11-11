@@ -1,0 +1,6 @@
+13   14    b  3       FeeDemo::quote (8 bytes)
+                              @ 2   FeeDemo$FeePolicy::fee (0 bytes)   failed to inline: no static binding
+13   15    b  4       FeeDemo::quote (8 bytes)
+14   14       3       FeeDemo::quote (8 bytes)   made not entrant: not used
+                              @ 2   FeeDemo$FlatFee::fee (3 bytes)   inline (hot)   callee changed to  FeeDemo::quote (8 bytes)    \-> TypeProfile (5119/5119 counts) = FeeDemo$FlatFee
+100000000

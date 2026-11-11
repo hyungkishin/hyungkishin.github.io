@@ -1,89 +1,69 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 620" role="img" aria-labelledby="title desc">
-  <title id="title">JVM 피연산자 스택과 지역변수의 상태 전환</title>
-  <desc id="desc">iconst_0이 정수 0을 스택에 넣고 istore_1이 지역변수 슬롯 1로 옮긴다. iload_1과 bipush 10이 비교할 두 값을 넣으면 if_icmpge가 꺼낸다. 출력 호출 뒤의 iinc는 스택을 바꾸지 않고 슬롯 1을 0에서 1로 증가시킨다. 모션 감소 설정에서는 전체 관계를 정적으로 표시한다.</desc>
+  <title id="title">첫 반복에서 달라지는 i와 피연산자 스택</title>
+  <desc id="desc">i가 0일 때 iload_1은 스택에 0을 복사하고 bipush 10은 그 위에 10을 넣는다. if_icmpge는 두 값을 꺼내 비교한다. 출력 호출이 끝나면 iinc는 빈 스택을 그대로 두고 지역변수 슬롯 1의 i를 1로 늘린다. 모든 행은 각 명령 실행 직후의 상태를 보여 준다.</desc>
   <style>
-    text { font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif; fill: #1c2738; font-size: 22px; }
-    .heading { font-size: 32px; font-weight: 750; }
-    .label { font-size: 23px; font-weight: 700; }
-    .muted { fill: #58677b; font-size: 20px; }
-    .mono { font-family: "SFMono-Regular", Consolas, monospace; font-size: 25px; }
-    .value { font-size: 30px; font-weight: 750; fill: #225bce; }
-    .scene { display: none; }
+    text { font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif; fill: #1c2738; }
+    .title { font-size: 25px; font-weight: 750; letter-spacing: -.7px; }
+    .column { font-size: 16.5px; font-weight: 650; fill: #42556a; }
+    .code text, .value text { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 19px; }
+    .value { font-weight: 650; text-anchor: middle; }
+    .token { fill: #e5f4f1; stroke: #a7d5cb; }
+    .stack-value text { fill: #175f56; }
+    .empty { font-size: 17px; fill: #596a79; }
+    .note { font-size: 16.5px; fill: #43576a; }
+    .highlight { opacity: 0; fill: #eaf2ff; }
     @media (prefers-reduced-motion: no-preference) {
-      .fallback { display: none; }
-      .scene { display: inline; opacity: 0; animation-duration: 18s; animation-iteration-count: infinite; animation-timing-function: step-end; }
-      .s0 { animation-name: step0; }
-      .s1 { animation-name: step1; }
-      .s2 { animation-name: step2; }
-      .s3 { animation-name: step3; }
-      .s4 { animation-name: step4; }
-      .s5 { animation-name: step5; }
+      .highlight { animation: follow-row 12s step-end infinite; }
+      .row-two { animation-delay: -9s; }
+      .row-three { animation-delay: -6s; }
+      .row-four { animation-delay: -3s; }
     }
-    @keyframes step0 { 0%, 16.66% { opacity: 1; } 16.67%, 100% { opacity: 0; } }
-    @keyframes step1 { 0%, 16.66% { opacity: 0; } 16.67%, 33.32% { opacity: 1; } 33.33%, 100% { opacity: 0; } }
-    @keyframes step2 { 0%, 33.32% { opacity: 0; } 33.33%, 49.99% { opacity: 1; } 50%, 100% { opacity: 0; } }
-    @keyframes step3 { 0%, 49.99% { opacity: 0; } 50%, 66.65% { opacity: 1; } 66.66%, 100% { opacity: 0; } }
-    @keyframes step4 { 0%, 66.65% { opacity: 0; } 66.66%, 83.32% { opacity: 1; } 83.33%, 100% { opacity: 0; } }
-    @keyframes step5 { 0%, 83.32% { opacity: 0; } 83.33%, 100% { opacity: 1; } }
-    @media (prefers-reduced-motion: reduce) { .scene { display: none; animation: none; } .fallback { display: inline; } }
+    @keyframes follow-row { 0% { opacity: 1; } 25%, 100% { opacity: 0; } }
   </style>
-  <rect width="960" height="620" rx="24" fill="#fff"/>
-  <text x="36" y="55" class="heading">값을 옮기는 명령과 직접 바꾸는 명령</text>
-  <text x="36" y="91" class="muted">main의 첫 반복: 오른쪽이 피연산자 스택의 맨 위</text>
-  <rect x="32" y="125" width="280" height="310" rx="18" fill="#f4f7fc" stroke="#d6deeb"/>
-  <rect x="336" y="125" width="272" height="310" rx="18" fill="#f4f7fc" stroke="#d6deeb"/>
-  <rect x="632" y="125" width="296" height="310" rx="18" fill="#eff5ff" stroke="#bacff2"/>
-  <text x="54" y="166" class="label">실행 명령</text>
-  <text x="358" y="166" class="label">지역변수</text>
-  <text x="654" y="166" class="label">피연산자 스택</text>
-  <text x="358" y="222" class="muted">슬롯 0: args 참조</text>
-  <text x="358" y="270" class="muted">슬롯 1: i</text>
-  <g class="fallback">
-    <text x="54" y="230" class="mono">iload_1</text>
-    <text x="54" y="275" class="mono">bipush 10</text>
-    <text x="54" y="320" class="mono">if_icmpge 22</text>
-    <text x="54" y="387" class="mono">iinc 1, 1</text>
-    <text x="358" y="324" class="value">0 → 1</text>
-    <text x="358" y="385" class="muted">iinc가 직접 증가</text>
-    <text x="654" y="246" class="value">[0] → [0, 10]</text>
-    <text x="654" y="298" class="value">비교 뒤 [ ]</text>
-    <text x="654" y="382" class="muted">iinc 실행 중 변화 없음</text>
-    <text x="36" y="490" class="label">스택에 비교값을 넣고 꺼낸 뒤, iinc는 지역변수만 바꾼다.</text>
+  <g transform="scale(2)">
+    <rect width="480" height="310" fill="#fff"/>
+    <text x="20" y="35" class="title">첫 반복에서 달라지는 i와 스택</text>
+
+    <text x="20" y="76" class="column">실행한 명령</text>
+    <text x="221" y="76" class="column" text-anchor="middle">i (슬롯 1)</text>
+    <text x="300" y="76" class="column">스택 (바닥 → 위)</text>
+    <path d="M18 87H462" stroke="#b9c7d2"/>
+
+    <rect x="14" y="93" width="452" height="34" rx="6" class="highlight"/>
+    <rect x="14" y="134" width="452" height="34" rx="6" class="highlight row-two"/>
+    <rect x="14" y="175" width="452" height="34" rx="6" class="highlight row-three"/>
+    <rect x="14" y="216" width="452" height="34" rx="6" class="highlight row-four"/>
+
+    <g class="code">
+      <text x="20" y="117">iload_1</text>
+      <text x="20" y="158">bipush 10</text>
+      <text x="20" y="199">if_icmpge 22</text>
+      <text x="20" y="240">iinc 1, 1</text>
+    </g>
+    <g fill="none" stroke="#e2e9ed">
+      <path d="M18 130H462 M18 171H462 M18 212H462"/>
+    </g>
+    <g class="value">
+      <text x="221" y="117">0</text>
+      <text x="221" y="158">0</text>
+      <text x="221" y="199">0</text>
+      <rect x="201" y="220" width="40" height="25" rx="5" fill="#dceafe" stroke="#a9c6ec"/>
+      <text x="221" y="240" fill="#23518e">1</text>
+    </g>
+    <g class="token">
+      <rect x="300" y="97" width="40" height="25" rx="5"/>
+      <rect x="300" y="138" width="40" height="25" rx="5"/>
+      <rect x="346" y="138" width="40" height="25" rx="5"/>
+    </g>
+    <g class="value stack-value">
+      <text x="320" y="117">0</text>
+      <text x="320" y="158">0</text>
+      <text x="366" y="158">10</text>
+    </g>
+    <text x="300" y="199" class="empty">비었음</text>
+    <text x="300" y="240" class="empty">비었음</text>
+
+    <path d="M18 260H462" stroke="#b9c7d2"/>
+    <text x="20" y="289" class="note">비교가 끝나고 println에서 돌아오면 iinc가 i를 늘린다.</text>
   </g>
-  <g class="scene s0">
-    <text x="54" y="242" class="mono">iconst_0</text><text x="54" y="292" class="muted">오프셋 0</text>
-    <text x="358" y="324" class="value">아직 저장 전</text><text x="654" y="280" class="value">[0]</text>
-    <text x="36" y="490" class="label">1 / 6: 정수 상수 0을 피연산자 스택에 넣는다.</text>
-  </g>
-  <g class="scene s1">
-    <text x="54" y="242" class="mono">istore_1</text><text x="54" y="292" class="muted">오프셋 1</text>
-    <text x="358" y="324" class="value">0</text><text x="654" y="280" class="value">[ ]</text>
-    <text x="654" y="329" class="muted">스택에서 꺼냄</text>
-    <text x="36" y="490" class="label">2 / 6: 꺼낸 값을 지역변수 슬롯 1에 저장한다.</text>
-  </g>
-  <g class="scene s2">
-    <text x="54" y="242" class="mono">iload_1</text><text x="54" y="292" class="muted">오프셋 2</text>
-    <text x="358" y="324" class="value">0</text><text x="654" y="280" class="value">[0]</text>
-    <text x="36" y="490" class="label">3 / 6: 슬롯 1의 값을 피연산자 스택에 복사한다.</text>
-  </g>
-  <g class="scene s3">
-    <text x="54" y="242" class="mono">bipush 10</text><text x="54" y="292" class="muted">오프셋 3</text>
-    <text x="358" y="324" class="value">0</text><text x="654" y="280" class="value">[0, 10]</text>
-    <text x="36" y="490" class="label">4 / 6: 비교할 정수 10을 스택의 맨 위에 넣는다.</text>
-  </g>
-  <g class="scene s4">
-    <text x="54" y="242" class="mono">if_icmpge 22</text><text x="54" y="292" class="muted">오프셋 5</text>
-    <text x="358" y="324" class="value">0</text><text x="654" y="280" class="value">[ ]</text>
-    <text x="654" y="329" class="muted">두 값을 꺼내 비교</text>
-    <text x="36" y="490" class="label">5 / 6: 0 ≥ 10은 거짓이므로 다음 명령을 실행한다.</text>
-  </g>
-  <g class="scene s5">
-    <text x="54" y="242" class="mono">iinc 1, 1</text><text x="54" y="292" class="muted">오프셋 16</text>
-    <text x="358" y="324" class="value">0 → 1</text><text x="654" y="280" class="value">[ ]</text>
-    <text x="654" y="329" class="muted">변화 없음</text>
-    <text x="36" y="490" class="label">6 / 6: 출력 호출이 끝난 뒤, 슬롯 1을 직접 증가시킨다.</text>
-  </g>
-  <path d="M36 528H924" stroke="#d6deeb"/>
-  <text x="36" y="565" class="muted">출력 호출 구간은 생략했다. iinc는 피연산자 스택을 사용하지 않는다.</text>
-  <text x="36" y="596" class="muted">명령과 상태의 관계를 보여 주는 개념도이며, 실행 속도를 나타내지 않는다.</text>
 </svg>
