@@ -21,13 +21,15 @@ JVM에서 각 스레드는 **자기 스택**에 진행 중인 메서드 호출�
 
 **모든 스레드가 공유하는** 힙에는 클래스의 인스턴스와 배열이 놓인다. 메서드 영역에는 클래스별 필드·메서드 정보와 메서드의 바이트코드가 있다. 각 클래스나 인터페이스의 **런타임 상수 풀**도 여기에 속한다. 바이트코드가 다른 클래스의 메서드를 이름과 타입으로 가리킬 때 쓰는 정보가 그 예다. [JVM 명세 §2.5 런타임 데이터 영역](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.5)
 
-명세에서는 메서드 영역을 논리적으로 힙에 포함한다. 그림에서는 객체를 담는 역할과 클래스 정보를 보관하는 역할을 따로 표시했다.
+명세에서는 메서드 영역을 논리적으로 힙에 포함한다. 그림에서는 객체를 담는 역할과 클래스 정보를 보관하는 역할을 따로 표시했다. 메서드 영역의 공간을 GC로 회수하거나 압축할지는 JVM 구현이 정한다. [JVM 명세 §2.5.4 메서드 영역](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.5.4)
 
 OpenJDK의 JVM 구현인 HotSpot에서는 클래스 메타데이터가 주로 네이티브 메모리의 **메타스페이스**에 놓인다. JIT가 만든 기계어는 **코드 캐시**에 놓인다. 직접 버퍼가 쓰는 데이터도 힙 밖에 있을 수 있다. 그래서 `-Xmx`로 힙의 최댓값을 정해도 프로세스 전체 메모리는 그보다 커질 수 있다. [HotSpot의 클래스 메타데이터](https://docs.oracle.com/en/java/javase/25/gctuning/other-considerations.html) · [HotSpot 코드 캐시](https://docs.oracle.com/en/java/javase/25/vm/java-hotspot-virtual-machine-performance-enhancements.html) · [Java 직접 버퍼](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/ByteBuffer.html#direct)
 
 ## 스택 프레임 하나가 생기고 사라질 때
 
 메서드를 한 번 호출할 때마다 JVM 스택에 **프레임**이 하나 생긴다. 같은 메서드를 재귀 호출해도 호출마다 별도의 프레임을 쓴다. 프레임에는 인자와 지역 변수를 담는 슬롯, 명령이 계산할 값을 잠시 올려놓는 **피연산자 스택**, 현재 메서드가 속한 클래스의 런타임 상수 풀에 대한 참조가 들어 있다. 재귀 호출이 너무 깊어져 스레드가 허용된 스택 크기를 넘으면 `StackOverflowError`가 발생한다. [JVM 명세 §2.6 프레임](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.6)
+
+JVM을 **스택 머신**이라고 부르는 이유는 바이트코드가 계산에 쓸 값을 피연산자 스택에서 꺼내기 때문이다. 정수 덧셈 명령 `iadd`에는 더할 두 수의 위치가 적혀 있지 않다. 현재 프레임의 피연산자 스택 위에 3과 4가 있으면 `iadd`는 둘을 꺼내고 7을 올린다. 그동안 스레드의 호출 스택에는 같은 프레임이 그대로 있다. [JVM 명세 §2.6.2 피연산자 스택](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.6.2)
 
 ```java
 record Box(int value) {}
@@ -65,6 +67,8 @@ GC는 실행 중인 스레드가 계속 사용할 참조 등에서 출발해 객
 ![루트에서 보관 목록을 거쳐 객체에 닿는다. 목록에서 마지막 연결을 끊으면 GC가 그 객체의 공간을 회수할 수 있다.](./03-gc-reachability.svg)
 
 그림에서 목록의 항목을 지우는 순간 바뀌는 것은 **도달 가능성**이다. 서로만 가리키는 두 객체도 루트에서 둘 중 어느 쪽으로도 닿지 않으면 회수 대상이 된다. 반대로 사용 기한이 지난 항목을 계속 목록에 보관하면 GC가 여러 번 실행돼도 살아남는다. [Java의 도달 가능성 정의](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/ref/package-summary.html#reachability)
+
+클래스 정보의 수명에는 **그 클래스를 정의한 로더**가 관여한다. 플러그인 인스턴스를 모두 지워도 프로그램이 해당 로더를 계속 보관하면 그 로더가 정의한 일반 클래스는 남는다. 로더 자체를 GC가 회수할 수 있게 되어야 JVM도 그 클래스의 언로딩을 선택할 수 있다. 어느 수집 때 실제로 언로드할지는 보장되지 않는다. 부트스트랩 로더가 로드한 클래스는 언로딩 대상에서 제외된다. [Java 언어 명세 §12.7 클래스와 인터페이스의 언로딩](https://docs.oracle.com/javase/specs/jls/se25/html/jls-12.html#jls-12.7)
 
 실제로 빈 공간을 만드는 방식은 수집기마다 다르다. **G1**은 힙을 같은 크기의 리전(region)으로 나눈다. 작은 새 객체는 보통 Eden 리전에 들어간다. 젊은 세대 수집에서 살아남은 객체는 Survivor나 Old 리전으로 옮긴다. 일반적인 대피(evacuation) 과정에서는 선택한 리전의 살아 있는 객체를 다른 리전으로 복사하고 참조를 고친다. 대피를 마친 리전은 통째로 다시 할당에 쓸 수 있다. [JDK 25 G1의 힙 배치와 회수 과정](https://docs.oracle.com/en/java/javase/25/gctuning/garbage-first-g1-garbage-collector1.html)
 

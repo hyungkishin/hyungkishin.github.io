@@ -24,11 +24,19 @@ tags:
 
 참조 배열의 여러 칸을 덮어쓰는 경우는 [앞 편의 System.arraycopy 실험](/backend/transfer-performance/system-arraycopy/)에서 보았다. 세 번째 가설에는 이런 쓰기를 추적하는 비용이 따른다. 오래된 배열의 한 칸에 새 객체를 넣으면, 젊은 세대를 수집할 때 그 칸에서 오는 참조도 찾아야 한다. G1의 **쓰기 장벽**은 참조를 저장할 때 변경한 필드가 속한 메모리 구간인 **카드**를 기록한다. 수집할 때는 기억 집합(remembered set)으로 바깥에서 들어오는 참조를 찾는다. 오래된 배열을 자주 갱신하면 장벽과 카드 처리에 드는 일도 늘 수 있다. [G1의 기억 집합](https://docs.oracle.com/en/java/javase/25/gctuning/garbage-first-g1-garbage-collector1.html) · [OpenJDK의 카드 기록 경로](https://github.com/openjdk/jdk25u/blob/7b65d74bcbd7c3a0b4c1f5c5bd85e64aa2e51b4a/src/hotspot/share/gc/g1/g1BarrierSet.inline.hpp#L76-L82)
 
+## 빈 공간을 모으는 비용과 멈추는 시간
+
+살아 있는 객체를 표시한 뒤 죽은 객체의 자리를 돌려주는 방식을 **mark-sweep**이라고 한다. 빈 공간이 4칸씩 두 곳에 흩어져 있으면 합계가 8칸이어도 6칸짜리 객체 하나를 넣을 수 없다. 이런 단편화를 줄이는 **mark-compact**는 살아 있는 객체를 모아 빈 공간을 이어 붙인다. 객체를 옮길 위치를 구하고 그 객체를 가리키는 참조도 고쳐야 한다. [OpenJDK Serial Full GC의 새 주소 계산, 참조 수정, 객체 이동](https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/share/gc/serial/serialFullGC.cpp#L703-L744)
+
+그 일을 하는 동안 요청을 계속 처리할 수 있을까? **Serial GC**는 애플리케이션을 멈추고 GC 스레드 하나가 일한다. **Parallel GC**도 애플리케이션을 멈추지만 여러 GC 스레드가 일을 나눠 처리량을 높인다. 예전 HotSpot의 **CMS**는 오래된 세대의 표시 작업 대부분과 쓸기 작업을 애플리케이션과 동시에 진행했다. 초기 표시와 재표시에는 정지가 남았고, 평소 객체를 제자리에 두기 때문에 흩어진 빈 공간에 다음 할당이 들어가지 않을 수도 있었다. [JDK 25의 Serial과 Parallel GC](https://docs.oracle.com/en/java/javase/25/gctuning/available-collectors.html) · [JDK 8의 CMS 수집 과정과 할당 실패 조건](https://docs.oracle.com/javase/8/docs/technotes/guides/vm/gctuning/cms.html)
+
+**G1**은 한 번의 정지에서 객체를 옮길 범위를 리전 단위로 고른다. 살아 있는 객체가 적은 리전을 먼저 비우면 적게 복사하고도 같은 크기의 리전을 통째로 얻는다. 그 이득을 얻으려면 옮겨 갈 빈 공간이 필요하고 다른 리전에서 들어오는 참조도 추적해야 한다. [JDK 25의 G1 대피와 리전 선택 기준](https://docs.oracle.com/en/java/javase/25/gctuning/garbage-first-g1-garbage-collector1.html)
+
 ## 젊은 리전을 비울 때와 오래된 리전을 고를 때
 
 G1은 힙을 일정한 크기의 리전으로 나눈다. Young GC에서는 애플리케이션 스레드를 잠시 멈추고 젊은 리전에서 살아 있는 객체를 빈 Survivor 또는 Old 리전으로 복사한다. 참조를 새 위치에 맞추고 대피(evacuation)에 성공한 리전은 통째로 다시 쓸 수 있다. 여러 GC 작업 스레드가 병렬로 복사해도 이 구간에 애플리케이션은 멈춘다. [OpenJDK 25.0.4.1의 G1YoungCollector::collect](https://github.com/openjdk/jdk25u/blob/7b65d74bcbd7c3a0b4c1f5c5bd85e64aa2e51b4a/src/hotspot/share/gc/g1/g1YoungCollector.cpp#L1088-L1144)
 
-[앞 글의 도달 가능성](/backend/transfer-performance/jvm-memory/)을 기준으로 오래된 리전에 살아 있는 객체가 얼마나 남았는지 세어 보자. 남은 객체가 적으면 옮길 양에 비해 돌려받는 공간이 크다. G1은 Concurrent Start라는 Young 정지에서 마킹을 시작할 준비한다. 이어 애플리케이션이 실행되는 동안 객체 사이의 참조를 따라간다. **Remark**에서는 다시 멈춰 남은 표시 작업을 마무리한다. 이후 기억 집합 재구성 등을 거쳐 **Cleanup** 정지에서 다음 회수 단계를 준비한다. 표시는 무엇이 살아 있는지 조사하는 일이고, 대피는 선택한 리전에서 그 객체를 옮기는 일이다. [OpenJDK의 마킹 주기 실행 순서](https://github.com/openjdk/jdk25u/blob/7b65d74bcbd7c3a0b4c1f5c5bd85e64aa2e51b4a/src/hotspot/share/gc/g1/g1ConcurrentMarkThread.cpp#L271-L310) · [Remark에서 마무리하는 작업](https://github.com/openjdk/jdk25u/blob/7b65d74bcbd7c3a0b4c1f5c5bd85e64aa2e51b4a/src/hotspot/share/gc/g1/g1ConcurrentMark.cpp#L1384-L1423)
+[앞 글의 도달 가능성](/backend/transfer-performance/jvm-memory/)을 기준으로 오래된 리전에 살아 있는 객체가 얼마나 남았는지 세어 보자. G1은 Concurrent Start라는 Young 정지에서 마킹을 시작할 준비한다. 이어 애플리케이션이 실행되는 동안 객체 사이의 참조를 따라간다. **Remark**에서는 다시 멈춰 남은 표시 작업을 마무리한다. 이후 기억 집합 재구성 등을 거쳐 **Cleanup** 정지에서 다음 회수 단계를 준비한다. 표시는 무엇이 살아 있는지 조사하는 일이고, 대피는 선택한 리전에서 그 객체를 옮기는 일이다. [OpenJDK의 마킹 주기 실행 순서](https://github.com/openjdk/jdk25u/blob/7b65d74bcbd7c3a0b4c1f5c5bd85e64aa2e51b4a/src/hotspot/share/gc/g1/g1ConcurrentMarkThread.cpp#L271-L310) · [Remark에서 마무리하는 작업](https://github.com/openjdk/jdk25u/blob/7b65d74bcbd7c3a0b4c1f5c5bd85e64aa2e51b4a/src/hotspot/share/gc/g1/g1ConcurrentMark.cpp#L1384-L1423)
 
 회수할 오래된 리전이 남으면 **Mixed GC**에서 젊은 리전과 선택한 오래된 리전을 함께 비운다. 한 번에 넣을 오래된 리전의 수에는 후보 수와 예상 정지 시간 예산이 영향을 준다. 로그에 `Pause Young (Mixed)`가 찍혔다면 젊은 세대만 비웠다고 읽을 수 없는 이유다. [Mixed 진행 여부](https://github.com/openjdk/jdk25u/blob/7b65d74bcbd7c3a0b4c1f5c5bd85e64aa2e51b4a/src/hotspot/share/gc/g1/g1Policy.cpp#L1426-L1430) · [수집할 오래된 리전을 고르는 코드](https://github.com/openjdk/jdk25u/blob/7b65d74bcbd7c3a0b4c1f5c5bd85e64aa2e51b4a/src/hotspot/share/gc/g1/g1CollectionSet.cpp#L343-L396)
 

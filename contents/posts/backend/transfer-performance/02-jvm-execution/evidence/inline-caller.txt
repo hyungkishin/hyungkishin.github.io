@@ -1,0 +1,93 @@
+FeeDemo.quote 안에서 RateFee.fee 호출에 무슨 일이 생겼나
+
+FeeDemo.java 원본을 그대로 썼다. main은 RateFee 정책으로 1원부터 1,000,000원까지 quote를 호출한다. quote의 바이트코드 위치 2에는 invokeinterface FeePolicy.fee가 있다. 두 JVM에 같은 class 파일을 건넸다. 두 번째 JVM에서 RateFee::fee의 인라이닝만 금지했다.
+
+컴파일: macOS ARM64, Temurin javac 25.0.4.1
+실행: Linux ARM64, Temurin OpenJDK 25.0.5+8-LTS, C2
+역어셈블러: Linux ARM64, GNU objdump 2.41
+
+관찰 1. 기본 인라이닝 결정
+  Compiled method (c2) 32    3             FeeDemo::quote (8 bytes)
+  @ 2   FeeDemo$RateFee::fee (5 bytes)   inline (hot)
+  TypeProfile (1024/1024 counts) = FeeDemo$RateFee
+  프로그램 출력: 4999510000
+
+quote 안의 RateFee 타입 검사가 성공하면 다음 코드로 진행한다. 레지스터 w2가 amountWon이다. 곱셈 상수 0x51eb851f를 만든 후 곱셈·시프트·부호 보정으로 Java의 정수 나눗셈 amountWon / 100을 구현한다. 이 계산을 위해 fee로 분기하는 호출 명령은 없다.
+
+  ffff88c85530:  6b0a017f  cmp   w11, w10
+  ffff88c85534:  540001a1  b.ne  0xffff88c85568
+  ffff88c85538:  93407c4a  sxtw  x10, w2
+  ffff88c8553c:  d290a3eb  mov   x11, #0x851f
+  ffff88c85540:  f2aa3d6b  movk  x11, #0x51eb, lsl #16
+  ffff88c85544:  9b0b7d4a  mul   x10, x10, x11
+  ffff88c85548:  9365fd4a  asr   x10, x10, #37
+  ffff88c8554c:  4b827d40  sub   w0, w10, w2, asr #31
+
+관찰 2. RateFee.fee에 dontinline을 추가
+  Compiled method (c2) 31    3             FeeDemo::quote (8 bytes)
+  @ 2   FeeDemo$RateFee::fee (5 bytes)   failed to inline: disallowed by CompileCommand
+  TypeProfile (1024/1024 counts) = FeeDemo$RateFee
+  프로그램 출력: 4999510000
+
+같은 타입 검사를 통과하면 다음 명령이 bl이다. 이 주소에 대한 HotSpot의 주석과 objdump 출력을 대조했다.
+
+  ;*invokeinterface fee {reexecute=0 rethrow=0 return_oop=0}
+  ; - FeeDemo::quote@2 (line 21)
+  ;   {optimized virtual_call}
+  0x0000ffff84888238: f2cc fe97
+
+  ffff84888230:  6b0a017f  cmp   w11, w10
+  ffff84888234:  54000161  b.ne  0xffff84888260
+  ffff84888238:  97feccf2  bl    0xffff8483b600
+
+두 결과는 컴파일 직후 생성한 호출자의 기계어다. 두 번째 bl이 가리키는 주소는 그 시점의 값이다. 이후 런타임이 호출 지점을 패치할 수 있다. 인라이닝을 허용한 경우에도 타입 검사가 빗나간 쪽에는 UncommonTrapBlob으로 가는 별도의 bl이 있다. 이 실험은 해당 호출 지점의 변화를 관찰한다. 스택을 샘플링하거나 실행 시간을 측정하지 않았다.
+
+재현 1. 빈 디렉터리에 FeeDemo.java를 내려받고 실행한다. javac는 JDK 25를 사용한다. 각 실행에서 quote를 독립된 C2 메서드로 출력하도록 compileonly와 print를 지정한다.
+
+javac -g FeeDemo.java
+javap -c FeeDemo 'FeeDemo$RateFee'
+
+runtime_image=eclipse-temurin@sha256:ecdc0adb37bde1a281c4d245a3cd535004b1fc8322d560f5b09463b248c81df0
+capture() {
+  mode=$1
+  shift
+  docker run --rm --platform linux/arm64 --network=none -v "$PWD:/app:ro" -w /app "$runtime_image" \
+    java -Xbatch -XX:-TieredCompilation -XX:CompileThreshold=1000 \
+    -XX:+UnlockDiagnosticVMOptions -XX:+PrintInlining \
+    '-XX:CompileCommand=compileonly,FeeDemo::quote' \
+    '-XX:CompileCommand=compileonly,FeeDemo$RateFee::fee' \
+    '-XX:CompileCommand=print,FeeDemo::quote' "$@" FeeDemo > "$mode.txt" 2>&1
+}
+capture on
+capture off '-XX:CompileCommand=dontinline,FeeDemo$RateFee::fee'
+grep -E 'Compiled method \(c2\)|@ 2.*RateFee|^4999510000$' on.txt off.txt
+
+재현 2. 이 이미지의 HotSpot은 hsdis 없이 주소와 원시 바이트를 출력한다. 위에서 출력한 quote의 main code 영역을 파일에 담아 아래처럼 디코딩한다. 주소·시간·컴파일 번호는 실행마다 달라질 수 있다.
+
+python3 - <<'PYCODE'
+import re
+from pathlib import Path
+
+for mode in ("on", "off"):
+    log = Path(mode + ".txt").read_text()
+    bounds = re.search(r"main code\s+\[(0x[\da-f]+),(0x[\da-f]+)\]", log)
+    start, end = (int(x, 16) for x in bounds.groups())
+    rows = re.findall(r"^\s*(0x[\da-f]+): ([\da-f |]+)$", log, re.M)
+    code = bytearray()
+    for address, data in rows:
+        if start <= int(address, 16) < end:
+            assert int(address, 16) == start + len(code)
+            code.extend(bytes.fromhex(data.replace("|", " ")))
+    assert len(code) == end - start
+    Path(mode + ".bin").write_bytes(code)
+    Path(mode + ".base").write_text(hex(start))
+PYCODE
+
+objdump_image=ghcr.io/graalvm/native-image-community@sha256:0d936f32bb8acb5bc60c41b33e05f064d7a6aaf36b726538296c54949bd4a3c0
+for mode in on off; do
+  docker run --rm --platform linux/arm64 --network=none -v "$PWD:/app:ro" -w /app \
+    --entrypoint objdump "$objdump_image" -D -b binary -m aarch64 \
+    --adjust-vma="$(cat "$mode.base")" "$mode.bin" > "$mode.asm"
+done
+
+on.txt와 off.txt에서 {metadata('FeeDemo$RateFee')}의 주소를 찾는다. 각 asm에서 그 주소부터 읽으면 타입 검사와 검사 뒤의 계산 또는 호출을 볼 수 있다.

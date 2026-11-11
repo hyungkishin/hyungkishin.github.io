@@ -1,6 +1,6 @@
 ---
-title: "System.arraycopy는 겹친 배열을 어떻게 복사할까?"
-description: "다섯 자리 중 네 개의 이름표를 오른쪽으로 한 칸 밀어 본다. Java 명세의 ‘임시 배열’이 무슨 뜻인지 32MiB 힙 실험으로 확인하고 HotSpot이 만든 ARM64 명령과 복사 도중 타입 오류가 난 배열을 읽는다."
+title: "System.arraycopy 한 번이면 배열 복사는 O(1)일까?"
+description: "int 1만 개와 10만 개를 옮겨 호출 한 번의 비용을 잰다. OpenJDK의 복사 루프, 같은 배열에서 원본을 지키는 방법, 참조 타입이 맞지 않을 때 남는 값을 확인한다."
 date: 2026-11-12
 update: 2026-11-12
 tags:
@@ -10,14 +10,35 @@ tags:
   - 배열
 ---
 
+`System.arraycopy(src, 0, dst, 0, n)`을 한 번 호출한다. `n`이 1만이어도, 10만이어도 호출은 한 번이다. 그렇다면 실행 시간도 O(1)일까?
+
+**서로 다른 두 `int[]` 사이에서 원소 n개를 실제로 복사하는 작업량은 Θ(n)이다.** 자바 코드에서 메서드를 몇 번 호출했는지와 CPU가 그 안에서 얼마나 많은 데이터를 옮기는지는 따로 세야 한다. 출발지와 목적지는 이미 할당되어 있고 복사 구간은 유효하다고 하자.
+
+## 한 번의 호출로 옮기는 바이트 수
+
+`int` 한 개는 4바이트다. 목적지에 써야 할 데이터는 원소 1만 개면 40,000바이트, 10만 개면 400,000바이트다. Java API의 `length`도 바이트 수가 아니라 원소 수로 정의된다. [Java의 정수 타입](https://docs.oracle.com/javase/specs/jls/se25/html/jls-4.html#jls-4.2.1) · [System.arraycopy의 length](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/System.html#arraycopy(java.lang.Object,int,java.lang.Object,int,int))
+
+OpenJDK 25의 ARM64용 HotSpot 소스에서 큰 복사 구간을 따라가면 `again`이라는 레이블이 나온다. 한 바퀴에서 64바이트를 옮긴다. 남은 양을 8워드씩 줄이고 계속할 분량이면 `again`으로 돌아간다. 한 번에 여러 원소를 옮겨도 `n`이 커지면 이 구간의 반복 횟수가 늘어난다. Java 코드 한 줄 아래에서 길이에 비례하는 일이 벌어지는 곳이다. [큰 복사를 워드 단위로 넘기는 코드](https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/cpu/aarch64/stubGenerator_aarch64.cpp#L1435-L1453) · [ARM64용 복사 루프 생성부](https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/cpu/aarch64/stubGenerator_aarch64.cpp#L902-L924)
+
+실제로 걸리는 시간도 복사량처럼 열 배일까? JMH에서 서로 다른 `int[100_000]` 두 개를 미리 만들었다. 매번 같은 배열의 앞부분을 복사하고 길이만 바꿨다. Apple M4 Pro 위 Linux ARM64 컨테이너에서 Temurin 25.0.5+8을 썼다. 길이마다 JVM 세 개를 따로 띄웠고 각 JVM에서 3초 워밍업한 뒤 1초씩 다섯 번 측정했다.
+
+| 한 번에 복사한 원소 | 목적지에 쓰는 데이터 | 평균 시간(JMH) |
+| --- | ---: | ---: |
+| `int` 1만 개 | 40,000바이트 | 341.336 ns |
+| `int` 10만 개 | 400,000바이트 | 6,867.716 ns |
+
+**복사량은 10배, 이 장비에서 관찰한 평균 시간은 약 20.1배였다.** Θ(n)은 옮겨야 할 원소 수가 어떻게 늘어나는지를 설명한다. 실제 나노초까지 같은 비율로 늘어난다는 예측은 아니다. 두 크기의 시간 차이에서 캐시가 얼마를 차지했는지는 이 측정만으로 분리할 수 없다. [측정 코드](./evidence/CopyLengthBench.java) · [재현 명령과 JVM별 측정값](./evidence/copy-length.txt)
+
+## 원본과 목적지가 겹치면 어느 쪽부터 쓸까?
+
+복사할 양을 알았으니 이번에는 한 배열 안에서 값을 옮겨 보자. 아직 읽지 않은 칸에 먼저 써 버리면 어떻게 될까?
+
 ```java
 String[] seats = {"A", "B", "C", "D", "E"};
 System.arraycopy(seats, 0, seats, 1, 4);
 ```
 
 결과는 `[A, A, B, C, D]`다. 그런데 같은 일을 한다고 생각하고 `seats[i + 1] = seats[i]`를 앞에서부터 네 번 실행하면 다섯 칸이 전부 A가 된다. 첫 번째 쓰기가 B를 지웠는데, `arraycopy`는 어디서 B를 다시 읽었을까?
-
-## 명세에 나온 임시 배열은 어디에 있을까?
 
 Java 명세는 출발지와 도착지가 같은 배열일 때 **“as if”**라는 말을 쓴다. 원래 구간을 임시 배열에 먼저 복사한 것처럼(“were first copied to a temporary array”) 목적지의 값이 정해진다는 뜻이다. 위 호출에서 `0`과 `1`은 각각 시작 인덱스이고 `4`는 복사할 **원소 수**다. 호출자는 이미 있는 목적지 배열을 건넨다. 메서드는 그 안의 값을 바꾼다. [Java SE 25의 arraycopy 계약](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/System.html#arraycopy(java.lang.Object,int,java.lang.Object,int,int))
 
@@ -92,6 +113,6 @@ System.arraycopy(src, 0, dst, 0, 3);
 
 **다른 스레드도 완성본만 볼까?** `arraycopy` 호출 자체에는 스레드 사이의 동기화 보장이 없다. 한 독자가 이전 버전 또는 완성된 새 버전만 봐야 한다면, 예를 들어 안정된 원본에서 별도 배열을 다 채운 뒤 그 참조를 `volatile` 필드에 게시한다. 독자는 그 필드를 한 번 읽어 같은 배열을 쓴다. 게시한 배열은 더 수정하지 않는다. [Java 메모리 모델의 happens-before 규칙](https://docs.oracle.com/javase/specs/jls/se25/html/jls-17.html#jls-17.4.5)
 
-**직접 쓴 루프보다 얼마나 빠를까?** 이번 실험에서 확인한 것은 호출 경로와 값의 정확성이다. 속도를 비교하려면 두 코드가 먼저 같은 겹침 규칙을 지켜야 한다. 그 뒤에 원소 타입, 길이, 겹침 방향, 워밍업을 맞춰 시간을 재야 한다. 새 배열을 만드는 비용까지 알고 싶으면 `Arrays.copyOf`를 따로 비교할 수 있다. [OpenJDK의 int 배열 copyOf](https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/java.base/share/classes/java/util/Arrays.java#L3587-L3595)
+**직접 쓴 루프보다 얼마나 빠를까?** 앞에서 바꾼 조건은 배열 길이다. 직접 구현한 루프와 비교하려면 두 코드가 같은 겹침 규칙을 지켜야 한다. 그 뒤에 원소 타입, 길이, 겹침 방향, 워밍업을 맞춰 시간을 재야 한다. 새 배열을 만드는 비용까지 알고 싶으면 `Arrays.copyOf`를 따로 비교할 수 있다. [OpenJDK의 int 배열 copyOf](https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/java.base/share/classes/java/util/Arrays.java#L3587-L3595)
 
 참조를 덮어쓴 뒤 G1은 언제 카드를 읽을까? 그때 애플리케이션은 얼마나 멈출까? [다음 편에서 G1의 실제 로그를 시간순으로 읽는다.](/backend/transfer-performance/gc-timeline/)
