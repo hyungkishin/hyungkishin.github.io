@@ -79,4 +79,4 @@ GC는 실행 중인 스레드가 계속 사용할 참조 등에서 출발해 객
 
 두 실행 모두 Temurin 25.0.4.1과 32MiB 힙을 썼다. 큐 통지는 GC가 약한 참조를 처리했다는 관찰값이다. 영수증이 차지하던 바이트를 다음 객체가 재사용한 시각까지 알려 주지는 않는다. [기본 실행 출력](./evidence/receipt-stdout.txt) · [G1 로그](./evidence/receipt-gc.txt) · [대조 실행 명령과 출력](./evidence/receipt-no-explicit-gc.txt)
 
-마지막 참조가 사라진 시점과 메모리를 회수한 시점 사이에 G1은 어떤 일을 했을까? [다음 편에서 세대별 수집의 세 가지 가설을 먼저 짚고 실제 GC 로그를 시간순으로 읽는다.](/backend/transfer-performance/gc-timeline/)
+배열에 담긴 참조를 다른 칸으로 복사하면 객체도 하나 더 생길까? 같은 배열 안에서 아직 읽지 않은 칸을 덮으면 어떻게 될까? [다음 편에서 System.arraycopy 호출 한 줄을 CPU 명령까지 따라간다.](/backend/transfer-performance/system-arraycopy/)

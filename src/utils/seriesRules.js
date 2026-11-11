@@ -18,6 +18,7 @@ const SERIES_RULES = [
       "/backend/transfer-performance/02-jvm-execution/",
       "/backend/transfer-performance/jit-aot-linux/",
       "/backend/transfer-performance/jvm-memory/",
+      "/backend/transfer-performance/system-arraycopy/",
       "/backend/transfer-performance/gc-timeline/",
       "/backend/transfer-performance/tcp-linux/",
       "/backend/transfer-performance/03-transfer-contract/",

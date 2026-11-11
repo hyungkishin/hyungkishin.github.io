@@ -22,7 +22,7 @@ tags:
 
 세 가지 모두 프로그램이 만드는 객체와 참조의 분포에 관한 가정이다. 오래 보관한 캐시 전체를 한꺼번에 지우는 프로그램에서는 비슷한 나이의 객체가 같은 시점에 대거 죽는다. 실제 프로그램에서 추적한 오래된 객체의 수명 분포도 강한 세대 가설을 따르는 경우와 벗어나는 경우가 모두 있었다. [객체 수명 분포를 측정한 연구](https://web.cs.umass.edu/publication/docs/1998/UM-CS-1998-081.pdf) · [세대별 수집과 기억 집합의 초기 실측](https://prl.khoury.northeastern.edu/img/u-sde-1984.pdf)
 
-세 번째 전제에는 지불할 비용이 있다. 오래된 배열의 한 칸에 새 객체를 넣으면, 젊은 세대를 수집할 때 그 칸에서 오는 참조도 찾아야 한다. G1의 **쓰기 장벽**은 참조를 저장할 때 변경한 필드가 속한 메모리 구간인 **카드**를 기록한다. 수집할 때는 기억 집합(remembered set)으로 바깥에서 들어오는 참조를 찾는다. 오래된 배열을 자주 갱신하면 장벽과 카드 처리에 드는 일도 늘 수 있다. [G1의 기억 집합](https://docs.oracle.com/en/java/javase/25/gctuning/garbage-first-g1-garbage-collector1.html) · [OpenJDK의 카드 기록 경로](https://github.com/openjdk/jdk25u/blob/7b65d74bcbd7c3a0b4c1f5c5bd85e64aa2e51b4a/src/hotspot/share/gc/g1/g1BarrierSet.inline.hpp#L76-L82)
+참조 배열의 여러 칸을 덮어쓰는 경우는 [앞 편의 System.arraycopy 실험](/backend/transfer-performance/system-arraycopy/)에서 보았다. 세 번째 가설에는 이런 쓰기를 추적하는 비용이 따른다. 오래된 배열의 한 칸에 새 객체를 넣으면, 젊은 세대를 수집할 때 그 칸에서 오는 참조도 찾아야 한다. G1의 **쓰기 장벽**은 참조를 저장할 때 변경한 필드가 속한 메모리 구간인 **카드**를 기록한다. 수집할 때는 기억 집합(remembered set)으로 바깥에서 들어오는 참조를 찾는다. 오래된 배열을 자주 갱신하면 장벽과 카드 처리에 드는 일도 늘 수 있다. [G1의 기억 집합](https://docs.oracle.com/en/java/javase/25/gctuning/garbage-first-g1-garbage-collector1.html) · [OpenJDK의 카드 기록 경로](https://github.com/openjdk/jdk25u/blob/7b65d74bcbd7c3a0b4c1f5c5bd85e64aa2e51b4a/src/hotspot/share/gc/g1/g1BarrierSet.inline.hpp#L76-L82)
 
 ## 젊은 리전을 비울 때와 오래된 리전을 고를 때
 

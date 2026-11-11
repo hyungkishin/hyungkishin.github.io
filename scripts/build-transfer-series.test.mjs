@@ -14,6 +14,7 @@ const slugs = [
   '/backend/transfer-performance/02-jvm-execution/',
   '/backend/transfer-performance/jit-aot-linux/',
   '/backend/transfer-performance/jvm-memory/',
+  '/backend/transfer-performance/system-arraycopy/',
   '/backend/transfer-performance/gc-timeline/',
   '/backend/transfer-performance/tcp-linux/',
   '/backend/transfer-performance/03-transfer-contract/',
@@ -69,7 +70,7 @@ test('빌더가 등록된 시리즈 경로를 모두 만들고 기존 출력 경
   for (const slug of slugs) assert.equal((await page(paths, slug)).querySelectorAll('h1').length, 1);
   assert.equal(await readFile(path.join(paths.outputDir, 'existing/keep.txt'), 'utf8'), '기존 배포 파일');
   assert.deepEqual((await readdir(path.join(paths.outputDir, 'backend/transfer-performance'))).sort(), [
-    '01-measurement', '02-jvm-execution', '03-transfer-contract', '04-kafka-redis', '05-jpa-access', 'assets', 'gc-timeline', 'index.html', 'jit-aot-linux', 'jvm-memory', 'tcp-linux',
+    '01-measurement', '02-jvm-execution', '03-transfer-contract', '04-kafka-redis', '05-jpa-access', 'assets', 'gc-timeline', 'index.html', 'jit-aot-linux', 'jvm-memory', 'system-arraycopy', 'tcp-linux',
   ]);
 });
 
