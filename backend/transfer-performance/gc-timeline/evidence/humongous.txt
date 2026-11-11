@@ -1,0 +1,20 @@
+Temurin 25.0.4.1+1, macOS arm64, G1, heap 64 MiB, region 1 MiB.
+각 길이는 새 JVM에서 실행했다. 아래는 할당 후 명시적 GC 한 번의 초기화·힙 요약 행이다.
+
+javac HumongousProbe.java
+for n in 500000 600000 1100000; do
+  java -Xms64m -Xmx64m -XX:+UseG1GC -XX:G1HeapRegionSize=1m \
+    -Xlog:gc+init=info,gc+heap=info HumongousProbe "$n"
+done
+[0.004s][info][gc,init] Heap Region Size: 1M
+live arrays = 3, payload bytes per array = 500000
+[0.020s][info][gc,heap] GC(0) Humongous regions: 0->0
+retained first bytes = 6
+[0.004s][info][gc,init] Heap Region Size: 1M
+live arrays = 3, payload bytes per array = 600000
+[0.017s][info][gc,heap] GC(0) Humongous regions: 3->3
+retained first bytes = 6
+[0.003s][info][gc,init] Heap Region Size: 1M
+live arrays = 3, payload bytes per array = 1100000
+[0.017s][info][gc,heap] GC(0) Humongous regions: 6->6
+retained first bytes = 6

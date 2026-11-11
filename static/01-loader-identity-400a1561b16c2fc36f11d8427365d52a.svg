@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 388 265" role="img" aria-labelledby="title desc">
+  <title id="title">같은 JAR에서 나온 서로 다른 두 타입</title>
+  <desc id="desc">같은 plug.Entry 클래스 파일을 로더 A와 B가 각각 정의한다. 이름과 파일은 같지만 정의 로더가 달라 서로 다른 Class 객체가 된다.</desc>
+  <style>
+    text{font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;fill:#173457;text-anchor:middle}
+    .label{font-size:16px;font-weight:600}.code{font-size:17px;font-weight:700;font-family:ui-monospace,monospace}
+    .node{fill:#fff;stroke:#94b0d2;stroke-width:1.5}.branch{fill:none;stroke:#426fac;stroke-width:2}
+    .out{fill:#eaf2ff;stroke:#5487d3;stroke-width:1.5}
+  </style>
+  <rect width="388" height="265" rx="14" fill="#fff"/>
+  <rect class="node" x="85" y="10" width="218" height="54" rx="10"/>
+  <text x="194" y="33" class="code">v1.jar</text>
+  <text x="194" y="53" class="label">plug/Entry.class</text>
+  <path class="branch" d="M194 64v18H99v19m95-19h95v19M99 145v28m190-28v28"/>
+  <rect class="node" x="17" y="101" width="164" height="44" rx="9"/>
+  <rect class="node" x="207" y="101" width="164" height="44" rx="9"/>
+  <text x="99" y="129" class="label">로더 A가 정의</text>
+  <text x="289" y="129" class="label">로더 B가 정의</text>
+  <rect class="out" x="17" y="173" width="164" height="52" rx="9"/>
+  <rect class="out" x="207" y="173" width="164" height="52" rx="9"/>
+  <text x="99" y="206" class="code">plug.Entry</text>
+  <text x="289" y="206" class="code">plug.Entry</text>
+  <text x="194" y="251" class="label">같은 이진 이름, 서로 다른 Class 객체</text>
+</svg>

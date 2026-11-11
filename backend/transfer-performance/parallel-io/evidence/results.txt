@@ -1,0 +1,68 @@
+측정 환경
+Apple M4 Pro, macOS 27.0.1, Darwin arm64, 비교 모드마다 루프백 HTTP/1.1 요청.
+로컬 Temurin 25.0.4.1, Kotlin/JVM 2.3.21, kotlinx-coroutines-core-jvm 1.10.2.
+가상 스레드 이벤트의 JDK 21 대조군은 Microsoft OpenJDK 21.0.12.1이다.
+
+HTTP 및 진입 제어
+아래의 소스 파일들을 빈 디렉터리에 두고 실행한다. compare의 각 조건은 5회 순서대로 측정한다.
+예열은 같은 클라이언트의 두 GET으로 한다. 각 측정의 끝에서 두 응답을 검사한다.
+각 실패 모드는 별도 JVM과 서버에서 시작한다. 네트워크의 실제 손익분기점, 고부하 처리량,
+실서비스의 서버 취소율은 측정하지 않았다.
+
+javac --release 21 --add-modules jdk.httpserver FanoutLab.java AdmissionLab.java
+for mode in compare failure timeout; do java --add-modules jdk.httpserver FanoutLab "$mode"; done
+java AdmissionLab
+
+openjdk version "25.0.4.1" 2026-08-18 LTS
+OpenJDK Runtime Environment Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS)
+OpenJDK 64-Bit Server VM Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS, mixed mode, sharing)
+serial elapsed_ms=[474, 472, 475, 473, 467]
+platform elapsed_ms=[312, 311, 314, 312, 312]
+virtual elapsed_ms=[312, 316, 303, 312, 310]
+unfinished_futures_cancelled=1
+failure outcome=IOException elapsed_ms=1 slow_effects_at_join=0
+slow_effects_after_server_finished=1
+timeout outcome=HttpTimeoutException elapsed_ms=355 slow_effects_at_join=0
+slow_effects_after_server_finished=1
+t=0 ms START
+t=0 ms IN_FLIGHT_LIMIT
+t=50 ms START
+t=100 ms RATE_LIMIT
+t=1000 ms START
+
+가상 스레드와 JFR
+JDK 25 javac --release 21로 만든 같은 class를 두 JDK에 건넨다.
+JDK 21/25의 경로는 설치한 JDK에 맞춰 지정한다. 빌드와 실행은 macOS ARM64에서 확인했다.
+Linux에서는 -dynamiclib 대신 -shared -fPIC, include/darwin 대신 include/linux,
+libpinprobe.dylib 대신 libpinprobe.so로 빌드할 수 있다.
+
+javac --release 21 PinProbe.java
+jdk21=$(/usr/libexec/java_home -v 21)
+jdk25=$(/usr/libexec/java_home -v 25)
+cc -dynamiclib -I"$jdk25/include" -I"$jdk25/include/darwin" pin_callback.c -o libpinprobe.dylib
+for jdk in "$jdk21" "$jdk25"; do
+  for mode in monitor native; do
+    "$jdk/bin/java" --enable-native-access=ALL-UNNAMED -Djava.library.path=. PinProbe "$mode"
+  done
+done
+
+jdk.VirtualThreadPinned duration_ms=157
+java=21.0.12.1+1-LTS mode=monitor matching_events=1
+jdk.VirtualThreadPinned duration_ms=155
+java=21.0.12.1+1-LTS mode=native matching_events=1
+java=25.0.4.1+1-LTS mode=monitor matching_events=0
+jdk.VirtualThreadPinned duration_ms=153
+java=25.0.4.1+1-LTS mode=native matching_events=1
+
+코루틴
+실측은 Kotlin 2.3.21의 K2JVMCompiler와 같은 버전의 stdlib을 사용했다.
+같은 버전의 kotlinc/kotlin CLI로 재현할 때의 명령이다.
+
+curl -fsSL --max-time 60 -o coroutines.jar https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core-jvm/1.10.2/kotlinx-coroutines-core-jvm-1.10.2.jar
+kotlinc -jvm-target 21 -classpath coroutines.jar CoroutineLab.kt -d coroutine-lab.jar
+kotlin -classpath coroutine-lab.jar:coroutines.jar CoroutineLabKt
+
+A waiting
+B releases A
+A resumed on same thread=true
+sibling finally ran=true

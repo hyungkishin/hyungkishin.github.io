@@ -1,0 +1,23 @@
+macOS arm64, Temurin 25.0.4.1+1. 한 스레드가 4,096바이트 배열 262,144개를 만든다.
+가장 최근 몇 개의 배열에 강한 참조를 유지하는지만 바꾼다.
+한 조건에 새 JVM 하나. 정지 시간을 비교하는 벤치마크가 아니다.
+
+javac SurvivalWindow.java
+for n in 32 8192; do
+  java -Xms96m -Xmx96m -XX:+UseG1GC -XX:G1HeapRegionSize=1m \
+    -XX:ActiveProcessorCount=4 -Xlog:gc,gc+heap=info,gc+age=trace \
+    SurvivalWindow "$n" > "survival-$n.log"
+done
+
+각 로그의 Old regions: A->B에서 B의 최댓값, age 1의 바이트 최댓값,
+Pause Full 문구가 나온 행 수를 구했다. 주소나 스레드 덤프는 사용하지 않았다.
+
+retained=32, checksum=3568
+[0.046s][info ][gc,heap] GC(15) Old regions: 2->3
+[0.016s][trace][gc,age] GC(0) - age   1:     214152 bytes,     214152 total
+Pause Full count = 0
+
+retained=8192, checksum=520192
+[0.025s][info ][gc,heap] GC(7) Old regions: 94->96
+[0.036s][trace][gc,age ] GC(16) - age   1:    4194240 bytes,    4194240 total
+Pause Full count = 16

@@ -1,0 +1,82 @@
+Temurin 25.0.5+8, Linux ARM64 (Docker), G1, 힙 48MiB. 호스트 Temurin javac 25.0.4.1.
+컴파일 대상으로 longLoop/quote만 허용했다. 이 설정과 JFR은 평상시 기동시간 비교에 쓰지 않는다.
+실행 ID와 시각, 계수, 정지 시간은 실행마다 달라진다.
+
+재현 (HotPathProbe.java와 window-report.py를 빈 폴더에 두고 실행)
+javac --release 25 -g HotPathProbe.java
+javap -c -p HotPathProbe
+image=eclipse-temurin@sha256:ecdc0adb37bde1a281c4d245a3cd535004b1fc8322d560f5b09463b248c81df0
+jvmrun() { docker run --rm --network=none --platform linux/arm64 -v "$PWD:/lab" -w /lab "$image" "$@"; }
+jvmrun java -Xms48m -Xmx48m -XX:+UseG1GC -XX:+UnlockDiagnosticVMOptions -XX:+LogCompilation \
+  -XX:LogFile=hot.xml -XX:+PrintCompilation -XX:CompileCommand=compileonly,HotPathProbe::longLoop \
+  -XX:CompileCommand=compileonly,HotPathProbe::quote HotPathProbe > hot.out
+jvmrun jfr print --json --events 'lab.Window,jdk.Compilation,jdk.Deoptimization,jdk.GCPhasePause' hot.jfr > events.json
+python3 window-report.py events.json
+mkdir -p interpreted
+docker run --rm --network=none --platform linux/arm64 -v "$PWD:/lab" -w /lab/interpreted "$image" \
+  java -Xint -Xms48m -Xmx48m -cp /lab HotPathProbe
+
+javap 발췌
+  static int quote(HotPathProbe$Rule, int);
+    Code:
+         0: iload_1
+         1: aload_0
+         2: iload_1
+         3: invokeinterface #7,  2            // InterfaceMethod HotPathProbe$Rule.value:(I)I
+         8: iadd
+         9: ireturn
+
+  static long longLoop(int);
+    Code:
+         0: ldc2_w        #13                 // long 17l
+         3: lstore_1
+         4: iconst_0
+         5: istore_3
+         6: iload_3
+         7: iload_0
+         8: if_icmpge     30
+        11: lload_1
+        12: iload_3
+        13: i2l
+        14: lxor
+        15: ldc2_w        #15                 // long 31l
+        18: lmul
+        19: ldc2_w        #17                 // long 7l
+        22: ladd
+        23: lstore_1
+        24: iinc          3, 1
+        27: goto          6
+        30: lload_1
+        31: lreturn
+
+PrintCompilation 발췌
+631   54 %     3       HotPathProbe::longLoop @ 6 (32 bytes)
+631   55       3       HotPathProbe::longLoop (32 bytes)
+631   56 %     4       HotPathProbe::longLoop @ 6 (32 bytes)
+633   54 %     3       HotPathProbe::longLoop @ 6 (32 bytes)   made not entrant: OSR invalidation of lower level
+643   56 %     4       HotPathProbe::longLoop @ 6 (32 bytes)   made not entrant: uncommon trap
+
+LogCompilation의 task_queued 필드를 발췌했다. level이 생략된 항목의 수준은 PrintCompilation과 JFR에서 대조한다.
+compile_id=54 method=HotPathProbe longLoop (I)J compile_kind=osr count=1 backedge_count=60416 osr_bci=6 level=3
+compile_id=55 method=HotPathProbe longLoop (I)J count=1 backedge_count=99678 level=3
+compile_id=56 method=HotPathProbe longLoop (I)J compile_kind=osr count=1 backedge_count=181598 osr_bci=6
+compile_id=57 method=HotPathProbe quote (LHotPathProbe$Rule;I)I count=256 level=3
+compile_id=58 method=HotPathProbe quote (LHotPathProbe$Rule;I)I count=6656
+compile_id=59 method=HotPathProbe quote (LHotPathProbe$Rule;I)I count=23168
+
+JFR jdk.Deoptimization (실제 발생 이벤트)
+compileId=56 HotPathProbe.longLoop bci=8 unstable_if reinterpret
+compileId=58 HotPathProbe.quote bci=3 class_check maybe_recompile
+compileId=58 HotPathProbe.quote bci=3 class_check maybe_recompile
+compileId=58 HotPathProbe.quote bci=3 class_check maybe_recompile
+compileId=58 HotPathProbe.quote bci=3 class_check maybe_recompile
+
+phase                       wall_ms   cpu_ms  runq_ms  compiles  traps  GC_pause_ms
+one-long-invocation        12.495   12.409    0.000         3      1        0.000
+first-rate                  1.923    1.704    0.000         2      0        0.000
+same-rate                   1.280    1.214    0.000         0      0        0.000
+first-flat                  1.469    1.280    0.000         1      4        0.000
+allocation-control          8.726    4.547    0.002         0      0        4.009
+
+JIT checksum=-7754398148103892335
+-Xint checksum=-7754398148103892335
