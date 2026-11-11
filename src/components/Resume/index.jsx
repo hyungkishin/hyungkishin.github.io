@@ -62,7 +62,7 @@ const Resume = () => {
 
       {activities.length > 0 && (
         <Card>
-          <CardTitle>External Activities</CardTitle>
+          <CardTitle>외부 활동</CardTitle>
           <List>
             {activities.map((activity, index) => (
               <li key={index}>{activity}</li>

@@ -1,193 +1,34 @@
-import React, { useEffect, useState } from "react"
-import styled, { useTheme } from "styled-components"
-
+import React from "react"
 import { Link } from "gatsby"
-
+import { useTheme } from "styled-components"
+import { FiBookOpen, FiMoon, FiSearch, FiSun } from "react-icons/fi"
 import { title } from "../../../../blog-config"
 
-import {
-  FaSun,
-  FaMoon,
-  FaTags,
-  FaRss,
-  FaSearch,
-  FaUserAlt,
-} from "react-icons/fa"
-
-const HeaderWrapper = styled.header`
-  display: block;
-  position: fixed;
-  top: ${props => (props.$isHidden ? -60 : 0)}px;
-  left: 0;
-  right: 0;
-  padding: 16px;
-  background-color: ${props => props.theme.colors.headerBackground};
-  box-shadow: 0 0 8px ${props => props.theme.colors.headerShadow};
-  backdrop-filter: blur(5px);
-  opacity: ${props => (props.$isHidden ? 0 : 1)};
-  transition: top 0.5s, opacity 0.5s;
-  z-index: 999;
-
-  @media (max-width: 768px) {
-    padding: 16px 0;
-  }
-`
-
-const Inner = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: 1080px;
-  margin: 0 auto;
-  padding: 0 16px;
-
-  @media (max-width: 768px) {
-    padding: 0 20px;
-  }
-`
-
-const BlogTitle = styled.span`
-  letter-spacing: -1px;
-  font-family: "Source Code Pro", sans-serif;
-  font-weight: 700;
-  font-size: 24px;
-  color: ${props => props.theme.colors.text};
-
-  & > a {
-    text-decoration: none;
-    color: inherit;
-  }
-`
-
-const Menu = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  & svg {
-    width: 20px;
-    height: 20px;
-    margin-right: 15px;
-    cursor: pointer;
-  }
-
-  & svg path {
-    fill: ${props => props.theme.colors.icon};
-    transition: fill 0.3s;
-  }
-
-  & svg:hover path {
-    fill: ${props => props.theme.colors.text};
-  }
-`
-
-const ToggleWrapper = styled.button`
-  appearance: none;
-  background: transparent;
-  border: 0;
-  padding: 0;
-  width: 20px;
-  height: 24px;
-  margin-right: 15px;
-  overflow: hidden;
-  box-sizing: border-box;
-  cursor: pointer;
-
-  &:focus {
-    outline: none;
-  }
-
-  &:focus-visible {
-    outline: 2px solid ${(props) => props.theme.colors.accent};
-    outline-offset: 4px;
-    border-radius: 2px;
-  }
-`
-
-const IconRail = styled.div`
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 40px;
-  top: ${props => (props.$mode === "light" ? "-19px" : "0px")};
-  transition: top 0.4s;
-
-  & > svg {
-    transition: opacity 0.25s;
-  }
-
-  & > svg:first-child {
-    opacity: ${props => (props.$mode === "light" ? 0 : 1)};
-  }
-
-  & > svg:last-child {
-    opacity: ${props => (props.$mode === "dark" ? 0 : 1)};
-  }
-`
-
-const Header = ({ toggleTheme }) => {
-  const theme = useTheme()
-  const [scrollY, setScrollY] = useState()
-  const [hidden, setHidden] = useState(false)
-
-  const detectScrollDirection = () => {
-    if (scrollY >= window.scrollY) {
-      // scroll up
-      setHidden(false)
-    } else if (scrollY < window.scrollY && 400 <= window.scrollY) {
-      // scroll down
-      setHidden(true)
-    }
-
-    setScrollY(window.scrollY)
-  }
-
-  useEffect(() => {
-    window.addEventListener("scroll", detectScrollDirection)
-
-    return () => {
-      window.removeEventListener("scroll", detectScrollDirection)
-    }
-  }, [scrollY])
-
-  useEffect(() => {
-    setScrollY(window.scrollY)
-  }, [])
+export default function Header({ toggleTheme }) {
+  const dark = useTheme().name === "dark"
+  const themeLabel = dark ? "밝은 화면으로 전환" : "어두운 화면으로 전환"
 
   return (
-    <HeaderWrapper $isHidden={hidden}>
-      <Inner>
-        <BlogTitle>
-          <Link to="/">{title}</Link>
-        </BlogTitle>
-        <Menu>
-          <ToggleWrapper
-            onClick={toggleTheme}
-            type="button"
-            aria-label={theme.name === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-          >
-            <IconRail $mode={theme.name}>
-              <FaSun />
-              <FaMoon />
-            </IconRail>
-          </ToggleWrapper>
-          <Link to="/tags" aria-label="Tags">
-            <FaTags />
+    <header className="journal-header">
+      <a className="journal-skip" href="#main-content">본문으로 이동</a>
+      <div className="journal-bar">
+        <Link className="journal-brand" to="/" aria-label={title + " 홈"}>
+          <FiBookOpen aria-hidden="true" />
+          {title}
+        </Link>
+        <nav aria-label="주 메뉴">
+          <Link className="nav-archive" to="/#posts">글 목록</Link>
+          <Link className="nav-series" to="/#series">시리즈</Link>
+          <Link className="nav-tags" to="/tags/" replace={false} activeClassName="current">태그</Link>
+          <Link className="nav-search" to="/search/" replace={false} activeClassName="current" aria-label="글 검색">
+            <FiSearch aria-hidden="true" /><span>검색</span>
           </Link>
-          <Link to="/resume" aria-label="Resume">
-            <FaUserAlt />
-          </Link>
-          <Link to="/rss.xml" aria-label="RSS Feed">
-            <FaRss />
-          </Link>
-          <Link to="/search" aria-label="Search">
-            <FaSearch style={{ marginRight: 0 }} />
-          </Link>
-        </Menu>
-      </Inner>
-    </HeaderWrapper>
+          <button type="button" className="nav-theme" onClick={toggleTheme}
+            title={themeLabel} aria-label={themeLabel}>
+            {dark ? <FiSun aria-hidden="true" /> : <FiMoon aria-hidden="true" />}
+          </button>
+        </nav>
+      </div>
+    </header>
   )
 }
-
-export default Header

@@ -1,141 +1,64 @@
-import React, { useState, useEffect } from "react"
-import styled, { css } from "styled-components"
+import React, { useEffect, useRef } from "react"
+import styled from "styled-components"
 
-import { animateScroll } from "react-scroll"
-
-import useScroll from "hooks/useScroll"
-
-import getElementOffset from "utils/getElmentOffset"
-
-import RevealOnScroll from "components/RevealOnScroll"
-
-const STICK_OFFSET = 100
-
-const TocWrapper = styled.div`
-  position: absolute;
-  opacity: 1;
-  left: 100%;
-
-  & > div {
-    padding-right: 20px;
-    padding-left: 16px;
-    margin-left: 48px;
-    position: relative;
-    width: 240px;
-    max-height: calc(100% - 185px);
-    overflow-y: auto;
-
-    ::-webkit-scrollbar {
-      width: 3px;
-    }
-    ::-webkit-scrollbar-track {
-      background: ${props => props.theme.colors.scrollTrack};
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: ${props => props.theme.colors.scrollHandle};
-    }
-
-    ${props =>
-      props.stick &&
-      css`
-        position: fixed;
-        top: ${STICK_OFFSET}px;
-      `}
-  }
-
-  @media (max-width: 1300px) {
-    display: None;
-  }
-`
-
-const ParagraphTitle = styled.div`
-  margin-bottom: 12px;
-  padding-left: ${props => (props.subtitle ? 24 : 12)}px;
-  font-size: 13.5px;
-  color: ${props => props.theme.colors.mutedText};
-  line-height: 1.4;
-  transition: all 0.2s ease-in-out;
-  border-left: 2px solid transparent;
-  position: relative;
-
-  ${props =>
-    props.active &&
-    css`
-      color: ${props => props.theme.colors.accent};
-      font-weight: 600;
-      border-left: 2px solid ${props => props.theme.colors.accent};
-      background: linear-gradient(to right, ${props =>
-        props.theme.colors.background}, transparent);
-    `}
-
-  &:hover {
+const Contents = styled.nav`
+  margin: 0 0 26px;
+  min-width: 0;
+  font-size: 14px;
+  color: ${props => props.theme.colors.secondaryText};
+  summary {
+    padding: 9px 0;
     color: ${props => props.theme.colors.text};
+    font-weight: 650;
     cursor: pointer;
   }
+  ol { margin: 0; padding: 2px 0 12px 14px; border-left: 1px solid ${props => props.theme.colors.border}; list-style: none; }
+  li + li { margin-top: 2px; }
+  a {
+    display: block;
+    padding: 4px 0;
+    color: inherit;
+    text-decoration: none;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+    word-break: keep-all;
+  }
+  a:hover, a:focus-visible { color: ${props => props.theme.colors.accent}; text-decoration: underline; }
+  li[data-depth="3"] { padding-left: 12px; }
+
+  @media (min-width: 1340px) {
+    position: absolute;
+    inset: 0 auto 0 calc(100% + 38px);
+    width: 194px;
+    margin: 0;
+    details { position: sticky; top: 90px; overflow: auto; max-height: calc(100vh - 112px); }
+  }
 `
 
-const Toc = ({ items, articleOffset }) => {
-  const { y } = useScroll()
-
-  const [revealAt, setRevealAt] = useState(4000)
-  const [headers, setHeaders] = useState([])
-  const [active, setActive] = useState(0)
-
+const Toc = ({ items }) => {
+  const disclosure = useRef(null)
   useEffect(() => {
-    const bioElm = document.getElementById("bio")
-    if (bioElm) {
-      setRevealAt(
-        getElementOffset(bioElm).top - bioElm.getBoundingClientRect().height - 400
-      )
-    }
-  }, [])
-
-  useEffect(() => {
-    setHeaders(
-      [
-        ...document.querySelectorAll("#article-body > h2, #article-body > h3"),
-      ].map(element => getElementOffset(element).top)
-    )
+    const details = disclosure.current
+    if (!details) return
+    const desktop = window.matchMedia("(min-width: 1340px)")
+    const sync = () => { details.open = desktop.matches }
+    sync()
+    desktop.addEventListener("change", sync)
+    return () => desktop.removeEventListener("change", sync)
   }, [items])
 
-  useEffect(() => {
-    let currentIdx = 0
-    headers.forEach((header, i) => {
-      if (header - 100 < y) {
-        currentIdx = i
-      }
-    })
-    setActive(currentIdx)
-  }, [y, headers])
-
-  const handleClickTitle = index => {
-    animateScroll.scrollTo(headers[index] - 70, {
-      duration: 500,
-      smooth: "easeInOutQuart",
-    })
-  }
-
+  if (!items.length) return null
   return (
-    <RevealOnScroll revealAt={revealAt} reverse>
-      <TocWrapper stick={y > articleOffset - STICK_OFFSET}>
-        <div>
-          <div style={{ marginBottom: "16px", fontSize: "12px", fontWeight: "bold", color: "var(--colors-secondaryText)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
-            Table of Contents
-          </div>
-          {items.map((item, i) => (
-            <ParagraphTitle
-              key={i}
-              subtitle={item.tagName === "H3"}
-              active={i === active}
-              onClick={() => handleClickTitle(i)}
-            >
-              {item.innerText}
-            </ParagraphTitle>
+    <Contents aria-label="글의 목차">
+      <details ref={disclosure}>
+        <summary>글 목차</summary>
+        <ol>
+          {items.map(({ id, text, depth }) => (
+            <li key={id} data-depth={depth}><a href={`#${id}`}>{text}</a></li>
           ))}
-        </div>
-      </TocWrapper>
-    </RevealOnScroll>
+        </ol>
+      </details>
+    </Contents>
   )
 }
 

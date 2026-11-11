@@ -1,53 +1,69 @@
 import React from "react"
 import styled from "styled-components"
+import { FiSearch, FiX } from "react-icons/fi"
 
-import { FiSearch } from "react-icons/fi"
-
-const Wrapper = styled.div`
-  position: relative;
-`
-
-const Icon = styled.span`
-  position: absolute;
-  top: 12px;
-  left: 18px;
-  font-size: 20px;
-  color: ${props => props.theme.colors.textFieldBorder};
-  text-shadow: 0 0 5px ${props => props.theme.colors.textFieldBorder};
-  transition: all 0.2s;
-`
-
-const Input = styled.input.attrs({ type: "text" })`
-  padding: 14px 19.2px 12px 50px;
-  width: 100%;
-  border: 1px solid ${props => props.theme.colors.textFieldBorder};
-  border-radius: 1vh;
-  background-color: transparent;
-  font-size: 16px;
-  color: ${props => props.theme.colors.text};
-  box-sizing: border-box;
-  outline: none;
-  transition: all 0.2s;
-
-  &:focus {
-    border: 1px solid ${props => props.theme.colors.textFieldActivatedBorder};
+const Field = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-height: 58px;
+  padding: 0 12px 0 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--muted);
+  &:focus-within {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
-
-  &:focus + ${Icon} {
-    color: ${props => props.theme.colors.textFieldActivatedBorder};
+  > svg {
+    flex-shrink: 0;
+  }
+  input {
+    flex: 1;
+    min-width: 0;
+    min-height: 54px;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    font: inherit;
+    font-size: 17px;
+    outline: none;
+  }
+  input::placeholder {
+    color: var(--muted);
+    opacity: 1;
+  }
+  input::-webkit-search-cancel-button {
+    appearance: none;
+  }
+  button {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    color: var(--muted);
+    background: transparent;
+    cursor: pointer;
+  }
+  button:hover {
+    color: var(--ink);
   }
 `
 
-const TextField = ({ ...props }) => {
+export default function TextField({ onClear, inputRef, ...props }) {
   return (
-    <Wrapper>
-      <Input {...props} />
-
-      <Icon>
-        <FiSearch />
-      </Icon>
-    </Wrapper>
+    <Field>
+      <FiSearch size={20} aria-hidden="true" />
+      <input type="search" ref={inputRef} {...props} />
+      {props.value && (
+        <button type="button" aria-label="검색어 지우기" onClick={onClear}>
+          <FiX size={19} aria-hidden="true" />
+        </button>
+      )}
+    </Field>
   )
 }
-
-export default TextField

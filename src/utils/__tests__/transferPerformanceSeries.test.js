@@ -24,3 +24,16 @@ test("성능과 송금 시리즈는 측정부터 데이터 접근까지 순서�
   assert.equal(matchSeries("/backend/transfer-performance/"), undefined)
   assert.equal(matchSeries("/backend/transfer-performance/unrelated/"), undefined)
 })
+
+test("브라우저가 송금 시리즈의 HTML과 그림 제어를 직접 연다", () => {
+  const config = require("../../../gatsby-config")
+  const catchLinks = require("gatsby-plugin-catch-links/gatsby-node")
+  const plugin = config.plugins.find(entry => entry.resolve === "gatsby-plugin-catch-links")
+  const options = { ...plugin.options }
+  catchLinks.onPreInit({}, options)
+  const excluded = new RegExp(options.excludePattern)
+
+  assert.equal(excluded.test("/backend/transfer-performance/"), true)
+  assert.equal(excluded.test("/backend/transfer-performance/02-jvm-execution/"), true)
+  assert.equal(excluded.test("/backend/kotlin/basic/"), false)
+})

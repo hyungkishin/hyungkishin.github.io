@@ -1,43 +1,17 @@
 import React from "react"
-import styled from "styled-components"
-
+import { Link } from "gatsby"
 import Layout from "components/Layout"
 import SEO from "components/SEO"
 
-import { title, description, siteUrl } from "../../blog-config"
-
-const NotFound = styled.div`
-  height: 800px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  color: ${props => props.theme.colors.tertiaryText};
-
-  & > h2 {
-    margin-bottom: 16px;
-    font-weight: bold;
-    font-size: 48px;
-  }
-
-  & > h3 {
-    font-weight: lighter;
-    font-size: 30.4px;
-  }
-
-  @media (max-width: 768px) {
-    height: 300px;
-  }
-`
-
-const NotFoundPage = () => (
-  <Layout>
-    <SEO title={title} description={description} url={siteUrl} />
-    <NotFound>
-      <h2>404 ERROR</h2>
-      <h3>Page Not Found X(</h3>
-    </NotFound>
-  </Layout>
-)
-
-export default NotFoundPage
+export default function NotFoundPage() {
+  return (
+    <Layout>
+      <SEO title="페이지를 찾을 수 없습니다" />
+      <section className="journal-not-found">
+        <h1>페이지를 찾을 수 없습니다</h1>
+        <p>주소를 확인하거나 제목과 키워드로 글을 찾아보세요.</p>
+        <Link to="/search/">글 검색</Link> <Link to="/">홈으로</Link>
+      </section>
+    </Layout>
+  )
+}

@@ -1,30 +1,14 @@
-// 폴더명 → 카테고리 그룹 매핑
-// 차별은 텍스트로. 컬러는 한 가지 accent만 사용.
-const TOP_DIR_TO_GROUP = {
-  backend: "engineering",
-  frontend: "engineering",
-  devops: "engineering",
-  "data-base": "engineering",
-  company: "work",
-  "e-commerce": "e-commerce",
-  books: "reading",
-}
-
-const ACCENT = "#2563eb"
-
 export const CATEGORY_GROUPS = [
-  { id: "engineering", label: "engineering", accent: ACCENT },
-  { id: "work", label: "work", accent: ACCENT },
-  { id: "e-commerce", label: "e-commerce", accent: ACCENT },
-  { id: "reading", label: "reading", accent: ACCENT },
+  { id: "backend", label: "백엔드" },
+  { id: "frontend", label: "프런트엔드" },
+  { id: "company", label: "업무 기록" },
+  { id: "e-commerce", label: "커머스" },
+  { id: "infra", label: "인프라·DB" },
+  { id: "books", label: "독서" },
 ]
 
-export const categoryOf = (topDir) => {
-  if (!topDir) return null
-  const groupId = TOP_DIR_TO_GROUP[topDir]
-  if (!groupId) return null
-  return CATEGORY_GROUPS.find((g) => g.id === groupId)
-}
+export const findCategoryById = id => CATEGORY_GROUPS.find(group => group.id === id)
 
-export const findCategoryById = (id) =>
-  CATEGORY_GROUPS.find((g) => g.id === id)
+export const categoryOf = directory => findCategoryById(
+  directory === "devops" || directory === "data-base" ? "infra" : directory
+)

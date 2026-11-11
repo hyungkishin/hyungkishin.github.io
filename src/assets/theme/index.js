@@ -1,36 +1,33 @@
-// Linear / Vercel inspired — 개발자 블로그 톤
-// 핵심: 흰 배경, 큰 sans-serif, 한 가지 accent, 미니멀
-
 // ---- Accent (light/dark 공유) ----
-const ACCENT = "#2563eb"           // 차분한 indigo blue
-const ACCENT_HOVER = "#1d4ed8"
+const ACCENT = "#126756"
+const ACCENT_HOVER = "#0c5144"
 
 // ---- Light ----
-const LIGHT_BG = "#ffffff"
-const LIGHT_BG_SOFT = "#fafafa"
-const LIGHT_CARD = "#ffffff"
-const LIGHT_BORDER = "#e5e5e5"
-const LIGHT_BORDER_SOFT = "#ededed"
-const LIGHT_DIVIDER = "#ededed"
+const LIGHT_BG = "#f8f9f7"
+const LIGHT_BG_SOFT = "#eef1ee"
+const LIGHT_CARD = "#f8f9f7"
+const LIGHT_BORDER = "#cfd9d2"
+const LIGHT_BORDER_SOFT = "#dbe2dd"
+const LIGHT_DIVIDER = "#dbe2dd"
 
-const LIGHT_TEXT = "#0a0a0a"
-const LIGHT_TEXT_BODY = "#404040"
-const LIGHT_TEXT_MUTED = "#737373"
-const LIGHT_TEXT_FAINT = "#a3a3a3"
+const LIGHT_TEXT = "#19282b"
+const LIGHT_TEXT_BODY = "#364847"
+const LIGHT_TEXT_MUTED = "#526661"
+const LIGHT_TEXT_FAINT = "#6b7773"
 
-// ---- Dark (Linear / Vercel 류 차콜 톤) ----
-const DARK_BG = "#0a0a0a"
-const DARK_BG_SOFT = "#141414"
-const DARK_BORDER = "#27272a"
-const DARK_BORDER_SOFT = "#1f1f23"
-const DARK_DIVIDER = "#1f1f23"
+// ---- Dark ----
+const DARK_BG = "#142024"
+const DARK_BG_SOFT = "#1e3032"
+const DARK_BORDER = "#3b4f4d"
+const DARK_BORDER_SOFT = "#334644"
+const DARK_DIVIDER = "#334644"
 
 const DARK_TEXT = "#fafafa"
 const DARK_TEXT_BODY = "#d4d4d4"
 const DARK_TEXT_MUTED = "#a3a3a3"
 const DARK_TEXT_FAINT = "#737373"
 
-const DARK_ACCENT = "#60a5fa"      // dark mode 에서 더 잘 보이는 blue
+const DARK_ACCENT = "#86d7ba"
 
 export const light = {
   name: "light",
@@ -75,7 +72,7 @@ export const light = {
     textFieldActivatedBorder: ACCENT,
     tableBackground: LIGHT_BG_SOFT,
     accent: ACCENT,
-    inlineCode: "#d6336c",
+    inlineCode: "#245b53",
     zoomBackground: "rgba(255, 255, 255, 0.95)",
     tldrBackground: "#fefce8",
     tldrBorder: "#eab308",
@@ -144,7 +141,7 @@ export const dark = {
     textFieldActivatedBorder: DARK_ACCENT,
     tableBackground: DARK_BG_SOFT,
     accent: DARK_ACCENT,
-    inlineCode: "#fb7185",
+    inlineCode: "#a3d8c8",
     zoomBackground: "rgba(10, 10, 10, 0.95)",
     tldrBackground: "#422006",
     tldrBorder: "#eab308",

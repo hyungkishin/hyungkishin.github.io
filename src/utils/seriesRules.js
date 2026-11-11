@@ -23,23 +23,23 @@ const SERIES_RULES = [
   },
   {
     id: "why",
-    name: "why",
-    tagline: "사고가 어디서 시작됐는지 짚어보는 글",
+    name: "장애 원인 분석",
+    tagline: "장애 원인과 대응 과정, 남은 과제",
     indexSlug: "/company/work/",
     pattern: /^\/company\/work\/why\d+\/$/,
     sortKey: slug => Number(slug.match(/why(\d+)/)?.[1]),
   },
   {
     id: "phase",
-    name: "frontend performance",
-    tagline: "CMS 기반 뉴스 사이트 성능 최적화 단계",
+    name: "프론트엔드 성능 최적화",
+    tagline: "CMS 기반 뉴스 사이트의 성능 측정과 최적화",
     indexSlug: "/frontend/performance/",
     pattern: /^\/frontend\/performance\/phase\d+\/$/,
     sortKey: slug => Number(slug.match(/phase(\d+)/)?.[1]),
   },
   {
     id: "week",
-    name: "e-commerce 결제 시스템",
+    name: "이커머스 결제 시스템",
     tagline: "결제 시스템을 13주에 걸쳐 다시 만든 기록",
     indexSlug: "/e-commerce/technical-writing/",
     pattern: /^\/e-commerce\/technical-writing\/week\d+\/$/,
@@ -47,22 +47,22 @@ const SERIES_RULES = [
   },
   {
     id: "storefront",
-    name: "커머스 프론트엔드 다시 그리기",
-    tagline: "상품 목록부터 결제 화면까지 경계를 다시 그은 기록",
+    name: "커머스 프론트엔드 설계",
+    tagline: "상품 목록과 결제 화면의 상태·컴포넌트·테스트 설계",
     indexSlug: "/frontend/e-commerce/",
     pattern: /^\/frontend\/e-commerce\/[^/]+\/$/,
   },
   {
     id: "metrics",
-    name: "계기가 거짓말할 때",
-    tagline: "대시보드 숫자가 정상일 때 무엇을 다시 재야 하는가",
+    name: "지표와 실제 상태가 다를 때",
+    tagline: "지표의 집계 기준과 측정 범위로 살펴본 장애 사례",
     indexSlug: "/backend/observability/",
     pattern: /^\/backend\/observability\/when-metrics-lie[^/]*\/$/,
   },
   {
     id: "spring-ai",
-    name: "Spring AI 로 때워도 되나유",
-    tagline: "배달 상담 에이전트를 6라운드에 걸쳐 만든 기록",
+    name: "Spring AI로 배달 상담 에이전트 구현하기",
+    tagline: "6단계로 구현하고 검증한 배달 상담 에이전트",
     indexSlug: "/backend/spring/spring-ai/",
     // 파일명이 index.md 가 아니라 intro/spring-ai.md 여서 슬러그가 한 단 더 들어간다.
     pattern: /^\/backend\/spring\/spring-ai\/(intro\/spring-ai|round\d+)\/$/,
@@ -72,7 +72,7 @@ const SERIES_RULES = [
   {
     id: "js-quiz",
     name: "자바스크립트 열 문제",
-    tagline: "퀴즈 열 개에서 언어 규칙을 역산한 기록",
+    tagline: "열 가지 문제로 확인하는 자바스크립트 동작 원리",
     indexSlug: "/frontend/javascript/",
     // 문제 번호가 아니라 규칙 이름이 슬러그다. 읽는 순서는 아래 나열 순서다.
     slugs: [
@@ -85,8 +85,8 @@ const SERIES_RULES = [
   },
   {
     id: "will",
-    name: "e-commerce 주간 회고",
-    tagline: "주차별 회고",
+    name: "이커머스 개발 주간 회고",
+    tagline: "주차별 설계 결정과 검증 결과, 남은 과제",
     indexSlug: "/e-commerce/will/",
     // 슬러그에 규칙이 없는 시리즈. 나열 순서가 곧 읽는 순서다.
     slugs: [

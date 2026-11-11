@@ -4,6 +4,7 @@ import { graphql } from "gatsby"
 
 import Layout from "components/Layout"
 import Article from "components/Article"
+import TagList from "components/TagList"
 
 import { findSeriesById, sortSeriesPosts } from "utils/seriesRules"
 import { siteUrl } from "../../blog-config"
@@ -12,7 +13,7 @@ const Post = ({ data, pageContext }) => {
   const post = data.markdownRemark
   const { previous, next } = data
 
-  const { title, description, date, update, tags } = post.frontmatter
+  const { title, description, date, tags } = post.frontmatter
   const { isoDate, isoUpdate } = post.frontmatter
   const { slug } = post.fields
 
@@ -33,7 +34,9 @@ const Post = ({ data, pageContext }) => {
         tags={tags}
       />
       <Article>
-        <Article.Header title={title} date={date} update={update} tags={tags} />
+        <Article.Header title={title} date={date} isoDate={isoDate} series={seriesRule} />
+        <Article.Body html={post.html} slug={slug} />
+        {tags?.length > 0 && <nav aria-label="글 태그"><TagList tagList={tags} /></nav>}
         {seriesPosts.length > 1 && (
           <Article.Series
             rule={seriesRule}
@@ -41,7 +44,6 @@ const Post = ({ data, pageContext }) => {
             currentId={post.id}
           />
         )}
-        <Article.Body html={post.html} slug={slug} />
         <Article.Footer
           previous={previous}
           next={next}
@@ -73,8 +75,9 @@ export const pageQuery = graphql`
       html
       frontmatter {
         title
-        date(formatString: "MMMM DD, YYYY")
-        update(formatString: "MMMM DD, YYYY")
+        description
+        date(formatString: "YYYY년 M월 D일")
+        update(formatString: "YYYY년 M월 D일")
         isoDate: date
         isoUpdate: update
         tags

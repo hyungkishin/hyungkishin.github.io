@@ -1,9 +1,7 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react"
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import styled, { useTheme } from "styled-components"
 import mediumZoom from "medium-zoom"
 import mermaid from "mermaid"
-
-import useOffsetTop from "hooks/useOffsetTop"
 
 import Toc from "./Toc"
 import StyledMarkdown from "./StyledMarkdown"
@@ -13,11 +11,7 @@ import TextToSpeech from "./TextToSpeech"
 
 const Wrapper = styled.div`
   position: relative;
-  margin-bottom: 60px;
-
-  @media (max-width: 768px) {
-    padding: 0 15px;
-  }
+  margin-bottom: 35px;
 
   .medium-zoom-overlay {
     z-index: 1000;
@@ -28,10 +22,6 @@ const Wrapper = styled.div`
   }
 `
 
-const PostTopAdWrapper = styled.div`
-  margin-bottom: 40px;
-`
-
 const PostBottomAdWrapper = styled.div`
   margin-top: 40px;
 `
@@ -39,7 +29,13 @@ const PostBottomAdWrapper = styled.div`
 const Body = ({ html, slug }) => {
   const [toc, setToc] = useState([])
   const theme = useTheme()
-  const [ref, offsetTop] = useOffsetTop()
+  const ref = useRef(null)
+
+  useEffect(() => {
+    if (!toc.length) return
+    const target = toc.find(heading => `#${heading.id}` === window.location.hash)
+    if (target) document.getElementById(target.id)?.scrollIntoView()
+  }, [toc])
 
   const zoom = useMemo(() => {
     if (typeof window === "undefined") return null
@@ -92,12 +88,24 @@ const Body = ({ html, slug }) => {
   }, [theme.name])
 
   useEffect(() => {
-    setToc(
-      Array.from(
-        document.querySelectorAll("#article-body > h2, #article-body > h3")
-      )
-    )
+    ref.current.querySelectorAll("table").forEach(table => {
+      if (table.parentElement.classList.contains("table-scroll")) return
+      const scroll = document.createElement("div")
+      scroll.className = "table-scroll"
+      scroll.tabIndex = 0
+      scroll.setAttribute("role", "region")
+      scroll.setAttribute("aria-label", table.caption?.textContent || "표 가로 스크롤")
+      table.replaceWith(scroll)
+      scroll.appendChild(table)
+    })
+    const sections = [...ref.current.querySelectorAll(":scope > h2, :scope > h3")]
+    setToc(sections.map((heading, index) => {
+      if (!heading.id) heading.id = `article-section-${index + 1}`
+      return { id: heading.id, text: heading.textContent, depth: heading.tagName.slice(1) }
+    }))
+  }, [html])
 
+  useEffect(() => {
     renderMermaid()
 
     if (zoom) {
@@ -112,7 +120,7 @@ const Body = ({ html, slug }) => {
 
   return (
     <Wrapper>
-      <Toc items={toc} articleOffset={offsetTop} />
+      <Toc items={toc} />
 
       <PrismTheme />
 

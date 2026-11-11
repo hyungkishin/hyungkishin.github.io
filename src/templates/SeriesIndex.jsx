@@ -14,7 +14,7 @@ const SeriesIndexPage = ({ pageContext, data }) => {
   if (!rule) {
     return (
       <Layout wide>
-        <p>Series not found.</p>
+        <p>시리즈를 찾을 수 없습니다.</p>
       </Layout>
     )
   }
@@ -22,7 +22,7 @@ const SeriesIndexPage = ({ pageContext, data }) => {
   return (
     <Layout wide>
       <SEO
-        title={`${rule.name} · series`}
+        title={`${rule.name} · 시리즈`}
         description={rule.tagline || description}
         url={`${siteUrl}${rule.indexSlug}`}
       />
@@ -46,9 +46,10 @@ export const pageQuery = graphql`
           category
         }
         frontmatter {
-          date(formatString: "MMMM DD, YYYY")
+          date(formatString: "YYYY년 M월 D일")
           isoDate: date
           title
+          description
           tags
         }
       }

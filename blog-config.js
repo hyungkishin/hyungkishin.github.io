@@ -1,7 +1,7 @@
 module.exports = {
   title: "hyungkishin.blog",
-  description: "생각하는 삶",
-  author: "hyungki",
+  description: "신형기의 개발 기록. 송금, 커머스, 프런트엔드에서 마주친 문제를 코드와 실험으로 살펴봅니다.",
+  author: "hyungkishin",
   siteUrl: "https://hyungkishin.github.io/",
   links: {
     github: "https://github.com/hyungkishin",

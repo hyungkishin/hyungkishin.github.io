@@ -5,7 +5,11 @@ import Series from "./Series"
 import Body from "./Body"
 import Footer from "./Footer"
 
-const Article = styled.article``
+const Article = styled.article`
+  width: min(100%, 688px);
+  margin-inline: auto;
+  min-width: 0;
+`
 
 Article.Header = Header
 Article.Series = Series

@@ -1,28 +1,19 @@
 import React from "react"
-import styled from "styled-components"
+import { Link } from "gatsby"
+import { links } from "../../../../blog-config"
 
-import { title } from "../../../../blog-config"
-
-const FooterWrapper = styled.footer`
-  margin-top: 32px;
-  padding: 40px 0;
-  border-top: 1px solid ${props => props.theme.colors.divider};
-  text-align: center;
-  font-size: 11pt;
-  font-weight: lighter;
-  color: ${props => props.theme.colors.secondaryText};
-
-  & > a {
-    color: ${props => props.theme.colors.text};
-  }
-`
-
-const Footer = () => {
+export default function Footer() {
   return (
-    <FooterWrapper>
-      © {title},Thank You for Visiting My Blog, Have a Good Day 😆
-    </FooterWrapper>
+    <footer className="journal-footer">
+      <Link className="footer-name" to="/">hyungkishin.blog</Link>
+      <nav aria-label="바닥글 메뉴">
+        <Link to="/#posts">글 목록</Link>
+        <Link to="/#series">시리즈</Link>
+        <Link to="/tags/" replace={false}>태그</Link>
+        <Link to="/resume/">이력서</Link>
+        <a href={links.github}>GitHub</a>
+        <a href="/rss.xml">RSS</a>
+      </nav>
+    </footer>
   )
 }
-
-export default Footer

@@ -1,99 +1,43 @@
-import React, { useMemo } from "react"
+import React from "react"
 import styled from "styled-components"
-import { Link } from "gatsby"
-
+import ReadingLink from "components/ReadingLink"
 import SeriesPostList from "components/SeriesPostList"
-import { sortSeriesPosts, latestPost } from "utils/seriesRules"
+import { sortSeriesPosts } from "utils/seriesRules"
 
-const BackLink = styled(Link)`
-  display: inline-block;
-  margin-top: 20px;
-  font-size: 13px;
-  color: ${props => props.theme.colors.tertiaryText};
-  text-decoration: none;
-
-  &:hover {
-    color: ${props => props.theme.colors.text};
+const Collection = styled.section`
+  width: min(100%, 790px);
+  margin: clamp(18px, 4vw, 56px) auto 64px;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  > header {
+    padding-bottom: 26px;
+    border-bottom: 1px solid ${p => p.theme.colors.border};
   }
-`
-
-const Header = styled.div`
-  margin-top: 24px;
-  padding-bottom: 28px;
-  border-bottom: 1px solid ${props => props.theme.colors.border};
-
-  @media (max-width: 600px) {
-    padding: 0 4px 24px;
+  > header a { color: ${p => p.theme.colors.accent}; font-size: 14px; text-underline-offset: 3px; }
+  h1 {
+    color: ${p => p.theme.colors.text};
+    font-size: clamp(32px, 4vw, 48px);
+    line-height: 1.25;
+    font-weight: 750;
+    letter-spacing: -.045em;
+    margin: 16px 0 11px;
   }
+  > header p { font-size: 17px; line-height: 1.7; color: ${p => p.theme.colors.secondaryText}; }
+  small { display: block; margin-top: 15px; color: ${p => p.theme.colors.tertiaryText}; font-size: 14px; }
 `
 
-const Eyebrow = styled.div`
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: ${props => props.theme.colors.accent};
-  margin-bottom: 12px;
-`
-
-const Title = styled.h1`
-  margin: 0 0 12px;
-  font-size: 44px;
-  font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.025em;
-  color: ${props => props.theme.colors.text};
-
-  @media (max-width: 600px) {
-    font-size: 30px;
-  }
-`
-
-const Tagline = styled.p`
-  margin: 0;
-  font-size: 16px;
-  line-height: 1.6;
-  color: ${props => props.theme.colors.secondaryText};
-  max-width: 540px;
-`
-
-const Meta = styled.div`
-  margin-top: 18px;
-  font-size: 12.5px;
-  color: ${props => props.theme.colors.tertiaryText};
-`
-
-const Empty = styled.div`
-  margin-top: 48px;
-  text-align: center;
-  color: ${props => props.theme.colors.tertiaryText};
-  font-size: 14px;
-`
-
-/**
- * @param {object} rule 시리즈 규칙 (utils/seriesRules)
- * @param {object[]} posts 이 시리즈의 글. 순서는 여기서 정한다.
- */
 const SeriesDetail = ({ rule, posts }) => {
-  const sorted = useMemo(() => sortSeriesPosts(rule, posts), [posts, rule])
-  const latest = useMemo(() => latestPost(sorted), [sorted])
-
+  const sorted = sortSeriesPosts(rule, posts)
   return (
-    <>
-      <BackLink to="/">← home</BackLink>
-      <Header>
-        <Eyebrow>Series · {sorted.length}편</Eyebrow>
-        <Title>{rule.name}</Title>
-        <Tagline>{rule.tagline}</Tagline>
-        {latest && <Meta>최근 업데이트 · {latest.frontmatter.date}</Meta>}
-      </Header>
-      {sorted.length === 0 ? (
-        <Empty>이 시리즈에는 아직 글이 없어요.</Empty>
-      ) : (
-        <SeriesPostList posts={sorted} />
-      )}
-    </>
+    <Collection>
+      <header>
+        <ReadingLink to="/#posts">글 목록</ReadingLink>
+        <h1>{rule.name}</h1>
+        {rule.tagline && <p>{rule.tagline}</p>}
+        <small>연재 {sorted.length}편</small>
+      </header>
+      {sorted.length ? <SeriesPostList posts={sorted} /> : <p>아직 등록된 글이 없습니다.</p>}
+    </Collection>
   )
 }
-
 export default SeriesDetail

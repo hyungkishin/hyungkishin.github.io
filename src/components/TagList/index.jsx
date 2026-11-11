@@ -1,77 +1,58 @@
 import React from "react"
-import styled from "styled-components"
 import { Link } from "gatsby"
+import styled from "styled-components"
 
-const TagListWrapper = styled.div`
-  margin-bottom: 16px;
-  word-break: break-all;
-`
-
-const TagLink = styled.div`
-  display: inline-block;
-  padding: 6px 14px;
-  margin-right: 10px;
-  margin-bottom: 10px;
-  border-radius: 8px;
-  background-color: ${props =>
-    props.$selected
-      ? props.theme.colors.selectedTagBackground
-      : props.theme.colors.tagBackground};
-  color: ${props =>
-    props.$selected
-      ? props.theme.colors.selectedTagText
-      : props.theme.colors.tagText};
-  text-decoration: none;
-  font-size: 13.5px;
-  font-weight: 500;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid ${props => (props.$selected ? "transparent" : props.theme.colors.border)};
-
-  &:hover {
-    background-color: ${props =>
-      props.$selected
-        ? props.theme.colors.hoveredSelectedTagBackground
-        : props.theme.colors.hoveredTagBackground};
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+const Tags = styled.ul`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  a {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 7px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    background: var(--paper);
+    font-size: 14px;
+    line-height: 1.55;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+  a:hover,
+  a:focus-visible,
+  a[aria-current="true"] {
+    color: var(--accent);
+    border-color: currentColor;
+  }
+  small {
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
   }
 `
 
-const spaceToDash = text => {
-  return text.replace(/\s+/g, "-")
-}
-
-const TagList = ({ tagList, count, selected }) => {
-  if (!tagList) return null
-
-  if (!count) {
-    return (
-      <TagListWrapper>
-        {tagList.map((tag, i) => (
-          <Link key={JSON.stringify({ tag, i })} to={`/tags?q=${tag}`}>
-            <TagLink>{spaceToDash(tag)}</TagLink>
-          </Link>
-        ))}
-      </TagListWrapper>
-    )
-  }
-
+export default function TagList({ tagList = [], count = false, selected }) {
+  if (!tagList.length) return null
   return (
-    <TagListWrapper>
-      {tagList.map((tag, i) => (
-        <Link
-          key={JSON.stringify({ tag, i })}
-          to={
-            selected === tag.fieldValue ? "/tags" : `/tags?q=${tag.fieldValue}`
-          }
-        >
-          <TagLink $selected={tag.fieldValue === selected}>
-            {spaceToDash(tag.fieldValue)} ({tag.totalCount})
-          </TagLink>
-        </Link>
-      ))}
-    </TagListWrapper>
+    <Tags>
+      {tagList.map(tag => {
+        const label = count ? tag.fieldValue : tag
+        const active = label === selected
+        const url = active ? "/tags/" : `/tags/?q=${encodeURIComponent(label)}`
+        return (
+          <li key={label}>
+            <Link to={url} replace={false} aria-current={active || undefined}>
+              {label}
+              {count && <small>{tag.totalCount}</small>}
+            </Link>
+          </li>
+        )
+      })}
+    </Tags>
   )
 }
-
-export default TagList

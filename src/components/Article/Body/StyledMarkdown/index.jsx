@@ -2,15 +2,13 @@ import styled from "styled-components"
 
 const StyledMarkdown = styled.div`
   & {
-    font-size: 17px;
+    font-size: clamp(17px, 1.3vw, 18px);
     color: ${props => props.theme.colors.text};
-    line-height: 1.7;
-    overflow: hidden;
+    line-height: 1.88;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
     letter-spacing: -0.01em;
 
-    @media (max-width: 768px) {
-      padding: 0 20px;
-    }
   }
 
   & h1:first-child,
@@ -31,14 +29,8 @@ const StyledMarkdown = styled.div`
     margin-bottom: 16px;
   }
 
-  & p {
-    overflow-x: auto;
-    word-break: break-word;
-
-    ::-webkit-scrollbar {
-      display: none;
-    }
-  }
+  & > p { margin-bottom: 1.35em; }
+  & :is(h1, h2, h3, h4) { scroll-margin-top: 90px; }
 
   & h1,
   & h2,
@@ -57,18 +49,16 @@ const StyledMarkdown = styled.div`
   }
 
   & h2 {
-    font-size: 1.8rem;
-    border-left: 5px solid ${props => props.theme.colors.accent};
-    padding-left: 1rem;
-    margin-top: 2.5rem;
-    margin-bottom: 1rem;
-    line-height: 1.2;
+    font-size: clamp(24px, 2.4vw, 31px);
+    margin: 2.05em 0 .65em;
+    line-height: 1.42;
+    letter-spacing: -.035em;
   }
 
   & h3 {
-    font-size: 1.4rem;
-    margin-top: 1.8rem;
-    color: ${props => props.theme.colors.secondaryText};
+    font-size: clamp(20px, 1.7vw, 23px);
+    margin: 1.65em 0 .6em;
+    line-height: 1.5;
   }
 
   & h4 {
@@ -109,31 +99,20 @@ const StyledMarkdown = styled.div`
     }
   }
 
-  /* TL;DR — blockquote 첫 줄이 **TL;DR** 일 때 자동 강조 */
   & blockquote:has(> p:first-child > strong:first-child:only-child) {
-    background-color: ${props => props.theme.colors.tldrBackground};
-    border-left: 6px solid ${props => props.theme.colors.tldrBorder};
-    border-radius: 8px;
-    padding: 1.25rem 1.5rem;
-
-    & p {
-      color: ${props => props.theme.colors.tldrText};
-      font-style: normal;
-    }
-
-    & p:first-child > strong {
-      display: inline-block;
-      font-size: 0.78rem;
-      letter-spacing: 0.12em;
-      font-weight: 800;
-      color: ${props => props.theme.colors.tldrBorder};
-      margin-bottom: 0.4rem;
-    }
-
-    & strong {
-      color: ${props => props.theme.colors.tldrText};
+    padding: 1rem 1.25rem;
+    margin: 1.6rem 0;
+    background: ${props => props.theme.colors.background};
+    border-left: 3px solid ${props => props.theme.colors.accent};
+    border-radius: 0;
+    p { color: ${props => props.theme.colors.text}; font-style: normal; }
+    p:first-child > strong {
+      color: ${props => props.theme.colors.accent};
+      font-size: .8em;
+      letter-spacing: .025em;
     }
   }
+  & > blockquote:first-child { margin-top: 0; }
 
   /* Callout — markdown 안에 <div class="callout note|warn|good|danger"> 사용 */
   & .callout {
@@ -235,67 +214,32 @@ const StyledMarkdown = styled.div`
     background-color: ${props => props.theme.colors.inlineCodeBackgroundDarker};
   }
 
+  & .table-scroll { overflow-x: auto; margin: 1.5rem 0 2rem; }
   & table {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    margin: 1.5rem 0 2rem;
-    border: 1px solid ${props => props.theme.colors.border};
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    border-collapse: collapse;
+    margin: 0;
+    font-size: .9em;
+    line-height: 1.65;
   }
-
-  & th {
-    background-color: ${props => props.theme.colors.background};
+  & th, & td {
+    min-width: 7.5em;
+    padding: .65em .9em;
     border-bottom: 1px solid ${props => props.theme.colors.border};
-    font-weight: 700;
     text-align: left;
-    font-size: 0.92em;
-    letter-spacing: 0.01em;
+    vertical-align: top;
   }
+  & th { font-weight: 650; background: ${props => props.theme.colors.background}; }
 
-  & td {
-    border-bottom: 1px solid ${props => props.theme.colors.divider};
+  & :not(pre) > code {
+    padding: .09em .27em;
+    font: .87em/1.5 "SFMono-Regular", Consolas, monospace;
+    color: ${props => props.theme.colors.text};
+    background: ${props => props.theme.colors.inlineCodeBackground};
+    border-radius: 3px;
+    overflow-wrap: anywhere;
+    white-space: normal;
   }
-
-  & td,
-  th {
-    padding: 12px 16px;
-  }
-
-  & tr:last-child td {
-    border-bottom: none;
-  }
-
-  & tbody tr:hover {
-    background-color: ${props => props.theme.colors.background};
-  }
-
-  & *:not(pre) > code.language-text,
-  & table code.language-text {
-    position: relative;
-    top: -1px;
-    margin: 0 4px;
-    padding: 0.2rem 0.4rem;
-    font-size: 0.95em;
-    background-color: ${props => props.theme.colors.inlineCodeBackground};
-    border-radius: 4px;
-    font-weight: 500;
-    color: ${props => props.theme.colors.inlineCode};
-    font-family: 'Source Code Pro', monospace;
-  }
-
-  & h2 > code.language-text,
-  & h3 > code.language-text,
-  & h4 > code.language-text {
-    font-size: inherit;
-  }
-
-  & tr:nth-child(even) code.language-text {
-    background-color: ${props => props.theme.colors.inlineCodeBackgroundDarker};
-  }
-
   & ul,
   & ol {
     padding-left: 1.5rem;
@@ -338,47 +282,22 @@ const StyledMarkdown = styled.div`
     margin-top: 0;
   }
 
-  & pre {
-    position: relative;
-    margin: 2rem 0;
-    border-radius: 8px;
-    overflow: hidden;
-
-    ::-webkit-scrollbar {
-      height: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: ${props => props.theme.colors.background};
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: ${props => props.theme.colors.scrollHandle};
-      border-radius: 4px;
-    }
+  & pre, & pre[class*="language-"] {
+    max-width: 100%;
+    overflow: auto;
+    padding: 18px 20px;
+    margin: 20px 0 26px;
+    border: 1px solid ${props => props.theme.colors.border};
+    border-radius: 7px;
+    line-height: 1.65;
+    font-size: 14px;
+    background-color: ${props => props.theme.colors.background};
   }
-
-  /* 코드 블록 언어 배지 */
-  & div.gatsby-highlight {
-    position: relative;
-    margin: 2rem 0;
+  & pre code, & pre code[class*="language-"] {
+    font: inherit;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    background: none;
   }
-  & div.gatsby-highlight::before {
-    position: absolute;
-    top: 8px;
-    right: 12px;
-    z-index: 1;
-    padding: 2px 9px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    background-color: ${props => props.theme.colors.codeLangBadgeBackground};
-    color: ${props => props.theme.colors.codeLangBadgeText};
-    pointer-events: none;
-  }
-  & div.gatsby-highlight[data-language]::before { content: attr(data-language); }
-  & div.gatsby-highlight:not([data-language])::before { display: none; }
 
   & .gatsby-resp-image-figure {
     margin: 2.5rem 0;
@@ -401,14 +320,10 @@ const StyledMarkdown = styled.div`
   }
 
   & figcaption {
-    margin-top: 0.8rem;
-    margin-bottom: 2rem;
-    text-align: center;
-    color: ${props => props.theme.colors.secondaryText};
-    font-size: 1.15rem;
-    font-style: italic;
-    line-height: 1.5;
-    font-weight: 500;
+    margin: .55rem 0 1.7rem;
+    color: ${props => props.theme.colors.tertiaryText};
+    font-size: .84rem;
+    line-height: 1.65;
   }
 
   & hr {
@@ -424,16 +339,11 @@ const StyledMarkdown = styled.div`
 
   & a {
     color: ${props => props.theme.colors.accent};
-    text-decoration: none;
-    font-weight: 500;
-    border-bottom: 1px solid transparent;
-    transition: all 0.2s;
-
-    & a:hover {
-      border-bottom: 1px solid ${props => props.theme.colors.accent};
-      opacity: 0.8;
-    }
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: .2em;
   }
+  & a:hover { text-decoration-thickness: 2px; }
 
   & .mermaid-diagram {
     margin-top: 0;

@@ -1,175 +1,70 @@
-import React, { useEffect, useState } from "react"
-import { navigate } from "gatsby"
+import React from "react"
 import { useSelector } from "react-redux"
-import styled, { useTheme } from "styled-components"
-import { BiLeftArrowAlt, BiRightArrowAlt } from "react-icons/bi"
+import styled from "styled-components"
 import Giscus from "@giscus/react"
 
 import { giscus } from "../../../../blog-config"
-
-import MDSpinner from "react-md-spinner"
-
-import Divider from "components/Divider"
+import ReadingLink from "components/ReadingLink"
 import Bio from "components/Bio"
 
-const ArticleButtonContainer = styled.div`
-  display: flex;
-  gap: 16px;
-  margin-bottom: 48px;
+const Navigation = styled.nav`
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 24px;
+  margin: 28px 0 48px;
 
-  & > div {
-    flex: 1 1 0;
-    min-width: 0;
+  a {
+    display: block;
+    border-top: 1px solid ${props => props.theme.colors.border};
+    padding: 13px 0;
+    color: ${props => props.theme.colors.text};
+    font-size: 16px;
+    font-weight: 650;
+    line-height: 1.55;
+    text-decoration: none;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
   }
-
-  @media (max-width: 768px) {
-    margin-bottom: 80px;
-    padding: 0 12.8px;
-    flex-direction: column;
-    gap: 12.8px;
+  a[rel="next"] { grid-column: 2; }
+  span {
+    display: block;
+    margin-bottom: 6px;
+    color: ${props => props.theme.colors.tertiaryText};
+    font-size: 13px;
+    font-weight: 500;
   }
-`
-
-const ArrowFlexWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-`
-
-const ArticleButtonTextWrapper = styled.div`
-  display: flex;
-  align-items: flex-end;
-  flex-direction: column;
-  overflow: hidden;
-`
-
-const Arrow = styled.div`
-  position: relative;
-  left: 0;
-  display: flex;
-  align-items: center;
-  font-size: 24px;
-  flex-basis: 24px;
-  transition: left 0.3s;
-`
-
-const ArticleButtonWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: ${props => (props.$right ? "flex-end" : "flex-start")};
-  padding: 1.25rem 1.5rem;
-  width: 100%;
-  font-size: 1.05rem;
-  border-radius: 12px;
-  background-color: ${props => props.theme.colors.nextPostButtonBackground};
-  color: ${props => props.theme.colors.text};
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid ${props => props.theme.colors.border};
-
-  &:hover {
-    background-color: ${props => props.theme.colors.bodyBackground};
-    border-color: ${props => props.theme.colors.accent};
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-  }
-
-  & ${ArrowFlexWrapper} {
-    flex-direction: ${props => (props.$right ? "row-reverse" : "row")};
-  }
-
-  & ${ArticleButtonTextWrapper} {
-    align-items: ${props => (props.$right ? "flex-end" : "flex-start")};
-  }
-
-  & ${Arrow} {
-    ${props => (props.$right ? "margin-left: 12px" : "margin-right: 12px")};
-    color: ${props => props.theme.colors.accent};
-  }
-
-  @media (max-width: 768px) {
-    max-width: 100%;
-    margin-bottom: 1rem;
+  a:hover { color: ${props => props.theme.colors.accent}; }
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
+    gap: 0;
+    a[rel="next"] { grid-column: 1; }
   }
 `
 
-const ArticleButtonLabel = styled.div`
-  margin-bottom: 4px;
-  font-size: 0.8rem;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: ${props => props.theme.colors.mutedText};
+const Comments = styled.div`
+  margin-top: 36px;
+  border-top: 1px solid ${props => props.theme.colors.border};
+  padding-top: 24px;
 `
 
-const ArticleButtonTitle = styled.div`
-  padding: 2px 0;
-  width: 100%;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  font-weight: 600;
-`
-
-const CommentWrapper = styled.div`
-  margin-top: 4rem;
-  @media (max-width: 768px) {
-    padding: 0 20px;
-  }
-`
-
-const SpinnerWrapper = styled.div`
-  height: 200px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`
-
-const HiddenWrapper = styled.div`
-  height: ${props => (props.$isHidden ? "0px" : "auto")};
-  overflow: ${props => (props.$isHidden ? "hidden" : "auto")};
-`
-
-const ArticleButton = ({ right, children, onClick, label }) => {
-  return (
-    <ArticleButtonWrapper $right={right} onClick={onClick}>
-      <ArrowFlexWrapper>
-        <Arrow>{right ? <BiRightArrowAlt /> : <BiLeftArrowAlt />}</Arrow>
-        <ArticleButtonTextWrapper>
-          <ArticleButtonLabel>
-            {label || (right ? <>Next Post</> : <>Previous Post</>)}
-          </ArticleButtonLabel>
-          <ArticleButtonTitle>{children}</ArticleButtonTitle>
-        </ArticleButtonTextWrapper>
-      </ArrowFlexWrapper>
-    </ArticleButtonWrapper>
-  )
-}
-
-const Spinner = () => {
-  const theme = useTheme()
-  return (
-    <SpinnerWrapper>
-      <MDSpinner singleColor={theme.colors.spinner} />
-    </SpinnerWrapper>
-  )
-}
-
-const Comment = () => {
+const Footer = ({ previous, next, previousLabel, nextLabel }) => {
   const { theme } = useSelector(state => state.theme)
-  const [spinner, setSpinner] = useState(true)
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setSpinner(false)
-    }, 1000)
-    return () => clearTimeout(timer)
-  }, [])
-
   return (
     <>
-      {spinner && <Spinner />}
-      <HiddenWrapper $isHidden={spinner}>
+      <Navigation aria-label="다른 글 읽기">
+        {previous && (
+          <ReadingLink to={previous.fields.slug} rel="prev">
+            <span>{previousLabel || "이전 글"}</span>{previous.frontmatter.title}
+          </ReadingLink>
+        )}
+        {next && (
+          <ReadingLink to={next.fields.slug} rel="next">
+            <span>{nextLabel || "다음 글"}</span>{next.frontmatter.title}
+          </ReadingLink>
+        )}
+      </Navigation>
+      <Bio />
+      <Comments>
         <Giscus
           id="comments"
           repo={giscus.repo}
@@ -185,41 +80,7 @@ const Comment = () => {
           lang="ko"
           loading="lazy"
         />
-      </HiddenWrapper>
-    </>
-  )
-}
-
-const Footer = ({ previous, next, previousLabel, nextLabel }) => {
-  return (
-    <>
-      <ArticleButtonContainer>
-        {previous ? (
-          <ArticleButton
-            onClick={() => navigate(previous?.fields?.slug)}
-            label={previousLabel || undefined}
-          >
-            {previous?.frontmatter?.title}
-          </ArticleButton>
-        ) : (
-          <div></div>
-        )}
-        {next && (
-          <ArticleButton
-            right
-            onClick={() => navigate(next?.fields?.slug)}
-            label={nextLabel || undefined}
-          >
-            {next?.frontmatter?.title}
-          </ArticleButton>
-        )}
-      </ArticleButtonContainer>
-
-      <Bio />
-      <CommentWrapper>
-        <Divider mt="32px" />
-        <Comment />
-      </CommentWrapper>
+      </Comments>
     </>
   )
 }

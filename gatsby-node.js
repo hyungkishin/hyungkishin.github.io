@@ -46,10 +46,10 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
   }
 
   const posts = result.data.postsRemark.nodes
-  const navigation = buildPostNavigation(posts)
+  const navigation = buildPostNavigation(posts.filter(post => post.fields.slug !== "/resume/"))
 
   posts.forEach(post => {
-    const nav = navigation.get(post.fields.slug)
+    const nav = navigation.get(post.fields.slug) || {}
     const isResume = post.fields.slug === "/resume/"
 
     createPage({
@@ -120,4 +120,13 @@ exports.createSchemaCustomization = ({ actions }) => {
   }
   `
   createTypes(typeDefs)
+}
+
+// Keep the standalone reader and its evidence downloads at the public article URLs.
+exports.onPostBuild = async ({ store, reporter }) => {
+  const path = require("node:path")
+  const { buildTransferSeries } = await import("./src/series-reader/build.mjs")
+  const publicDir = path.join(store.getState().program.directory, "public")
+  const result = await buildTransferSeries({ publicDir, outputDir: publicDir })
+  reporter.info(`시리즈 리더 ${result.routes.length}개 경로 생성`)
 }

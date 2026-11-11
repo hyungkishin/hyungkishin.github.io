@@ -16,7 +16,10 @@ module.exports = {
         trackingIds: ["G-BM7MKY5FBG"],
       },
     },
-    `gatsby-plugin-catch-links`,
+    {
+      resolve: `gatsby-plugin-catch-links`,
+      options: { excludePattern: /^\/backend\/transfer-performance(?:\/|$)/ },
+    },
     {
       resolve: `gatsby-plugin-robots-txt`,
       options: {
@@ -67,10 +70,10 @@ module.exports = {
         short_name: title,
         description: description,
         start_url: `/`,
-        background_color: `#ffffff`,
-        theme_color: `#ced4da`,
+        background_color: `#f8f9f7`,
+        theme_color: `#126756`,
         display: `standalone`,
-        icon: `src/images/gatsby-icon.png`, // This path is relative to the root of the site.
+        icon: `src/images/journal-icon.png`,
       },
     },
     {
@@ -196,10 +199,11 @@ module.exports = {
             serialize: ({ query: { site, allMarkdownRemark } }) => {
               return allMarkdownRemark.edges.map(edge => {
                 return Object.assign({}, edge.node.frontmatter, {
-                  description: edge.node.excerpt,
+                  author,
+                  description: edge.node.frontmatter.description || edge.node.excerpt,
                   date: edge.node.frontmatter.date,
-                  url: site.siteMetadata.siteUrl + edge.node.fields.slug,
-                  guid: site.siteMetadata.siteUrl + edge.node.fields.slug,
+                  url: new URL(edge.node.fields.slug, site.siteMetadata.siteUrl).href,
+                  guid: new URL(edge.node.fields.slug, site.siteMetadata.siteUrl).href,
                   custom_elements: [{ "content:encoded": edge.node.html }],
                 })
               })
@@ -216,6 +220,7 @@ module.exports = {
                       fields { slug }
                       frontmatter {
                         title
+                        description
                         date
                       }
                     }
@@ -224,8 +229,7 @@ module.exports = {
               }
             `,
             output: `/rss.xml`,
-            title: `RSS Feed of ${title}`,
-            match: "^/blog/",
+            title: `${title} RSS`,
           },
         ],
       },

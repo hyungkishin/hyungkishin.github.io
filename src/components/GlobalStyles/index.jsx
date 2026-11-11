@@ -3,20 +3,29 @@ import reset from "styled-reset"
 
 const GlobalStyles = createGlobalStyle`
   ${reset}
-
-  html, body {
-    overflow-x: hidden;
-    max-width: 100%;
-  }
-
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-padding-top: 24px; }
   body {
+    --ink: ${p => p.theme.colors.text};
+    --body: ${p => p.theme.colors.secondaryText};
+    --muted: ${p => p.theme.colors.tertiaryText};
+    --paper: ${p => p.theme.colors.bodyBackground};
+    --line: ${p => p.theme.colors.border};
+    --surface: ${p => p.theme.colors.background};
+    --accent: ${p => p.theme.colors.accent};
+    --cover: ${p => p.theme.name === "dark" ? "#193831" : "#e4efe9"};
+    color-scheme: ${p => p.theme.name};
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-    background: ${props => props.theme.colors.bodyBackground};
-    color: ${props => props.theme.colors.text};
-    transition: background 0.3s ease, color 0.3s ease;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
   }
+  button, input, select, summary { font: inherit; }
+  button { cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  [id] { scroll-margin-top: 16px; }
 `
-
 export default GlobalStyles
