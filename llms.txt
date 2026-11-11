@@ -4,7 +4,7 @@
 
 ## 대표 글과 시리즈
 
-- [송금 한 건으로 읽는 백엔드](https://hyungkishin.github.io/backend/transfer-performance/) — JVM의 JIT와 AOT, 메모리 구조와 GC, Linux의 TCP 전송에서 송금 확정과 잔액 갱신까지 다루는 아홉 편.
+- [송금 한 건으로 읽는 백엔드](https://hyungkishin.github.io/backend/transfer-performance/) — JVM의 JIT와 AOT, 메모리 구조와 배열 복사, GC, Linux의 TCP 전송에서 송금 확정과 잔액 갱신까지 다루는 열 편.
 - [대시보드는 왜 거짓말할까](https://hyungkishin.github.io/backend/observability/when-metrics-lie/) — 에러율, Redis 응답 시간, Kafka lag에 어떤 요청이 잡히는지 살펴본다.
 - [PG 응답 지연이 다른 API로 전파되는 문제](https://hyungkishin.github.io/e-commerce/technical-writing/week6/) — 결제 응답을 기다리는 동안 점유하는 자원과 승인 상태 복구를 다룬다.
 - [상품 목록 리팩터링은 500줄을 줄이는 일이 아니었습니다](https://hyungkishin.github.io/frontend/e-commerce/product-list-boundary/) — 검색창에 입력하는 값과 서버에 보낼 검색어의 갱신 시점을 나눈 과정.

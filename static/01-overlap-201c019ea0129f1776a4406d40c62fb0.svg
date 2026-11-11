@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 417" role="img" aria-labelledby="title desc">
+  <title id="title">같은 배열의 이름표를 한 칸 오른쪽에 복사하기</title>
+  <desc id="desc">하나의 배열 A B C D E에서 0~3번 값을 1~4번으로 복사한다. 직접 만든 순방향 반복문은 A A C D E, A A A D E, A A A A E, A A A A A 순으로 원본을 덮는다. 뒤에서부터 복사하면 A B C D D, A B C C D, A B B C D, A A B C D가 된다. 마지막 결과가 System.arraycopy가 보장하는 결과다. 각 행의 화살표는 복사한 칸의 위치다.</desc>
+  <style>
+    text { font-family: Pretendard, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; fill: #101d35; }
+    .title { font-size: 24px; font-weight: 750; letter-spacing: -.7px; }
+    .detail { font-size: 17px; fill: #405574; }
+    .label { font-size: 18px; font-weight: 700; fill: #33445e; }
+    .grid { fill: #fff; stroke: #acbed8; stroke-width: 1; }
+    .values, .number, .direction { font-family: "SFMono-Regular", Consolas, monospace; text-anchor: middle; }
+    .values { font-size: 19px; font-weight: 650; }
+    .number { font-size: 15px; fill: #506582; }
+    .direction { font-size: 17px; fill: #33445e; }
+    .written { fill: #dce7ff; }
+    .row-focus { fill: #f1f6ff; stroke: #9db9ef; opacity: 0; }
+    @media (prefers-reduced-motion: no-preference) {
+      .row-focus { animation: read-both 12s step-end infinite; }
+      .second { animation-delay: -9s; }
+      .third { animation-delay: -6s; }
+      .last { animation-delay: -3s; }
+    }
+    @keyframes read-both { 0% { opacity: 1; } 25%, 100% { opacity: 0; } }
+  </style>
+  <defs>
+    <g id="cells">
+      <rect x="0" y="0" width="130" height="26" rx="4" class="grid"/>
+      <path d="M26 1v24m26-24v24m26-24v24m26-24v24" fill="none" stroke="#c3d1e5"/>
+    </g>
+  </defs>
+  <rect width="440" height="417" rx="12" fill="#fff"/>
+  <text x="16" y="34" class="title">이름표를 한 칸 오른쪽에 복사</text>
+  <text x="16" y="62" class="detail">같은 배열의 0~3번 값을 1~4번 칸에 쓴다.</text>
+
+  <text x="16" y="117" class="label">초기 배열</text>
+  <g class="number">
+    <text x="146" y="89">0</text><text x="205" y="89">1</text><text x="264" y="89">2</text><text x="323" y="89">3</text><text x="382" y="89">4</text>
+  </g>
+  <rect x="116" y="97" width="296" height="30" rx="5" fill="#f4f7fc" stroke="#b3c5e1"/>
+  <path d="M175 98v28m59-28v28m59-28v28m59-28v28" fill="none" stroke="#cadaec"/>
+  <g class="values">
+    <text x="146" y="119">A</text><text x="205" y="119">B</text><text x="264" y="119">C</text><text x="323" y="119">D</text><text x="382" y="119">E</text>
+  </g>
+
+  <path d="M16 148h408" fill="none" stroke="#b9c9df"/>
+  <text x="16" y="178" class="label">앞 칸부터 복사</text>
+  <text x="230" y="178" class="label">뒤 칸부터 복사</text>
+  <text x="16" y="201" class="detail">위치</text><text x="67" y="201" class="detail">복사 직후</text>
+  <text x="230" y="201" class="detail">위치</text><text x="281" y="201" class="detail">복사 직후</text>
+  <g transform="translate(0 211)">
+    <rect x="10" y="-4" width="420" height="34" rx="5" class="row-focus"/>
+    <text x="34" y="19" class="direction">0→1</text>
+    <g transform="translate(67 0)">
+      <use href="#cells"/>
+      <rect x="27.5" y="1.5" width="23" height="23" rx="2" class="written"/>
+      <g class="values">
+        <text x="13" y="20">A</text><text x="39" y="20">A</text><text x="65" y="20">C</text><text x="91" y="20">D</text><text x="117" y="20">E</text>
+      </g>
+    </g>
+    <text x="248" y="19" class="direction">3→4</text>
+    <g transform="translate(281 0)">
+      <use href="#cells"/>
+      <rect x="105.5" y="1.5" width="23" height="23" rx="2" class="written"/>
+      <g class="values">
+        <text x="13" y="20">A</text><text x="39" y="20">B</text><text x="65" y="20">C</text><text x="91" y="20">D</text><text x="117" y="20">D</text>
+      </g>
+    </g>
+  </g>
+  <g transform="translate(0 249)">
+    <rect x="10" y="-4" width="420" height="34" rx="5" class="row-focus second"/>
+    <text x="34" y="19" class="direction">1→2</text>
+    <g transform="translate(67 0)">
+      <use href="#cells"/>
+      <rect x="53.5" y="1.5" width="23" height="23" rx="2" class="written"/>
+      <g class="values">
+        <text x="13" y="20">A</text><text x="39" y="20">A</text><text x="65" y="20">A</text><text x="91" y="20">D</text><text x="117" y="20">E</text>
+      </g>
+    </g>
+    <text x="248" y="19" class="direction">2→3</text>
+    <g transform="translate(281 0)">
+      <use href="#cells"/>
+      <rect x="79.5" y="1.5" width="23" height="23" rx="2" class="written"/>
+      <g class="values">
+        <text x="13" y="20">A</text><text x="39" y="20">B</text><text x="65" y="20">C</text><text x="91" y="20">C</text><text x="117" y="20">D</text>
+      </g>
+    </g>
+  </g>
+  <g transform="translate(0 287)">
+    <rect x="10" y="-4" width="420" height="34" rx="5" class="row-focus third"/>
+    <text x="34" y="19" class="direction">2→3</text>
+    <g transform="translate(67 0)">
+      <use href="#cells"/>
+      <rect x="79.5" y="1.5" width="23" height="23" rx="2" class="written"/>
+      <g class="values">
+        <text x="13" y="20">A</text><text x="39" y="20">A</text><text x="65" y="20">A</text><text x="91" y="20">A</text><text x="117" y="20">E</text>
+      </g>
+    </g>
+    <text x="248" y="19" class="direction">1→2</text>
+    <g transform="translate(281 0)">
+      <use href="#cells"/>
+      <rect x="53.5" y="1.5" width="23" height="23" rx="2" class="written"/>
+      <g class="values">
+        <text x="13" y="20">A</text><text x="39" y="20">B</text><text x="65" y="20">B</text><text x="91" y="20">C</text><text x="117" y="20">D</text>
+      </g>
+    </g>
+  </g>
+  <g transform="translate(0 325)">
+    <rect x="10" y="-4" width="420" height="34" rx="5" class="row-focus last"/>
+    <text x="34" y="19" class="direction">3→4</text>
+    <g transform="translate(67 0)">
+      <use href="#cells"/>
+      <rect x="105.5" y="1.5" width="23" height="23" rx="2" class="written"/>
+      <g class="values">
+        <text x="13" y="20">A</text><text x="39" y="20">A</text><text x="65" y="20">A</text><text x="91" y="20">A</text><text x="117" y="20">A</text>
+      </g>
+    </g>
+    <text x="248" y="19" class="direction">0→1</text>
+    <g transform="translate(281 0)">
+      <use href="#cells"/>
+      <rect x="27.5" y="1.5" width="23" height="23" rx="2" class="written"/>
+      <g class="values">
+        <text x="13" y="20">A</text><text x="39" y="20">A</text><text x="65" y="20">B</text><text x="91" y="20">C</text><text x="117" y="20">D</text>
+      </g>
+    </g>
+  </g>
+  <path d="M16 366h408" fill="none" stroke="#b9c9df"/>
+  <text x="16" y="392" class="label">arraycopy의 결과는 오른쪽 마지막 줄과 같다.</text>
+</svg>

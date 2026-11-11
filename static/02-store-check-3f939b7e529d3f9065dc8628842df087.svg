@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 370" role="img" aria-labelledby="title desc">
+  <title id="title">String 배열로 복사하다가 1번 칸에서 실패할 때</title>
+  <desc id="desc">원본 Object 배열에는 문자열 ok, 정수 42, 문자열 later가 들어 있다. 목적지 String 배열의 초기 원소는 x, y, z다. 0번에 ok를 복사한 뒤 1번에서 Integer 42를 String 배열에 저장할 수 없어 ArrayStoreException이 발생한다. 2번은 복사하지 않는다. 최종 목적지에는 ok, y, z가 남는다.</desc>
+  <style>
+    text { font-family: Pretendard, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; fill: #101d35; }
+    .title { font-size: 24px; font-weight: 750; letter-spacing: -.7px; }
+    .label { font-size: 17px; font-weight: 650; fill: #344962; }
+    .detail { font-size: 17px; fill: #405574; }
+    .code, .value, .index { font-family: "SFMono-Regular", Consolas, monospace; }
+    .code { font-size: 17px; font-weight: 600; }
+    .value { text-anchor: middle; font-size: 18px; font-weight: 650; }
+    .index { text-anchor: middle; font-size: 16px; fill: #506582; }
+    .cell { fill: #f5f8fd; stroke: #b5c7e2; }
+    .accent { fill: #e4edff; stroke: #97b2eb; }
+    .guide { opacity: 0; fill: none; stroke: #2455df; stroke-width: 2.5; }
+    @media (prefers-reduced-motion: no-preference) {
+      .copied { animation: show-copy 8s linear infinite; }
+      .failed { animation: show-failure 8s linear infinite; }
+    }
+    @keyframes show-copy { 0%, 38%, 100% { opacity: 1; } 48%, 90% { opacity: 0; } }
+    @keyframes show-failure { 0%, 38%, 100% { opacity: 0; } 48%, 90% { opacity: 1; } }
+  </style>
+  <rect width="440" height="370" rx="12" fill="#fff"/>
+  <text x="16" y="34" class="title">String 배열의 1번 칸에서 멈춘 복사</text>
+  <text x="16" y="62" class="detail">Object[]의 세 원소를 String[]에 순서대로 복사한다.</text>
+
+  <g class="index">
+    <text x="151" y="94">0</text><text x="255" y="94">1</text><text x="359" y="94">2</text>
+  </g>
+  <text x="16" y="124" class="label">원본</text>
+  <g class="cell">
+    <rect x="103" y="103" width="96" height="31" rx="5"/><rect x="207" y="103" width="96" height="31" rx="5"/><rect x="311" y="103" width="96" height="31" rx="5"/>
+  </g>
+  <g class="value">
+    <text x="151" y="125">"ok"</text><text x="255" y="125">42</text><text x="359" y="125">"later"</text>
+  </g>
+  <text x="16" y="167" class="label">목적지</text>
+  <g class="cell">
+    <rect x="103" y="146" width="96" height="31" rx="5"/><rect x="207" y="146" width="96" height="31" rx="5"/><rect x="311" y="146" width="96" height="31" rx="5"/>
+  </g>
+  <g class="value">
+    <text x="151" y="168">"x"</text><text x="255" y="168">"y"</text><text x="359" y="168">"z"</text>
+  </g>
+
+  <path d="M16 195h408" fill="none" stroke="#b9c9df"/>
+  <text x="16" y="221" class="label">0번</text><text x="70" y="221" class="detail">문자열 "ok"를 목적지에 쓴다.</text>
+  <text x="16" y="252" class="label">1번</text><text x="70" y="252" class="detail">Integer 값 42를 String[]에 저장할 수 없다.</text>
+  <text x="70" y="276" class="code">ArrayStoreException</text>
+  <path d="M16 292h408" fill="none" stroke="#b9c9df"/>
+
+  <text x="16" y="325" class="label">예외 직후</text>
+  <rect x="103" y="303" width="96" height="31" rx="5" class="accent"/>
+  <rect x="207" y="303" width="96" height="31" rx="5" class="cell"/>
+  <rect x="311" y="303" width="96" height="31" rx="5" class="cell"/>
+  <g class="value">
+    <text x="151" y="325">"ok"</text><text x="255" y="325">"y"</text><text x="359" y="325">"z"</text>
+  </g>
+  <text x="16" y="355" class="detail">0번의 복사는 남고 2번은 복사하지 않는다.</text>
+  <rect x="103" y="103" width="96" height="31" rx="5" class="guide copied"/>
+  <rect x="103" y="303" width="96" height="31" rx="5" class="guide copied"/>
+  <rect x="207" y="103" width="96" height="31" rx="5" class="guide failed"/>
+  <path d="M70 282h193" class="guide failed"/>
+</svg>

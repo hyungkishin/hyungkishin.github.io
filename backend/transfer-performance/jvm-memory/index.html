@@ -70,8 +70,8 @@
 </tbody>
 </table></div>
 <p>두 실행 모두 Temurin 25.0.4.1과 32MiB 힙을 썼다. 큐 통지는 GC가 약한 참조를 처리했다는 관찰값이다. 영수증이 차지하던 바이트를 다음 객체가 재사용한 시각까지 알려 주지는 않는다. <a href="/backend/transfer-performance/jvm-memory/evidence/receipt-stdout.txt">기본 실행 출력</a> · <a href="/backend/transfer-performance/jvm-memory/evidence/receipt-gc.txt">G1 로그</a> · <a href="/backend/transfer-performance/jvm-memory/evidence/receipt-no-explicit-gc.txt">대조 실행 명령과 출력</a></p>
-<p>마지막 참조가 사라진 시점과 메모리를 회수한 시점 사이에 G1은 어떤 일을 했을까? <a href="/backend/transfer-performance/gc-timeline/">다음 편에서 세대별 수집의 세 가지 가설을 먼저 짚고 실제 GC 로그를 시간순으로 읽는다.</a></p></div></div>
+<p>배열에 담긴 참조를 다른 칸으로 복사하면 객체도 하나 더 생길까? 같은 배열 안에서 아직 읽지 않은 칸을 덮으면 어떻게 될까? <a href="/backend/transfer-performance/system-arraycopy/">다음 편에서 System.arraycopy 호출 한 줄을 CPU 명령까지 따라간다.</a></p></div></div>
 <ul class="tags" aria-label="글 태그"><li><a href="/tags/?q=JVM">#JVM</a></li><li><a href="/tags/?q=Java">#Java</a></li><li><a href="/tags/?q=%ED%9E%99">#힙</a></li><li><a href="/tags/?q=%EC%8A%A4%ED%83%9D">#스택</a></li><li><a href="/tags/?q=GC">#GC</a></li></ul>
-<nav class="chapter-navigation" aria-label="시리즈 이전 편과 다음 편"><a rel="prev" href="/backend/transfer-performance/jit-aot-linux/"><span>이전 편</span><strong>바이트코드는 언제 기계어가 될까?</strong></a><a rel="next" href="/backend/transfer-performance/gc-timeline/"><span>다음 편</span><strong>G1 GC는 언제 애플리케이션을 멈추나</strong></a></nav>
+<nav class="chapter-navigation" aria-label="시리즈 이전 편과 다음 편"><a rel="prev" href="/backend/transfer-performance/jit-aot-linux/"><span>이전 편</span><strong>바이트코드는 언제 기계어가 될까?</strong></a><a rel="next" href="/backend/transfer-performance/system-arraycopy/"><span>다음 편</span><strong>System.arraycopy는 겹친 배열을 어떻게 복사할까?</strong></a></nav>
 </article></main>
 <footer class="journal-footer"><a class="footer-name" href="/">hyungkishin.blog</a><nav aria-label="바닥글 메뉴"><a href="/#posts">글 목록</a><a href="/#series">시리즈</a><a href="/tags/">태그</a><a href="/resume/">이력서</a><a href="https://github.com/hyungkishin">GitHub</a><a href="/rss.xml">RSS</a></nav></footer></body></html>

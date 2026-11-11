@@ -1,0 +1,27 @@
+$ javac -version
+javac 25.0.4.1
+$ javac --release 25 ArraycopyCases.java
+$ image=eclipse-temurin@sha256:ecdc0adb37bde1a281c4d245a3cd535004b1fc8322d560f5b09463b248c81df0
+$ run_cases() { docker run --rm --network none --platform linux/arm64 -v "$PWD:/cases:ro" -w /cases "$image" "$@"; }
+$ run_cases uname -sm
+Linux aarch64
+$ run_cases java -version
+openjdk version "25.0.5" 2026-10-20 LTS
+OpenJDK Runtime Environment Temurin-25.0.5+8 (build 25.0.5+8-LTS)
+OpenJDK 64-Bit Server VM Temurin-25.0.5+8 (build 25.0.5+8-LTS, mixed mode, sharing)
+$ run_cases java ArraycopyCases > default.txt
+$ cat default.txt
+arraycopy right: [A, A, B, C, D]
+arraycopy left:  [B, C, D, E, E]
+for loop right:  [A, A, A, A, A]
+snapshot matches: 825, zero length: 285
+range failures with destination unchanged: 8
+null -> NullPointerException; non-array / incompatible array kinds -> ArrayStoreException
+int[] -> long[], length 0 -> ArrayStoreException
+mixed -> String[] after ArrayStoreException: [ok, y, z]
+Integer[] -> String[], length 0: unchanged
+Object[] -> String[]: [first, null, last]
+same element reference: true, value seen from source: AB
+$ run_cases java -Xint ArraycopyCases > interpreted.txt
+$ cmp default.txt interpreted.txt && echo identical
+identical

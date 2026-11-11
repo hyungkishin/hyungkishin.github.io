@@ -1,0 +1,15 @@
+# Linux ARM64, Temurin 25.0.5+8. Run both modes in separate JVMs.
+# Compile on a JDK 25 host; run from the directory containing HeapLimitProbe.class.
+javac -g HeapLimitProbe.java
+# Image: eclipse-temurin@sha256:ecdc0adb37bde1a281c4d245a3cd535004b1fc8322d560f5b09463b248c81df0
+
+$ docker run --rm --network=none -v "$PWD:/app:ro" -w /app eclipse-temurin@sha256:ecdc0adb37bde1a281c4d245a3cd535004b1fc8322d560f5b09463b248c81df0 java -Xms32m -Xmx32m -XX:+UseSerialGC HeapLimitProbe direct
+mode=direct, elements=17825791
+verified=17825792
+exit=0
+
+$ docker run --rm --network=none -v "$PWD:/app:ro" -w /app eclipse-temurin@sha256:ecdc0adb37bde1a281c4d245a3cd535004b1fc8322d560f5b09463b248c81df0 java -Xms32m -Xmx32m -XX:+UseSerialGC HeapLimitProbe temporary
+mode=temporary, elements=17825791
+Exception in thread "main" java.lang.OutOfMemoryError: Java heap space
+	at HeapLimitProbe.main(HeapLimitProbe.java:19)
+exit=1

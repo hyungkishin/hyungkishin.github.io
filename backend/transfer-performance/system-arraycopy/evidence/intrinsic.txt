@@ -1,0 +1,105 @@
+C2가 배열 복사 호출을 어떻게 컴파일했는지 확인한 실험
+CPU: AArch64. Linux 7.0.12-linuxkit aarch64 (Docker).
+컴파일: macOS arm64 Temurin javac 25.0.4.1. 실행: Linux arm64 Temurin OpenJDK 25.0.5+8-LTS.
+이미지: eclipse-temurin@sha256:ecdc0adb37bde1a281c4d245a3cd535004b1fc8322d560f5b09463b248c81df0
+같은 컨테이너 설정의 -Xlog:gc -XX:+PrintFlagsFinal 결과: Using G1, UseCompressedOops=true.
+실행 시간이나 처리 속도는 비교하지 않았다.
+
+재현 (두 Java 파일을 같은 디렉터리에 놓고 실행)
+javac -g IntrinsicProbe.java ReferencePaths.java
+
+# 이후 명령은 Linux arm64 JDK 25 컨테이너에서 해당 디렉터리를 현재 디렉터리로 두고 실행한다.
+for mode in on off; do
+  toggle=
+  if [ "$mode" = off ]; then toggle=-XX:DisableIntrinsic=_arraycopy; fi
+  java -Xbatch -XX:-TieredCompilation -XX:+UnlockDiagnosticVMOptions $toggle \
+    -XX:+PrintCompilation -XX:+PrintInlining -XX:+PrintStubCode \
+    -XX:CompileCommand=compileonly,IntrinsicProbe::copy \
+    -XX:CompileCommand=print,IntrinsicProbe::copy IntrinsicProbe >"$mode.out" 2>&1
+done
+
+길이, 시작 위치, 배열이 같은지는 copy의 인자다. compileonly로 해당 메서드를 C2에서 독립적으로 관찰했다. -Xbatch는 컴파일 완료를 기다리게 하므로 벤치마크 옵션으로 해석하지 않는다.
+
+javap -c IntrinsicProbe 에서 copy의 바이트코드 한 줄
+6: invokestatic  #7  // Method java/lang/System.arraycopy:(Ljava/lang/Object;ILjava/lang/Object;II)V
+
+기본값 (on.out, 같은 실행에서 발췌)
+Compiled method (c2) 2861    3             IntrinsicProbe::copy (10 bytes)
+@ 6   java.lang.System::arraycopy (0 bytes)   (intrinsic)
+0x0000ffff7b08926c: ;   {runtime_call Stub::jint_arraycopy}
+0x0000ffff7b08926c: 5fe6 fe97
+StubRoutines::jint_disjoint_arraycopy [0x0000ffff7b042ac0, 0x0000ffff7b042be8] (296 bytes)
+StubRoutines::jint_arraycopy [0x0000ffff7b042be8, 0x0000ffff7b042d20] (312 bytes)
+
+DisableIntrinsic (off.out, 별도 JVM)
+Compiled method (c2) 2749    3             IntrinsicProbe::copy (10 bytes)
+@ 6   java.lang.System::arraycopy (0 bytes)   failed to inline: native method
+;*invokestatic arraycopy {reexecute=0 rethrow=0 return_oop=0}
+; - IntrinsicProbe::copy@6 (line 5)
+;   {static_call}
+0x0000ffff9908c0e4: 47be fe97
+
+두 실행 모두 동일한 마지막 세 줄
+checksum=7203108
+right=[0, 1, 0, 1, 2, 3]
+left=[2, 3, 4, 5, 4, 5]
+
+AArch64 명령 대조
+on.out의 같은 프로세스에서 수집한 C2 호출 위치와 jint_arraycopy stub의 원시 바이트를 GNU objdump 2.41로 디코딩했다. 출력된 주소는 JVM을 다시 띄우면 달라질 수 있다.
+
+호출 명령, 스텁의 범위 검사, 작은 복사 구간의 발췌
+ffff7b08926c:	97fee65f 	bl	0xffff7b042be8
+ffff7b042bf0:	cb000028 	sub	x8, x1, x0
+ffff7b042bf4:	eb02091f 	cmp	x8, x2, lsl #2
+ffff7b042bf8:	54fff682 	b.cs	0xffff7b042ac8  // b.hs, b.nlast
+ffff7b042c94:	f9400003 	ldr	x3, [x0]
+ffff7b042c98:	f85f8224 	ldur	x4, [x17, #-8]
+ffff7b042c9c:	f9000023 	str	x3, [x1]
+ffff7b042ca0:	f81f8204 	stur	x4, [x16, #-8]
+
+BL의 목적지는 이 실행의 jint_arraycopy 시작점이다. x0=첫 소스 원소 주소, x1=첫 목적지 원소 주소, x2=int 원소 수. cmp에서 왼쪽으로 2비트 밀어 원소 수를 바이트 수로 환산한다. b.cs(=b.hs)의 목적지는 jint_disjoint_arraycopy 범위의 시작+8이다. 반대 분기의 길이 4 케이스에는 두 번의 load 뒤 두 번의 store가 있다. 생성된 코드의 분기와 명령을 읽었으며 명령별 실행 추적을 수행한 것은 아니다.
+
+원시 바이트 추출 재현 (on.out이 있는 디렉터리, hsdis가 없는 위 Temurin 이미지 출력)
+python3 - <<'PYCODE'
+import re
+from pathlib import Path
+s = Path("on.out").read_text()
+stub = re.search(r"StubRoutines::jint_arraycopy \[(0x[0-9a-f]+), (0x[0-9a-f]+)\]", s)
+start, end = (int(x, 16) for x in stub.groups())
+dump = s[stub.end():].split("[/MachCode]", 1)[0]
+code = bytearray()
+for line in dump.splitlines():
+    m = re.fullmatch(r"\s*(0x[0-9a-f]+): ([0-9a-f |]+)", line)
+    if m:
+        assert int(m[1], 16) == start + len(code)
+        code.extend(bytes.fromhex(m[2].replace("|", " ")))
+assert len(code) == end - start
+Path("jint-stub.bin").write_bytes(code)
+Path("stub-base.txt").write_text(hex(start))
+call = re.search(r"(0x[0-9a-f]+): ;   \{runtime_call Stub::jint_arraycopy\}\s*\1: ([0-9a-f]{4} [0-9a-f]{4})", s)
+Path("c2-bl.bin").write_bytes(bytes.fromhex(call[2]))
+Path("c2-bl-base.txt").write_text(call[1])
+PYCODE
+objdump -D -b binary -m aarch64 --adjust-vma="$(cat c2-bl-base.txt)" c2-bl.bin
+objdump -D -b binary -m aarch64 --adjust-vma="$(cat stub-base.txt)" jint-stub.bin
+
+참조 배열 대조 (같은 Linux JVM, 별도 프로세스)
+java -Xbatch -XX:-TieredCompilation -XX:+UnlockDiagnosticVMOptions \
+  -XX:CompileCommand=compileonly,ReferencePaths::copyStrings \
+  -XX:CompileCommand=compileonly,ReferencePaths::copyChecked \
+  -XX:CompileCommand=print,ReferencePaths::copyStrings \
+  -XX:CompileCommand=print,ReferencePaths::copyChecked ReferencePaths > refs.out 2>&1
+
+refs.out에서 컴파일별 call 주석과 실행 결과를 발췌
+Compiled method (c2) 21    3             ReferencePaths::copyStrings (9 bytes)
+0x0000ffff9f088654: ;   {runtime_call Stub::arrayof_oop_disjoint_arraycopy}
+Compiled method (c2) 50    4             ReferencePaths::copyChecked (9 bytes)
+0x0000ffff9f0883e8: ;   {runtime_call Stub::arrayof_oop_disjoint_arraycopy}
+Compiled method (c2) 89    5             ReferencePaths::copyChecked (9 bytes)
+0x0000ffff9f088170: ;   {runtime_call Stub::arrayof_oop_disjoint_arraycopy}
+0x0000ffff9f0881a8: ;   {runtime_call Stub::checkcast_arraycopy}
+before=[first, second, third]
+exception=ArrayStoreException
+after=[written, second, third]
+
+copyStrings의 생성 코드에는 oop 복사 call이 있다. copyChecked의 두 번째 C2 컴파일에는 oop 빠른 경로와 checkcast 경로가 함께 있다. 정수 7을 만난 뒤에는 앞의 문자열만 목적지에 남았다. 생성 코드에 있는 call과 배열 내용을 확인했다. 호출 분기별 실행 횟수, 예외 처리의 모든 동적 호출 스택, GC 마킹 시점은 측정하지 않았다.
