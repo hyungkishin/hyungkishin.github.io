@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 371" role="img" aria-labelledby="title desc">
+  <title id="title">보관 목록에서 Box를 제거하기 전후의 강한 참조 경로</title>
+  <desc id="desc">GC 루트에서 보관 목록을 거쳐 Box에 닿는 강한 참조를 그렸다. 목록에서 원소를 제거한 뒤에는 루트에서 목록까지의 경로만 남는다. Box를 가리키는 다른 강한 경로도 없으면 Box는 GC 대상이다. 이 순간에 공간까지 회수됐다는 뜻은 아니다. 두 장면의 Box는 같은 객체다.</desc>
+  <style>
+    text { font-family: Pretendard, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; fill: #101d35; }
+    .title { font-size: 24px; font-weight: 750; letter-spacing: -.7px; }
+    .note { font-size: 17px; fill: #405574; }
+    .phase { font-size: 18px; font-weight: 700; fill: #244db7; }
+    .node { font-size: 18px; font-weight: 650; text-anchor: middle; }
+    .edge { stroke: #617fad; stroke-width: 2; }
+    .highlight, .trace { fill: none; opacity: 0; stroke: #2455df; stroke-width: 2.5; }
+    @media (prefers-reduced-motion: no-preference) {
+      .held { animation: trace-to-box 8s linear infinite; }
+      .released { animation: trace-to-list 8s linear infinite; }
+    }
+    @keyframes trace-to-box { 0%, 39%, 100% { opacity: 1; } 49%, 90% { opacity: 0; } }
+    @keyframes trace-to-list { 0%, 39%, 100% { opacity: 0; } 49%, 90% { opacity: 1; } }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 8 4 0 8z" fill="#436baa"/></marker>
+  </defs>
+  <rect width="440" height="371" rx="12" fill="#fff"/>
+  <text x="18" y="34" class="title">GC 루트에서 어디까지 닿을까?</text>
+  <text x="18" y="62" class="note">화살표는 객체를 가리키는 강한 참조다.</text>
+
+  <rect x="16" y="83" width="408" height="93" rx="8" fill="#f3f7ff" stroke="#bdcfec"/>
+  <rect x="16" y="83" width="408" height="93" rx="8" class="highlight held"/>
+  <text x="28" y="110" class="phase">목록에 Box가 있을 때</text>
+  <rect x="29" y="123" width="93" height="34" rx="6" fill="#fff" stroke="#bbcae2"/>
+  <text x="75" y="146" class="node">GC 루트</text>
+  <path d="M125 140h39" class="edge" marker-end="url(#arrow)"/>
+  <rect x="168" y="123" width="104" height="34" rx="6" fill="#fff" stroke="#bbcae2"/>
+  <text x="220" y="146" class="node">보관 목록</text>
+  <path d="M275 140h49" class="edge" marker-end="url(#arrow)"/>
+  <path d="M125 140h34m116 0h44" class="trace held"/>
+  <rect x="328" y="123" width="82" height="34" rx="6" fill="#e1ebff" stroke="#90afe5"/>
+  <text x="369" y="146" class="node">Box</text>
+
+  <rect x="16" y="194" width="408" height="117" rx="8" fill="#f8faff" stroke="#bdcfec"/>
+  <rect x="16" y="194" width="408" height="117" rx="8" class="highlight released"/>
+  <text x="28" y="221" class="phase">목록에서 Box를 제거한 뒤</text>
+  <rect x="29" y="235" width="93" height="34" rx="6" fill="#fff" stroke="#bbcae2"/>
+  <text x="75" y="258" class="node">GC 루트</text>
+  <path d="M125 252h39" class="edge" marker-end="url(#arrow)"/>
+  <path d="M125 252h34" class="trace released"/>
+  <rect x="168" y="235" width="104" height="34" rx="6" fill="#fff" stroke="#bbcae2"/>
+  <text x="220" y="258" class="node">보관 목록</text>
+  <rect x="328" y="235" width="82" height="34" rx="6" fill="#fff" stroke="#8ba2c6" stroke-dasharray="4 3"/>
+  <text x="369" y="258" class="node">Box</text>
+  <text x="28" y="296" class="note">다른 강한 경로도 없으면 Box는 GC 대상이다.</text>
+  <path d="M17 328h406" stroke="#cbd7e8"/>
+  <text x="18" y="354" class="note">공간을 실제로 회수하는 시점은 GC가 정한다.</text>
+</svg>

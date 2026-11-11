@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 470" role="img" aria-labelledby="title desc">
+  <title id="title">스레드 전용 영역과 JVM 공유 영역</title>
+  <desc id="desc">스레드마다 pc 레지스터와 JVM 스택이 있다. Java 메서드의 호출마다 프레임이 만들어지며 그 안에 지역 변수와 피연산자 스택이 있다. 구현에 따라 네이티브 메서드 스택도 사용할 수 있다. 모든 스레드는 객체와 배열이 놓이는 힙과 클래스 구조와 메서드 코드가 있는 메서드 영역을 공유한다. 클래스와 인터페이스별 런타임 상수 풀은 메서드 영역에 속한다.</desc>
+  <style>
+    text { font-family: Pretendard, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; fill: #101d35; }
+    .title { font-size: 25px; font-weight: 750; letter-spacing: -.7px; }
+    .scope { font-size: 19px; font-weight: 750; fill: #244db7; }
+    .name { font-size: 19px; font-weight: 700; }
+    .detail { font-size: 17px; fill: #405574; }
+    .child { stroke: #8da7d4; stroke-width: 1.6; fill: none; }
+    .divider { stroke: #d5e0f0; }
+  </style>
+  <rect width="440" height="470" rx="12" fill="#fff"/>
+  <text x="18" y="35" class="title">JVM의 런타임 데이터 영역</text>
+  <rect x="16" y="54" width="408" height="224" rx="9" fill="#f1f6ff" stroke="#b6cbed"/>
+  <text x="30" y="84" class="scope">스레드마다 따로</text>
+  <path d="M30 96h379" class="divider"/>
+  <text x="30" y="122" class="name">pc 레지스터</text>
+  <text x="166" y="122" class="detail">실행 중인 JVM 명령의 위치</text>
+  <path d="M30 137h379" class="divider"/>
+  <text x="30" y="165" class="name">JVM 스택</text>
+  <text x="166" y="165" class="detail">메서드 호출마다 프레임이 쌓임</text>
+  <path d="M38 176v14h13" class="child"/>
+  <text x="60" y="197" class="detail">프레임 안에 지역 변수와 피연산자 스택</text>
+  <path d="M30 211h379" class="divider"/>
+  <text x="30" y="238" class="name">네이티브 메서드 스택</text>
+  <text x="30" y="263" class="detail">네이티브 호출에 쓰며, 지원 방식은 구현마다 다름</text>
+
+  <rect x="16" y="292" width="408" height="163" rx="9" fill="#f8faff" stroke="#b6cbed"/>
+  <text x="30" y="322" class="scope">모든 스레드가 공유</text>
+  <path d="M30 335h379" class="divider"/>
+  <text x="30" y="360" class="name">힙</text>
+  <text x="166" y="360" class="detail">객체와 배열</text>
+  <path d="M30 375h379" class="divider"/>
+  <text x="30" y="403" class="name">메서드 영역</text>
+  <text x="166" y="403" class="detail">클래스 구조와 메서드 코드 등</text>
+  <path d="M38 414v14h13" class="child"/>
+  <text x="60" y="436" class="detail">클래스·인터페이스별 런타임 상수 풀</text>
+</svg>
