@@ -100,7 +100,7 @@ Spring Data JPA의 `@Modifying(clearAutomatically = true)`는 변경 후 context
 
 MySQL InnoDB의 `SELECT ... FOR UPDATE`는 트랜잭션 안에서 잠금 조회를 수행한다. 외부 이상 탐지 API 응답을 기다리는 동안 계좌 행 잠금을 오래 잡는 구조라면 다른 송금도 기다릴 수 있다. 여러 계좌를 갱신할 때는 잠금 순서를 일관되게 정하고 deadlock 이후 재시도는 멱등성을 포함한 전체 업무 단위로 설계한다. [MySQL 잠금 조회](https://dev.mysql.com/doc/refman/8.4/en/innodb-locking-reads.html), [InnoDB deadlock 처리](https://dev.mysql.com/doc/refman/8.4/en/innodb-deadlocks-handling.html)
 
-실제 송금에서는 잔액 갱신만 성공했다고 끝나지 않는다. 업무 상태와 원장, 중복 요청 기록을 어떤 트랜잭션에 묶을지 정해야 한다. 외부 이체가 포함되면 DB 트랜잭션 하나로 외부 결과까지 되돌릴 수 없다. 3편에서 정한 확정 조건과 상태 전이가 여기의 SQL 경계를 제한한다.
+실제 송금에서는 잔액 갱신만 성공했다고 끝나지 않는다. 업무 상태와 원장, 중복 요청 기록을 어떤 트랜잭션에 묶을지 정해야 한다. 외부 이체가 포함되면 DB 트랜잭션 하나로 외부 결과까지 되돌릴 수 없다. [송금 성공을 언제 약속하는가](/backend/transfer-performance/03-transfer-contract/)에서 정한 확정 조건과 상태 전이가 여기의 SQL 경계를 제한한다.
 
 ## 생성된 SQL과 실행 계획에서 다시 측정한다
 

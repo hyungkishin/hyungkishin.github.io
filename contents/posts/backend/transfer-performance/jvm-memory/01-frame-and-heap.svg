@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 408" role="img" aria-labelledby="title desc">
+  <title id="title">make가 반환한 뒤에도 같은 영수증을 읽는다</title>
+  <desc id="desc">왼쪽은 같은 스레드의 서로 다른 두 시점이다. 반환 직전에는 make 프레임의 지역 변수 receipt가 오른쪽 공유 힙의 영수증을 가리킨다. 그 아래에서 saveForLater는 반환값을 기다린다. 반환 후 make 프레임은 사라지고 saveForLater 프레임의 local이 같은 영수증을 가리킨다. 객체의 수수료는 100원이다.</desc>
+  <style>
+    text { font-family: Pretendard, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; fill: #101d35; }
+    .title { font-size: 24px; font-weight: 750; letter-spacing: -.7px; }
+    .area { font-size: 18px; font-weight: 650; fill: #3d5271; }
+    .phase { font-size: 17px; font-weight: 700; fill: #2455c1; }
+    .code { font: 600 19px "SFMono-Regular", Consolas, monospace; }
+    .note { font-size: 17px; fill: #405574; }
+    .wire { stroke: #5474ae; stroke-width: 2; stroke-linejoin: round; fill: none; }
+    .scan, .trace { opacity: 0; fill: none; stroke: #2455df; stroke-width: 2.8; stroke-linejoin: round; }
+    @media (prefers-reduced-motion: no-preference) {
+      .before { animation: first-path 8s linear infinite; }
+      .after { animation: return-path 8s linear infinite; }
+    }
+    @keyframes first-path { 0%, 39%, 100% { opacity: 1; } 49%, 90% { opacity: 0; } }
+    @keyframes return-path { 0%, 39%, 100% { opacity: 0; } 49%, 90% { opacity: 1; } }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M0 0 8 4 0 8z" fill="#486daf"/>
+    </marker>
+  </defs>
+  <rect width="460" height="408" rx="12" fill="#fff"/>
+  <text x="18" y="35" class="title">반환 전후, 영수증을 가리키는 변수</text>
+  <text x="18" y="75" class="area">스레드의 호출 스택</text>
+  <text x="302" y="75" class="area">공유 힙</text>
+  <path d="M277 62V358" stroke="#cbd7e9" stroke-dasharray="3 5"/>
+
+  <text x="18" y="109" class="phase">반환 직전</text>
+  <rect x="18" y="121" width="223" height="59" rx="7" fill="#f1f6ff" stroke="#afc4e7"/>
+  <rect x="18" y="121" width="223" height="59" rx="7" class="scan before"/>
+  <text x="30" y="145" class="code">make(100)</text>
+  <text x="30" y="169" class="note">지역 변수</text>
+  <text x="112" y="169" class="code">receipt</text>
+  <rect x="18" y="183" width="223" height="39" rx="6" fill="#f9fbfe" stroke="#cbd7e9"/>
+  <text x="30" y="208" class="code">saveForLater</text>
+  <text x="174" y="208" class="note">대기</text>
+
+  <text x="18" y="273" class="phase">반환 후</text>
+  <rect x="18" y="285" width="223" height="59" rx="7" fill="#f1f6ff" stroke="#afc4e7"/>
+  <rect x="18" y="285" width="223" height="59" rx="7" class="scan after"/>
+  <text x="30" y="309" class="code">saveForLater</text>
+  <text x="30" y="333" class="note">지역 변수</text>
+  <text x="112" y="333" class="code">local</text>
+
+  <path d="M199 163H255V203H293" class="wire" marker-end="url(#arrow)"/>
+  <path d="M174 327H261V233H293" class="wire" marker-end="url(#arrow)"/>
+  <path d="M199 163H255V203H288" class="trace before"/>
+  <path d="M174 327H261V233H288" class="trace after"/>
+
+  <path d="M301 162h139v115l-10-5-10 5-10-5-10 5-10-5-10 5-10-5-10 5-10-5-10 5-10-5-10 5-10-5-9 5z" fill="#eaf1ff" stroke="#7196e1" stroke-width="1.7"/>
+  <text x="314" y="191" class="code">Receipt</text>
+  <path d="M314 201h111" stroke="#b2c8f1" stroke-dasharray="3 3"/>
+  <text x="314" y="226" class="note">feeWon</text>
+  <text x="314" y="255" font-weight="750" font-size="25" fill="#244fbb">100원</text>
+  <path d="M18 365h424" stroke="#d2deed"/>
+  <text x="18" y="392" class="note">두 시점 모두 오른쪽의 같은 영수증을 가리킨다.</text>
+</svg>

@@ -12,6 +12,7 @@ const cli = path.join(projectRoot, 'scripts/build-transfer-series.mjs');
 const slugs = [
   '/backend/transfer-performance/01-measurement/',
   '/backend/transfer-performance/02-jvm-execution/',
+  '/backend/transfer-performance/jvm-memory/',
   '/backend/transfer-performance/03-transfer-contract/',
   '/backend/transfer-performance/04-kafka-redis/',
   '/backend/transfer-performance/05-jpa-access/',
@@ -52,7 +53,7 @@ async function page(paths, slug) {
   return new JSDOM(await readFile(path.join(paths.outputDir, slug, 'index.html'), 'utf8')).window.document;
 }
 
-test('빌더가 시리즈 여섯 경로를 만들고 기존 출력 경로를 보존한다', async t => {
+test('빌더가 등록된 시리즈 경로를 모두 만들고 기존 출력 경로를 보존한다', async t => {
   const paths = await fixture(t);
   await mkdir(path.join(paths.outputDir, 'existing'), { recursive: true });
   await writeFile(path.join(paths.outputDir, 'existing/keep.txt'), '기존 배포 파일');
@@ -65,7 +66,7 @@ test('빌더가 시리즈 여섯 경로를 만들고 기존 출력 경로를 보
   for (const slug of slugs) assert.equal((await page(paths, slug)).querySelectorAll('h1').length, 1);
   assert.equal(await readFile(path.join(paths.outputDir, 'existing/keep.txt'), 'utf8'), '기존 배포 파일');
   assert.deepEqual((await readdir(path.join(paths.outputDir, 'backend/transfer-performance'))).sort(), [
-    '01-measurement', '02-jvm-execution', '03-transfer-contract', '04-kafka-redis', '05-jpa-access', 'assets', 'index.html',
+    '01-measurement', '02-jvm-execution', '03-transfer-contract', '04-kafka-redis', '05-jpa-access', 'assets', 'index.html', 'jvm-memory',
   ]);
 });
 
@@ -86,8 +87,12 @@ test('제목을 HTML로 실행하지 않고 원문과 절 링크를 보존한다
   assert.equal(document.querySelector('.article-body a').hash, '#section-1');
   assert.equal(document.querySelector('[rel="prev"]').getAttribute('href'), slugs[0]);
   assert.equal(document.querySelector('[rel="next"]').getAttribute('href'), slugs[2]);
+  const memory = await page(paths, slugs[2]);
+  assert.equal(memory.querySelector('[rel="prev"]').getAttribute('href'), slugs[1]);
+  assert.equal(memory.querySelector('[rel="next"]').getAttribute('href'), slugs[3]);
+  assert.equal((await page(paths, slugs[3])).querySelector('[rel="prev"]').getAttribute('href'), slugs[2]);
   assert.equal((await page(paths, slugs[0])).querySelector('[rel="prev"]'), null);
-  assert.equal((await page(paths, slugs[4])).querySelector('[rel="next"]'), null);
+  assert.equal((await page(paths, slugs.at(-1))).querySelector('[rel="next"]'), null);
   const jsonLd = JSON.parse(document.querySelector('script[type="application/ld+json"]').textContent);
   assert.equal(jsonLd.headline, 'JVM "<script>unsafe()</script>" & 실행');
 });
@@ -136,10 +141,10 @@ test('시리즈 색인의 재생 가능한 그림에서 원문 속 같은 그림
 
 test('누락한 편이 있으면 일부 시리즈를 발행하지 않고 실패한다', async t => {
   const paths = await fixture(t);
-  await rm(path.join(paths.publicDir, 'page-data', slugs[3], 'page-data.json'));
+  await rm(path.join(paths.publicDir, 'page-data', '/backend/transfer-performance/jvm-memory/', 'page-data.json'));
   const result = runBuild(paths);
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /04-kafka-redis/);
+  assert.match(result.stderr, /jvm-memory/);
   const entries = await readdir(paths.outputDir).catch(error => error.code === 'ENOENT' ? [] : Promise.reject(error));
   assert.deepEqual(entries, []);
 });

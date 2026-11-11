@@ -1,0 +1,36 @@
+  static ReceiptMemoryDemo$Receipt make(int);
+    Code:
+         0: new           #7                  // class ReceiptMemoryDemo$Receipt
+         3: dup
+         4: iload_0
+         5: invokespecial #9                  // Method ReceiptMemoryDemo$Receipt."<init>":(I)V
+         8: astore_1
+         9: aload_1
+        10: areturn
+      LineNumberTable:
+        line 10: 0
+        line 11: 9
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      11     0 feeWon   I
+            9       2     1 receipt   LReceiptMemoryDemo$Receipt;
+
+  static java.lang.ref.WeakReference<ReceiptMemoryDemo$Receipt> saveForLater(java.lang.ref.ReferenceQueue<ReceiptMemoryDemo$Receipt>);
+    Code:
+         0: bipush        100
+         2: invokestatic  #12                 // Method make:(I)LReceiptMemoryDemo$Receipt;
+         5: astore_1
+         6: aload_1
+         7: putstatic     #18                 // Field saved:LReceiptMemoryDemo$Receipt;
+        ...
+
+  public static void main(java.lang.String[]) throws java.lang.InterruptedException;
+    Code:
+        ...
+        16: getstatic     #18                 // Field saved:LReceiptMemoryDemo$Receipt;
+        19: invokevirtual #50                 // Method ReceiptMemoryDemo$Receipt.feeWon:()I
+        ...
+        30: aconst_null
+        31: putstatic     #18                 // Field saved:LReceiptMemoryDemo$Receipt;
+        34: invokestatic  #57                 // Method java/lang/System.gc:()V
+        ...

@@ -168,7 +168,7 @@ ${preview}</div><section aria-labelledby="series-contents"><h2 id="series-conten
 
 export async function buildTransferSeries({ publicDir, outputDir, sourceRoot = path.join(projectRoot, 'contents/posts') }) {
   const rule = findSeriesById('transfer-performance');
-  if (!rule?.slugs || rule.slugs.length !== 5) throw new Error('transfer-performance 시리즈에 다섯 편의 경로가 필요합니다.');
+  if (!rule?.slugs?.length) throw new Error('송금 시리즈에 등록된 글 경로가 없습니다.');
   const posts = [];
   for (const slug of rule.slugs) {
     const dataPath = path.join(publicDir, 'page-data', slug, 'page-data.json');

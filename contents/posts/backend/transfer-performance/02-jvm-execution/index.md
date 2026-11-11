@@ -102,4 +102,4 @@ HotSpot은 같은 메서드를 여러 단계에 걸쳐 컴파일할 수 있다. 
 
 [앞 글](/backend/transfer-performance/01-measurement/)에서 정한 측정 구간에 이 차이를 반영할 수 있다. 배포 직후 첫 송금이 느린 문제라면 첫 요청을 측정에 남긴다. 충분히 실행한 서비스의 수수료 계산 비용을 비교한다면 각 버전을 별도 JVM에서 시작한 뒤 측정할 때와 비슷한 정책 비율로 워밍업한다. 벤치마크 도구 JMH에서 fork는 JVM을 새로 띄우는 설정이다. warmup 횟수는 그 JVM에서 측정 전에 몇 차례 연습할지를 정한다. [OpenJDK JMH의 fork 예제](https://github.com/openjdk/jmh/blob/master/jmh-samples/src/main/java/org/openjdk/jmh/samples/JMHSample_12_Forking.java)
 
-수수료 호출이 인라인됐다는 로그가 있어도 송금 한 건이 언제 끝났는지는 여전히 모른다. 그 시간에는 잔액을 기록하고 송금을 확정하기까지의 대기도 들어간다. [다음 글에서는 송금 성공을 언제 약속할 수 있는지 살펴본다.](/backend/transfer-performance/03-transfer-contract/)
+여기까지는 수수료를 정수로 돌려줬다. 수수료 100원을 영수증 객체에 담아 돌려주면 어떻게 될까? 메서드는 이미 끝났는데, 호출자는 여전히 영수증을 열어 볼 수 있다. [다음 글에서 영수증 하나로 JVM의 스택과 힙, GC를 따라간다.](/backend/transfer-performance/jvm-memory/)
