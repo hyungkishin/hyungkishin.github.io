@@ -1,0 +1,14 @@
+$ java -version
+openjdk version "25.0.4.1" 2026-08-18 LTS
+OpenJDK Runtime Environment Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS)
+OpenJDK 64-Bit Server VM Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS, mixed mode, sharing)
+
+$ javac -g ReceiptMemoryDemo.java
+$ java -Xms32m -Xmx32m -XX:+UseG1GC -XX:+DisableExplicitGC -Xlog:gc:file=receipt-gc.txt ReceiptMemoryDemo
+local == saved: true
+saved.feeWon(): 100
+enqueued within 2 s: false
+weak reference cleared: false
+
+$ cat receipt-gc.txt
+[0.004s][info][gc] Using G1
