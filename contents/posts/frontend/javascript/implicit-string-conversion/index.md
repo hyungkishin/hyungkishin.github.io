@@ -1,6 +1,6 @@
 ---
 title: "sort와 reduce는 생략한 인자를 무엇으로 채우는가"
-description: "숫자 배열의 기본 정렬 결과와 초깃값을 생략한 reduce의 첫 호출을 나란히 본다."
+description: "숫자 배열을 정렬했는데 100보다 9가 뒤에 놓였다. sort의 비교 함수와 reduce의 초깃값을 생략했을 때 각각 무슨 일이 생길까?"
 date: 2026-07-27
 update: 2026-11-11
 tags:

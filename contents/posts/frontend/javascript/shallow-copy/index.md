@@ -1,6 +1,6 @@
 ---
 title: "Object.freeze의 변경 제한과 spread의 복사 범위"
-description: "객체를 펼쳐 복사하거나 Object.freeze를 호출한 뒤에 중첩된 값이 왜 계속 바뀌는지 살펴본다."
+description: "Object.freeze로 설정을 동결했는데 재시도 횟수는 계속 바뀌었다. 펼침 문법으로 복사한 객체에도 같은 참조가 남아 있었다."
 date: 2026-07-27
 update: 2026-11-11
 tags:

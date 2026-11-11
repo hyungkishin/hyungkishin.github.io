@@ -1,6 +1,6 @@
 ---
 title: "적힌 순서와 실행되는 순서가 어긋나는 자리"
-description: "Promise.all에 넘긴 작업이 시작되는 순서와 결과 배열에 값이 놓이는 순서를 짧은 코드로 구분한다."
+description: "10ms 만에 끝난 작업보다 120ms 걸린 작업의 값이 결과 배열 앞에 놓였다. Promise.all은 완료 순서를 어떻게 다룰까?"
 date: 2026-07-27
 update: 2026-11-11
 tags:

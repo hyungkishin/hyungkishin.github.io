@@ -1,8 +1,8 @@
 ---
 title: "송금 내역 한 페이지가 DB를 여러 번 왕복할 때"
-description: "송금 목록에서 계좌 이름을 읽는 가상의 예제로 JPA가 보낼 SQL과 DB 왕복 횟수를 비교한다."
+description: "송금 20건과 받는 계좌 이름을 한 화면에 띄운다. 같은 목록인데도 SQL이 한 번 나갈 때와 스물한 번 나갈 때가 있다."
 date: 2026-11-04
-update: 2026-11-04
+update: 2026-11-11
 tags:
 - JPA
 - Hibernate
@@ -11,23 +11,15 @@ tags:
 - 트랜잭션
 ---
 
-송금이 확정되고 이벤트도 전달됐다. 이제 운영자가 송금 내역을 조회한다. 화면에는 송금액과 수신 계좌 이름만 필요하지만 애플리케이션이 송금 엔티티를 읽은 뒤 계좌와 고객을 한 건씩 찾아가면 DB 왕복이 늘어난다.
+운영자가 송금 내역 한 페이지를 열었다. 보여 줄 것은 송금액과 받는 계좌의 이름이다. 송금 20건을 먼저 읽고 화면을 그리면서 계좌 이름을 하나씩 꺼내면 DB에는 몇 번 다녀올까?
 
-이때 메서드 이름이 짧다는 사실은 SQL 실행 횟수를 설명해 주지 않는다. 객체를 따라가는 코드 뒤에 어떤 쿼리가 실행되는지 확인해야 한다. 같은 가상의 송금 서비스를 유지하면서 조회, 대량 처리, 동시 갱신의 경계를 순서대로 살펴본다. 아래 SQL과 처리 건수는 구조를 설명하는 예시다.
+![송금 목록 뒤에 계좌를 한 건씩 읽는 왕복과, 필요한 데이터를 묶어 읽는 왕복을 비교한다. 화살표의 이동 속도는 실측 지연을 뜻하지 않는다.](./01-query-round-trips.svg)
 
-## 객체의 연관관계와 SQL 조회 계획을 나눠 본다
-
-JPA는 Java 객체와 관계형 데이터를 연결하는 영속성 명세다. Hibernate는 그 구현체 중 하나다. 애플리케이션은 엔티티를 수정하고 영속성 컨텍스트는 관리 중인 엔티티의 상태를 DB와 동기화한다. 같은 영속성 컨텍스트에서 동일한 영속성 식별자의 엔티티를 다룰 때 객체의 동일성을 유지하는 것도 이 모델의 일부다. [Jakarta Persistence 3.2 명세](https://jakarta.ee/specifications/persistence/3.2/jakarta-persistence-spec-3.2.html)
-
-`transfer.receiverAccount`처럼 객체로 연결해 두는 선택은 탐색과 상태 변경을 표현하기 편하다. 그 연관 데이터를 어느 SQL에서 함께 가져올지는 별도 문제다. LAZY는 접근 시 로딩을 지연하는 전략이며 이후 반복문에서 모든 연관 객체를 접근하면 추가 조회가 발생할 수 있다.
-
-EAGER라고 SQL 한 번으로 읽는다고 단정할 수도 없다. Hibernate의 조회 방식과 fetch 계획에 따라 추가 조회가 생긴다. 연관관계 설정만 보고 N+1이 해결됐는지 판단하기보다 실제 SQL과 반환 행 수를 확인한다. Hibernate는 join fetch, batch fetch, subselect fetch를 서로 다른 연관 로딩 전략으로 설명한다. [Hibernate 7.1의 연관 데이터 조회](https://docs.hibernate.org/orm/7.1/introduction/html_single/#association-fetching)
-
-연관관계를 없애고 `receiverAccountId`만 저장해도 JPA의 엔티티 관리와 변경 감지를 사용할 수 있다. 다만 객체 탐색, cascade 같은 연결 기능은 직접 다루게 된다. 필요한 계좌들을 ID 목록으로 한 번에 읽을 수도 있고 실수로 ID마다 조회해 다시 N+1을 만들 수도 있다. ORM 연관관계의 유무와 DB 외래키 제약의 유무도 별개의 결정이다.
+스무 건의 수신 계좌가 모두 다르고 캐시가 비어 있다고 가정했다. 위쪽에서는 목록을 읽은 뒤 이름을 찾으러 스무 번 더 간다. 아래쪽에서는 송금과 계좌를 조인해 필요한 열을 한 번에 받는다. 그림에서 센 것은 SQL 왕복 횟수다. 두 쿼리 중 어느 쪽이 얼마나 빠른지는 인덱스와 반환 행 수, 실행 계획까지 확인해야 한다.
 
 ## 조회 화면에 필요한 데이터부터 정한다
 
-송금 20건을 먼저 읽고 각 송금의 수신 계좌를 따로 조회한다고 가정하자. 서로 다른 계좌이며 캐시가 비어 있다면 송금 조회 한 번과 계좌 조회 스무 번이 발생하는 형태가 된다. 이것이 N+1의 전형적인 구조다. 실제 횟수는 같은 계좌의 재사용, 영속성 컨텍스트, 캐시와 로딩 설정에 따라 달라진다.
+위쪽 경로처럼 목록을 한 번 읽고 각 항목에서 다시 조회하는 패턴을 N+1이라고 부른다. 다음 SQL에서는 첫 쿼리의 결과를 순회할 때 두 번째 쿼리가 반복된다. 같은 계좌가 여러 번 등장하거나 영속성 컨텍스트에 이미 들어 있으면 실제 횟수는 줄어들 수 있다.
 
 ```sql
 -- 구조 설명용: 송금 목록 한 번
@@ -54,9 +46,17 @@ LIMIT 20;
 
 Spring Data JPA는 인터페이스 기반 projection과 DTO 반환을 지원한다. 조회 전용 값으로 필요한 데이터를 표현하면 엔티티 그래프 전체를 화면에 넘길 이유가 줄어든다. 중첩 projection이 원하는 열만 가져오는지와 어떤 조인이 생성되는지는 확인해야 한다. DTO가 엔티티 변경 감지까지 대신하는 것은 아니다. [Spring Data JPA projections](https://docs.spring.io/spring-data/jpa/reference/repositories/projections.html)
 
-![송금 목록 뒤에 계좌를 한 건씩 읽는 왕복과, 필요한 데이터를 묶어 읽는 왕복을 비교한다. 화살표의 이동 속도는 실측 지연을 뜻하지 않는다.](./01-query-round-trips.svg)
-
 업무 규칙을 실행하면서 엔티티가 필요하다면 해당 조회의 fetch join이나 entity graph를 검토한다. 여러 연관을 묶어 읽는 batch fetch도 선택지다. fetch join은 한 SQL의 행 수를 늘릴 수 있고 batch fetch는 묶음별 추가 쿼리가 남는다. 요청의 결과 모양과 데이터 크기에 맞춰 선택한다. [Spring Data JPA entity graph](https://docs.spring.io/spring-data/jpa/reference/jpa/query-methods.html#jpa.entity-graph)
+
+## 객체의 연관관계와 SQL 조회 계획을 나눠 본다
+
+JPA는 Java 객체와 관계형 데이터를 연결하는 영속성 명세다. Hibernate는 그 구현체 중 하나다. 애플리케이션은 엔티티를 수정하고 영속성 컨텍스트는 관리 중인 엔티티의 상태를 DB와 동기화한다. 같은 영속성 컨텍스트에서 동일한 영속성 식별자의 엔티티를 다룰 때 객체의 동일성을 유지하는 것도 이 모델의 일부다. [Jakarta Persistence 3.2 명세](https://jakarta.ee/specifications/persistence/3.2/jakarta-persistence-spec-3.2.html)
+
+`transfer.receiverAccount`처럼 객체로 연결해 두는 선택은 탐색과 상태 변경을 표현하기 편하다. 그 연관 데이터를 어느 SQL에서 함께 가져올지는 별도 문제다. LAZY는 접근 시 로딩을 지연하는 전략이며 이후 반복문에서 모든 연관 객체를 접근하면 추가 조회가 발생할 수 있다.
+
+EAGER라고 SQL 한 번으로 읽는다고 단정할 수도 없다. Hibernate의 조회 방식과 fetch 계획에 따라 추가 조회가 생긴다. 연관관계 설정만 보고 N+1이 해결됐는지 판단하기보다 실제 SQL과 반환 행 수를 확인한다. Hibernate는 join fetch, batch fetch, subselect fetch를 서로 다른 연관 로딩 전략으로 설명한다. [Hibernate 7.1의 연관 데이터 조회](https://docs.hibernate.org/orm/7.1/introduction/html_single/#association-fetching)
+
+연관관계를 없애고 `receiverAccountId`만 저장해도 JPA의 엔티티 관리와 변경 감지를 사용할 수 있다. 다만 객체 탐색, cascade 같은 연결 기능은 직접 다루게 된다. 필요한 계좌들을 ID 목록으로 한 번에 읽을 수도 있고 실수로 ID마다 조회해 다시 N+1을 만들 수도 있다. ORM 연관관계의 유무와 DB 외래키 제약의 유무도 별개의 결정이다.
 
 ## 컬렉션 fetch join과 페이지 경계가 충돌한다
 
