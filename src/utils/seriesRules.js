@@ -11,7 +11,7 @@ const SERIES_RULES = [
   {
     id: "transfer-performance",
     name: "송금 한 건으로 읽는 백엔드",
-    tagline: "JVM 컴파일과 메모리, GC 정지 시간, TCP 전송에서 송금 확정까지",
+    tagline: "송금 요청에 걸린 시간을 재려고 보니 어디서 타이머를 끌지부터 정해야 했다. 수수료를 계산하는 JVM 안에서도, 은행에 보낸 요청의 응답을 기다릴 때도 재는 구간이 달라진다.",
     indexSlug: "/backend/transfer-performance/",
     slugs: [
       "/backend/transfer-performance/01-measurement/",
@@ -31,7 +31,7 @@ const SERIES_RULES = [
   {
     id: "why",
     name: "장애 원인 분석",
-    tagline: "장애 원인과 대응 과정, 남은 과제",
+    tagline: "인증 버그를 고쳐 배포했는데도 같은 알림이 왔다. 재시도 버튼을 누른 사용자 한 명의 로그로 돌아갔다.",
     indexSlug: "/company/work/",
     pattern: /^\/company\/work\/why\d+\/$/,
     sortKey: slug => Number(slug.match(/why(\d+)/)?.[1]),
@@ -39,7 +39,7 @@ const SERIES_RULES = [
   {
     id: "phase",
     name: "프론트엔드 성능 최적화",
-    tagline: "CMS 기반 뉴스 사이트의 성능 측정과 최적화",
+    tagline: "기사 페이지에서 태그를 고쳤는데도 AMP 검증에 실패했다. Next.js가 끼워 넣은 스크립트는 어디서 빼야 할까?",
     indexSlug: "/frontend/performance/",
     pattern: /^\/frontend\/performance\/phase\d+\/$/,
     sortKey: slug => Number(slug.match(/phase(\d+)/)?.[1]),
@@ -62,7 +62,7 @@ const SERIES_RULES = [
   {
     id: "metrics",
     name: "지표와 실제 상태가 다를 때",
-    tagline: "지표의 집계 기준과 측정 범위로 살펴본 장애 사례",
+    tagline: "알림 181건이 도착하지 않았는데 대시보드의 에러율은 0%였다. 성공으로 집계한 요청의 응답 본문을 열었다.",
     indexSlug: "/backend/observability/",
     pattern: /^\/backend\/observability\/when-metrics-lie[^/]*\/$/,
   },

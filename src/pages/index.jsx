@@ -34,7 +34,7 @@ export default function BlogIndex({ data }) {
           <div className="cover-copy">
             <p className="cover-kicker">{featured.rule.name}<span>{featured.posts.length}편</span></p>
             <h1 id="cover-title">송금은 언제 <br /><em>끝난 걸까?</em></h1>
-            <p className="cover-deck">서버가 접수를 알린 뒤에도 받는 사람의 잔액은 그대로일 수 있습니다. 수수료 계산부터 입금 확인까지, 송금 한 건의 실행 경로를 따라갑니다.</p>
+            <p className="cover-deck">1만 원을 보낸다고 해 보자. 내 화면에는 벌써 ‘접수됨’이 떴는데, 받는 사람 잔액은 그대로다. 이 사이에 무슨 일이 남아 있을까?</p>
             <div className="cover-actions">
               <ReadingLink className="cover-link" to={featured.posts[0].fields.slug}>첫 편 읽기 <FiArrowRight aria-hidden="true" /></ReadingLink>
               <ReadingLink className="cover-contents" to={featured.rule.indexSlug}>시리즈 목차</ReadingLink>
