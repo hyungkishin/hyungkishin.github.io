@@ -1,0 +1,102 @@
+<svg id="play" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 242"
+     role="img" aria-labelledby="loop-title loop-desc"
+     font-family="Pretendard, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif" fill="#171717">
+  <title id="loop-title">인터프리터로 add(2, 3) 실행하기</title>
+  <desc id="loop-desc">손으로 그린 화살표가 현재 명령을 가리킨다. 오른쪽에서 숫자를 쓰거나 지우며 스택의 변화를 보여준다. 처음에는 비어 있다. iload_0이 2를 올리고 iload_1이 그 위에 3을 올린다. iadd가 두 값을 꺼내 더하고 5를 올린다. ireturn이 호출자에게 5를 반환하면 add 프레임이 끝난다.</desc>
+  <rect width="460" height="242" fill="white"/>
+  <style>
+    .pen { fill: none; stroke: #181818; stroke-linecap: butt; stroke-linejoin: round; }
+    .code { font-family: ui-monospace, Menlo, monospace; }
+    .trace { display: none; }
+    @media screen and (prefers-reduced-motion: no-preference) {
+      svg:target .timed { animation: var(--sequence) 19s var(--transition, linear) both; }
+      @keyframes ready-stage { 0% { opacity: 1; } 12%, 33%, 54%, 77%, 100% { opacity: 0; } }
+      @keyframes first-load { 0%, 33%, 54%, 77%, 100% { opacity: 0; } 12% { opacity: 1; } }
+      @keyframes second-load { 0%, 12%, 54%, 77%, 100% { opacity: 0; } 33% { opacity: 1; } }
+      @keyframes sum-stage { 0%, 12%, 33%, 77%, 100% { opacity: 0; } 54% { opacity: 1; } }
+      @keyframes return-stage { 0%, 12%, 33%, 54% { opacity: 0; } 77%, 100% { opacity: 1; } }
+      @keyframes first-pointer { 0%, 12%, 33%, 100% { stroke-dashoffset: 1; } 15.4%, 31.2% { stroke-dashoffset: 0; } }
+      @keyframes second-pointer { 0%, 33%, 54%, 100% { stroke-dashoffset: 1; } 36.4%, 52.2% { stroke-dashoffset: 0; } }
+      @keyframes sum-pointer { 0%, 54%, 77%, 100% { stroke-dashoffset: 1; } 57.4%, 75.2% { stroke-dashoffset: 0; } }
+      @keyframes return-pointer { 0%, 77% { stroke-dashoffset: 1; } 80.4%, 100% { stroke-dashoffset: 0; } }
+      @keyframes draw-two { 0%, 12%, 59.8%, 100% { stroke-dashoffset: 1; } 17.2%, 56.2% { stroke-dashoffset: 0; } }
+      @keyframes draw-three { 0%, 33%, 57.5%, 100% { stroke-dashoffset: 1; } 39.1%, 54.2% { stroke-dashoffset: 0; } }
+      @keyframes draw-sum { 0%, 60.2%, 78.3%, 100% { stroke-dashoffset: 1; } 65.8%, 76.2% { stroke-dashoffset: 0; } }
+      @keyframes draw-return { 0%, 78.8% { stroke-dashoffset: 1; } 85.7%, 100% { stroke-dashoffset: 0; } }
+      @keyframes show-results { 0%, 90% { opacity: 0; } 94%, 100% { opacity: 1; } }
+    }
+    @media print { .playback { display: none; } .trace { display: inline; } }
+    @media (prefers-reduced-motion: reduce) {
+      .playback { display: none; }
+      .trace { display: inline; }
+    }
+  </style>
+  <defs>
+    <path id="walls" d="M277 70Q278 126 277.5 174.5Q326 175.5 389 174.8Q388.5 125 389.2 70" fill="none" stroke="#444" stroke-width="1.7"/>
+  </defs>
+
+  <g font-size="17" font-weight="600">
+    <text x="12" y="25">add(2, 3)의 바이트코드</text>
+    <text x="247" y="25">명령을 실행한 직후</text>
+  </g>
+  <path d="M8 39Q211 38.6 452 39.1M8 199Q209 199.5 452 199" fill="none" stroke="#555"/>
+  <g class="code" font-size="22">
+    <text x="39" y="72">0: iload_0</text>
+    <text x="39" y="108">1: iload_1</text>
+    <text x="39" y="144">2: iadd</text>
+    <text x="39" y="180">3: ireturn</text>
+  </g>
+  <g class="playback">
+    <g id="ready" opacity="1" class="timed" style="--sequence: ready-stage; --transition: steps(1, end);">
+      <use href="#walls"/>
+      <text x="333" y="149" text-anchor="middle" fill="#555" font-size="18">비어 있음</text>
+      <text x="12" y="226" font-size="17">첫 명령을 읽기 전. 지역 변수에는 2와 3이 있다.</text>
+    </g>
+    <g id="load-first" opacity="0" class="timed" style="--sequence: first-load; --transition: steps(1, end);">
+      <use href="#walls"/>
+      <text x="12" y="226" font-size="17">0번 지역 변수에서 2를 읽어 스택에 올린다.</text>
+    </g>
+    <g id="load-second" opacity="0" class="timed" style="--sequence: second-load; --transition: steps(1, end);">
+      <use href="#walls"/>
+      <text x="12" y="226" font-size="17">1번 지역 변수에서 3을 읽어 2 위에 올린다.</text>
+    </g>
+    <g id="add" opacity="0" class="timed" style="--sequence: sum-stage; --transition: steps(1, end);">
+      <use href="#walls"/>
+      <text x="12" y="226" font-size="17">스택에서 두 값을 꺼내 더하고 5를 올린다.</text>
+    </g>
+    <g id="return" opacity="0" class="timed" style="--sequence: return-stage; --transition: steps(1, end);">
+      <text x="333" y="85" text-anchor="middle" fill="#555" font-size="16">호출자에게 반환</text>
+      <text x="12" y="226" font-size="17">5를 반환하면 이번 add 호출의 프레임이 끝난다.</text>
+    </g>
+  </g>
+  <g class="playback pen" aria-hidden="true">
+    <path d="M10 66 q9 -2 19 -1 m-6 -5 7 5 -7 5" stroke-width="2" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" class="timed" style="--sequence: first-pointer;"/>
+    <path d="M10 102 q9 -2 19 -1 m-6 -5 7 5 -7 5" stroke-width="2" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" class="timed" style="--sequence: second-pointer;"/>
+    <path d="M10 138 q9 -2 19 -1 m-6 -5 7 5 -7 5" stroke-width="2" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" class="timed" style="--sequence: sum-pointer;"/>
+    <path d="M10 174 q9 -2 19 -1 m-6 -5 7 5 -7 5" stroke-width="2" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" class="timed" style="--sequence: return-pointer;"/>
+    <!-- One continuous pen stroke for each handwritten numeral. -->
+    <path d="M321 143 C324 132 342 130 343 139 C345 146 329 154 319 163 Q332 161 345 162"
+          stroke-width="2.8" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" class="timed" style="--sequence: draw-two;"/>
+    <path d="M321 96 C328 90 341 90 343 96 C344 102 337 106 330 108 C340 104 347 110 343 117 C339 125 325 123 320 119"
+          stroke-width="2.8" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" class="timed" style="--sequence: draw-three;"/>
+    <path d="M344 132 Q336 132 326 133 L322 147 C327 143 337 141 342 147 C350 157 333 170 321 161"
+          stroke-width="2.8" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" class="timed" style="--sequence: draw-sum;"/>
+    <path d="M345 104 Q337 104 326 105 L321 121 C329 116 340 115 344 122 C351 134 332 148 319 137"
+          stroke-width="2.9" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" class="timed" style="--sequence: draw-return;"/>
+  </g>
+  <g class="timed playback code" font-size="15" fill="#444" opacity="0" aria-hidden="true" style="--sequence: show-results;">
+    <text x="182" y="72">[2]</text>
+    <text x="182" y="108">[2, 3]</text>
+    <text x="182" y="144">[5]</text>
+    <text x="182" y="180">→ 5</text>
+  </g>
+  <g class="trace" font-size="19">
+    <g class="code">
+      <text x="232" y="72">[2]</text>
+      <text x="232" y="108">[2, 3]</text>
+      <text x="232" y="144">[5]</text>
+    </g>
+    <text x="232" y="180">5를 호출자에게 반환</text>
+    <text x="12" y="226" font-size="17">대괄호 안의 오른쪽 끝이 스택의 맨 위다.</text>
+  </g>
+</svg>
