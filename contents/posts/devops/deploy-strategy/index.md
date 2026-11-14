@@ -2,7 +2,7 @@
 title: "배포 중 들어온 주문은 어느 버전이 받을까"
 description: "주문 API를 예로 들어 롤링 배포와 블루그린 배포에서 새 요청의 목적지가 바뀌는 시점을 비교한다."
 date: 2022-11-18
-update: 2026-11-11
+update: 2026-11-14
 tags:
   - 배포
 ---
@@ -23,9 +23,11 @@ spec:
       maxUnavailable: 0
 ```
 
-원하는 복제본은 3개다. 컨트롤러는 새 Pod를 하나 더 띄울 여유가 있다. 새 Pod가 준비되어 가용 복제본 수를 채우면 기존 Pod 하나를 줄일 수 있다. 이 과정을 반복하며 버전을 교체한다. [Kubernetes의 RollingUpdate 설정](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-update-deployment)
+유지할 Pod 수는 3개다. `maxSurge: 1`이므로 교체를 시작할 때 새 Pod 하나를 추가로 띄울 수 있다. 새 Pod가 준비되어 가용 복제본 수를 채우면 기존 Pod 하나를 줄일 수 있다. 이 과정을 반복하며 버전을 교체한다. [Kubernetes의 RollingUpdate 설정](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-update-deployment)
 
-전환 중에는 같은 Service가 준비된 구버전과 신버전 Pod 모두에 요청을 보낼 수 있다. 첫 주문은 구버전이, 바로 뒤의 주문은 신버전이 받을 수 있다는 뜻이다. 새 버전이 DB에 새로운 주문 상태를 기록한다면 구버전도 그 상태를 읽을 수 있어야 한다. Pod 수를 유지하는 설정은 이 호환성까지 검사해 주지 않는다.
+전환 중에는 같은 Service가 준비된 구버전과 신버전 Pod 모두에 요청을 보낼 수 있다. 첫 주문은 구버전이, 바로 뒤의 주문은 신버전이 받을 수 있다는 뜻이다.
+
+새 버전이 DB에 새로운 주문 상태를 기록한다면 구버전도 그 상태를 읽을 수 있어야 한다. Pod 수를 유지하는 설정은 이 호환성까지 검사해 주지 않는다.
 
 ## 블루그린 배포에서는 새 요청의 목적지를 바꾼다
 

@@ -1,8 +1,8 @@
 ---
-title: "같은 JAR인데 JVM은 왜 다른 클래스라고 할까?"
+title: "같은 JAR의 같은 클래스끼리 형변환이 실패한 이유"
 description: "plug.Entry를 plug.Entry로 바꿀 수 없다는 예외가 나왔다. JAR과 로더를 하나씩 바꿔 보며 JVM이 호출할 메서드를 찾는 기준과 플러그인이 언로드되는 조건을 확인했다."
 date: 2026-11-12
-update: 2026-11-13
+update: 2026-11-14
 tags:
   - JVM
   - 클래스 로더
@@ -12,7 +12,7 @@ tags:
 
 `Cannot cast plug.Entry to plug.Entry`. 예외 메시지의 앞뒤를 다시 읽어도 이름이 똑같다. 실험에 쓴 JAR도 하나뿐이었다. 달랐던 건 그 파일을 읽은 클래스 로더였다.
 
-클래스 이름만 믿으면 놓치는 게 하나 더 있다. `Entry.class`를 제대로 찾아도 호출자가 기대한 메서드가 없으면 호출은 실패한다. 그래서 같은 `Caller.class`를 그대로 두고 실행할 때 읽는 JAR과 로더를 하나씩 바꿔 봤다.
+`Entry.class`를 제대로 찾아도 메서드 호출은 실패할 수 있다. 호출하는 쪽의 클래스 파일에 적힌 이름과 타입이 배포한 메서드와 일치해야 한다. 그래서 같은 `Caller.class`를 그대로 두고 실행할 때 읽는 JAR과 로더를 하나씩 바꿔 봤다.
 
 ## 소스에서 첫 호출까지
 
@@ -22,13 +22,15 @@ tags:
 
 그 클래스의 `static` 필드 초기화식이나 `static` 블록을 실행하는 것은 **초기화**다. `new`로 인스턴스를 만들거나, 상수 변수가 아닌 `static` 필드를 읽거나, `static` 메서드를 호출할 때 초기화가 필요하다. [JVM 명세의 연결](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-5.html#jvms-5.4) · [클래스 초기화가 필요한 시점](https://docs.oracle.com/javase/specs/jls/se25/html/jls-12.html#jls-12.4.1)
 
-그럼 `Entry.class`를 가져다줄 로더는 어떻게 정해질까. 기본 `ClassLoader.loadClass`는 이미 로드했는지 확인하고 부모에게 먼저 찾기를 맡긴다. 부모도 못 찾았을 때 자기 `findClass` 차례가 온다. 예제에서 애플리케이션 로더의 부모를 출력하니 `platform`이 나왔다. `String.class.getClassLoader()`를 찍은 값은 `null`이었다. API가 부트스트랩 로더를 이렇게 표시한다. 이름 있는 모듈의 경우에는 그 모듈을 맡은 로더도 탐색에 관여한다. [ClassLoader의 기본 위임 규칙](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/ClassLoader.html) · [모듈과 내장 로더의 위임](https://openjdk.org/jeps/261)
+어느 클래스 로더가 `Entry.class`를 읽을까? 기본 `ClassLoader.loadClass`는 이미 로드한 클래스인지 확인한 뒤 부모 로더에 조회를 위임한다. 거기서도 찾지 못하면 현재 로더의 `findClass`를 호출한다.
+
+예제에서 애플리케이션 로더의 부모를 출력하니 `platform`이 나왔다. `String.class.getClassLoader()`를 찍은 값은 `null`이었다. API가 부트스트랩 로더를 이렇게 표시한다. 이름 있는 모듈의 경우에는 그 모듈을 맡은 로더도 탐색에 관여한다. [ClassLoader의 기본 위임 규칙](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/ClassLoader.html) · [모듈과 내장 로더의 위임](https://openjdk.org/jeps/261)
 
 Java 8 자료에는 가운데에 확장(extension) 로더가 나온다. 당시에는 애플리케이션 로더에서 확장 로더를 거쳐 부트스트랩 로더로 올라갔다. JDK 9에서 확장 메커니즘이 사라지고 플랫폼 로더가 들어왔다. 그래서 JDK 25 서버에서 표준 클래스가 어디 있나 찾아볼 때도, 예전 `rt.jar`가 있던 디렉터리를 뒤질 필요가 없다. 클래스와 리소스가 있는 모듈 이미지(`jrt:/`)를 보면 된다. [JDK 런타임 이미지의 변화](https://openjdk.org/jeps/220) · [모듈 시스템 도입](https://openjdk.org/jeps/261)
 
 ## 같은 호출자에 JAR만 바꿔 끼운 결과
 
-`Caller`를 컴파일할 때 쓴 v1에는 `String`을 돌려주는 `plug.Entry.text()`가 있다. `javap -v -c`로 `Caller.class`를 열고 `invokestatic` 옆의 `#21`을 상수 풀에서 찾아봤다. 메서드 이름뿐 아니라 반환 타입까지 박혀 있다. JVM은 이 클래스 파일의 상수 풀로부터 클래스별 런타임 상수 풀을 만든다. 오프셋 17에서 호출할 메서드를 가리키는 `#21`이 심볼릭 참조의 한 예다. [JVM의 런타임 상수 풀](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.5.5)
+`Caller`를 컴파일할 때 쓴 v1에는 `String`을 돌려주는 `plug.Entry.text()`가 있다. `javap -v -c`로 `Caller.class`를 열고 `invokestatic` 옆의 `#21`을 상수 풀에서 찾아봤다. 메서드 이름뿐 아니라 반환 타입도 적혀 있다. JVM은 이 클래스 파일의 상수 풀로부터 클래스별 런타임 상수 풀을 만든다. 오프셋 17에서 호출할 메서드를 가리키는 `#21`이 심볼릭 참조의 한 예다. [JVM의 런타임 상수 풀](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.5.5)
 
 ```text
 #21 = Methodref  #22.#23  // plug/Entry.text:()Ljava/lang/String;
@@ -72,10 +74,10 @@ JAR을 빼지 않고도 `NoClassDefFoundError`를 낼 수 있다. 정적 필드 
 
 마지막으로 플러그인 인스턴스 하나를 만들고 JAR을 닫았다. 메서드도 끝났으니 G1에 수집을 요청했는데 로더에 걸어 둔 약한 참조가 여전히 살아 있었다. 호스트의 정적 레지스트리에 플러그인 로더를 등록해 둔 게 남아 있었다.
 
-레지스트리에서 그 항목까지 빼고 다시 수집을 요청했다. 이번에는 `unloading class plug.Entry`가 찍혔고 약한 참조도 지워졌다. 인스턴스와 파일을 정리한 뒤에도 **그 클래스를 정의한 로더**를 누군가 붙들고 있으면 일반 클래스는 남는다. 로더를 놓은 뒤 실제로 언제 언로드할지는 JVM이 정한다. [클래스 언로딩의 조건](https://docs.oracle.com/javase/specs/jls/se25/html/jls-12.html#jls-12.7)
+레지스트리에서 그 항목까지 빼고 다시 수집을 요청했다. 이번에는 `unloading class plug.Entry`가 찍혔고 약한 참조도 지워졌다. 인스턴스와 파일을 정리한 뒤에도 호스트에 **그 클래스를 정의한 로더**의 참조가 남으면 일반 클래스는 언로딩 대상이 되지 않는다. 로더가 회수 대상이 된 뒤 실제 언로딩 시점은 JVM 구현에 달려 있다. [클래스 언로딩의 조건](https://docs.oracle.com/javase/specs/jls/se25/html/jls-12.html#jls-12.7)
 
 실서비스에서 재배포할 때마다 메타스페이스가 늘면 `jcmd <pid> VM.classloader_stats`로 이전 로더 종류의 개수와 클래스 수를 배포 전후에 비교한다. 같은 부하에서 여러 차례 수집 후에도 오래된 로더가 늘어나는지 `class+unload` 로그와 맞춰 본다. 원인을 확정하려면 안전하게 수집한 힙 덤프에서 오래된 로더까지의 **GC 루트 경로**를 찾는다. 예제에서는 정적 레지스트리가 한 경로이고, 실제 서비스에서는 장수 스레드의 context class loader나 정리하지 않은 콜백도 조사 대상이다. [jcmd 진단 명령](https://docs.oracle.com/en/java/javase/25/docs/specs/man/jcmd.html)
 
 실험은 macOS ARM64의 Temurin 25.0.4.1에서 실행했다. Python 3와 같은 JDK의 `java`, `javac`, `javap`, `jar`, `jcmd`가 있는 macOS·Linux 환경에서 두 파일을 같은 폴더에 두고 `python3 run-loaders.py`를 실행하면 된다. 스크립트는 임시 폴더 안에서 두 JAR을 만들고 순환 초기화용 JVM의 덤프를 얻은 뒤 프로세스를 종료한다. [Java 실험 소스](./evidence/LoaderLab.java) · [재현 스크립트](./evidence/run-loaders.py) · [실행 결과](./evidence/loader-output.txt)
 
-로더가 골라 준 `Entry.text()`까지 찾아왔으니 이제 그 안에 적힌 명령을 실행할 차례다. [피연산자 스택과 JIT 인라이닝](/backend/transfer-performance/02-jvm-execution/)
+호출 대상이 `Entry.text()`로 정해졌다. 이제 그 메서드의 바이트코드를 실행할 때 무슨 일이 일어나는지 볼 차례다. [피연산자 스택과 JIT 인라이닝](/backend/transfer-performance/02-jvm-execution/)

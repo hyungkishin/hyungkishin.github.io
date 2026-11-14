@@ -160,7 +160,7 @@ function renderHub(posts, rule) {
   const featured = posts.find(post => post.slug.endsWith('/02-jvm-execution/'));
   const diagram = featured?.article.preview;
   const preview = diagram ? `<section class="series-preview" aria-label="JVM 실행 그림">
-    ${diagram.html}<a class="preview-link" href="${featured.slug}#${escapeHtml(diagram.id)}">JVM 글에서 이 그림 읽기 ${icon(FiArrowRight)}</a></section>` : '';
+    ${diagram.html}<a class="preview-link" href="${featured.slug}#${escapeHtml(diagram.id)}">피연산자 스택 설명 읽기 ${icon(FiArrowRight)}</a></section>` : '';
   const content = `<main id="main" class="reader series-index"><div class="series-overview"><header class="article-header"><a class="series-position" href="/#series">시리즈 목록</a><h1>${escapeHtml(rule.name)}</h1><p class="series-introduction">${escapeHtml(rule.tagline)}</p><a class="collection-count" href="#series-contents">연재 ${posts.length}편 목차 ${icon(FiArrowRight)}</a></header>
 ${preview}</div><section aria-labelledby="series-contents"><h2 id="series-contents">시리즈 목차</h2><ol class="chapter-list">${posts.map((post, index) => `<li><span class="chapter-number">${index + 1}</span><div><h3><a href="${post.slug}">${escapeHtml(post.title)}</a></h3><p>${escapeHtml(post.excerpt)}</p></div></li>`).join('')}</ol></section></main>`;
   return pageShell({ title: rule.name, description: rule.tagline, slug: rule.indexSlug, content, rule });

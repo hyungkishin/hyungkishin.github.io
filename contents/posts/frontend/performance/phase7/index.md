@@ -2,7 +2,7 @@
 title: "결국 LCP가 아니라 TTFB였다"
 description: "홈을 서버에서 렌더링한 뒤에도 첫 바이트가 늦게 왔다. CloudFront가 HTML을 재사용하지 못하는 조건을 추적했다."
 date: 2025-12-27
-update: 2026-11-11
+update: 2026-11-14
 tags:
   - front-end
   - performance
@@ -30,14 +30,9 @@ tags:
 Cache-Control: private, no-cache, no-store, must-revalidate
 ```
 
-홈, 섹션, 기사 디테일 거의 다 이렇게 나가고 있었다.  
-CF 입장에서는 *"이건 캐시하지 말라"* 는 명시.
+홈, 섹션, 기사 상세 페이지 대부분의 응답에 `no-store`가 붙어 있었다. 이 헤더를 따르면 CloudFront는 받은 HTML을 캐시에 저장하지 않는다.
 
-처음엔 `next.config.mjs` 의 cache header 설정을 잘못 박았나 했다.  
-근데 그 자리는 깨끗했다.
-
-문제는 그게 아니었다.  
-Next 가 *자동으로* 그 헤더를 박고 있었다.
+처음엔 `next.config.mjs`에 캐시 헤더를 잘못 넣었나 했다. 해당 설정은 없었다. Next.js가 응답에 자동으로 붙이는 헤더였다.
 
 왜 그런가 봤더니, 페이지가 다 *dynamic* 으로 잡혀 있었다.
 
@@ -236,10 +231,10 @@ Next 의 `<Link>` 는 viewport 에 들어온 링크를 자동으로 prefetch 한
 <Link href="..." prefetch={false}>...</Link>
 ```
 
-또는 CF behavior 에서 `Next-Router-Prefetch` 헤더를 *origin 에 forward 는 하되 캐시 키에는 포함 안 함* 으로 설정.
+또 다른 방법은 CloudFront에서 `Next-Router-Prefetch` 헤더를 원본 서버에는 전달하되 캐시 키에서는 빼는 것이다.
 
 prefetch 끄면 클릭 직후 응답 시간이 100~200ms 늘어난다.  
-근데 그 비용이 *원하지도 않은 28번의 origin 부하* 보다 작았다.
+이 홈에서는 클릭할 때 조금 더 기다리더라도, 대부분 읽지 않는 기사 28건을 미리 요청하지 않는 쪽을 택했다.
 
 ---
 
@@ -277,18 +272,11 @@ origin 은 압축 안 한 응답을 그대로 내려보낸다.
 3부, 4부에서 LCP 잡으려고 한 작업들 (eager, fetchPriority, srcset, sizes, RSC 전환) 이  
 *다 의미 있었는데 CF 가 안 먹히는 상태에선 효과가 잘 안 보였다*.
 
-CF hit률 5% 면 모든 첫 응답이 origin TTFB 를 그대로 받는다.  
-LCP 100ms 줄여도 TTFB 800ms 면 점수가 안 움직인다.
+캐시 적중률이 5%면 대부분의 요청이 원본 서버의 응답을 기다린다. 첫 바이트를 받기까지 800ms가 걸리니, 이미지 로딩에서 100ms를 줄여도 점수 차이를 보기 어려웠다.
 
 이 phase 정리하고 나서야 LCP 작업의 효과가 진짜로 측정에 잡혔다.
 
-> 클라이언트 최적화는 *origin 에 도달한 다음 게임* 이었다.
->
-> 그 전에 *origin 까지 안 가게 만드는 결정* 이 훨씬 더 무거웠다.
-
-이걸 LCP 보다 먼저 봤어야 했다.  
-실제로는 LCP 잡고 나서야 CF 보게 됐다.  
-순서가 뒤집혔던 자리.
+이미지를 더 일찍 불러오는 방법부터 찾느라, 그 이미지 주소가 담긴 HTML은 얼마나 늦게 왔는지 한참 뒤에 봤다. 이걸 LCP보다 먼저 봤어야 했다.
 
 ---
 

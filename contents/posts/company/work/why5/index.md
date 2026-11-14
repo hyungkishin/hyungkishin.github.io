@@ -2,7 +2,7 @@
 title: "첫 호출 지연과 반복 연결 실패를 구분한 과정"
 description: "S3는 첫 호출만 느렸고 외부 OCR 연결은 여러 번 호출해도 끊겼다. 요청별 로그에서 두 증상을 구분했다."
 date: 2026-05-02
-update: 2026-11-13
+update: 2026-11-14
 tags:
 - JVM
 - ColdStart
@@ -184,12 +184,12 @@ OCR API는 반복 호출에서도 약 130ms 만에 연결이 리셋(RST)됐다. 
 
 이 사건을 파는 동안 두 가지 흔한 오해도 같이 정리됐다.
 
-하나, "K8s probe가 있으면 되는 것 아닌가?" 절반만 맞다. readiness probe는 "트래픽을 받아도 되는가"를 묻는 장치다. probe를 통과한 순간에도 JIT은 cold고 connection pool은 비어 있다. probe와 rolling update는 장애 회피용이고, 첫 요청의 비용은 별도의 warmup이 줄인다.
+하나, "K8s probe가 있으면 되는 것 아닌가?" readiness probe를 통과하면 Pod로 트래픽을 보낼 수 있다. 그래도 JIT 컴파일이 덜 됐거나 커넥션 풀이 비어 있을 수 있다. 롤링 업데이트 중 준비되지 않은 Pod를 피하는 일과 첫 요청을 빠르게 처리하는 일은 따로 봐야 한다.
 
 둘, 로컬 IDEA에서 잰 숫자는 운영 신호가 아니다. "Run with fast startup" 옵션은 `-XX:TieredStopAtLevel=1`로 C1까지만 컴파일하고, 옵션이 없어도 디버거 attach 자체가 JIT을 제약한다. warm 성능이 2~5배 느리게 측정된다. 성능을 잴 거면 빌드된 jar로 재야 한다.
 
 ## 마치며
 
-이 사건에서 틀린 건 지식이 아니었다. cold start에 대해 모은 자료는 정확했고, JIT 단계도 TLS handshake도 IRSA 흐름도 다 맞는 내용이었다. 틀린 건 순서였다. 진단보다 이름이 먼저 나왔고, 이름이 처방을 자동으로 결정해버렸다. 아는 게 많을수록 그럴듯한 이름이 빨리 나오고, 그래서 더 빨리 틀릴 수 있다.
+S3의 첫 호출이 느린 이유를 찾으면서 JIT 컴파일, TLS 핸드셰이크, IRSA까지 살펴봤다. 그러고는 OCR에서도 시간을 재 보기도 전에 같은 처방부터 썼다. 두 번째에도 똑같이 끊기는지만 봤어도 워밍업으로 고칠 문제가 아니라는 걸 알 수 있었다.
 
 남은 숙제도 있다. GraalVM Native Image는 startup 50ms가 매력적이지만 PGO 없는 peak 처리량 하락과 reflection 설정 부담 때문에 평가 전이고, AppCDS는 startup 5~10% 단축 여지가 있다. OCR의 ServiceEntry 등록은 인프라 팀 일정에 물려 있고, OkHttp의 connect/read timeout 명시도 대기 중이다.

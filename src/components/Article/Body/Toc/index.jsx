@@ -26,7 +26,7 @@ const Contents = styled.nav`
   a:hover, a:focus-visible { color: ${props => props.theme.colors.accent}; text-decoration: underline; }
   li[data-depth="3"] { padding-left: 12px; }
 
-  @media (min-width: 1340px) {
+  @media (min-width: 1200px) {
     position: absolute;
     inset: 0 auto 0 calc(100% + 38px);
     width: 194px;
@@ -40,7 +40,7 @@ const Toc = ({ items }) => {
   useEffect(() => {
     const details = disclosure.current
     if (!details) return
-    const desktop = window.matchMedia("(min-width: 1340px)")
+    const desktop = window.matchMedia("(min-width: 1200px)")
     const sync = () => { details.open = desktop.matches }
     sync()
     desktop.addEventListener("change", sync)

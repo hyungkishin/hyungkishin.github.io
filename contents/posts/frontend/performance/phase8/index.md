@@ -2,7 +2,7 @@
 title: "CMS가 내려준 HTML을 그대로 그리면 LCP와 CLS가 함께 무너진다"
 description: "기사 첫 사진을 나머지 사진처럼 늦게 불러오면 첫 화면도 늦어진다. 기자가 작성한 HTML을 읽을 때 첫 사진에만 다른 로딩 규칙을 적용했다."
 date: 2025-12-28
-update: 2026-11-11
+update: 2026-11-14
 tags:
   - front-end
   - performance
@@ -247,7 +247,7 @@ export function calculateImageConfig(originalWidth: number | null, policy: Polic
 
 원본 크기, 기사 템플릿, 모바일 분기를 같이 봐야 했다.
 
-> **포기한 것**: 모든 케이스를 하나의 규칙으로 커버하려는 시도. 템플릿마다 예외가 있었고 원본 크기 제약도 있었다. 정책 파일을 만들어 케이스를 명시적으로 나누는 쪽으로 방향을 틀었다.
+> 원본 이미지 크기도 다르고 템플릿마다 본문 폭도 달랐다. 정책 파일에 템플릿별로 사용할 크기를 따로 적었다.
 
 ---
 

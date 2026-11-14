@@ -2,7 +2,7 @@
 title: "G1 GC는 언제 애플리케이션을 멈추나"
 description: "GC 로그에 2.899ms가 찍혔다. 그중 애플리케이션이 멈춘 시간은 얼마일까. 세대 가설에서 출발해 G1 로그를 직접 더해 보고 힙 크기와 객체를 보관하는 기간을 바꿔 봤다."
 date: 2026-11-12
-update: 2026-11-13
+update: 2026-11-14
 tags:
   - JVM
   - G1
@@ -10,21 +10,23 @@ tags:
   - 성능 측정
 ---
 
-## 세대별 수집이 기대하는 세 가지 분포
+## 세대별 GC에서 사용하는 세 가지 가설
 
-4 KiB짜리 배열을 계속 만들되 최근 32개만 남겨 놓으면 G1은 새 배열이 몰린 곳을 비워서 꽤 많은 자리를 되찾는다. 같은 코드에서 최근 8,192개를 붙들어 두면 어떨까. 같은 수의 배열을 만들어도 수집할 때 챙겨서 옮겨야 할 배열이 많아진다. 뒤에서 이 두 조건으로 로그를 찍어 봤다.
+4 KiB짜리 배열을 계속 만들되 최근 32개만 남기면 Young GC 때 복사할 배열이 적다. 같은 코드에서 최근 8,192개를 보관하면 어떨까? 할당한 배열 수는 같아도 수집 시점까지 남아서 복사해야 할 배열이 늘어난다. 뒤에서 이 두 조건으로 로그를 찍어 봤다.
 
-세대별 수집이 젊은 공간부터 자주 비우는 데에는 세 가지 기대가 깔려 있다. 객체가 얼마나 일찍 죽는지, 오래 산 객체는 그다음에도 살아 있는지, 오래된 객체에서 젊은 객체로 건너가는 참조가 얼마나 잦은지다.
+세대별 GC는 왜 젊은 객체부터 자주 수집할까? 객체가 대체로 일찍 회수 대상이 된다는 관찰에서 출발한다. 이미 여러 번의 수집을 거친 객체의 수명, 서로 다른 세대에 놓인 객체 사이의 참조까지 나누어 보면 세 가지 가설이 나온다.
 
-| 가설 | 무엇을 기대하나 | 수집 방식에 미치는 영향 |
+| 가설 | 객체 수명과 참조에서 나타나는 경향 | 수집 방식에 미치는 영향 |
 | --- | --- | --- |
 | 약한 세대 가설 | 새로 만든 객체 중 많은 수가 일찍 죽는다. | 젊은 세대를 자주 회수하면 살아서 복사해야 할 양이 작다. |
 | 강한 세대 가설 | 오래 살아남은 객체일수록 다음 구간도 살아남을 가능성이 높다. | 여러 차례 수집을 견딘 객체를 오래된 세대로 옮겨 반복 복사를 줄인다. |
 | 세대 간 참조 가설 | 세대를 가로지르는 참조가 같은 세대 안의 참조보다 적은 편이다. | 오래된 쪽에서 젊은 쪽을 가리킬 가능성이 있는 위치를 기록하면, 젊은 세대만 수집할 때 검색 범위가 줄어든다. |
 
-오랫동안 키운 캐시를 한꺼번에 비운다고 생각해 보자. 꽤 나이 든 객체들이 같은 순간에 우르르 회수 대상이 된다. 오래 살아남았으니 앞으로도 오래 살 거라는 두 번째 가설이 여기서는 빗나간다. 실제 프로그램에서 객체의 수명을 잰 연구에서도 강한 세대 가설을 따르는 분포와 벗어나는 분포가 모두 나왔다. [객체 수명 분포를 측정한 연구](https://web.cs.umass.edu/publication/docs/1998/UM-CS-1998-081.pdf) · [세대별 수집과 기억 집합의 초기 실측](https://prl.khoury.northeastern.edu/img/u-sde-1984.pdf)
+오랫동안 키운 캐시를 한꺼번에 비운다고 생각해 보자. 캐시에만 참조가 남아 있던 객체라면 오래 보관한 객체도 이때 함께 회수 대상이 된다. 오래 살아남았으니 앞으로도 오래 살 거라는 두 번째 가설이 여기서는 빗나간다. 실제 프로그램에서 객체의 수명을 잰 연구에서도 강한 세대 가설을 따르는 분포와 벗어나는 분포가 모두 나왔다. [객체 수명 분포를 측정한 연구](https://web.cs.umass.edu/publication/docs/1998/UM-CS-1998-081.pdf) · [세대별 수집과 기억 집합의 초기 실측](https://prl.khoury.northeastern.edu/img/u-sde-1984.pdf)
 
-[앞 편의 System.arraycopy 실험](/backend/transfer-performance/system-arraycopy/)처럼 오래된 참조 배열의 한 칸을 새 객체로 바꿨다고 하자. 젊은 세대만 뒤진다면 그 객체를 붙드는 화살표는 어디서 찾을까. G1은 쓸 때 단서를 남긴다. **쓰기 장벽**이 참조를 저장한 필드 주변의 메모리 구간인 **카드**를 기록한다. 나중에 수집할 때는 기억 집합(remembered set)으로 바깥에서 들어오는 참조를 찾는다. 덕분에 오래된 쪽을 죄다 훑을 필요가 줄지만, 오래된 배열을 자주 고치면 장벽과 카드 처리 비용도 늘 수 있다. [G1의 기억 집합](https://docs.oracle.com/en/java/javase/25/gctuning/garbage-first-g1-garbage-collector1.html) · [OpenJDK의 카드 기록 경로](https://github.com/openjdk/jdk25u/blob/7b65d74bcbd7c3a0b4c1f5c5bd85e64aa2e51b4a/src/hotspot/share/gc/g1/g1BarrierSet.inline.hpp#L76-L82)
+[앞 편의 System.arraycopy 실험](/backend/transfer-performance/system-arraycopy/)처럼 오래된 참조 배열의 한 칸을 새 객체로 바꿨다고 하자. 젊은 세대만 검사하면 그 배열에서 새 객체를 가리키는 참조를 놓칠 수 있다.
+
+G1에서는 참조를 저장할 때 **쓰기 장벽**을 통해 변경된 메모리 구간인 **카드**를 기록한다. 나중에 수집할 때는 기억 집합(remembered set)으로 바깥에서 들어오는 참조를 찾는다. 덕분에 오래된 세대 전체를 검사할 필요는 줄지만, 오래된 배열을 자주 고치면 장벽과 카드 처리 비용도 늘 수 있다. [G1의 기억 집합](https://docs.oracle.com/en/java/javase/25/gctuning/garbage-first-g1-garbage-collector1.html) · [OpenJDK의 카드 기록 경로](https://github.com/openjdk/jdk25u/blob/7b65d74bcbd7c3a0b4c1f5c5bd85e64aa2e51b4a/src/hotspot/share/gc/g1/g1BarrierSet.inline.hpp#L76-L82)
 
 ## 빈 공간을 모으는 비용과 멈추는 시간
 
@@ -40,7 +42,7 @@ G1은 힙을 일정한 크기의 리전으로 나눈다. Young GC에서는 애�
 
 오래된 리전 중 어디부터 비울지 고르려면 살아 있는 객체가 얼마나 남았는지 알아야 한다. 여기서 [앞 글의 도달 가능성](/backend/transfer-performance/jvm-memory/)이 다시 나온다. G1은 `Concurrent Start`라는 Young 정지에서 마킹을 준비한다. 애플리케이션이 다시 실행되는 동안 참조를 따라가며 살아 있는 객체를 표시한다. **Remark** 때 다시 멈춰 남은 표시를 끝낸 뒤 기억 집합을 재구성하고 **Cleanup** 정지에서 다음 회수를 준비한다. 이 과정에서 세는 것은 다음에 옮겨야 할 객체다. 실제로 객체를 옮기는 일은 대피 단계에서 한다. [OpenJDK의 마킹 주기 실행 순서](https://github.com/openjdk/jdk25u/blob/7b65d74bcbd7c3a0b4c1f5c5bd85e64aa2e51b4a/src/hotspot/share/gc/g1/g1ConcurrentMarkThread.cpp#L271-L310) · [Remark에서 마무리하는 작업](https://github.com/openjdk/jdk25u/blob/7b65d74bcbd7c3a0b4c1f5c5bd85e64aa2e51b4a/src/hotspot/share/gc/g1/g1ConcurrentMark.cpp#L1384-L1423)
 
-회수할 오래된 리전이 남으면 **Mixed GC**에서 젊은 리전과 선택한 오래된 리전을 함께 비운다. 한 번에 넣을 오래된 리전의 수에는 후보 수와 예상 정지 시간 예산이 영향을 준다. 로그에 `Pause Young (Mixed)`가 찍혔다면 젊은 세대만 비웠다고 읽을 수 없는 이유다. [Mixed 진행 여부](https://github.com/openjdk/jdk25u/blob/7b65d74bcbd7c3a0b4c1f5c5bd85e64aa2e51b4a/src/hotspot/share/gc/g1/g1Policy.cpp#L1426-L1430) · [수집할 오래된 리전을 고르는 코드](https://github.com/openjdk/jdk25u/blob/7b65d74bcbd7c3a0b4c1f5c5bd85e64aa2e51b4a/src/hotspot/share/gc/g1/g1CollectionSet.cpp#L343-L396)
+회수할 오래된 리전이 남으면 **Mixed GC**에서 젊은 리전과 선택한 오래된 리전을 함께 비운다. 한 번에 몇 개를 비울지는 후보 리전 수와 각 리전을 정지 시간 목표 안에 처리할 수 있는지에 달렸다. 로그에 `Pause Young (Mixed)`가 찍혔다면 젊은 세대만 비웠다고 읽을 수 없는 이유다. [Mixed 진행 여부](https://github.com/openjdk/jdk25u/blob/7b65d74bcbd7c3a0b4c1f5c5bd85e64aa2e51b4a/src/hotspot/share/gc/g1/g1Policy.cpp#L1426-L1430) · [수집할 오래된 리전을 고르는 코드](https://github.com/openjdk/jdk25u/blob/7b65d74bcbd7c3a0b4c1f5c5bd85e64aa2e51b4a/src/hotspot/share/gc/g1/g1CollectionSet.cpp#L343-L396)
 
 ## 26.924ms부터 32.740ms까지의 G1 로그
 
@@ -78,9 +80,11 @@ java -version
 python3 run.py results
 ```
 
-## 수집기가 정지 밖으로 옮겨 온 일
+## 어떤 GC 작업을 애플리케이션과 동시에 처리할까?
 
-G1 로그에서 파란 막대로 남은 일 중 하나가 객체를 옮기는 일이다. JDK 9는 서버 구성에서 G1을 기본으로 골랐다. 일부 추적을 애플리케이션과 동시에 하고 한 번에 비울 리전을 제한해 긴 정지를 줄이는 선택이었다. ZGC에서는 객체를 옮기는 동안에도 애플리케이션이 계속 실행된다. 객체에 접근할 때 장벽을 거쳐 이동 중에도 올바른 참조를 찾기 때문이다. JDK 11에서 실험 기능으로 들어온 ZGC는 JDK 15에서 정식 기능이 됐다. JDK 21의 Generational ZGC는 젊은 객체를 더 자주 수집하도록 세대도 나눴다. [JDK 9의 G1 기본화](https://openjdk.org/jeps/248) · [ZGC의 동시 이동 설계](https://openjdk.org/jeps/333) · [JDK 15 정식 기능 전환](https://openjdk.org/jeps/377) · [JDK 21의 세대별 ZGC](https://openjdk.org/jeps/439)
+G1 로그에서 파란 막대로 남은 일 중 하나가 객체를 옮기는 일이다. JDK 9부터 서버 구성의 기본 수집기는 G1이다. 일부 추적을 애플리케이션과 동시에 하고 한 번에 비울 리전을 제한해 긴 정지를 줄이는 선택이었다.
+
+ZGC에서는 객체를 옮기는 동안에도 애플리케이션이 계속 실행된다. 객체에 접근할 때 장벽을 거쳐 이동 중에도 올바른 참조를 찾기 때문이다. JDK 11에서 실험 기능으로 들어온 ZGC는 JDK 15에서 정식 기능이 됐다. JDK 21의 Generational ZGC는 젊은 객체를 더 자주 수집하도록 세대도 나눴다. [JDK 9의 G1 기본화](https://openjdk.org/jeps/248) · [ZGC의 동시 이동 설계](https://openjdk.org/jeps/333) · [JDK 15 정식 기능 전환](https://openjdk.org/jeps/377) · [JDK 21의 세대별 ZGC](https://openjdk.org/jeps/439)
 
 ## 큰 배열 세 개가 리전 여섯 개를 차지한 이유
 
@@ -98,8 +102,8 @@ G1은 큰 객체(humongous object)를 오래된 세대의 **연속된 리전**�
 
 서비스에서 같은 현상을 만나면 할당률과 `gc+age=trace`의 연령별 생존 바이트, 승격·Old 점유량 변화, 마킹을 마친 뒤의 생존 집합을 같은 시간축에 둔다. 정지 목표를 계속 넘기는 구간에는 대피 실패와 Full GC가 있었는지를 함께 본다. 재배포 때마다 클래스 메타데이터가 늘면 먼저 로더가 해제되는지도 확인한다. [정의 로더를 붙들었다가 놓는 실험](/backend/transfer-performance/class-loading/)
 
-마지막 실행에서 Full GC를 늘린 건 보관 개수였다. 서비스에서도 쓸 일이 끝난 객체를 계속 붙들고 있다면 먼저 그 참조를 놓을 수 있는 곳을 찾겠다. 계속 보관해야 하는 데이터라면 운영의 할당률과 생존 분포를 가져와 같은 CPU·메모리와 요청 부하로 G1과 다른 수집기를 돌려 봐야 한다.
+마지막 실행에서 Full GC를 늘린 건 보관 개수였다. 서비스에서도 사용이 끝난 객체가 계속 남는다면 참조를 보관하는 곳과 지울 수 있는 시점부터 확인하겠다. 계속 보관해야 하는 데이터라면 운영의 할당률과 생존 분포를 가져와 같은 CPU·메모리와 요청 부하로 G1과 다른 수집기를 돌려 봐야 한다.
 
-짧은 꼬리 지연이 필요하면 ZGC의 동시 작업에 얼마나 더 CPU와 메모리를 쓸 수 있는지, 처리량이 우선이면 Parallel GC의 정지를 얼마나 허용할 수 있는지가 달라진다. 그 비교에서 볼 값은 요청 p99·p99.9, 처리량과 오류율이다. GC 정지 분포와 GC CPU는 요청에서 보인 차이를 설명할 때 꺼낸다. 여기서 실제로 비교한 조건은 G1의 힙 크기와 객체 보관 개수까지다. [JDK 25 수집기 선택 기준](https://docs.oracle.com/en/java/javase/25/gctuning/available-collectors.html)
+느린 요청의 응답 시간까지 줄여야 한다면 ZGC의 동시 작업에 얼마나 더 CPU와 메모리를 쓸 수 있는지, 처리량이 우선이면 Parallel GC의 정지를 얼마나 허용할 수 있는지가 달라진다. 그 비교에서 볼 값은 요청 p99·p99.9, 처리량과 오류율이다. GC 정지 분포와 GC CPU는 요청에서 보인 차이를 설명할 때 꺼낸다. 여기서 실제로 비교한 조건은 G1의 힙 크기와 객체 보관 개수까지다. [JDK 25 수집기 선택 기준](https://docs.oracle.com/en/java/javase/25/gctuning/available-collectors.html)
 
 서버 응답이 늦었다면 같은 시간대의 GC 로그에서 파란 막대에 해당하는 구간을 먼저 찾겠다. 그런데 요청이 느려진 시간에 JVM이 멀쩡히 돌고 있었다면 어디를 봐야 할까. [TCP 편에서는 소켓에 쓴 바이트가 리눅스 커널을 거쳐 상대에게 도착할 때까지 따라갔다.](/backend/transfer-performance/tcp-linux/)

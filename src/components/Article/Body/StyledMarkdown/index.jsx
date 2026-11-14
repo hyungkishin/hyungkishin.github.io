@@ -7,7 +7,7 @@ const StyledMarkdown = styled.div`
     line-height: 1.85;
     word-break: keep-all;
     overflow-wrap: anywhere;
-    letter-spacing: -0.012em;
+    letter-spacing: -.008em;
   }
 
   & h1:first-child,
@@ -28,7 +28,7 @@ const StyledMarkdown = styled.div`
     margin-bottom: 16px;
   }
 
-  & > p { margin-bottom: 1.25em; }
+  & > p { max-width: 38em; margin-bottom: 1.15em; text-wrap: pretty; }
   & > p:first-child, & strong { color: ${props => props.theme.colors.text}; }
   & :is(h1, h2, h3, h4) { scroll-margin-top: 90px; }
 
@@ -171,32 +171,17 @@ const StyledMarkdown = styled.div`
   & .attempt {
     counter-increment: attempt;
     position: relative;
-    padding: 1.25rem 1.5rem 1.25rem 4.6rem;
-    border: 1px solid ${props => props.theme.colors.border};
-    border-radius: 14px;
-    background: ${props => props.theme.colors.background};
-    transition: all 0.18s;
+    padding: 1.1rem 0 .5rem 2.65rem;
+    border-top: 1px solid ${props => props.theme.colors.border};
   }
   & .attempt::before {
     content: counter(attempt, decimal-leading-zero);
     position: absolute;
-    left: 1.2rem;
-    top: 1.25rem;
-    width: 2.5rem;
-    height: 2.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-    background: ${props => props.theme.colors.accent};
-    color: #fff;
-    font-size: 0.85rem;
-    font-weight: 800;
-    letter-spacing: 0.04em;
-  }
-  & .attempt:hover {
-    border-color: ${props => props.theme.colors.accent};
-    box-shadow: 0 6px 16px rgba(76, 110, 245, 0.1);
+    top: 1.1rem;
+    left: 0;
+    color: ${props => props.theme.colors.accent};
+    font-variant-numeric: tabular-nums;
+    font-size: .9rem;
   }
   & .attempt > *:first-child { margin-top: 0; }
   & .attempt > *:last-child { margin-bottom: 0; }
@@ -279,6 +264,8 @@ const StyledMarkdown = styled.div`
     margin: 0;
   }
 
+  & li p + p { margin-top: .75em; }
+
   & li > *:first-child {
     margin-top: 0;
   }
@@ -312,16 +299,13 @@ const StyledMarkdown = styled.div`
   & .gatsby-resp-image-wrapper {
     margin-left: 0 !important;
     margin-right: 0 !important;
-    border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
   }
 
   & img {
     display: block;
     width: 100%;
     height: auto;
-    border-radius: 8px;
     cursor: zoom-in;
   }
 

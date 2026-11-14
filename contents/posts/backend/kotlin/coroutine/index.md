@@ -1,22 +1,18 @@
 ---
 title: "코틀린 코루틴이 멈췄다가 다시 시작하는 과정"
-description: "보통 함수는 호출한 자리로 돌아온다. 코루틴이 중간에 멈췄다가 다음 줄에서 이어가려면 무엇을 기억해야 할까?"
+description: "보통 함수는 호출한 자리로 돌아온다. 코루틴이 중간에 멈췄다가 다음 줄에서 이어가려면 실행 위치와 지역 변수는 어디에 저장될까?"
 date: 2024-02-12
-update: 2026-11-11
+update: 2026-11-14
 tags:
   - kotlin
 ---
 
-일반 함수가 다른 함수를 부르면 호출한 쪽은 결과가 돌아온 자리에서 다음 줄을 실행한다. 코루틴은 중간에 실행을 멈췄다가 나중에 그 지점에서 이어갈 수 있다. 먼저 함수 두 개가 순서대로 실행되는 예를 보자.
+커피를 몇 잔 마셨는지 출력하는 함수를 하나 만들었다. 아래 코드에서 커피보다 먼저 `sleep`을 출력할 방법이 있을까?
 
 ```kotlin
-
 fun main() {
-
     println("wake up")
-
     goToCompany()
-
     println("sleep")
 }
 
@@ -25,102 +21,58 @@ fun goToCompany() {
     val num2 = 2
     println("오늘도 커피 ${num1 + num2} 잔 ...")
 }
-
 ```
 
-코드의 실행 관점을 보면 다음과 같다.
-- wake up
-- goToCompany() 함수 호출 후 오늘도 커피 3 잔 ... 을 출력
-- sleep
+이대로 실행하면 `wake up`, 커피 세 잔, `sleep` 순서다. `main`은 `goToCompany()`가 반환된 뒤에야 마지막 줄을 실행한다.
 
-> 흐름이 매우 훌륭하게 직관적인 것을 볼 수 있다.
+![일반 함수의 실행 순서](img.png)
 
-![너무 당연한게 맞다.](img.png)
+## 같은 스레드에서 두 코루틴 실행하기
 
-그리고 메모리 관점으로 보면 다음과 같다. 
-- main 함수 내에 wake up 출력
-- goToCompany 이라는 함수가 호출
-  - num1, num2 의 지역변수가 초기화된 이후 오늘도 커피 3잔 이 출력
-- main 함수로 돌아와서 sleep 출력
-- goToCompany 이 끝나면 해당 메모리에 접근이 불가 ! 
-
-> 그리고 언젠간 GC 에 의해서 언젠가 메모리도 사라질 것이다.  
-> 루틴에 진입하는 곳이 한군데 이며, 종료되면 해당 루틴의 정보가 초기화 된다.    
-> 그런데 코루틴의 흐름은 다르다.
+`goToCompany()`를 자식 코루틴에서 실행하고, 두 함수에 `yield()`를 한 번씩 넣어 보자. 출력할 때 스레드 이름도 찍는다.
 
 ```kotlin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
 
-fun main(): Unit = runBlocking { // 👉 main 코루틴 생성 ( runBlocking )
-
-    printWithThread("wake up")   // (1️⃣)
- 
-    launch {                     // (2️⃣) 새로운 코루틴 생성
-        goToCompany()
-    }
-
-    yield()                      // (3️⃣) main 코루틴 중단 → 다른 코루틴에게 기회
-    
-    printWithThread("sleep")     // (6️⃣) 재개 후 실행
+fun main(): Unit = runBlocking {
+    printWithThread("wake up")
+    launch { goToCompany() }
+    yield()
+    printWithThread("sleep")
 }
 
 suspend fun goToCompany() {
-    val num1 = 1                 // (4️⃣) 지역변수 초기화
-    val num2 = 2                 
-
-    yield()                      // (5️⃣) 코루틴 중단
-    
+    val num1 = 1
+    val num2 = 2
+    yield()
     printWithThread("오늘도 커피 ${num1 + num2} 잔 ...")
 }
 
 fun printWithThread(message: String) {
-    println("${Thread.currentThread().name} : $message") // (7️⃣) 
+    println("${Thread.currentThread().name} : $message")
 }
-
 ```
 
-> 일반 함수처럼 코드 흐름을 글로 적으면 혼란만 가중된다.  
-> 표로 보는게 제일 이해가 빠르다.
+Kotlin 2.2.21, kotlinx.coroutines 1.10.2, JDK 21에서 실행했을 때는 이렇게 찍혔다.
 
-## 코루틴의 흐름
+```text
+main : wake up
+main : sleep
+main : 오늘도 커피 3 잔 ...
+```
 
-| 시점 | 실행 위치 | 메모리 상태 (코루틴, 변수 등) |
-|------|-----------|------------------------------|
-| (1)  | `wake up` 출력 | `main()` 스택에 문자열 리터럴만 존재 |
-| (2)  | `launch` 코루틴 생성 | `goToCompany()` 코루틴 생성됨 (스케줄링됨), 별도 스택 생김 |
-| (3)  | `yield()` in main |  main 코루틴이 중단(suspend) 되고, CoroutineScheduler가 다른 코루틴(launch)을 실행할 수 있는 기회를 얻음 |
-| (4)  | `goToCompany()` 진입 | `num1 = 1`, `num2 = 2` 지역 변수 생성 및 값 저장 |
-| (5)  | `yield()` in goToCompany | 해당 코루틴이 suspend됨, 지역 변수 상태는 유지됨 |
-| (6)  | `main()` 재개 → `sleep` 출력 | main 코루틴이 재개되며 `"sleep"` 출력 후 종료로 향함 |
-| (7)  | `goToCompany()` 재개 | `"오늘도 커피 3 잔..."` 출력 후 종료 |
-| (끝) | 모든 코루틴 종료 | 스택 해제 및 모든 지역 변수 메모리 해제 대기 |
+커피가 마지막에 나왔다. 세 줄 모두 스레드 이름은 `main`이다. 별도 디스패처를 지정하지 않아 두 코루틴이 같은 `runBlocking` 이벤트 루프에서 실행됐다.
 
-## 메모리 상태
-| 시점  | 코루틴            | 지역 변수 (`num1`, `num2`)    | 상태              |
-|-----| -------------- | ------------------------- | --------------- |
-| (1) | main           | (없음)                         | 실행 중            |
-| (2) | launch 생성됨     | (없음)                         | 대기 중            |
-| (3) | main 중단        | (없음)                         | 일시 정지           |
-| (4) | goToCompany 실행 | `num1 = 1`, `num2 = 2`    | 실행 중            |
-| (5) | goToCompany 중단 | `num1 = 1`, `num2 = 2` 유지 | 상태 저장 (Suspend) |
-| (6) | main 재개        | (없음)                         | 마무리             |
-| (7) | goToCompany 재개 | 기존 상태 복원됨                 | 결과 출력 후 종료      |
+부모가 첫 번째 `yield()`에 도달하면 자식이 실행될 수 있다. 자식은 두 변수를 선언하고 다시 `yield()`를 호출한다. 그사이에 부모가 `sleep`을 출력하고, 자식이 재개되면 커피 잔 수가 찍힌다. `yield()`를 호출해도 다른 코루틴이 실행된다는 보장은 없다. [kotlinx.coroutines의 yield 문서](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/yield.html)
 
+## 두 번째 yield 다음 줄로 어떻게 돌아올까?
 
-> 🧠 코루틴은 일반 함수처럼 메모리가 “한 번에 초기화되고 버려지는” 구조가 아니다.  
-> 대신 중단(suspend) 되었다가 재개(resume) 가능한 스택을 가지며, 메모리도 해당 지점까지의 상태를 "기억하고 유지" 한다.
+일반 함수는 실행 중인 스레드의 호출 스택에 프레임이 있다. 코루틴은 중단되면 스레드를 다른 작업에 쓸 수 있다. 그러면 다시 실행할 줄과 그때 쓸 값은 어디에 남을까?
 
-💡 핵심 요약
-- runBlocking은 메인 쓰레드에서 블로킹되며 CoroutineScope을 제공함
-- launch는 별도 코루틴 생성, 독립적인 메모리(스택 프레임) 가 생김
-- yield()는 현재 코루틴을 중단(suspend) 상태로 만들고 CoroutineScheduler가 다른 코루틴을 실행할 수 있도록 기회를 줌 
-- suspend fun은 중단 가능한 함수이며, 중단 지점 이후 상태를 기억하고 재개 가능 
-- 중단된 지점의 지역 변수 상태는 메모리상에 보존됨 (heap이나 continuation에 저장됨)
+코틀린 컴파일러는 중단 지점이 있는 함수를 여러 단계로 나눈다. 중단 후에도 필요한 지역 변수와 재개할 단계 번호를 `Continuation` 구현 객체에 저장할 수 있다. 재개할 때는 그 번호에 따라 중단 지점 다음 코드를 실행한다. 이 예에서 필요한 건 합계를 출력하는 데 쓸 값이다. 상수까지 각각 별도 필드가 되는지는 컴파일 결과에 따라 다르다. [코틀린 명세의 코루틴 상태 머신](https://kotlinlang.org/spec/asynchronous-programming-with-coroutines.html#coroutine-state-machine)
 
-## 일반 함수와 코루틴의 메모리 관점 차이
-![실행 흐름](img_1.png)
+<span id="article-section-3"></span>
 
-
----
+![일반 함수의 반환과 코루틴의 중단·재개 순서](img_1.png)

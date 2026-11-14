@@ -2,7 +2,7 @@
 title: "5,235건이 사라진 자리, 코드 어느 줄에서 일어났을까요"
 description: "작업 큐가 차면 누가 예외를 받을까? 이벤트 5,235건이 사라진 서비스에서 작업을 제출한 스레드와 실행하는 스레드를 따라갔다."
 date: 2026-05-02
-update: 2026-11-12
+update: 2026-11-14
 tags:
 - Spring
 - ThreadPoolTaskExecutor
@@ -16,7 +16,7 @@ tags:
 
 - `ThreadPoolTaskExecutor`는 큐가 차면 작업을 버립니다. 의도된 동작이에요. `AbortPolicy`가 기본값입니다.
 - `SimpleAsyncTaskExecutor` + `concurrencyLimit`는 큐 자체가 없어요. 대신 caller thread를 막습니다. `ReentrantLock + Condition.await()` 으로요.
-- 제출자가 가상 스레드면 지원되는 대기 지점에서 운반 스레드를 내놓습니다. 플랫폼 스레드를 쓰는 경우에는 풀에서 대기 중인 스레드 수를 함께 봐야 합니다.
+- 작업을 제출한 가상 스레드가 대기 중에 언마운트되면 운반 스레드에서 다른 작업을 실행할 수 있습니다. 플랫폼 스레드를 쓰는 경우에는 풀에서 대기 중인 스레드 수를 함께 봐야 합니다.
 - Little의 법칙에서 평균 동시 작업 수는 평균 처리율 × 평균 체류 시간입니다. 외부 API의 초당 요청 한도는 별도로 지켜야 합니다.
 
 ## 회고에서 안 본 자리가 어디였을까요
@@ -123,7 +123,7 @@ final void reject(Runnable command) {
 | `DiscardPolicy` | 조용히 버림 | 손실 가능 (telemetry 등) |
 | `DiscardOldestPolicy` | 큐 헤드 버리고 새로 넣음 | 최신성이 중요한 큐 |
 
-기본이 `AbortPolicy`라는 건: Spring/JDK는 "거부된 작업의 운명은 호출자 책임" 이라고 말하고 있다.
+기본 정책인 `AbortPolicy`에서는 제출 시점에 예외가 발생한다. 재시도할지, 요청을 실패로 처리할지는 호출하는 쪽에서 정한다.
 
 이벤트 발행에 이걸 그대로 쓰면 **유실 = 호출자 책임**이 된다. 근데 호출자가 어디인지 정확히 짚어야 한다: 거부의 처리 경로가 두 갈래로 갈린다.
 
@@ -555,7 +555,7 @@ DB에 이벤트를 남기는 후속안은 [Outbox 도입을 검토한 회고](/c
 
 1. **5,235건은 어디서 사라졌나요**. `AbortPolicy` 에서 `RejectedExecutionException` 으로, `TaskRejectedException` 으로, `AsyncExecutionInterceptor` 가 그대로 propagate, `AFTER_COMMIT` runner 에서 잡히지 않고 끝났습니다. `AsyncUncaughtExceptionHandler` 는 이 흐름에 개입 안 했어요.
 2. **`concurrencyLimit` 은 어떻게 막나요**. `ReentrantLock + Condition.await()`. Semaphore 아님. 큐도 없음. 한도까지 fire-and-forget, 초과 시 caller blocking.
-3. **누가 기다리나요?** 제출자와 작업 스레드는 다를 수 있습니다. 제출자가 가상 스레드면 지원되는 대기 지점에서 운반 스레드를 내놓을 수 있습니다.
+3. **누가 기다리나요?** 제출자와 작업 스레드는 다를 수 있습니다. 제출한 가상 스레드가 대기 중에 언마운트되는지도 확인합니다.
 4. **50은 어디서 나와야 하나요**. Little's Law (`L = λW`). 목적지마다 평균 체류 시간, 연결 대기, 할당량을 확인해 동시성과 초당 시작 건수를 각각 정합니다.
 5. **분산 환경에서 in-memory throttle 안전할까요**. pod N대면 클러스터 한도는 N × `concurrencyLimit`. 같은 외부 할당량을 공유하면 인스턴스별 예산을 나누거나 공통 제한기를 둡니다.
 6. **왜 Outbox가 답인가요**. `@TransactionalEventListener(AFTER_COMMIT) + @Async` 조합은 DB commit 후 발행이라, 거부되면 정합성이 깨져요. Outbox는 DB 변경과 outbox INSERT를 같은 트랜잭션에 묶어 정합성 경계를 DB로 통일합니다.

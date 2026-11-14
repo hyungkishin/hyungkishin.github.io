@@ -2,7 +2,7 @@
 title: "같은 버그가 두 종류 알림으로 보였습니다"
 description: "두 종류의 인증 알림을 사용자 한 명의 시간순 로그에 놓으니 세션 두 벌이 서로 덮어쓰는 경로가 보였다."
 date: 2026-05-02
-update: 2026-11-13
+update: 2026-11-14
 tags:
 - 장애분석
 - 상태머신
@@ -134,7 +134,7 @@ fromDb.workflowStatus = WorkflowStatus.PRE_POLL_DONE
 fromDb.primaryAuth = WorkflowAuthStatus.PRE_POLL_DONE   // 인증 진행 중이어도 reset
 ```
 
-설문을 다시 제출하면 인증 status까지 통째로 과거로 되돌린다. status가 `PRE_POLL_DONE`으로 돌아간 순간 dedup 가드의 전제가 사라진다. 시스템 입장에서 이 사용자의 두 번째 인증요청은 두 번째가 아니라 첫 번째다.
+설문을 다시 제출하면 인증 상태까지 `PRE_POLL_DONE`으로 돌아간다. 중복 확인 코드에서는 이미 인증을 요청한 기록이 보이지 않으니, 같은 사용자의 두 번째 요청도 그대로 처리한다.
 
 중복 요청 방지 조건이 맞아도 다른 저장 경로에서 상태를 초기화하면 중복 여부를 판정할 근거가 사라진다. 상태 변경 경로를 함께 확인해야 했다.
 

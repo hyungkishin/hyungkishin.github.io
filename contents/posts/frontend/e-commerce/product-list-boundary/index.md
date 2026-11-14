@@ -2,7 +2,7 @@
 title: "상품 목록 리팩터링은 500줄을 줄이는 일이 아니었습니다"
 description: "검색창에 shoes를 입력하자 요청이 다섯 번 나갔다. 입력창과 서버가 서로 다른 시점에 검색어를 읽도록 나눴다."
 date: 2026-07-03
-update: 2026-11-11
+update: 2026-11-14
 tags:
   - front-end
   - e-commerce
@@ -109,7 +109,7 @@ useEffect(() => {
 `signal.aborted` 가드가 남아 있는 이유는 주입 경계 때문이다. `useProducts`는 테스트를 위해 `getProducts`를 주입받고 주입된 함수는 signal을 무시할 수 있다. 실제 요청은 abort가 끊고, 계약을 어기는 구현은 가드가 막는다.
 취소는 취소를 아는 계층이 실제 작업을 하는 계층까지 신호를 전달해야 성립한다. 응답 폐기는 취소가 아니다.
 
-> **포기한 것**: 캐시와 포커스 리페치까지 직접 만드는 선택. stale-while-revalidate를 손으로 짜면 TanStack Query의 열화판이 된다. 목록 화면 하나에서 거기까지 가면 이번 문제보다 도구 설명이 커진다. 서버 상태의 경계를 손으로 먼저 만들고 캐시는 도구를 들일 때 가져온다.
+> 캐시한 목록을 먼저 보여 주고 창에 다시 포커스가 올 때 재조회하는 기능은 직접 만들지 않았다. 이 기능까지 필요해지면 TanStack Query를 도입할 생각이다.
 
 ## 범위 밖 page 보정이 재시도를 깨뜨렸다
 
@@ -130,7 +130,7 @@ useEffect(() => {
 
 ## 같은 의미의 값이 다른 기준으로 들어왔다
 
-URL parser는 방어하고 있었다. 잘못된 category와 sort는 기본값으로, 음수 page는 1로, 숫자가 아닌 가격은 빈 필터로 돌아간다.
+URL을 읽을 때 잘못된 category와 sort는 기본값으로 바꾸고 음수 page는 1로 고쳤다. 숫자가 아닌 가격은 필터에서 뺐다.
 
 ```ts
 export function readProductListSearchParams(

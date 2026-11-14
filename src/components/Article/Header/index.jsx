@@ -5,7 +5,7 @@ import { author } from "../../../../blog-config"
 
 const Wrapper = styled.header`
   margin: clamp(18px, 4vw, 46px) 0 24px;
-  padding-bottom: 22px;
+  padding-bottom: 18px;
   border-bottom: 1px solid ${props => props.theme.colors.border};
 
   > a {
@@ -19,9 +19,10 @@ const Wrapper = styled.header`
   h1 {
     margin: 0 0 16px;
     font-size: clamp(30px, 4vw, 46px);
-    font-weight: 750;
-    line-height: 1.25;
-    letter-spacing: -.05em;
+    font-family: "AppleMyungjo", "Nanum Myeongjo", "Noto Serif CJK KR", "Batang", serif;
+    font-weight: 700;
+    line-height: 1.37;
+    letter-spacing: -.038em;
     word-break: keep-all;
     overflow-wrap: anywhere;
     text-wrap: balance;

@@ -69,7 +69,7 @@ const SERIES_RULES = [
   {
     id: "spring-ai",
     name: "Spring AI로 배달 상담 에이전트 구현하기",
-    tagline: "6단계로 구현하고 검증한 배달 상담 에이전트",
+    tagline: "고객이 “그거 취소해 줘”라고 하면 어떤 주문을 취소해야 할까? 이전 대화에서 주문을 찾고 취소 도구를 호출하기까지의 과정을 기록했다.",
     indexSlug: "/backend/spring/spring-ai/",
     // 파일명이 index.md 가 아니라 intro/spring-ai.md 여서 슬러그가 한 단 더 들어간다.
     pattern: /^\/backend\/spring\/spring-ai\/(intro\/spring-ai|round\d+)\/$/,

@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { graphql, Link } from "gatsby"
-import { FiActivity, FiArrowRight, FiBox, FiChevronRight, FiLayers } from "react-icons/fi"
+import { FiArrowRight } from "react-icons/fi"
 import TransferFlow from "components/TransferFlow"
 import Layout from "components/Layout"
 import SEO from "components/SEO"
@@ -12,9 +12,9 @@ import { title, description, siteUrl } from "../../blog-config"
 
 const batchSize = 10
 const illustratedPosts = [
-  { slug: "/backend/transfer-performance/02-jvm-execution/#diagram-01-stack-machine", label: "JVM의 피연산자 스택", Icon: FiLayers },
-  { slug: "/frontend/javascript/value-identity/#diagram-01-reference-identity", label: "Set의 객체 참조", Icon: FiBox },
-  { slug: "/frontend/e-commerce/measure-before-optimizing/#diagram-01-first-paint", label: "브라우저의 첫 페인트", Icon: FiActivity },
+  { slug: "/backend/transfer-performance/02-jvm-execution/#diagram-01-stack-machine", label: "JVM의 피연산자 스택" },
+  { slug: "/frontend/javascript/value-identity/#diagram-01-reference-identity", label: "Set의 객체 참조" },
+  { slug: "/frontend/e-commerce/measure-before-optimizing/#diagram-01-first-paint", label: "브라우저의 첫 페인트" },
 ]
 
 export default function BlogIndex({ data }) {
@@ -32,25 +32,17 @@ export default function BlogIndex({ data }) {
       {featured && (
         <section className="cover-story" aria-labelledby="cover-title">
           <div className="cover-copy">
-            <p className="cover-kicker">{featured.rule.name}<span>{featured.posts.length}편</span></p>
-            <h1 id="cover-title">송금은 언제 <br /><em>끝난 걸까?</em></h1>
-            <p className="cover-deck">1만 원을 보낸다고 해 보자. 내 화면에는 벌써 ‘접수됨’이 떴는데, 받는 사람 잔액은 그대로다. 이 사이에 무슨 일이 남아 있을까?</p>
+            <p className="cover-kicker">{featured.rule.name} · 첫 편</p>
+            <h1 id="cover-title">{featured.posts[0].frontmatter.title}</h1>
+            <p className="cover-deck">1만 원을 보낸다고 하자. 서버 로그에 찍힌 건 ‘접수됨’까지 걸린 시간이다. 심사와 은행 처리까지 재려면 타이머를 어디서 꺼야 할까?</p>
             <div className="cover-actions">
               <ReadingLink className="cover-link" to={featured.posts[0].fields.slug}>첫 편 읽기 <FiArrowRight aria-hidden="true" /></ReadingLink>
-              <ReadingLink className="cover-contents" to={featured.rule.indexSlug}>시리즈 목차</ReadingLink>
+              <ReadingLink className="cover-contents" to={featured.rule.indexSlug}>전체 {featured.posts.length}편</ReadingLink>
             </div>
           </div>
           <TransferFlow />
         </section>
       )}
-      <nav className="illustration-index" aria-label="그림으로 읽기">
-        <h2>그림으로 읽기</h2>
-        <ul>{illustratedPosts.map(({ slug, label, Icon }) => (
-          <li key={slug}><ReadingLink to={slug}>
-            <Icon aria-hidden="true" /><span>{label}</span><FiChevronRight aria-hidden="true" />
-          </ReadingLink></li>
-        ))}</ul>
-      </nav>
       <div className="journal-index">
         <section id="posts" aria-labelledby="posts-title">
           <div className="section-title">
@@ -75,6 +67,12 @@ export default function BlogIndex({ data }) {
               <strong>{rule.name}</strong><span>{parts.length}편</span>
             </ReadingLink></li>
           ))}</ul>
+          <nav className="illustration-index" aria-labelledby="illustration-title">
+            <h3 id="illustration-title">그림으로 읽기</h3>
+            <ul>{illustratedPosts.map(({ slug, label }) => (
+              <li key={slug}><ReadingLink to={slug}>{label}</ReadingLink></li>
+            ))}</ul>
+          </nav>
           <Link className="shelf-tags" to="/tags/">태그로 찾아보기 <FiArrowRight aria-hidden="true" /></Link>
         </aside>
       </div>

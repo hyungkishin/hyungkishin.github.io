@@ -2,7 +2,7 @@
 title: "같은 자바 코드가 실행 중에 달라지는 이유"
 description: "수수료 정책만 바꿔 똑같은 클래스 파일을 두 번 실행했다. javap에 남아 있던 호출이 JIT 로그와 ARM64 기계어에서는 어떻게 보일까."
 date: 2026-11-04
-update: 2026-11-13
+update: 2026-11-14
 tags:
   - JVM
   - Java
@@ -12,7 +12,9 @@ tags:
 
 수수료를 구하는 코드는 `return policy.fee(amountWon);` 한 줄이다. 소스에는 분명 `fee` 호출이 있고 `javap`로 클래스 파일을 열어 봐도 그대로 있다. 그런데 HotSpot이 인라이닝을 하면 이 호출이 사라진다고 한다. 그럼 어디를 열어 봐야 사라진 게 보일까?
 
-`javac`가 남긴 바이트코드는 JVM의 명령이다. 처음에는 HotSpot의 인터프리터가 명령을 하나씩 해석해서 실행한다. 메서드나 루프를 자주 실행하면 JIT 컴파일러가 그 부분의 기계어를 따로 만든다. 이때 `fee`의 계산을 호출자 안에 넣을 수 있다. 이게 **인라이닝**이다. 호출 비용을 덜고 두 메서드에 걸친 계산도 함께 줄일 수 있다. 바뀌는 쪽이 실행 중인 JVM이니, 우선 클래스 파일에서 호출 위치를 찾아 두었다가 로그의 같은 자리와 맞춰 보기로 했다.
+`javac`가 남긴 바이트코드는 JVM의 명령이다. 처음에는 HotSpot의 인터프리터가 명령을 하나씩 해석해서 실행한다. 메서드나 루프를 자주 실행하면 JIT 컴파일러가 그 부분의 기계어를 따로 만든다.
+
+이때 `fee`의 계산을 호출자 안에 넣을 수 있다. 이게 **인라이닝**이다. 호출 비용을 덜고 두 메서드에 걸친 계산도 함께 줄일 수 있다. 바뀌는 쪽이 실행 중인 JVM이니, 우선 클래스 파일에서 호출 위치를 찾아 두었다가 로그의 같은 자리와 맞춰 보기로 했다.
 
 ## 반복문에서 바이트코드의 주소 읽기
 
@@ -38,13 +40,17 @@ for (int i = 0; i < 10; i++) {
 22: return
 ```
 
-`19: goto 2`부터 거꾸로 읽으면 덜 헷갈린다. 바이트코드의 19번 위치에서 2번 위치로 돌아가라는 뜻이다. 왼쪽의 `2, 3, 5`는 메서드 첫 바이트부터 센 거리(오프셋)라서 명령의 길이만큼 커진다. 그런데 `iload_1`의 `1`은 지역변수의 슬롯 번호다. `main`의 슬롯 0은 인자 `args`가 쓰고 슬롯 1에는 `i`가 들어 있다.
+`19: goto 2`부터 거꾸로 읽으면 덜 헷갈린다. 바이트코드의 19번 위치에서 2번 위치로 돌아가라는 뜻이다. 왼쪽의 `2, 3, 5`는 메서드 첫 바이트부터 센 거리(오프셋)라서 명령의 길이만큼 커진다.
+
+`iload_1`의 `1`은 지역변수의 슬롯 번호다. `main`의 슬롯 0은 인자 `args`가 쓰고 슬롯 1에는 `i`가 들어 있다.
 
 첫 바퀴에서 `iload_1`이 슬롯 1에 든 `0`을 피연산자 스택에 복사하고 `bipush 10`은 그 위에 `10`을 올린다. `if_icmpge`가 둘을 꺼내 비교하면 `0 >= 10`은 거짓이니 `println`까지 내려간다. 출력 뒤에 있는 `iinc 1, 1`은 슬롯 1의 값에 바로 1을 더한다. 다음 바퀴에 `iload_1`이 꺼낼 값은 이제 `1`이다. [JVM의 명령 정의](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.iinc)
 
 ![첫 반복에서 비교 명령은 스택의 0과 10을 꺼내고, 출력 뒤 iinc는 지역변수 i를 1로 바꾼다.](./01-stack-machine.svg)
 
-여기서 스택이 두 번 나온다. 방금 `0`과 `10`을 올려 둔 피연산자 스택은 한 메서드의 프레임 안에 있다. `println`을 호출할 때도 이곳에서 `PrintStream` 참조와 문자열 참조를 꺼내 쓴다. 프레임들을 차곡차곡 쌓는 곳이 **호출 스택**이다. 바이트코드대로라면 메서드 호출마다 프레임이 생기지만 인라이닝한 기계어에서는 별도의 호출과 프레임을 생략할 수 있다. [JVM 명세의 프레임](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.6)
+여기서 스택이 두 번 나온다. 방금 `0`과 `10`을 올려 둔 피연산자 스택은 한 메서드의 프레임 안에 있다. `println`을 호출할 때도 이곳에서 `PrintStream` 참조와 문자열 참조를 꺼내 쓴다.
+
+메서드를 호출할 때마다 프레임이 쌓이는 곳이 **호출 스택**이다. 바이트코드대로라면 메서드 호출마다 프레임이 생기지만 인라이닝한 기계어에서는 별도의 호출과 프레임을 생략할 수 있다. [JVM 명세의 프레임](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.6)
 
 ## 수수료 계산의 호출 위치
 
@@ -83,7 +89,7 @@ java -Xbatch -XX:+UnlockDiagnosticVMOptions -DflatFee=true \
   -XX:+PrintCompilation -XX:+PrintInlining FeeDemo > flat.log
 ```
 
-`PrintCompilation`을 켜면 메서드를 언제 컴파일했는지 나오고 `PrintInlining`까지 켜면 그 안의 호출을 어떻게 처리했는지 보인다. 여기서는 그 결정을 읽으려고 `-Xbatch`로 컴파일을 포그라운드에서 실행했다. 이 옵션을 켜 둔 실행 시간을 운영 지연과 비교하기는 어렵다. [Java 25 진단 옵션](https://docs.oracle.com/en/java/javase/25/docs/specs/man/java.html#advanced-jit-compiler-options-for-java)
+`PrintCompilation`을 켜면 메서드를 언제 컴파일했는지 나오고 `PrintInlining`까지 켜면 그 안의 호출을 어떻게 처리했는지 보인다. 여기서는 컴파일 결과를 확인하려고 `-Xbatch`로 컴파일을 포그라운드에서 실행했다. 이 옵션을 켜 둔 실행 시간을 운영 지연과 비교하기는 어렵다. [Java 25 진단 옵션](https://docs.oracle.com/en/java/javase/25/docs/specs/man/java.html#advanced-jit-compiler-options-for-java)
 
 정률 로그에서 `FeeDemo::quote`를 찾았다. 들여쓴 두 줄은 똑같이 `@ 2`로 시작한다. 아까 클래스 파일에 표시해 둔 `invokeinterface` 자리다. 왼쪽에는 컴파일 레벨만 남겼다. [정률 실행 로그 발췌](./evidence/fee-jit-rate.txt)
 
@@ -94,9 +100,11 @@ java -Xbatch -XX:+UnlockDiagnosticVMOptions -DflatFee=true \
      @ 2  FeeDemo$RateFee::fee     inline (hot)
 ```
 
-첫 기록부터 `failed to inline`이 나온다. 레벨 3에서 HotSpot은 `FeePolicy::fee`의 대상을 하나로 정할 수 없었다. 인라이닝을 건너뛰어도 수수료 계산은 계속된다. 같은 `quote`를 레벨 4로 다시 컴파일한 줄에는 `RateFee::fee`라는 구체적인 이름이 붙었다. 뒤의 `inline (hot)`은 자주 실행된 정률 계산을 이번에는 `quote` 안에 넣었다는 뜻이다.
+첫 기록부터 `failed to inline`이 나온다. 레벨 3에서 HotSpot은 `FeePolicy::fee`의 대상을 하나로 정할 수 없었다. 인라이닝을 건너뛰어도 수수료 계산은 계속된다.
 
-정액 실행 로그를 같은 방법으로 열었더니 `@ 2` 옆에 `FlatFee::fee inline (hot)`이 찍혔다. 클래스 파일은 두 번 다 `FeePolicy.fee`를 가리켰는데 한 JVM은 정률 계산을, 다른 JVM은 정액 계산을 골랐다. 여기까지가 로그로 읽을 수 있는 컴파일 결정이다. [정액 실행 로그 발췌](./evidence/fee-jit-flat.txt)
+같은 `quote`를 레벨 4로 다시 컴파일한 줄에는 `RateFee::fee`라는 구체적인 이름이 붙었다. 뒤의 `inline (hot)`은 자주 실행된 정률 계산을 이번에는 `quote` 안에 넣었다는 뜻이다.
+
+정액 실행 로그를 같은 방법으로 열었더니 `@ 2` 옆에 `FlatFee::fee inline (hot)`이 찍혔다. 클래스 파일에는 두 번 다 `FeePolicy.fee`라고 적혀 있다. 로그를 대조하니 각 실행에서 실제로 넘긴 정책의 `fee`가 `quote` 안에 인라인됐다. [정액 실행 로그 발췌](./evidence/fee-jit-flat.txt)
 
 ## 호출자의 기계어에 무엇이 남았나
 
@@ -111,7 +119,7 @@ java -Xbatch -XX:+UnlockDiagnosticVMOptions -DflatFee=true \
 
 ## 송금 시간을 비교할 때의 워밍업
 
-이 차이는 워밍업에 어떤 요청을 보낼지 정할 때도 걸린다. 예를 들어 배포 직후에 정액 송금으로만 워밍업했는데 실제 트래픽은 대부분 정률이라고 하자. 미리 실행하는 동안 JVM이 본 호출 대상부터 다르다. 위 실험은 정책마다 새 JVM을 띄웠으니, 한 JVM 안에서 중간에 정책을 바꿨을 때 어느 순간에 코드를 다시 만드는지는 별도로 봐야 한다.
+워밍업에 쓴 수수료 정책과 실제 요청의 정책이 다르면 어떻게 될까? 예를 들어 배포 직후에 정액 송금으로만 워밍업했는데 실제 트래픽은 대부분 정률이라고 하자. 워밍업 때 기록된 호출 대상은 정액뿐이다. 위 실험은 정책마다 새 JVM을 띄웠으니, 한 JVM 안에서 중간에 정책을 바꿨을 때 어느 순간에 코드를 다시 만드는지는 별도로 봐야 한다.
 
 [앞 글](/backend/transfer-performance/01-measurement/)에서 첫 송금 응답을 재기로 했다면 첫 요청을 워밍업으로 흘려보낼 수 없다. 반대로 충분히 실행한 서비스의 수수료 계산을 비교할 때는 각 버전을 새 JVM에서 시작하고 실제로 측정할 때와 비슷한 비율로 정률·정액 요청을 미리 보낸다. JMH의 `fork`는 새 JVM을 띄우고 `warmup` 횟수는 각 JVM에서 측정 전에 돌릴 연습 횟수를 정한다. [OpenJDK JMH의 fork 예제](https://github.com/openjdk/jmh/blob/master/jmh-samples/src/main/java/org/openjdk/jmh/samples/JMHSample_12_Forking.java)
 
