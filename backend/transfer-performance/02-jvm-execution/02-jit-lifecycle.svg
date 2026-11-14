@@ -44,7 +44,7 @@
   <text x="20" y="170" class="note">레벨 3에서는 두 JVM 모두 이 호출을 인라인하지 않았다.</text>
 
   <rect x="48" y="190" width="433" height="87" rx="9" fill="#eaf1ff" stroke="#a5bdf3"/>
-  <text x="63" y="219" class="label">정률 수수료만 호출한 JVM · 레벨 4</text>
+  <text x="63" y="219" class="label">정률 수수료만 호출한 JVM (레벨 4)</text>
   <rect class="location log-location" x="63" y="234" width="49" height="28" rx="5" fill="#dce6ff"/>
   <g class="code">
     <text x="69" y="255" class="offset">@ 2</text>
@@ -53,7 +53,7 @@
   </g>
 
   <rect x="48" y="308" width="433" height="87" rx="9" fill="#f6f8fd" stroke="#bdcce4"/>
-  <text x="63" y="337" class="label">정액 수수료만 호출한 JVM · 레벨 4</text>
+  <text x="63" y="337" class="label">정액 수수료만 호출한 JVM (레벨 4)</text>
   <rect class="location log-location" x="63" y="352" width="49" height="28" rx="5" fill="#dce6ff"/>
   <g class="code">
     <text x="69" y="373" class="offset">@ 2</text>

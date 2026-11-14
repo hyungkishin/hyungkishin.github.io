@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 660" role="img" aria-labelledby="title desc">
+  <title id="title">flush, clear, commit이 바꾸는 서로 다른 대상</title>
+  <desc id="desc">flush는 관리 상태의 변경을 SQL로 DB에 동기화하지만 트랜잭션은 진행 중이며 이후 롤백할 수 있다. clear는 관리 중인 엔티티를 영속성 컨텍스트에서 분리하며 DB 트랜잭션을 끝내지 않는다. 동기화 전에 clear하면 미반영 변경이 유실될 수 있다. commit은 트랜잭션을 확정하며 필요한 동기화는 커밋 과정에서 실행된다. 세 카드는 역할 비교이며 호출 순서를 강제하지 않는다. clear는 commit의 필수 단계가 아니다.</desc>
+  <style>
+    text { font-family: Pretendard, "Noto Sans KR", -apple-system, BlinkMacSystemFont, sans-serif; fill: #172338; }
+    .heading { font-size: 32px; font-weight: 750; }
+    .label { font-size: 29px; font-weight: 700; }
+    .body { font-size: 24px; }
+    .small { font-size: 22px; }
+    .muted { fill: #536477; }
+  </style>
+  <rect width="960" height="660" rx="18" fill="#fff"/>
+  <text x="42" y="57" class="heading">동기화, 관리 해제, 트랜잭션 확정의 경계</text>
+  <text x="42" y="97" class="body muted">세 연산은 각각 다른 상태를 바꾼다.</text>
+
+  <rect x="40" y="143" width="270" height="331" rx="16" fill="#eff6ff" stroke="#9bbce8" stroke-width="2"/>
+  <text x="66" y="193" class="label">flush()</text>
+  <text x="66" y="235" class="body">DB와 동기화</text>
+  <path d="M 66 263 H 284" stroke="#bfd1e9" stroke-width="2"/>
+  <text x="66" y="306" class="small">변경을 SQL로 반영</text>
+  <text x="66" y="348" class="small">트랜잭션 진행 중</text>
+  <text x="66" y="411" class="small">이후 롤백 가능</text>
+
+  <rect x="345" y="143" width="270" height="331" rx="16" fill="#fff8ea" stroke="#d8bb81" stroke-width="2"/>
+  <text x="371" y="193" class="label">clear()</text>
+  <text x="371" y="235" class="body">관리 상태 해제</text>
+  <path d="M 371 263 H 589" stroke="#e5d3ae" stroke-width="2"/>
+  <text x="371" y="306" class="small">관리 엔티티를 분리</text>
+  <text x="371" y="348" class="small">트랜잭션 유지</text>
+  <text x="371" y="404" class="small">먼저 clear하면</text>
+  <text x="371" y="438" class="small">미동기화 변경 유실</text>
+
+  <rect x="650" y="143" width="270" height="331" rx="16" fill="#edf8f2" stroke="#91c6aa" stroke-width="2"/>
+  <text x="676" y="193" class="label">commit()</text>
+  <text x="676" y="235" class="body">트랜잭션 확정</text>
+  <path d="M 676 263 H 894" stroke="#b8d9c7" stroke-width="2"/>
+  <text x="676" y="306" class="small">성공 시 변경 확정</text>
+  <text x="676" y="369" class="small">필요한 동기화는</text>
+  <text x="676" y="403" class="small">커밋 과정에서 실행</text>
+
+  <path d="M 42 511 H 918" stroke="#e2e8f0" stroke-width="2"/>
+  <text x="42" y="555" class="body">flush와 clear만 호출해도 트랜잭션은 커밋되지 않는다.</text>
+  <text x="42" y="599" class="small muted">세 카드는 역할 비교다. clear는 commit의 필수 단계가 아니다.</text>
+  <text x="42" y="633" class="small muted">flush와 clear를 하는 간격과 chunk의 트랜잭션 크기는 따로 정한다.</text>
+</svg>

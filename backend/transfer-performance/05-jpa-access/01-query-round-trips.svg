@@ -60,10 +60,10 @@
   <text x="132" y="712" text-anchor="middle" class="label">APP</text>
   <rect x="744" y="647" width="172" height="112" rx="15" class="node"/>
   <text x="830" y="712" text-anchor="middle" class="label">DB</text>
-  <text x="482" y="689" text-anchor="middle" class="body">송금·계좌 조인 SQL 1회</text>
+  <text x="482" y="689" text-anchor="middle" class="body">송금과 계좌를 조인하는 SQL 1회</text>
   <path d="M 238 716 H 730" class="trip"/>
   <circle cx="242" cy="716" r="8" fill="#368a62" class="token"/>
 
-  <text x="42" y="808" class="small">SQL 수와 함께 반환 행 수·전송량·실행 계획도 확인한다.</text>
+  <text x="42" y="808" class="small">SQL 수와 함께 반환 행 수, 전송량, 실행 계획도 확인한다.</text>
   <text x="42" y="846" class="small muted">움직임은 왕복 순서만 표현한다. 이동 속도와 총 실행 시간은 실측값이 아니다.</text>
 </svg>

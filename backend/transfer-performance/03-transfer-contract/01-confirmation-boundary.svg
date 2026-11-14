@@ -33,7 +33,7 @@
   <path d="M 505 383 H 598" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
   <rect class="node" x="617" y="344" width="260" height="78" rx="14" fill="#edf9f3" stroke="#86c5a5"/>
   <text x="747" y="392" text-anchor="middle" class="label">송금 확정</text>
-  <text x="280" y="466" class="body muted">접수 응답 후 진행, 최종 결과는 조회·알림으로 전달</text>
+  <text x="280" y="466" class="body muted">접수 응답 후 진행, 최종 결과는 조회나 알림으로 전달</text>
 
   <text x="44" y="556" class="label">사후 탐지</text>
   <text x="44" y="592" class="body muted">확정 뒤 분석</text>

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 340" role="img" aria-labelledby="t d">
+  <title id="t">execve가 연 두 ELF와 그 뒤의 사용자 공간</title>
+  <desc id="d">왼쪽에서 execve는 java 런처 ELF를 열고 오른쪽에서는 fee-native ELF를 연다. 커널 ELF 로더는 두 파일의 세그먼트와 요청된 동적 로더를 매핑한다. 사용자 공간으로 돌아온 뒤 왼쪽은 런처가 HotSpot을 시작해 FeeRuns.class를 읽고, 오른쪽은 Native Image 런타임과 빌드 때 만든 애플리케이션 코드를 실행한다.</desc>
+  <style>
+    text{font-family:Pretendard,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;fill:#142c4c}
+    .title{font-size:23px;font-weight:720}.label{font-size:16px;fill:#3c5571}.code{font:600 17px SFMono-Regular,Consolas,monospace;fill:#194bab}
+    .node{font-size:17px;font-weight:650}.line{stroke:#4068b1;stroke-width:2;fill:none;marker-end:url(#a)}
+  </style>
+  <defs><marker id="a" markerWidth="5" markerHeight="6" refX="4" refY="3" orient="auto"><path d="m0 0 4 3-4 3" fill="none" stroke="#4068b1" stroke-width="1.2"/></marker></defs>
+  <rect width="480" height="340" rx="16" fill="#fff"/>
+  <text x="20" y="35" class="title">Linux가 처음 여는 파일</text>
+  <g text-anchor="middle">
+    <rect x="18" y="57" width="208" height="43" rx="7" fill="#eaf1ff"/><text x="122" y="85" class="code">java</text>
+    <rect x="254" y="57" width="208" height="43" rx="7" fill="#eaf1ff"/><text x="358" y="85" class="code">fee-native</text>
+    <path d="M122 101v24m236-24v24" class="line"/>
+    <rect x="18" y="130" width="444" height="76" rx="8" fill="#f5f8fc" stroke="#a8bad2"/>
+    <text x="240" y="159" class="node">커널의 ELF 로더</text>
+    <text x="240" y="186" class="label">실행 파일 세그먼트와 동적 로더 매핑</text>
+    <path d="M122 207v25m236-25v25" class="line"/>
+    <rect x="18" y="237" width="208" height="82" rx="8" fill="#eaf1ff"/>
+    <text x="122" y="267" class="node">사용자 공간의 HotSpot</text>
+    <text x="122" y="294" class="label">클래스 로드와 실행</text>
+    <rect x="254" y="237" width="208" height="82" rx="8" fill="#eaf1ff"/>
+    <text x="358" y="267" class="node">사용자 공간의 실행 파일</text>
+    <text x="358" y="294" class="label">런타임과 앱 코드 실행</text>
+  </g>
+</svg>

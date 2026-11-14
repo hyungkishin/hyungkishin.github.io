@@ -19,9 +19,9 @@
   </style>
   <rect x="1" y="1" width="430" height="482" rx="13" fill="#fff" stroke="#c9d9eb"/>
   <text x="22" y="38" class="heading">G1이 멈춘 시간</text>
-  <text x="22" y="65" class="small">96 MiB 첫 실행 · JVM 기동 후 경과 시간(ms)</text>
+  <text x="22" y="65" class="small">96 MiB로 처음 실행한 JVM의 경과 시간(ms)</text>
   <rect x="13" y="80" width="405" height="135" rx="8" fill="#f4f8ff"/>
-  <text x="23" y="105" class="track">마킹 주기 · 27.402~30.301 ms</text>
+  <text x="23" y="105" class="track">마킹 주기 (27.402~30.301 ms)</text>
   <rect x="91.39" y="119" width="158.78" height="12" fill="#bed6ff"/>
   <text x="23" y="150" class="track">애플리케이션 정지</text>
   <rect x="65.23" y="156" width="25.07" height="12" fill="#214bac"/>
@@ -38,11 +38,11 @@
   <path class="cursor" d="M42 111v23 M42 154v21" fill="none" stroke="#071f5d" stroke-width="1.5" stroke-dasharray="3 2"/>
   <g class="track"><text x="23" y="239">시작(ms)</text><text x="106" y="239">로그의 단계</text><text x="407" y="239" text-anchor="end">정지(ms)</text></g>
   <path d="M22 248h385" stroke="#b3c7df"/>
-  <g transform="translate(0 272)"><text x="23" class="time">26.924</text><text x="106" class="event">Young · Concurrent Start</text><text x="407" class="duration">0.457</text></g>
-<g transform="translate(0 301)"><text x="23" class="time">28.486</text><text x="106" class="event">Young · Normal</text><text x="407" class="duration">0.419</text></g>
+  <g transform="translate(0 272)"><text x="23" class="time">26.924</text><text x="106" class="event">Young (Concurrent Start)</text><text x="407" class="duration">0.457</text></g>
+<g transform="translate(0 301)"><text x="23" class="time">28.486</text><text x="106" class="event">Young (Normal)</text><text x="407" class="duration">0.419</text></g>
 <g transform="translate(0 330)"><text x="23" class="time">29.004</text><text x="106" class="event">Remark</text><text x="407" class="duration">0.091</text></g>
-<g transform="translate(0 359)"><text x="23" class="time">29.513</text><text x="106" class="event">Young · Normal</text><text x="407" class="duration">0.416</text></g>
+<g transform="translate(0 359)"><text x="23" class="time">29.513</text><text x="106" class="event">Young (Normal)</text><text x="407" class="duration">0.416</text></g>
 <g transform="translate(0 388)"><text x="23" class="time">30.167</text><text x="106" class="event">Cleanup</text><text x="407" class="duration">0.010</text></g>
-<g transform="translate(0 417)"><text x="23" class="time">30.993</text><text x="106" class="event">Young · Prepare Mixed</text><text x="407" class="duration">0.504</text></g>
-<g transform="translate(0 446)"><text x="23" class="time">32.225</text><text x="106" class="event">Young · Mixed</text><text x="407" class="duration">0.515</text></g>
+<g transform="translate(0 417)"><text x="23" class="time">30.993</text><text x="106" class="event">Young (Prepare Mixed)</text><text x="407" class="duration">0.504</text></g>
+<g transform="translate(0 446)"><text x="23" class="time">32.225</text><text x="106" class="event">Young (Mixed)</text><text x="407" class="duration">0.515</text></g>
 </svg>

@@ -45,7 +45,7 @@
   <path d="M 260 478 H 890" stroke="#a8b6c5" stroke-width="2"/>
   <path d="M 260 469 V 487 M 470 469 V 487 M 890 469 V 487" stroke="#a8b6c5" stroke-width="2"/>
   <text x="365" y="520" text-anchor="middle" class="body muted">요청 저장</text>
-  <text x="680" y="520" text-anchor="middle" class="body muted">심사 대기·실행과 외부 송금</text>
+  <text x="680" y="520" text-anchor="middle" class="body muted">심사 대기부터 외부 송금까지</text>
   <text x="42" y="581" class="body">두 값은 모두 경과시간이다. CPU 실행 시간과는 구분한다.</text>
   <text x="42" y="619" class="small muted">서버에서 관측한 요청 접수가 시작점이다. 길이와 이동 속도는 설명용이다.</text>
 </svg>

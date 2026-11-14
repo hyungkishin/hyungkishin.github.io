@@ -41,5 +41,5 @@
   <path d="M 42 511 H 918" stroke="#e2e8f0" stroke-width="2"/>
   <text x="42" y="555" class="body">flush와 clear만 호출해도 트랜잭션은 커밋되지 않는다.</text>
   <text x="42" y="599" class="small muted">세 카드는 역할 비교다. clear는 commit의 필수 단계가 아니다.</text>
-  <text x="42" y="633" class="small muted">flush·clear 간격과 chunk의 트랜잭션 크기는 따로 정한다.</text>
+  <text x="42" y="633" class="small muted">flush와 clear를 하는 간격과 chunk의 트랜잭션 크기는 따로 정한다.</text>
 </svg>
