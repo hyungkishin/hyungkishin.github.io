@@ -46,7 +46,7 @@
   </style>
   <rect width="960" height="720" rx="18" fill="#fff"/>
   <text x="42" y="57" class="heading">같은 이벤트가 다시 도착하는 순간</text>
-  <text x="42" y="95" class="body muted">Outbox는 발행 의도를 남기고, 소비자는 중복 업무 반영을 막는다.</text>
+  <text x="42" y="95" class="body muted">Outbox에 보낼 이벤트를 남긴다. 소비자는 같은 이벤트를 한 번만 반영한다.</text>
 
   <rect x="44" y="153" width="182" height="151" rx="14" class="component"/>
   <text x="135" y="190" text-anchor="middle" class="label">업무 DB</text>

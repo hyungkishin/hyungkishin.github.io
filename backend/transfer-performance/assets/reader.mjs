@@ -27,7 +27,7 @@ export function initReader(document, window) {
   bindTheme(document, window);
   const toc = document.querySelector('.article-toc details');
   if (toc) {
-    const desktop = window.matchMedia('(min-width: 1340px)');
+    const desktop = window.matchMedia('(min-width: 1200px)');
     const showToc = () => { toc.open = desktop.matches; };
     showToc();
     desktop.addEventListener('change', showToc);
