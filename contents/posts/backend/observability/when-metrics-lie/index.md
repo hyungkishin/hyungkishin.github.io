@@ -2,7 +2,7 @@
 title: "알림 181건이 도착하지 않았는데 에러율은 왜 0%였을까"
 description: "알림 181건이 도착하지 않았는데 대시보드의 에러율은 0%였다. 성공 건수와 응답 시간, Kafka 대기량을 각각 어디서 재는지 다시 봤다."
 date: 2026-02-23
-update: 2026-11-14
+update: 2026-11-15
 tags:
 - 관측성
 - 모니터링
@@ -13,7 +13,7 @@ tags:
 
 알림 181건이 도착하지 않은 날, 대시보드의 에러율은 0%였고 응답 지연 P95는 112ms였다. Kafka 컨슈머에도 밀린 메시지가 없었다.
 
-발송 로그와 벤더 응답 본문을 대조했다. HTTP 상태는 200이었지만 본문에는 실패 코드가 있었다.
+왜 성공으로 집계됐는지 보려고 발송 로그를 같은 요청의 벤더 응답과 맞춰 봤다. 벤더는 HTTP 200을 돌려줬고, 접수를 거절한 이유는 응답 본문에 적었다.
 
 <style>
 .metric-fig,.fig-defs{
@@ -78,6 +78,6 @@ tags:
 
 로그에서 성공으로 센 634건 중 벤더가 접수한 건 453건이었다. 성공을 기록한 시점부터 다시 봤다. [HTTP 200인데 발송에 실패한 181건](/backend/observability/when-metrics-lie-error-rate/)
 
-발송 시간을 순차 처리 기준으로 추산하면 약 다섯 시간이다. 그날 Kafka에서 측정한 대기 시간(time lag)은 가장 길 때도 12초였다. [Kafka lag 0은 무엇을 의미할까](/backend/observability/when-metrics-lie-kafka-lag/)
+모든 발송을 하나씩 끝낼 때까지 걸릴 시간은 약 다섯 시간으로 추산됐다. 그날 메시지 하나가 Kafka에서 기다린 시간(time lag)은 최대 12초였다. 두 수치의 차이에서 파티션을 늘릴 근거가 있는지 다시 봤다. [Kafka lag 0은 무엇을 의미할까](/backend/observability/when-metrics-lie-kafka-lag/)
 
 캐시 조회 P95는 5.68초였다. 그중 Redis가 명령을 실행한 시간은 얼마일까? 타이머의 시작 위치와 공유 커넥션에서 대기하는 구간을 살폈다. [Redis P95 5.68초는 어디서 잰 시간일까](/backend/observability/when-metrics-lie-redis-p95/)

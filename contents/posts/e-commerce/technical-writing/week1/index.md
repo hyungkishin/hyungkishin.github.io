@@ -2,7 +2,7 @@
 title: "Docker 연결 실패를 코드 문제로 오판한 과정"
 description: "회원가입 E2E에서 Testcontainers가 시작되지 않았다. 새벽까지 의존성을 바꾼 뒤 처음 놓친 Docker 연결 문제로 돌아갔다."
 date: 2026-02-05
-update: 2026-09-06
+update: 2026-11-15
 tags:
   - loopers
   - technical-writing
@@ -22,7 +22,7 @@ Could not find a valid Docker environment
 
 터미널에서 `docker ps`를 쳐봤는데요, 정상이었습니다.
 `docker run hello-world`도 문제없이 돌아갔습니다.
-Docker CLI는 정상 동작했지만 Testcontainers의 Docker 연결은 실패했습니다.
+같은 Docker Engine을 두고 CLI에서는 컨테이너가 떴는데, 회원가입 테스트는 연결조차 못 했습니다. 지금 돌아보면 여기서 두 클라이언트가 Docker에 붙는 방식부터 비교했어야 했습니다.
 
 이 시점에서 두 가지 방향 중 하나를 선택해야 했습니다.
 
@@ -93,7 +93,7 @@ Spring Boot는 Dependency Management BOM을 통해 testcontainers, docker-java, 
 그런데 docker-java만 수동으로 override하면, Spring Boot가 의도한 버전 트리를 깨뜨리게 됩니다.  
 업그레이드한 docker-java 3.5.1은 Spring Boot 3.4.4와 검증되지 않은 조합이었습니다.  
 
-사실 이런 버전 문제는 `context7에서 현재 버전과 일치하는 버전으로 체크 부탁해`라고 요청하면 끝이었습니다.  
+그때 `context7에서 현재 버전과 일치하는 버전으로 체크 부탁해`라고 요청했다면, 적어도 docker-java 버전을 바꾸기 전에 프로젝트의 BOM부터 확인했을 겁니다.
 BOM이 관리하는 버전을 신뢰했어야 했습니다.  
 
 ## 22 files changed, AM 5시
@@ -207,8 +207,8 @@ AI는 내가 제공한 전제 안에서 가능한 모든 해결책을 시도합�
 
 ### 다음에는
 
+회원가입 E2E를 다시 돌릴 수 있게 됐지만, 테스트 환경에 관해서는 세 가지 질문이 남았습니다.
+
 - Integration과 E2E를 어떻게 구조적으로 분리할 것인가?
 - Testcontainers 공통 베이스를 만들 것인가?
 - CI 환경에서 Docker 전략은 어떻게 가져갈 것인가?
-
-를 시간이 될 때 정리해보고 싶습니다.

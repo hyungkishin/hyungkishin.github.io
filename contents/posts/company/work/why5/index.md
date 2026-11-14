@@ -2,7 +2,7 @@
 title: "첫 호출 지연과 반복 연결 실패를 구분한 과정"
 description: "S3는 첫 호출만 느렸고 외부 OCR 연결은 여러 번 호출해도 끊겼다. 요청별 로그에서 두 증상을 구분했다."
 date: 2026-05-02
-update: 2026-11-14
+update: 2026-11-15
 tags:
 - JVM
 - ColdStart
@@ -53,7 +53,7 @@ cold start를 의심할 근거는 차고 넘쳤다. 첫 호출이 느려질 수 
 
 IRSA 첫 STS 호출 1~2초, lazy bean 초기화 1~3초, 여기에 JIT과 TLS와 DNS를 더하면 4~7초는 흔하게 나온다. 관측된 5~10초와 맞아떨어진다.
 
-그런데 여기에 함정이 있다. 이유가 많을수록 가설은 더 그럴듯해질 뿐, 그럴듯함은 진단이 아니다. 가능한 원인을 나열하는 것만으로 OCR API의 실패 원인을 특정할 수는 없었다.
+이 계산으로는 S3 첫 호출이 왜 몇 초씩 걸릴 수 있는지 설명할 수 있었다. OCR도 같은 문제라면 두 번째 호출에서는 달라져야 했다. 그때는 이것부터 비교하지 않았다.
 
 ## 호출 시간을 다섯 단계로 나눠 측정하기
 
@@ -114,7 +114,7 @@ class S3Warmup(
 
 OCR API는 반복 호출에서도 약 130ms 만에 연결이 리셋(RST)됐다. 첫 호출에만 비용이 집중되는 S3와 달랐으므로 outbound 정책과 네트워크 경로를 확인할 필요가 있었다. 일정한 실패 시간만으로 차단 위치를 특정할 수는 없다.
 
-초기화 비용이 주원인이라면 같은 프로세스의 후속 호출에서 지연이 줄어드는지 확인할 수 있다. OCR API는 반복해도 같은 연결 실패가 발생했으므로 warmup만으로 해결하기 어려웠다.
+S3에서는 두 번째 업로드가 끝났지만 OCR에서는 두 번째 연결도 끊겼다. 비교할 값은 호출 시간과 함께 요청이 성공했는지였다.
 
 <style>
 .metric-fig{--fig-surface:#ffffff;--fig-ink:#0f172a;--fig-ink2:#334155;--fig-muted:#94a3b8;--fig-hair:#e6eaf1;--fig-baseline:#d0d7e2;--c-green:#16a34a;--c-greenink:#15803d;--c-red:#ef4444;--c-redink:#b91c1c;--c-blue:#2f6fed;--c-blueink:#1d4ed8;--c-amber:#d97706;--c-amberink:#b45309;margin:2.4em 0;border:1px solid var(--fig-hair);border-radius:18px;background:var(--fig-surface);padding:18px 20px 10px;overflow:hidden;box-shadow:0 1px 2px rgba(2,6,23,.05),0 14px 40px rgba(2,6,23,.09)}

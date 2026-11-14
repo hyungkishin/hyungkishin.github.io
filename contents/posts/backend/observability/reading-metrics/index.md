@@ -2,7 +2,7 @@
 title: "이 글은 '지표와 실제 상태가 다를 때' 시리즈로 옮겼습니다"
 description: "한 편에 담았던 알림 장애 기록을 에러율, Redis 응답 시간, Kafka 대기량 세 편으로 나눴다. 여기서 새 시리즈로 이어진다."
 date: 2026-02-22
-update: 2026-09-06
+update: 2026-11-15
 tags:
 - 관측성
 - 모니터링
@@ -11,11 +11,11 @@ tags:
 
 <meta http-equiv="refresh" content="0; url=https://hyungkishin.github.io/backend/observability/when-metrics-lie/">
 
-한 편에 사례를 너무 많이 담아, 지표별로 나눈 시리즈로 새로 썼습니다.
+알림 미수신을 조사한 기록을 에러율, Kafka 대기량, Redis 조회 시간 세 편으로 나눴습니다.
 
-**[지표와 실제 상태가 다를 때 (프롤로그)](/backend/observability/when-metrics-lie/)** 로 이동합니다.
+**[지표와 실제 상태가 다를 때 (프롤로그)](/backend/observability/when-metrics-lie/)**에서 세 지표를 함께 볼 수 있습니다.
 
-자동으로 넘어가지 않으면 위 링크를 눌러 주세요.
+자동으로 이동하지 않으면 아래에서 궁금한 지표를 골라 주세요.
 
 - [에러율 0%인데 181건이 실패했습니다](/backend/observability/when-metrics-lie-error-rate/)
 - [Kafka lag 0은 무엇을 의미할까](/backend/observability/when-metrics-lie-kafka-lag/)

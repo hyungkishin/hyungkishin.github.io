@@ -2,7 +2,7 @@
 title: "JS 번들을 줄였는데 점수는 거의 그대로였다"
 description: "뉴스 페이지의 번들에서 lodash와 시간대 데이터의 비중을 확인하고, 실제 쓰는 코드만 남겼을 때의 차이를 쟀다."
 date: 2025-05-03
-update: 2026-11-13
+update: 2026-11-15
 tags:
   - front-end
   - performance
@@ -18,7 +18,7 @@ tags:
 $ yarn add -D @next/bundle-analyzer
 ```
 
-그런다음 next.config.js 에서 analyzer 를 활성화.
+설치한 분석기를 `next.config.js`의 빌드 설정에 붙였다.
 ```js
 
 
@@ -48,31 +48,21 @@ package.json script 부분역시, 명령어 활성화 필요.
  
 ```
 
-먼저 어떤 라이브러리들이 번들에 포함되어 있는지 확인하기 위해 bundle-analyzer 를 설치해 주고 분석해 보니, lodash-es 와 moment-timezone 이 포함되어 있었다.
-700KB 와 500KB 먹음직 스럽게 제거할 수 있는 크기였다.
+분석 결과에서 먼저 눈에 들어온 건 `lodash-es`와 `moment-timezone`이었다. 700KB와 500KB. 둘 다 커 보였지만, 실제로 어디서 어떤 함수를 쓰는지부터 찾아봤다.
 
 ![프로젝트 내 js 번들 결과](img_1.png)
 
  
 ## lodash 최적화
 
-프로젝트 내에서 lodash-es가 설치되어 있었다. 실제 사용하는 함수는 debounce 하나뿐이었다.  
-아마도 Tree Shaking을 노리고 lodash-es를 선택했던 것 같다.   
+프로젝트에서 `lodash-es`를 import한 곳은 `debounce`를 쓰고 있었다. ESM 패키지니까 안 쓰는 코드가 tree shaking으로 빠졌을 거라고 생각할 수 있다. 그런데 이 빌드의 분석 결과에는 lodash 코드가 크게 남았다.
 
-> tree shaking 이란 ?
-> 실상 쓰는 코드만 번들에 포함시키고 안 쓰는 코드를 제거하는 기능인 Tree Shaking
-
-하지만 애석하게도, lodash-es는 ESM 구조이다.  
-Tree Shaking이 가능하다고 알려져 있지만 내부적으로 많은 공통 유틸 함수들이 함께 import되기 때문에     
-debounce 하나만 불러와도 수많은 내부 의존성 코드가 함께 번들된다.  
-
-즉, 다음과 같은 코드 는 실제 번들 사이즈를 눈에 띄게 줄이지 못한다.
+사용처는 이 한 줄이었다.
 ```js
 import { debounce } from "lodash-es";
 ```
 
-함수 단위 패키지로 대체 가 가능한 lodash 로 변경하기로 결정하였다.  
-개별 모듈(함수)로 쪼개서 npm 패키지를 배포하고 monorepo로 관리하기 때문에 번들 다이어트에 유리하다고 봤다.  
+프로젝트 전체에서 쓰는 함수가 하나라면 패키지의 진입점도 그 함수 하나로 좁힐 수 있다. `lodash.debounce`로 바꿔 같은 조건에서 다시 빌드했다.
 
 lodash.debounce를 import하려면 lodash.debounce 패키지를 따로 설치해야 한다.  
 타입스크립트 환경에서는 타입 정의 패키지(@types/lodash.debounce)도 필요하다.

@@ -2,7 +2,7 @@
 title: "CLS와 TBT는 잡혔는데 LCP만 남았다"
 description: "뉴스 홈의 레이아웃 이동과 메인 스레드 점유 시간을 줄인 뒤에도 첫 화면에서 가장 큰 이미지가 늦게 그려졌다."
 date: 2025-05-04
-update: 2026-11-14
+update: 2026-11-15
 tags:
   - front-end
   - performance
@@ -13,7 +13,7 @@ tags:
 
 ![홈페이지 로딩 화면](test.gif)
 
-## Core Web Vitals ⚡
+## 뉴스 홈에서 확인한 Lighthouse 지표
 
 | 지표명 (약어)                           | 설명                       | 일상 비유                             |
 | ---------------------------------- | ------------------------ | --------------------------------- |
@@ -101,7 +101,6 @@ const RelatedStories = dynamic(() => import("./RelatedStories"), {
 대신 **초기 화면을 안정적으로 고정**해두는 것이 성능 측면에서도 훨씬 낫다.  
 
 이게 바로 **FCP 단축**과도 밀접하게 연결되는 **Lazy Load** 이다.   
-
 
 ## Lazy Load ⏰
 Taboola 광고는 스크롤이 일정 수준 내려간 후에야 자체 CDN 스크립트 (Taboola CDN) 를 호출해 UI를 동적으로 구성한다   
@@ -250,8 +249,7 @@ Tree Shaking 으로 불필요한 코드도 제거했었다.
 > TBT 점수는 **0ms** 를 달성 하였다.
 
 ## 중간 배포 🙏
-이제까지의 작업으로 Core Web Vitals 의 3대 요소를 모두 안정화시켰다.  
-Google Core Web Vitals 의 경고가 약간의 조급함을 불러일으켜서인지.
+중간 배포 전에 본 건 Lighthouse에서 측정한 CLS, FCP, TBT였다. Search Console에서 받은 경고까지 달라질지는 배포 후에 봐야 했다.
 
 현재까지 바꾼 부분을 주간미팅 에서 팀원 분들께 공유드리기로 했다.   
 그리고 중간배포를 진행하는것으로 마무리됐다.
@@ -264,13 +262,13 @@ Google Core Web Vitals 의 경고가 약간의 조급함을 불러일으켜서�
 
 직접 운영했던 서비스에서 이런 수치는 처음 본 까닭에 기분은 좋았으나..
 
-빨간 지표로 보이는 LCP (Large Content's Paint) 와 SI (Speed Index) 가 마음을 어렵게 만들었다.
+빨간 지표로 보이는 LCP (Largest Contentful Paint) 와 SI (Speed Index) 가 마음을 어렵게 만들었다.
 
 ![LCP 4초 실화...](img_9.png)
 
 남은 항목은 영향을 나눠 측정하며 순차적으로 수정할 계획이다.     
 
-아 참, 반가운 지표가 하나 더 있었다. 중간 배포 이후 구글 Search Console 에서 확인한 지표 결과는 **아직 느린 URL** 은 **빠른 URL 과** 자리를 바꾸었다 🥰. 
+아 참, 중간 배포 뒤 Search Console에서 반가운 변화가 하나 더 보였다. 느린 URL과 빠른 URL의 분포가 자리를 바꿨다 🥰.
 
 ![이 사진 크몽의 bk 님이 올리셨던데... 저도 따라해 보니... 기분이 좋습니다 :) ](img_8.png)
 
@@ -286,15 +284,9 @@ Lighthouse, PageSpeed Insights, 서치콘솔까지 성능이 올라간 효과가
 | LCP | 답도없음 | 가장 큰 콘텐츠(대개 대표 이미지)를 더 빠르게 렌더링해야 함 |
 | SI  | 어떡함  | 시각적으로 완성되는 속도를 높이기 위해 불필요한 CSS/JS를 줄이고, critical 리소스만 우선 처리 필요 |
 
-그러나 Core Web Vitals 의 5대 요소를 total **90점 이상 유지** 한다면  
-다음과 같은 부분들을 기대할 수 있다.
+목표로 두었던 건 Lighthouse 성능 점수 90점 이상이었다. 그 점수와 Core Web Vitals의 실제 사용자 지표는 따로 봐야 한다. 검색 순위나 체류 시간, 광고 노출이 늘었는지는 이번 측정으로 확인하지 못했다.
 
-- 뉴스 검색 순위 떡상
-- 사용자 체류 시간 증가
-- 구글 검색에 이전 보다 더 많은 뉴스가 사용자 에게 노출
-- 광고 노출 은 덤으로 이어지는 선순환 구조 달성
-
-3부에서는 곧 지옥이 펼쳐질 **LCP를 어떻게 올릴 것인지** 와 **SI** 단축을 다룰 예정이다. 
+다음에 볼 화면은 같은 뉴스 홈이다. 첫 화면에서 가장 큰 기사 사진은 왜 늦게 뜨고, 그동안 화면은 어디까지 그려져 있을까? LCP와 SI가 남았다.
 
 참고 
 - [Core Web Vitals 측정항목 기준점을 정의하는 방법](https://web.dev/articles/defining-core-web-vitals-thresholds?hl=ko)

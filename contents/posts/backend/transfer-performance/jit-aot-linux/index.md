@@ -2,7 +2,7 @@
 title: "바이트코드는 언제 기계어가 될까?"
 description: "메서드를 한 번만 호출했는데 JIT 로그에는 컴파일 기록이 세 줄 남았다. 같은 계산을 AOT로 빌드한 뒤에는 java가 없는 컨테이너에서도 실행해 봤다."
 date: 2026-11-12
-update: 2026-11-14
+update: 2026-11-15
 tags:
   - JVM
   - JIT
@@ -33,7 +33,7 @@ GraalVM Native Image로 빌드하면 기계어를 만드는 시점이 배포 전
 
 ### 한 번 호출한 루프에 두 진입점이 생긴 이유
 
-처음의 `longLoop`로 돌아가 보자. Linux ARM64의 Temurin 25.0.5+8에서 누적값을 계산하는 루프를 1,200만 번 돌렸다. `longLoop`의 호출도 반환도 한 번씩이다. 아래 세 줄 맨 왼쪽의 `54`, `55`, `56`은 각각 다른 컴파일 작업 번호다.
+이제 첫 질문의 `longLoop`를 로그에서 찾아보자. Linux ARM64의 Temurin 25.0.5+8에서 메서드에 한 번 들어가 누적값을 구하는 루프를 1,200만 번 돌린 뒤 한 번 반환했다. 아래 `54`, `55`, `56`은 이 한 번의 호출을 두고 등록된 서로 다른 컴파일 작업 번호다.
 
 ```text
 54  %  3  HotPathProbe::longLoop @ 6
@@ -61,7 +61,7 @@ OpenJDK 소스에도 기준이 둘이다. 메서드 진입용 컴파일은 호�
 
 소스에서 `CompilerThread`의 부모 타입은 `JavaThread`다. 여기서 `JavaThread`는 HotSpot 내부의 C++ 타입이다. 애플리케이션이 플랫폼 스레드를 시작할 때는 `JVM_StartThread`가 자바의 `run`으로 이어질 진입 함수를 지정한다. 컴파일러 스레드의 진입 함수는 컴파일 작업 루프로 간다. 각 스레드는 자기 진입 함수를 실행하고 종료 시 정리 절차를 밟는다. [플랫폼 스레드 생성](https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/share/prims/jvm.cpp#L2820-L2828), [CompilerThread의 타입](https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/share/compiler/compilerThread.hpp#L38-L47), [컴파일러 스레드의 진입점](https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/share/compiler/compilerThread.cpp#L61-L68), [JavaThread 실행과 종료](https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/share/runtime/javaThread.cpp#L762-L790)
 
-Linux 구현을 따라가면 결국 `pthread_create`가 나온다. HotSpot은 컴파일할 메서드를 정하고, 커널 스케줄러는 실행 대기 중인 태스크에 CPU를 배정한다.
+컴파일 작업을 할 스레드를 만드는 Linux 코드까지 따라가면 `pthread_create`가 나온다. 어떤 자바 메서드를 컴파일할지는 HotSpot이 고르고, 그 스레드가 언제 CPU를 쓸지는 실행 가능한 태스크를 스케줄하는 커널이 정한다.
 
 컴파일러 스레드가 커널에서도 보이는지 확인하려고 실행 중인 JVM의 `/proc/<pid>/task`를 열었다. 거기에 `C1 CompilerThre`와 `C2 CompilerThre`가 각각 한 줄씩 있었다. 철자가 잘린 것까지 Linux의 `comm`에 찍힌 그대로다. [HotSpot의 pthread_create](https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/os/linux/os_linux.cpp#L1086-L1092), [스레드 관찰 명령과 출력](./evidence/elf-and-threads.txt)
 
@@ -131,7 +131,7 @@ static int quote(int amountWon) {
 
 ## JDK의 AOT 캐시로도 실행 파일을 만들 수 있을까?
 
-하나가 더 남았다. JDK 25에 붙은 `AOTCache`도 방금 만든 `fee-native`처럼 단독으로 실행할 수 있을까? 같은 클래스를 `fees.jar`로 묶고 학습 실행으로 `fees.aot`를 만들었다. 두 번째 명령에서 눈에 띄는 건 캐시 파일 앞의 `java`다.
+여기까지 확인한 `fee-native`는 JVM 런처 없이 실행했다. 그렇다면 JDK 25의 `AOTCache`도 단독으로 실행할 수 있을까? 같은 클래스를 `fees.jar`로 묶고 학습 실행으로 `fees.aot`를 만들었다. 두 번째 명령에서는 어느 프로그램에 이 파일을 인수로 주는지 보면 된다.
 
 ```bash
 java -XX:AOTCacheOutput=fees.aot -cp fees.jar FeeRuns

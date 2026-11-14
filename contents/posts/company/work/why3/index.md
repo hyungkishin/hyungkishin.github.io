@@ -2,7 +2,7 @@
 title: "오류 안내에 따른 재시도로 실패 알림이 반복된 이유"
 description: "인증 버그를 고친 뒤에도 같은 사용자의 실패 알림이 반복됐다. 화면의 재시도 안내와 이미 실패한 세션을 함께 확인했다."
 date: 2026-05-02
-update: 2026-11-14
+update: 2026-11-15
 tags:
 - 장애분석
 - 자가증식
@@ -32,9 +32,7 @@ tags:
 
 첫 가설은 배포 지연. 서버 3대에 rolling update가 진행 중이면 일부 인스턴스가 옛 버전이라 알림이 산발적으로 남을 수 있다. 배포 상태를 확인했다. 전부 끝나 있었다. 기각.
 
-두 번째로 같은 결함을 유발하는 추가 경로를 조사했다. 확인한 코드에서는 새 경로를 찾지 못했다. 이 결과만으로 다른 결함이 전혀 없다고 단정할 수는 없으므로 사용자별 재현 흐름을 추가로 확인했다.
-
-코드와 배포 상태만으로는 잔여 알림을 설명하기 어려웠다. 사용자별 재시도 이력과 화면 안내를 함께 확인했다.
+세션을 덮어쓰는 코드가 더 있는지도 찾아봤다. 확인한 범위에서는 새 경로가 나오지 않았다. 그렇다면 알림이 다시 올 때마다 또 다른 사람이 실패한 걸까? 로그를 사용자별로 묶어봤다.
 
 ## 사용자별 재시도 패턴을 확인했다
 
@@ -60,7 +58,7 @@ class ExternalAuthClientException(
 | 인증요청 다시 클릭 | 입구 A | 기존 실패 상태에서 요청 반복 |
 | 사전 설문 다시 제출 | 입구 B | 기존 실패 상태의 복구 여부 확인 필요 |
 
-실패 안내에 따라 사용자가 재시도해도 세션 상태가 복구되지 않으면 같은 실패와 알림이 반복된다. 재시도로 회복 가능한 상태인지 먼저 구분해야 했다.
+화면은 다시 누르라고 했지만, 다시 눌러도 이미 무효가 된 세션은 살아나지 않았다.
 
 <style>
 .metric-fig{--fig-surface:#ffffff;--fig-ink:#0f172a;--fig-ink2:#334155;--fig-muted:#94a3b8;--fig-hair:#e6eaf1;--fig-baseline:#d0d7e2;--c-green:#16a34a;--c-greenink:#15803d;--c-red:#ef4444;--c-redink:#b91c1c;--c-blue:#2f6fed;--c-blueink:#1d4ed8;--c-amber:#d97706;--c-amberink:#b45309;margin:2.4em 0;border:1px solid var(--fig-hair);border-radius:18px;background:var(--fig-surface);padding:18px 20px 10px;overflow:hidden;box-shadow:0 1px 2px rgba(2,6,23,.05),0 14px 40px rgba(2,6,23,.09)}
