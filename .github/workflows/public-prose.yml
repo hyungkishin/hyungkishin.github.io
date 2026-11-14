@@ -11,10 +11,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: yarn
       - run: yarn install --frozen-lockfile --ignore-scripts
-      - run: node --test scripts/public-prose.test.mjs scripts/check-rendered-prose.test.mjs scripts/tone-guard.test.mjs
+      - run: node --test scripts/public-prose.test.mjs scripts/check-rendered-prose.test.mjs scripts/tone-guard.test.mjs scripts/voice-gate.test.mjs scripts/claude-voice-hook.test.mjs
       - run: node scripts/check-public-prose.mjs --all
+      - name: 변경한 원고와 편집 기록 대조
+        env:
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BASE: ${{ github.event.before }}
+          PUSH_HEAD: ${{ github.sha }}
+          FIRST_PUSH_COMMIT: ${{ github.event.commits[0].id }}
+        run: |
+          if [ -n "$PR_HEAD" ]; then
+            head="$PR_HEAD"
+            base=$(git merge-base "$PR_BASE" "$head")
+          else
+            head="$PUSH_HEAD"
+            base="$PUSH_BASE"
+            if [ "$base" = 0000000000000000000000000000000000000000 ]; then
+              # A newly created branch has no previous tip; use the first pushed commit's parent.
+              first="${FIRST_PUSH_COMMIT:-$head}"
+              base=$(git rev-parse --verify "$first^" 2>/dev/null || git hash-object -t tree --stdin </dev/null)
+            fi
+          fi
+          node scripts/voice-gate.mjs --range "$base" "$head"

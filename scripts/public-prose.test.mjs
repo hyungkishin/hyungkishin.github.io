@@ -25,6 +25,8 @@ function fixture(t) {
   for (const [key, value] of [["user.name", "Test"], ["user.email", "example@localhost"], ["commit.gpgsign", "false"]]) git("config", key, value);
   fs.cpSync(path.join(root, "scripts"), path.join(dir, "scripts"), { recursive: true });
   if (fs.existsSync(path.join(root, ".githooks"))) fs.cpSync(path.join(root, ".githooks"), path.join(dir, ".githooks"), { recursive: true });
+  // This suite isolates the public-prose check; voice-gate.test runs the combined production hook.
+  write(".githooks/pre-commit", "#!/bin/sh\nexec node scripts/check-public-prose.mjs --staged\n");
   fs.symlinkSync(path.join(root, "node_modules"), path.join(dir, "node_modules"), "dir");
   fs.copyFileSync(path.join(root, "package.json"), path.join(dir, "package.json"));
   write(".gitignore", "node_modules/\n");

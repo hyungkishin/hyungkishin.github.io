@@ -1,2 +1,4 @@
 #!/bin/sh
-exec node scripts/check-public-prose.mjs --staged
+set -e
+node scripts/check-public-prose.mjs --staged
+exec node scripts/voice-gate.mjs --staged
