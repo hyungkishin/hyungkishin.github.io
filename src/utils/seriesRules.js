@@ -55,7 +55,7 @@ const SERIES_RULES = [
   {
     id: "storefront",
     name: "커머스 프론트엔드 설계",
-    tagline: "상품 목록과 결제 화면의 상태·컴포넌트·테스트 설계",
+    tagline: "장바구니 수량을 바꾸면 상품 목록과 결제 화면에는 언제 반영해야 할까?",
     indexSlug: "/frontend/e-commerce/",
     pattern: /^\/frontend\/e-commerce\/[^/]+\/$/,
   },

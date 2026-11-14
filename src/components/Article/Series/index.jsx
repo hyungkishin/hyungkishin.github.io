@@ -21,7 +21,7 @@ const Contents = styled.details`
 
 const Series = ({ rule, posts, currentId }) => (
   <Contents>
-    <summary>{rule.name} 목차 · {posts.length}편</summary>
+    <summary>{rule.name} 목차 ({posts.length}편)</summary>
     <ol>
       {posts.map(post => (
         <li key={post.id}>

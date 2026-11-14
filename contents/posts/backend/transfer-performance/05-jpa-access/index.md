@@ -80,7 +80,7 @@ EAGER라고 SQL 한 번으로 읽는다고 단정할 수도 없다. Hibernate의
 
 ![flush는 SQL 동기화, clear는 관리 객체 해제, commit은 트랜잭션 확정이라는 서로 다른 경계를 보여 준다.](./02-flush-clear-commit.svg)
 
-메모리를 줄이기 위한 flush·clear 간격과 트랜잭션을 나누는 chunk 크기는 따로 정한다. chunk마다 commit하면 실패 시 다시 처리할 범위가 줄어드는 대신 전체 작업의 부분 완료 상태를 다뤄야 한다. 마지막 처리 위치와 완료 여부를 기록하고 재실행이 이미 처리한 정산을 중복 반영하지 않도록 설계한다. Spring Batch도 chunk 처리를 트랜잭션 경계와 함께 설명한다. [Spring Batch의 chunk 처리](https://docs.spring.io/spring-batch/reference/step/chunk-oriented-processing.html)
+메모리를 줄이기 위한 flush와 clear를 하는 간격과 트랜잭션을 나누는 chunk 크기는 따로 정한다. chunk마다 commit하면 실패 시 다시 처리할 범위가 줄어드는 대신 전체 작업의 부분 완료 상태를 다뤄야 한다. 마지막 처리 위치와 완료 여부를 기록하고 재실행이 이미 처리한 정산을 중복 반영하지 않도록 설계한다. Spring Batch도 chunk 처리를 트랜잭션 경계와 함께 설명한다. [Spring Batch의 chunk 처리](https://docs.spring.io/spring-batch/reference/step/chunk-oriented-processing.html)
 
 JDBC batch 설정을 켰다고 모든 INSERT가 묶이는 것도 아니다. Hibernate에서는 IDENTITY 식별자 생성이 INSERT batching을 제한하는 경우가 있다. 사용하는 버전과 식별자 전략에서 실제 SQL batching이 일어나는지 확인한다. 한꺼번에 저장하는 메서드 이름이나 설정 파일의 값만으로 왕복 감소를 주장하기 어렵다.
 
@@ -88,11 +88,11 @@ JDBC batch 설정을 켰다고 모든 INSERT가 묶이는 것도 아니다. Hibe
 
 같은 조건의 대량 갱신은 엔티티를 모두 읽는 방식보다 bulk UPDATE가 적합할 수 있다. 하지만 JPQL bulk 변경은 DB에 직접 반영되며 이미 읽은 엔티티의 상태와 어긋날 수 있다. 엔티티 메서드와 생명주기 콜백을 건별로 실행하는 경로도 거치지 않는다.
 
-낙관적 잠금의 버전 조건과 갱신을 bulk 변경에서 어떻게 다룰지도 확인한다. 일반적인 엔티티 갱신에서 기대한 보호가 동일하게 적용된다고 가정하면 충돌을 놓칠 수 있다. 변경 전 필요한 flush와 변경 후 context 정리를 트랜잭션 흐름에 맞춰 정한다. [Jakarta Persistence의 bulk update·delete 규칙](https://jakarta.ee/specifications/persistence/3.2/jakarta-persistence-spec-3.2.html)
+낙관적 잠금의 버전 조건과 갱신을 bulk 변경에서 어떻게 다룰지도 확인한다. 일반적인 엔티티 갱신에서 기대한 보호가 동일하게 적용된다고 가정하면 충돌을 놓칠 수 있다. 변경 전 필요한 flush와 변경 후 context 정리를 트랜잭션 흐름에 맞춰 정한다. [Jakarta Persistence의 일괄 수정과 삭제 규칙](https://jakarta.ee/specifications/persistence/3.2/jakarta-persistence-spec-3.2.html)
 
 Spring Data JPA의 `@Modifying(clearAutomatically = true)`는 변경 후 context를 비우도록 요청하는 설정이다. 아직 flush하지 않은 변경이 남아 있는 상태에서 비우면 그 변경이 사라질 수 있다. 편의 옵션 하나로 트랜잭션의 앞뒤 상태까지 정리됐다고 보기는 어렵다. [Spring Data JPA의 modifying query](https://docs.spring.io/spring-data/jpa/reference/jpa/query-methods.html#jpa.modifying-queries)
 
-수신 계좌의 표시 이름을 조회하는 일과 계좌 잔액을 변경하는 일은 요구가 다르다. 앞의 조회에서 엔티티가 불필요했다는 이유로 모든 쓰기까지 같은 방식으로 바꿀 근거는 없다. 도메인 규칙과 엔티티 수명주기가 필요한 쓰기에는 JPA를 쓰고 조회나 집계에는 DTO·SQL을 함께 사용하는 설계도 가능하다.
+수신 계좌의 표시 이름을 조회하는 일과 계좌 잔액을 변경하는 일은 요구가 다르다. 앞의 조회에서 엔티티가 불필요했다는 이유로 모든 쓰기까지 같은 방식으로 바꿀 근거는 없다. 도메인 규칙과 엔티티 수명주기가 필요한 쓰기에는 JPA를 쓰고 조회나 집계에는 SQL로 읽은 값을 DTO에 담는 설계도 가능하다.
 
 ## 동시 송금에서는 빠른 계산보다 잔액 갱신 조건이 먼저다
 
@@ -123,4 +123,4 @@ MySQL의 `EXPLAIN`은 옵티마이저의 계획을 보여 준다. `EXPLAIN ANALY
 | projection | 필요한 조회 결과를 별도 타입으로 표현 | 실제 선택 열과 조인 |
 | JDBC batching | 여러 쓰기 명령을 묶어 전달 | 식별자 전략과 드라이버 동작 |
 | flush | 객체 변경을 SQL로 동기화 | commit과 다른 시점 |
-| chunk | 일부 작업을 묶어 처리·확정 | 부분 완료와 재시작의 멱등성 |
+| chunk | 일정량을 처리한 뒤 묶어서 커밋 | 부분 완료와 재시작의 멱등성 |

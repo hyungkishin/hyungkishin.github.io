@@ -48,12 +48,12 @@
   <rect x="260" y="320" width="200" height="68" rx="10" fill="#f1f5f9" stroke="#f59e0b" stroke-width="2"/>
   <text x="360" y="344" fill="#f59e0b" font-size="13" font-weight="600" text-anchor="middle">catch TimeoutException</text>
   <text x="360" y="364" fill="#4b5563" font-size="11" text-anchor="middle">timeoutQueue + counter</text>
-  <text x="360" y="380" fill="#64748b" font-size="11" text-anchor="middle">외부 장애 가시화</text>
+  <text x="360" y="380" fill="#64748b" font-size="11" text-anchor="middle">외부 API 시간 초과 건수</text>
 
   <rect x="500" y="320" width="200" height="68" rx="10" fill="#f1f5f9" stroke="#ef4444" stroke-width="2"/>
   <text x="600" y="344" fill="#ef4444" font-size="13" font-weight="600" text-anchor="middle">catch Exception</text>
   <text x="600" y="364" fill="#4b5563" font-size="11" text-anchor="middle">skipException 추적</text>
-  <text x="600" y="380" fill="#64748b" font-size="11" text-anchor="middle">데이터 결함 가시화</text>
+  <text x="600" y="380" fill="#64748b" font-size="11" text-anchor="middle">데이터 오류로 건너뛴 건 추적</text>
 
   <path d="M 700 280 Q 600 320 600 316" stroke="#ef4444" stroke-width="2" stroke-dasharray="4 3" fill="none"/>
   <path d="M 700 280 Q 500 320 360 316" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4 3" fill="none"/>

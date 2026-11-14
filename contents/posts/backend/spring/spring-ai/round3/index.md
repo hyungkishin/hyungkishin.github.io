@@ -114,7 +114,7 @@ ChatClient는 생성자에서 한 번만 빌드하고, 요청 시점에는 conve
 열 번째로 “지금까지 요약해줘”라고 했을 때도 답변에는 바로 앞 문의만 나왔다. 그림은 보관 개수에 따라 세 번째 문의를 다시 참조할 수 있는지 나타낸다.
 
 <figure class="agent-fig">
-  <div class="cap-head"><span class="cap-tag">message window · turn 6</span><span class="cap-tag">MAX_MESSAGES 20 vs 2</span></div>
+  <div class="cap-head"><span class="cap-tag">여섯 번째 문의에 남은 대화</span><span class="cap-tag">MAX_MESSAGES 20 vs 2</span></div>
   <svg viewBox="0 0 720 300" role="img" aria-label="여섯 번째 문의에서 세 번째 문의의 주문번호가 필요하다. 메시지를 20개 남기면 번호를 찾았고 두 개만 남기면 찾지 못했다" xmlns="http://www.w3.org/2000/svg">
     <text x="20" y="30" font-size="12" font-weight="700" fill="var(--fig-ink2)">MAX_MESSAGES = 20</text>
     <g>
@@ -126,9 +126,9 @@ ChatClient는 생성자에서 한 번만 빌드하고, 요청 시점에는 conve
       <rect x="36" y="56" width="84" height="32" rx="7" fill="var(--c-blue)" opacity="0.16"/>
       <text x="78" y="76" fill="var(--fig-ink)">턴3 : 2024-1235</text>
       <rect x="132" y="56" width="60" height="32" rx="7" fill="var(--fig-muted)" opacity="0.12"/>
-      <text x="162" y="76" fill="var(--fig-muted)">턴1·2</text>
+      <text x="162" y="76" fill="var(--fig-muted)">1, 2턴</text>
       <rect x="204" y="56" width="60" height="32" rx="7" fill="var(--fig-muted)" opacity="0.12"/>
-      <text x="234" y="76" fill="var(--fig-muted)">턴4·5</text>
+      <text x="234" y="76" fill="var(--fig-muted)">4, 5턴</text>
       <rect x="276" y="56" width="120" height="32" rx="7" fill="var(--c-amber)" opacity="0.16"/>
       <text x="336" y="76" fill="var(--fig-ink)">턴6 : "1235는?"</text>
     </g>

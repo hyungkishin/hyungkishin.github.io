@@ -18,7 +18,7 @@ tags:
 
 ## 반복문에서 바이트코드의 주소 읽기
 
-JIT 로그에는 소스의 줄 번호 대신 `@ 2` 같은 숫자가 찍힌다. 이 숫자를 읽기 위해 `Hello World`를 열 번 출력하는 반복문을 골랐다. `javac -g HelloLoop.java`로 컴파일하고 `javap -c -l HelloLoop`로 열어 보니 `for` 한 줄도 꽤 길다. [예제 소스](./evidence/HelloLoop.java) · [전체 바이트코드](./evidence/javap.txt) · [실행 출력](./evidence/stdout.txt)
+JIT 로그에는 소스의 줄 번호 대신 `@ 2` 같은 숫자가 찍힌다. 이 숫자를 읽기 위해 `Hello World`를 열 번 출력하는 반복문을 골랐다. `javac -g HelloLoop.java`로 컴파일하고 `javap -c -l HelloLoop`로 열어 보니 `for` 한 줄도 꽤 길다. [예제 소스](./evidence/HelloLoop.java), [전체 바이트코드](./evidence/javap.txt), [실행 출력](./evidence/stdout.txt)
 
 ```java
 for (int i = 0; i < 10; i++) {
@@ -115,12 +115,12 @@ java -Xbatch -XX:+UnlockDiagnosticVMOptions -DflatFee=true \
 | 인라이닝 허용 | 곱셈(`mul`), 산술 오른쪽 시프트(`asr`), 뺄셈(`sub`)으로 `amountWon / 100`을 계산한다. 이 경로에서 `fee`를 따로 호출하지 않는다. |
 | `RateFee.fee` 인라이닝 금지 | 같은 호출 위치에 ARM64의 호출 명령 `bl`이 남는다. 컴파일 로그에도 인라이닝을 금지한 옵션이 이유로 찍힌다. |
 
-인라이닝을 허용한 쪽에도 `bl`이 남아 있다. `bl`의 개수만 세면 호출을 그대로 뒀다고 읽기 쉽다. 목적지 주소를 따라가 보니 정률 타입이라는 예상이 빗나갔을 때 실행할 런타임 코드였다. 타입 검사를 통과한 쪽에는 `fee`로 건너가는 호출 없이 100으로 나누는 계산이 들어 있다. 이 비교로 절약한 시간을 재지는 않았다. [실험에 쓴 FeeDemo.java](./evidence/FeeDemo.java) · [두 JVM의 컴파일 옵션·로그·역어셈블](./evidence/inline-caller.txt)
+인라이닝을 허용한 쪽에도 `bl`이 남아 있다. `bl`의 개수만 세면 호출을 그대로 뒀다고 읽기 쉽다. 목적지 주소를 따라가 보니 정률 타입이라는 예상이 빗나갔을 때 실행할 런타임 코드였다. 타입 검사를 통과한 쪽에는 `fee`로 건너가는 호출 없이 100으로 나누는 계산이 들어 있다. 이 비교로 절약한 시간을 재지는 않았다. [실험에 쓴 FeeDemo.java](./evidence/FeeDemo.java), [두 JVM의 컴파일 옵션과 로그, 기계어 출력](./evidence/inline-caller.txt)
 
 ## 송금 시간을 비교할 때의 워밍업
 
 워밍업에 쓴 수수료 정책과 실제 요청의 정책이 다르면 어떻게 될까? 예를 들어 배포 직후에 정액 송금으로만 워밍업했는데 실제 트래픽은 대부분 정률이라고 하자. 워밍업 때 기록된 호출 대상은 정액뿐이다. 위 실험은 정책마다 새 JVM을 띄웠으니, 한 JVM 안에서 중간에 정책을 바꿨을 때 어느 순간에 코드를 다시 만드는지는 별도로 봐야 한다.
 
-[앞 글](/backend/transfer-performance/01-measurement/)에서 첫 송금 응답을 재기로 했다면 첫 요청을 워밍업으로 흘려보낼 수 없다. 반대로 충분히 실행한 서비스의 수수료 계산을 비교할 때는 각 버전을 새 JVM에서 시작하고 실제로 측정할 때와 비슷한 비율로 정률·정액 요청을 미리 보낸다. JMH의 `fork`는 새 JVM을 띄우고 `warmup` 횟수는 각 JVM에서 측정 전에 돌릴 연습 횟수를 정한다. [OpenJDK JMH의 fork 예제](https://github.com/openjdk/jmh/blob/master/jmh-samples/src/main/java/org/openjdk/jmh/samples/JMHSample_12_Forking.java)
+[앞 글](/backend/transfer-performance/01-measurement/)에서 첫 송금 응답을 재기로 했다면 첫 요청을 워밍업으로 흘려보낼 수 없다. 반대로 충분히 실행한 서비스의 수수료 계산을 비교할 때는 각 버전을 새 JVM에서 시작하고 실제로 측정할 때와 비슷한 비율로 정률 요청과 정액 요청을 미리 보낸다. JMH의 `fork`는 새 JVM을 띄우고 `warmup` 횟수는 각 JVM에서 측정 전에 돌릴 연습 횟수를 정한다. [OpenJDK JMH의 fork 예제](https://github.com/openjdk/jmh/blob/master/jmh-samples/src/main/java/org/openjdk/jmh/samples/JMHSample_12_Forking.java)
 
 여기서는 각 JVM이 직접 본 수수료 정책을 바탕으로 기계어를 만들었다. 빌드할 때 미리 기계어를 만들면 그 시점에는 정률 요청이 몇 건 들어올지 모른다. [같은 계산을 JIT와 AOT로 실행해 어떤 파일을 배포하는지 비교했다.](/backend/transfer-performance/jit-aot-linux/)

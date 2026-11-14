@@ -64,7 +64,7 @@ tags:
 | 단순 추산 | 1.1만 × 1.5초 ≈ 5시간 | 가설(추정) |
 | offset lag | 최대 대기 메시지 1건 | "큐에 쌓였다"가 지워짐 |
 | time lag | 최대 12초 | "5시간 지연"이 지워짐 |
-| 처리량·입력량 곡선 | 밀린 구간 없음 | backlog 자체가 없음 |
+| 처리량과 입력량 그래프 | 밀린 구간 없음 | backlog 자체가 없음 |
 
 <figure class="metric-fig">
   <div class="cap-head"><span class="cap-tag">estimated processing time vs measured lag</span><span class="cap-tag">11,260 msgs</span></div>
@@ -103,8 +103,8 @@ tags:
       <animateMotion path="M52 210 C 240 208, 430 150, 684 46" keyPoints="0;1;1;0" keyTimes="0;0.42;0.9;1" dur="6.5s" calcMode="spline" keySplines="0.45 0 0.15 1;0 0 1 1;0.45 0 0.15 1" repeatCount="indefinite"/>
     </circle>
     <circle cx="52" cy="211" r="4" fill="var(--fig-surface)" stroke="var(--fig-ink2)" stroke-width="1.6"/>
-    <g transform="translate(556,30)"><rect width="128" height="21" rx="7" fill="var(--c-orange)" opacity="0.16"/><text x="12" y="14.5" fill="var(--c-orangeink)" font-size="12" font-weight="700">단순 추산 · 약 5시간</text></g>
-    <g transform="translate(520,224)"><rect width="164" height="21" rx="7" fill="var(--c-blue)" opacity="0.16"/><text x="12" y="14.5" fill="var(--c-blueink)" font-size="12" font-weight="700">실측 lag · 12초 (대기 1건)</text></g>
+    <g transform="translate(556,30)"><rect width="128" height="21" rx="7" fill="var(--c-orange)" opacity="0.16"/><text x="12" y="14.5" fill="var(--c-orangeink)" font-size="12" font-weight="700">직렬 추산 약 5시간</text></g>
+    <g transform="translate(520,224)"><rect width="164" height="21" rx="7" fill="var(--c-blue)" opacity="0.16"/><text x="12" y="14.5" fill="var(--c-blueink)" font-size="12" font-weight="700">최대 12초, 대기 최대 1건</text></g>
     <text x="56" y="230" fill="var(--fig-muted)" font-size="10.5" letter-spacing="0.03em">발송 시작</text>
   </svg>
   <figcaption>같은 지점에서 출발한 두 선. 위는 <b>건수 x 건당시간</b>이 그린 추정, 아래는 컨슈머가 실제로 보고한 지연. 추정 처리 시간과 관측된 대기 시간은 측정 대상이 다르므로 직접 같은 값으로 해석할 수 없다.</figcaption>
@@ -129,7 +129,7 @@ Kafka는 producer가 메시지를 broker의 파티션에 넣고 consumer가 순�
 그리고 Kafka 밖의 지연은 어느 쪽으로도 보이지 않는다. producer가 늦게 넣는 것, 벤더가 접수한 뒤 늦게 배송하는 것 모두.
 
 <figure class="metric-fig">
-  <div class="cap-head"><span class="cap-tag">a message's life · lag measurement scope</span><span class="cap-tag">queue only</span></div>
+  <div class="cap-head"><span class="cap-tag">메시지 처리 중 lag을 재는 구간</span><span class="cap-tag">queue only</span></div>
   <svg viewBox="0 0 660 196" role="img" aria-label="메시지 한 건이 네 단계를 지나는데 lag은 파티션 대기 구간 하나만 잰다. producer 투입 전, consumer 처리 중, 벤더 배송은 lag 사각지대다" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="e2-blue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--c-blue)"/><stop offset="1" stop-color="var(--c-blue)" stop-opacity="0.7"/></linearGradient>
@@ -158,7 +158,7 @@ Kafka는 producer가 메시지를 broker의 파티션에 넣고 consumer가 순�
       <text x="434" y="128">consumer 처리 중</text>
       <text x="555" y="128">벤더 배송</text>
     </g>
-    <text x="330" y="166" text-anchor="middle" fill="var(--fig-muted)" font-size="10.5">파티션 대기만 lag(offset · time)에 잡힌다. 나머지 세 구간은 lag 사각지대.</text>
+    <text x="330" y="166" text-anchor="middle" fill="var(--fig-muted)" font-size="10.5">파티션 대기만 offset lag과 time lag에 잡힌다. 나머지 세 구간은 lag 사각지대.</text>
   </svg>
   <figcaption>메시지 한 건은 네 구간을 지난다. position 기준 lag은 <b>읽기 전 파티션 대기</b>를 확인하는 데 사용한다. producer 투입 전, consumer가 이미 읽어 처리 중, 벤더 접수 후 배송의 지연은 lag에 보이지 않는다.</figcaption>
 </figure>

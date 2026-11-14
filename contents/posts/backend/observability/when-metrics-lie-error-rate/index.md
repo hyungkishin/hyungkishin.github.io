@@ -65,7 +65,7 @@ tags:
 예외 처리도 집계에 영향을 줬다. 발송 코드가 예외를 잡아 `null`을 반환하면 실패 건수가 늘지 않았다.
 
 <figure class="metric-fig">
-  <div class="cap-head"><span class="cap-tag">"success" log = delivered + uncounted failures</span><span class="cap-tag">noon batch · 636</span></div>
+  <div class="cap-head"><span class="cap-tag">"success" log = delivered + uncounted failures</span><span class="cap-tag">정오 배치 636건</span></div>
   <svg viewBox="0 0 640 220" role="img" aria-label="로그 성공 634건이 벤더 접수 성공 453과 집계에서 누락된 181로 갈라지고, 왼쪽 634 블록 높이가 오른쪽 두 칸의 합과 같다" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="e1-log" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--fig-baseline)"/><stop offset="1" stop-color="var(--fig-baseline)" stop-opacity="0.5"/></linearGradient>
@@ -93,8 +93,8 @@ tags:
     <g font-size="12">
       <text x="124" y="36" text-anchor="middle" fill="var(--fig-muted)" font-weight="600">로그에 기록된 성공</text>
       <text x="512" y="36" text-anchor="middle" fill="var(--fig-muted)" font-weight="600">실제 도착</text>
-      <text x="578" y="140" fill="var(--c-greenink)" font-weight="700">453 · 71%</text>
-      <text x="578" y="70" fill="var(--c-redink)" font-weight="700">181 · 29% 누락</text>
+      <text x="578" y="140" fill="var(--c-greenink)" font-weight="700">453건(71%)</text>
+      <text x="578" y="70" fill="var(--c-redink)" font-weight="700">181건(29%) 누락</text>
     </g>
   </svg>
   <figcaption>로그의 "성공 634"는 벤더 접수 성공 453과 집계에서 누락된 181로 나뉜다. 그 181 중 180이 빈 수신번호였다. 왼쪽 블록과 오른쪽 두 칸의 높이가 같다: <b>634 = 453 + 181</b>.</figcaption>
@@ -108,7 +108,7 @@ tags:
 | 단계 | 확인한 것 | 제외한 가설 |
 |---|---|---|
 | 성공 로그 vs 벤더 응답 대조 | 벤더 성공 코드(code 1000)는 453건뿐. 181건이 갈라졌다 | "로그 = 도착"이라는 가정 |
-| HTTP status와 본문 코드 분리 | 181건 모두 HTTP는 200, 본문은 실패 | 네트워크·타임아웃 실패 |
+| HTTP status와 본문 코드 분리 | 181건 모두 HTTP는 200, 본문은 실패 | 네트워크 오류나 타임아웃 |
 | 실패 응답의 공통 필드 | 180건이 같은 응답. `{code 2000, "The to field is required"}` | 무작위 벤더 오류 |
 | 빈 번호의 출처 역추적 | 회원 서비스가 빈 문자열로 저장. `== null` 가드가 통과시킴 | 벤더에서 번호가 유실됐다는 가설 |
 

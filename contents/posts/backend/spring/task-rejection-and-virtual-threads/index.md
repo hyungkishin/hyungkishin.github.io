@@ -297,7 +297,7 @@ this.concurrencyThrottle.beforeAccess();
 doExecute(new TaskTrackingRunnable(taskToUse));
 ```
 
-`beforeAccess()`는 락 안에서 진행 중인 작업 수를 비교한다. 제한에 닿으면 기본 구현은 `Condition.await()`로 기다린다. 작업 하나가 끝나 `afterAccess()`에서 카운터를 줄이고 신호를 주면 대기자가 조건을 다시 검사한다. 이 동작을 적용하려면 `rejectTasksWhenLimitReached`가 기본값인 `false`여야 한다. `true`로 바꾸면 초과 제출을 거부한다. 같은 Spring 6.x 안에서도 구현은 다르다. 6.1.0 소스는 모니터의 `wait`를 쓰고 6.2.8은 `ReentrantLock`과 `Condition`을 쓴다. [Spring 6.2.8의 제출과 거부 분기](https://github.com/spring-projects/spring-framework/blob/v6.2.8/spring-core/src/main/java/org/springframework/core/task/SimpleAsyncTaskExecutor.java#L273-L291) · [6.2.8의 대기와 해제](https://github.com/spring-projects/spring-framework/blob/v6.2.8/spring-core/src/main/java/org/springframework/util/ConcurrencyThrottleSupport.java#L111-L180) · [6.1.0의 구현](https://github.com/spring-projects/spring-framework/blob/v6.1.0/spring-core/src/main/java/org/springframework/util/ConcurrencyThrottleSupport.java#L105-L154)
+`beforeAccess()`는 락 안에서 진행 중인 작업 수를 비교한다. 제한에 닿으면 기본 구현은 `Condition.await()`로 기다린다. 작업 하나가 끝나 `afterAccess()`에서 카운터를 줄이고 신호를 주면 대기자가 조건을 다시 검사한다. 이 동작을 적용하려면 `rejectTasksWhenLimitReached`가 기본값인 `false`여야 한다. `true`로 바꾸면 초과 제출을 거부한다. 같은 Spring 6.x 안에서도 구현은 다르다. 6.1.0 소스는 모니터의 `wait`를 쓰고 6.2.8은 `ReentrantLock`과 `Condition`을 쓴다. [Spring 6.2.8의 제출과 거부 분기](https://github.com/spring-projects/spring-framework/blob/v6.2.8/spring-core/src/main/java/org/springframework/core/task/SimpleAsyncTaskExecutor.java#L273-L291), [6.2.8의 대기와 해제](https://github.com/spring-projects/spring-framework/blob/v6.2.8/spring-core/src/main/java/org/springframework/util/ConcurrencyThrottleSupport.java#L111-L180), [6.1.0의 구현](https://github.com/spring-projects/spring-framework/blob/v6.1.0/spring-core/src/main/java/org/springframework/util/ConcurrencyThrottleSupport.java#L105-L154)
 
 작업이 끝날 때 `TaskTrackingRunnable`이 호출 슬롯을 되돌려준다. 제출 시점과 종료 시점의 카운터를 보면 작업 수가 왜 한도를 넘지 않는지 드러난다.
 
@@ -335,7 +335,7 @@ SimpleAsyncTaskExecutor.execute
                 Continuation.yield / yield0
 ```
 
-AQS의 `ConditionObject`는 조건 대기열에 현재 스레드를 등록하고 락을 놓는다. `ConditionNode.block()`은 깨울 조건이 생길 때까지 `LockSupport.park()`를 호출한다. 신호를 받은 쪽은 락을 다시 얻고 나서 동시 작업 수를 검사한다. [JDK 21u의 대기 노드](https://github.com/openjdk/jdk21u/blob/jdk-21.0.12%2B7/src/java.base/share/classes/java/util/concurrent/locks/AbstractQueuedSynchronizer.java#L492-L524) · [ConditionObject.await](https://github.com/openjdk/jdk21u/blob/jdk-21.0.12%2B7/src/java.base/share/classes/java/util/concurrent/locks/AbstractQueuedSynchronizer.java#L1728-L1774)
+AQS의 `ConditionObject`는 조건 대기열에 현재 스레드를 등록하고 락을 놓는다. `ConditionNode.block()`은 깨울 조건이 생길 때까지 `LockSupport.park()`를 호출한다. 신호를 받은 쪽은 락을 다시 얻고 나서 동시 작업 수를 검사한다. [JDK 21u의 대기 노드](https://github.com/openjdk/jdk21u/blob/jdk-21.0.12%2B7/src/java.base/share/classes/java/util/concurrent/locks/AbstractQueuedSynchronizer.java#L492-L524), [ConditionObject.await](https://github.com/openjdk/jdk21u/blob/jdk-21.0.12%2B7/src/java.base/share/classes/java/util/concurrent/locks/AbstractQueuedSynchronizer.java#L1728-L1774)
 
 `VirtualThread.park()`는 이미 허가를 받았거나 인터럽트된 상태면 반환한다. 기다려야 하면 `PARKING` 상태에서 continuation 양도를 시도한다. 성공한 스레드는 나중에 재개되어 이 호출에서 돌아온다. 양도가 실패한 경우 다음 분기가 운반 스레드 자체를 재운다.
 
@@ -345,11 +345,11 @@ if (!yielded) {
 }
 ```
 
-JDK 21u의 `parkOnCarrierThread`는 시간 제한 유무에 따라 `TIMED_PINNED` 또는 `PINNED` 상태를 기록하고 빠져나올 때 `RUNNING`으로 되돌린다. 해당 경로에서 JFR 이벤트의 측정을 시작하고 끝낸다. [VirtualThread.park의 분기](https://github.com/openjdk/jdk21u/blob/jdk-21.0.12%2B7/src/java.base/share/classes/java/lang/VirtualThread.java#L585-L608) · [Continuation.yield 구현](https://github.com/openjdk/jdk21u/blob/jdk-21.0.12%2B7/src/java.base/share/classes/jdk/internal/vm/Continuation.java#L343-L383) · [parkOnCarrierThread와 JFR 기록](https://github.com/openjdk/jdk21u/blob/jdk-21.0.12%2B7/src/java.base/share/classes/java/lang/VirtualThread.java#L660-L696)
+JDK 21u의 `parkOnCarrierThread`는 시간 제한 유무에 따라 `TIMED_PINNED` 또는 `PINNED` 상태를 기록하고 빠져나올 때 `RUNNING`으로 되돌린다. 해당 경로에서 JFR 이벤트의 측정을 시작하고 끝낸다. [VirtualThread.park의 분기](https://github.com/openjdk/jdk21u/blob/jdk-21.0.12%2B7/src/java.base/share/classes/java/lang/VirtualThread.java#L585-L608), [Continuation.yield 구현](https://github.com/openjdk/jdk21u/blob/jdk-21.0.12%2B7/src/java.base/share/classes/jdk/internal/vm/Continuation.java#L343-L383), [parkOnCarrierThread와 JFR 기록](https://github.com/openjdk/jdk21u/blob/jdk-21.0.12%2B7/src/java.base/share/classes/java/lang/VirtualThread.java#L660-L696)
 
 ### JDK 21과 25에서 같은 코드를 관측한 결과
 
-JDK 21에서는 `synchronized` 안에서 긴 블로킹 작업을 하면 운반 스레드에 고정될 수 있다. JDK 24에 정식 반영된 JEP 491은 모니터를 잡은 가상 스레드도 그 상태로 운반 스레드에서 분리될 수 있게 했다. JDK 25에서는 네이티브 호출이 다시 Java로 들어와 블로킹하는 경로 등이 남아 있다. JFR의 `jdk.VirtualThreadPinned` 이벤트에서 JDK 버전·스택·지속 시간을 함께 본다. JDK 21의 `-Djdk.tracePinnedThreads`는 JDK 24부터 효과가 없다. 모니터를 잡고 외부 응답을 기다리면 JDK 25에서도 같은 락을 기다리는 요청은 지연된다. [JEP 491의 변경 범위와 진단](https://openjdk.org/jeps/491) · [JDK 21과 25에서 직접 실행한 JFR 실험](/backend/transfer-performance/parallel-io/#section-4)
+JDK 21에서는 `synchronized` 안에서 긴 블로킹 작업을 하면 운반 스레드에 고정될 수 있다. JDK 24에 정식 반영된 JEP 491은 모니터를 잡은 가상 스레드도 그 상태로 운반 스레드에서 분리될 수 있게 했다. JDK 25에서는 네이티브 호출이 다시 Java로 들어와 블로킹하는 경로 등이 남아 있다. JFR의 `jdk.VirtualThreadPinned` 이벤트에서 JDK 버전, 호출 스택, 고정된 시간을 함께 본다. JDK 21의 `-Djdk.tracePinnedThreads`는 JDK 24부터 효과가 없다. 모니터를 잡고 외부 응답을 기다리면 JDK 25에서도 같은 락을 기다리는 요청은 지연된다. [JEP 491의 변경 범위와 진단](https://openjdk.org/jeps/491), [JDK 21과 25에서 직접 실행한 JFR 실험](/backend/transfer-performance/parallel-io/#section-4)
 
 운영에서 기록을 다시 열 때는 `jfr print --events jdk.VirtualThreadPinned recording.jfr`로 이벤트의 스택과 시간을 확인한다. JDK 21의 `-Djdk.tracePinnedThreads=full`은 별도 재현 환경에서 스택을 확인하는 용도다. JFR 설정의 threshold보다 짧은 대기는 기록에서 빠질 수 있다. JDK 25를 조사하면서 21의 이벤트 스택과 같은 원인을 전제하면 대기 자리를 놓친다.
 
@@ -359,11 +359,11 @@ JDK 21에서는 `synchronized` 안에서 긴 블로킹 작업을 하면 운반 �
 
 Little의 법칙은 관측 창과 시스템 경계가 같은 세 평균값을 연결한다. 평균 진행 건수 `L = λ × W`에서 `λ`는 초당 처리 건수, `W`는 건당 평균 체류 시간(초)이다. 처리율이 초당 100건이고 평균이 0.2초라면 평균 진행 건수는 20건이다. p50이나 p99를 평균 자리에 넣을 수 없다. 20은 관측한 평균이므로 풀의 안전한 상한을 바로 결정해 주지도 않는다. [평균과 풀 크기의 차이](/backend/transfer-performance/01-measurement/)
 
-**동시성 한도**는 시작한 뒤 아직 끝나지 않은 호출을 센다. **요청률 한도**는 일정 시간에 시작하는 호출을 제한한다. 동시성을 1로 정해도 응답이 매번 100ms면 한 스레드에서 초당 약 10건이 순차로 시작한다. Slack 같은 목적지의 할당량은 메서드·채널·워크스페이스 범위를 먼저 확인한다. 그 범위의 토큰 버킷으로 시작 속도와 버스트를 관리하고, 별도의 세마포어로 동시에 점유할 연결 수를 제한할 수 있다. [Slack의 메시지 게시 한도](https://docs.slack.dev/apis/web-api/rate-limits/#posting-messages) · [외부 조회의 동시성·속도 제한 예](/backend/transfer-performance/parallel-io/#section-3)
+**동시성 한도**는 시작한 뒤 아직 끝나지 않은 호출을 센다. **요청률 한도**는 일정 시간에 시작하는 호출을 제한한다. 동시성을 1로 정해도 응답이 매번 100ms면 한 스레드에서 초당 약 10건이 순차로 시작한다. Slack 같은 목적지의 할당량은 메서드, 채널, 워크스페이스 중 어디에 한도를 적용하는지 먼저 확인한다. 그 범위의 토큰 버킷으로 시작 속도와 버스트를 관리하고, 별도의 세마포어로 동시에 점유할 연결 수를 제한할 수 있다. [Slack의 메시지 게시 한도](https://docs.slack.dev/apis/web-api/rate-limits/#posting-messages), [외부 조회의 동시 요청 수와 초당 요청 수 제한](/backend/transfer-performance/parallel-io/#section-3)
 
 ### 같은 실행기를 쓰던 Slack 전송과 Amplitude 적재
 
-회고에서 50은 "외부 API rate limit이 100이니까 절반"으로 잡은 초기 설정이었다. Slack 메시지 전송 한 건과 Amplitude 이벤트 한 묶음을 같은 작업자 풀에 제출해도, 할당량 적용 단위와 처리 시간은 다를 수 있다. Slack은 채널별 게시 제한과 워크스페이스 제약을 함께 확인한다. Amplitude는 쓰는 API 버전·프로젝트의 이벤트 처리 및 throttling 조건을 확인한다. 이벤트 수와 HTTP 요청 수도 따로 센다. [Slack chat.postMessage](https://docs.slack.dev/reference/methods/chat.postMessage/) · [Amplitude HTTP V2](https://amplitude.com/docs/apis/analytics/http-v2)
+회고에서 50은 "외부 API rate limit이 100이니까 절반"으로 잡은 초기 설정이었다. Slack 메시지 전송 한 건과 Amplitude 이벤트 한 묶음을 같은 작업자 풀에 제출해도, 할당량 적용 단위와 처리 시간은 다를 수 있다. Slack은 채널별 게시 제한과 워크스페이스 제약을 함께 확인한다. Amplitude는 사용 중인 API 버전과 프로젝트에 따라 이벤트를 어떻게 처리하고 요청을 언제 제한하는지 확인한다. 이벤트 수와 HTTP 요청 수도 따로 센다. [Slack chat.postMessage](https://docs.slack.dev/reference/methods/chat.postMessage/), [Amplitude HTTP V2](https://amplitude.com/docs/apis/analytics/http-v2)
 
 가령 목표를 각각 0.8건/초와 800건/초로 놓고 평균 외부 호출 시간이 양쪽 모두 0.2초라고 가정해 보자. 평균 진행 건수는 각각 **0.16건과 160건**이다. 이는 계산 예시다. 첫 번째 API의 동시성을 1로 반올림하는 것만으로는 초당 시작 건수를 제한하지 못한다. 반대로 두 번째 숫자를 그대로 풀 크기로 쓰면 지연이 증가했을 때 필요한 대기 시간과 상대의 허용 범위를 놓친다.
 
@@ -406,7 +406,7 @@ EKS rolling deploy 후 admin-api pod이 4대라고 보자.
 
 ### 여러 프로세스가 같은 한도를 쓸 때
 
-각 JVM의 카운터는 자기 프로세스 안의 호출만 센다. 할당량을 공유하는 목적지라면 호출 주체를 한 곳으로 모으는 방법이 있다. 인스턴스에 나누어 할당한 예산의 합을 총량 안에 두거나 공유 제한기에서 원자적으로 차감하는 방법도 있다. 공유 제한기를 두면 그 저장소까지의 왕복과 장애 시 거부·지연 정책이 새 비용이 된다.
+각 JVM의 카운터는 자기 프로세스 안의 호출만 센다. 할당량을 공유하는 목적지라면 호출 주체를 한 곳으로 모으는 방법이 있다. 인스턴스에 나누어 할당한 예산의 합을 총량 안에 두거나 공유 제한기에서 원자적으로 차감하는 방법도 있다. 공유 제한기를 두면 그 저장소를 한 번 더 호출해야 한다. 저장소에 장애가 났을 때 요청을 거절할지 대기시킬지도 정해야 한다.
 
 Spring의 애플리케이션 이벤트는 한 컨텍스트 안에서 전달된다. 여러 pod에 리스너가 등록됐다는 사실만으로 같은 이벤트가 다른 pod에 전파되지는 않는다. 여러 pod에서 실제 외부 호출이 시작되는지는 배치의 실행 위치, 브로커 구독과 publisher 배치를 확인해야 한다.
 
@@ -418,7 +418,7 @@ Spring의 애플리케이션 이벤트는 한 컨텍스트 안에서 전달된�
 | Bucket4j와 공유 저장소 | 같은 quota key의 남은 토큰과 마지막 충전 시각을 원자적으로 갱신한다. 저장소 왕복 지연과 단절 시 실패 정책이 필요하다. |
 | 공통 egress 게이트웨이 | 외부로 나가는 모든 발신 경로가 게이트웨이를 지나야 정책이 적용된다. 우회 경로, 게이트웨이 장애, 다중 복제의 상태 공유가 운영 조건이다. |
 
-P0에서 Outbox publisher를 한 개만 둘 수 있고 다른 발신 경로가 없다면 프로세스 내 제한으로 시작한다. 인스턴스를 늘리면 같은 제한 키를 공유하는 pod 수와 롤링 배포 중 겹치는 수까지 포함해 다시 계산한다. 이 판단은 작업이 유실되지 않게 DB에 기록하는 트랜잭션 경계와 별개다. [Resilience4j의 JVM별 구현](https://resilience4j.readme.io/docs/ratelimiter) · [Bucket4j 분산 버킷](https://bucket4j.com/)
+P0에서 Outbox publisher를 한 개만 둘 수 있고 다른 발신 경로가 없다면 프로세스 내 제한으로 시작한다. 인스턴스를 늘리면 같은 제한 키를 공유하는 pod 수와 롤링 배포 중 겹치는 수까지 포함해 다시 계산한다. 이 판단은 작업이 유실되지 않게 DB에 기록하는 트랜잭션 경계와 별개다. [Resilience4j의 JVM별 구현](https://resilience4j.readme.io/docs/ratelimiter), [Bucket4j 분산 버킷](https://bucket4j.com/)
 
 ---
 
@@ -573,7 +573,7 @@ DB에 이벤트를 남기는 후속안은 [Outbox 도입을 검토한 회고](/c
 - [JEP 491: Synchronize Virtual Threads without Pinning](https://openjdk.org/jeps/491): JDK 24 정식 반영, 모니터 관련 고정 해소
 - [JEP 425: Virtual Threads (Preview)](https://openjdk.org/jeps/425): JDK 19 preview, 초기 설계 의도
 - [JEP 480: Structured Concurrency](https://openjdk.org/jeps/480): VT 시대의 task 묶음 모델
-- [Java Language Specification §17 Threads and Locks](https://docs.oracle.com/javase/specs/jls/se21/html/jls-17.html): 모니터 락 정의
+- [자바 언어 명세 17장 Threads and Locks](https://docs.oracle.com/javase/specs/jls/se21/html/jls-17.html): 모니터 락 정의
 
 ### OpenJDK 소스
 

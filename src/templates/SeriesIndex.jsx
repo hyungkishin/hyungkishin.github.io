@@ -22,7 +22,7 @@ const SeriesIndexPage = ({ pageContext, data }) => {
   return (
     <Layout wide>
       <SEO
-        title={`${rule.name} · 시리즈`}
+        title={`${rule.name} 시리즈`}
         description={rule.tagline || description}
         url={`${siteUrl}${rule.indexSlug}`}
       />

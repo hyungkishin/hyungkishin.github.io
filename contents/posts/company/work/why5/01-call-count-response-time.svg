@@ -79,5 +79,5 @@
   </g>
 
   <!-- Bottom note -->
-  <text x="460" y="450" fill="#9ca3af" font-size="11" text-anchor="middle">첫 호출에 JIT/TLS/DNS/IRSA가 한꺼번에 깔리고, 이후로는 캐시·재사용으로 평탄화된다</text>
+  <text x="460" y="450" fill="#9ca3af" font-size="11" text-anchor="middle">첫 호출에는 JIT, TLS, DNS, IRSA 처리가 겹칠 수 있다. 이후 호출은 캐시와 연결을 재사용할 수 있다</text>
 </svg>

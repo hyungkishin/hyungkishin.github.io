@@ -1,0 +1,20 @@
+name: 공개 원고 검사
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop]
+permissions:
+  contents: read
+jobs:
+  public-prose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+      - run: yarn install --frozen-lockfile --ignore-scripts
+      - run: node --test scripts/public-prose.test.mjs scripts/check-rendered-prose.test.mjs scripts/tone-guard.test.mjs
+      - run: node scripts/check-public-prose.mjs --all

@@ -95,5 +95,5 @@
   <text x="295" y="414" text-anchor="middle" fill="#e0e0e0" font-size="11" font-weight="600">status 확인</text>
 
   <!-- Legend -->
-  <text x="390" y="515" text-anchor="middle" fill="#6b7280" font-size="10">acks=all · idempotence=true · manual ack · Avro + Schema Registry · ErrorHandlingDeserializer</text>
+  <text x="390" y="515" text-anchor="middle" fill="#6b7280" font-size="10">acks=all, idempotence=true, manual ack, Avro + Schema Registry, ErrorHandlingDeserializer</text>
 </svg>

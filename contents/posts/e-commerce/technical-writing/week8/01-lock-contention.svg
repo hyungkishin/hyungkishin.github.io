@@ -42,7 +42,7 @@
 
   <!-- Node 5: 장애 전파 -->
   <rect x="50" y="374" width="360" height="64" rx="8" fill="#e94560" filter="url(#shadow)"/>
-  <text x="230" y="400" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="700">🔥 상품 조회 · 브랜드 목록 · 쿠폰 발급</text>
+  <text x="230" y="400" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="700">🔥 상품 조회, 브랜드 목록, 쿠폰 발급</text>
   <text x="230" y="422" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="700">락과 무관한 API까지 전부 마비</text>
 
   <!-- 하단 비교 박스 -->

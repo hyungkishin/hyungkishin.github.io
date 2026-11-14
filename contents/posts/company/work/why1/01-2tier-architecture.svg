@@ -2,7 +2,7 @@
   <rect width="920" height="540" fill="#ffffff"/>
 
   <text x="460" y="36" fill="#1f2937" font-size="18" font-weight="600" text-anchor="middle">L1 + L2 + Pub/Sub invalidation 아키텍처</text>
-  <text x="460" y="58" fill="#64748b" font-size="12" text-anchor="middle">평소엔 L1에서 즉답, 새 배포·만료·핫패치 때만 L2/DB로 내려간다</text>
+  <text x="460" y="58" fill="#64748b" font-size="12" text-anchor="middle">평소엔 L1에서 즉답, 새로 배포하거나 캐시가 만료되거나 핫패치할 때만 L2/DB로 내려간다</text>
 
   <defs>
     <marker id="arr" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
@@ -24,11 +24,11 @@
 
   <rect x="300" y="120" width="240" height="56" rx="10" fill="#f1f5f9" stroke="#10b981" stroke-width="2"/>
   <text x="420" y="142" fill="#10b981" font-size="13" font-weight="600" text-anchor="middle">L1: Caffeine LoadingCache</text>
-  <text x="420" y="160" fill="#4b5563" font-size="11" text-anchor="middle">expireAfterWrite 1m · maximumSize 4</text>
+  <text x="420" y="160" fill="#4b5563" font-size="11" text-anchor="middle">expireAfterWrite 1m, maximumSize 4</text>
 
   <rect x="300" y="190" width="240" height="56" rx="10" fill="#f1f5f9" stroke="#0ea5e9" stroke-width="1.2"/>
   <text x="420" y="210" fill="#4b5563" font-size="11" text-anchor="middle">L1 hit ratio target ≥ 99%</text>
-  <text x="420" y="230" fill="#64748b" font-size="11" text-anchor="middle">RTT 0 · parse 0</text>
+  <text x="420" y="230" fill="#64748b" font-size="11" text-anchor="middle">RTT 0, 파싱 0회</text>
 
   <!-- L2 Redis -->
   <rect x="620" y="120" width="240" height="68" rx="10" fill="#f1f5f9" stroke="#ef4444" stroke-width="2"/>

@@ -54,5 +54,5 @@
   <path d="M606 410 H716" fill="none" stroke="#64748b" stroke-width="2.5" marker-end="url(#partition-arrow)"/>
 
   <text x="40" y="542" font-weight="600">일반 그룹: 한 파티션을 같은 시점에 한 컨슈머가 담당</text>
-  <text class="caption" x="40" y="576">파티션 간 전체 순서 없음 · 복제본 수를 늘려도 파티션 수는 그대로</text>
+  <text class="caption" x="40" y="576">파티션 간 순서는 보장되지 않는다. 복제본을 늘려도 파티션 수는 같다.</text>
 </svg>

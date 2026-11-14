@@ -4,6 +4,7 @@
 // 구조 검사: frontmatter 필수 필드, 날짜 형식, 로컬 자산 참조 실재, em dash, 코드 펜스 짝.
 import fs from "node:fs";
 import path from "node:path";
+import { publicProseErrors } from "./public-prose.mjs";
 import { spawnSync } from "node:child_process";
 
 const target = process.argv[2];
@@ -79,18 +80,12 @@ for (const file of fs.readdirSync(postDir)) {
   if (!body.includes(file)) report("warn", `본문이 참조하지 않는 자산: ${file}`);
 }
 
-// 2-3. em dash (본문과 같은 디렉토리 SVG 라벨 모두 금지)
-const emDashLines = [];
-body.split("\n").forEach((line, i) => {
-  if (line.includes("—")) emDashLines.push(i + 1);
-});
-if (emDashLines.length) {
-  report("error", `em dash 발견 (본문 ${emDashLines.length}곳: line ${emDashLines.join(", ")})`);
-}
-for (const file of fs.readdirSync(postDir)) {
-  if (!/\.svg$/i.test(file)) continue;
-  const svg = fs.readFileSync(path.join(postDir, file), "utf8");
-  if (svg.includes("—")) report("error", `em dash 발견 (SVG): ${file}`);
+// 표기와 문체는 Markdown 본문과 같은 디렉터리의 SVG에도 같은 규칙을 적용한다.
+for (const file of fs.readdirSync(postDir).filter(name => /\.svg$/i.test(name))) {
+  const svgPath = path.join(postDir, file);
+  for (const issue of publicProseErrors(svgPath, fs.readFileSync(svgPath, "utf8"))) {
+    report("error", `${file}:${issue.line} ${issue.type}: ${issue.phrase}`);
+  }
 }
 
 // 2-4. 코드 펜스 짝

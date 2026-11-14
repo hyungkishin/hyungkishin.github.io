@@ -55,7 +55,7 @@ DB 조회 지연을 줄이기 위해 둔 캐시 계층에서 약 2,700배 큰 P9
 첫 가설은 Redis 클러스터의 성능 저하였다. 캐시가 이 정도로 느리면 서버가 문제라는 가설이다. 이 시점에는 5.68초가 어디서 만들어진 시간인지 아무도 모른다.
 
 <figure class="metric-fig">
-  <div class="cap-head"><span class="cap-tag">p95 latency · same cache cluster</span><span class="cap-tag">log scale</span></div>
+  <div class="cap-head"><span class="cap-tag">같은 캐시 클러스터의 P95</span><span class="cap-tag">log scale</span></div>
   <svg viewBox="0 0 640 216" role="img" aria-label="로그 스케일 막대. 알림 서비스의 캐시 P95 5.68초가 DB 2.12ms와 다른 서비스의 캐시 1.44ms를 압도한다" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="g7-red" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--c-red)" stop-opacity="0.6"/><stop offset="1" stop-color="var(--c-red)"/></linearGradient>
@@ -129,7 +129,7 @@ APM이 띄우는 "캐시 span"은 대개 호출 시작부터 응답까지 전체
     </rect>
     <text x="308" y="130" text-anchor="middle" fill="var(--c-redink)" font-size="12" font-weight="700">클라이언트 큐 대기 = 5.68초가 쌓인 곳</text>
     <text x="330" y="154" text-anchor="middle" fill="var(--c-greenink)" font-size="11.5" font-weight="700">가장 작은 칸(명령 실행)이 실제 Redis 작업, 약 0.2ms</text>
-    <text x="330" y="182" text-anchor="middle" fill="var(--fig-muted)" font-size="10.5">칸 순서: 앱 대기 · 커넥션 획득 · 클라이언트 큐 대기 · 네트워크 · 명령 실행 · 역직렬화</text>
+    <text x="330" y="182" text-anchor="middle" fill="var(--fig-muted)" font-size="10.5">칸 순서: 앱 대기, 커넥션 획득, 클라이언트 큐 대기, 네트워크, 명령 실행, 역직렬화</text>
   </svg>
   <figcaption>APM "캐시 span"은 여섯 단계 전체를 잰다. <b>클라이언트 큐 대기</b>가 5.68초의 주요 원인인지 검토했다. 비교 기준인 정상 구간의 <b>명령 실행</b>은 0.2ms로 가장 작은 칸이었다.</figcaption>
 </figure>

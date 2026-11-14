@@ -12,7 +12,7 @@ FeeDemo.java 원본을 그대로 썼다. main은 RateFee 정책으로 1원부터
   TypeProfile (1024/1024 counts) = FeeDemo$RateFee
   프로그램 출력: 4999510000
 
-quote 안의 RateFee 타입 검사가 성공하면 다음 코드로 진행한다. 레지스터 w2가 amountWon이다. 곱셈 상수 0x51eb851f를 만든 후 곱셈·시프트·부호 보정으로 Java의 정수 나눗셈 amountWon / 100을 구현한다. 이 계산을 위해 fee로 분기하는 호출 명령은 없다.
+quote 안의 RateFee 타입 검사가 성공하면 다음 코드로 진행한다. 레지스터 w2가 amountWon이다. 곱셈 상수 0x51eb851f를 만든 후 곱하고 비트를 옮긴 뒤 부호를 보정해 Java의 정수 나눗셈 amountWon / 100을 구현한다. 이 계산을 위해 fee로 분기하는 호출 명령은 없다.
 
   ffff88c85530:  6b0a017f  cmp   w11, w10
   ffff88c85534:  540001a1  b.ne  0xffff88c85568
@@ -62,7 +62,7 @@ capture on
 capture off '-XX:CompileCommand=dontinline,FeeDemo$RateFee::fee'
 grep -E 'Compiled method \(c2\)|@ 2.*RateFee|^4999510000$' on.txt off.txt
 
-재현 2. 이 이미지의 HotSpot은 hsdis 없이 주소와 원시 바이트를 출력한다. 위에서 출력한 quote의 main code 영역을 파일에 담아 아래처럼 디코딩한다. 주소·시간·컴파일 번호는 실행마다 달라질 수 있다.
+재현 2. 이 이미지의 HotSpot은 hsdis 없이 주소와 원시 바이트를 출력한다. 위에서 출력한 quote의 main code 영역을 파일에 담아 아래처럼 디코딩한다. 주소와 시간, 컴파일 번호는 실행마다 달라질 수 있다.
 
 python3 - <<'PYCODE'
 import re

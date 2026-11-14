@@ -16,7 +16,7 @@
   <text x="460" y="36" fill="#1f2937" font-size="18" font-weight="600" text-anchor="middle">큐 동작 BEFORE vs AFTER: 거부에서 지연으로</text>
 
   <!-- ===== LEFT: BEFORE ===== -->
-  <text x="220" y="80" fill="#ef4444" font-size="14" font-weight="600" text-anchor="middle">BEFORE · ThreadPoolTaskExecutor</text>
+  <text x="220" y="80" fill="#ef4444" font-size="14" font-weight="600" text-anchor="middle">변경 전 ThreadPoolTaskExecutor</text>
 
   <!-- caller -->
   <rect x="80" y="110" width="280" height="60" rx="10" fill="#f1f5f9" stroke="#38bdf8" stroke-width="2"/>
@@ -38,7 +38,7 @@
   <line x1="220" y1="270" x2="220" y2="306" stroke="#ef4444" stroke-width="2" marker-end="url(#arrRed)"/>
 
   <!-- ===== RIGHT: AFTER ===== -->
-  <text x="700" y="80" fill="#10b981" font-size="14" font-weight="600" text-anchor="middle">AFTER · SimpleAsyncTaskExecutor + VT</text>
+  <text x="700" y="80" fill="#10b981" font-size="14" font-weight="600" text-anchor="middle">변경 후 SimpleAsyncTaskExecutor + VT</text>
 
   <rect x="560" y="110" width="280" height="60" rx="10" fill="#f1f5f9" stroke="#38bdf8" stroke-width="2"/>
   <text x="700" y="135" fill="#38bdf8" font-size="12" font-weight="600" text-anchor="middle">submit × 6,300</text>

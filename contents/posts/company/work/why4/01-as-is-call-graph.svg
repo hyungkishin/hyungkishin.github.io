@@ -61,7 +61,7 @@
   <!-- Bottom note -->
   <rect x="60" y="400" width="800" height="116" rx="10" fill="#f1f5f9" stroke="#334155" stroke-width="1"/>
   <text x="460" y="424" fill="#1f2937" font-size="13" font-weight="600" text-anchor="middle">셋이 묶여 있어 parallelism 튜닝으로는 풀리지 않는다</text>
-  <text x="460" y="448" fill="#4b5563" font-size="11" text-anchor="middle">1년 raw 풀스캔이 3초 안에 끝날 가능성은 사실상 없다 → 일정 비율이 매일 timeout</text>
+  <text x="460" y="448" fill="#4b5563" font-size="11" text-anchor="middle">1년치 원본 데이터를 읽는 데 3초 넘게 걸린 요청은 매일 시간 초과로 끝났다</text>
   <text x="460" y="468" fill="#4b5563" font-size="11" text-anchor="middle">silent skip이 추적을 막는다 → 다음 실행에서 같은 모수에 같은 실패 반복</text>
   <text x="460" y="488" fill="#4b5563" font-size="11" text-anchor="middle">며칠째 동일 사용자가 누락: parallelism 30은 임시 봉합에 불과했다</text>
 </svg>

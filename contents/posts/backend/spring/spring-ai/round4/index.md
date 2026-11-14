@@ -117,14 +117,14 @@ flowchart TD
     D --> E["Memory 에는 원래 발화와 답변만 저장"]
 ```
 
-Spring AI 1.0.0에서 Memory Advisor는 이전 메시지를 현재 질문 앞에 추가한다. RAG Advisor는 그중 마지막 사용자 메시지로 검색한다. 이때 검색어는 “아까 그 주문 환불 돼요?”다. 이전 대화의 주문번호까지 검색어에 넣으려면 질의를 따로 재작성해야 한다. [대화 메시지를 추가하는 코드](https://github.com/spring-projects/spring-ai/blob/v1.0.0/spring-ai-client-chat/src/main/java/org/springframework/ai/chat/client/advisor/MessageChatMemoryAdvisor.java#L73-L90) · [검색어를 정하는 코드](https://github.com/spring-projects/spring-ai/blob/v1.0.0/advisors/spring-ai-advisors-vector-store/src/main/java/org/springframework/ai/chat/client/advisor/vectorstore/QuestionAnswerAdvisor.java#L103-L125)
+Spring AI 1.0.0에서 Memory Advisor는 이전 메시지를 현재 질문 앞에 추가한다. RAG Advisor는 그중 마지막 사용자 메시지로 검색한다. 이때 검색어는 “아까 그 주문 환불 돼요?”다. 이전 대화의 주문번호까지 검색어에 넣으려면 질의를 따로 재작성해야 한다. [대화 메시지를 추가하는 코드](https://github.com/spring-projects/spring-ai/blob/v1.0.0/spring-ai-client-chat/src/main/java/org/springframework/ai/chat/client/advisor/MessageChatMemoryAdvisor.java#L73-L90), [검색어를 정하는 코드](https://github.com/spring-projects/spring-ai/blob/v1.0.0/advisors/spring-ai-advisors-vector-store/src/main/java/org/springframework/ai/chat/client/advisor/vectorstore/QuestionAnswerAdvisor.java#L103-L125)
 
 순서를 rag(5), memory(10)로 바꿔 문의 한 건을 보냈다. 응답은 비슷했는데 저장된 메시지는 달랐다. “사용자 발화”에 질문과 정책 문서 본문이 함께 들어 있었다.
 
 <figure class="agent-fig">
   <div class="cap-head"><span class="cap-tag">advisor order flip</span><span class="cap-tag">rag(5) before memory(10)</span></div>
   <svg viewBox="0 0 720 250" role="img" aria-label="Memory를 먼저 실행하면 질문을 저장한다. RAG를 먼저 실행하면 검색한 정책까지 사용자 메시지에 저장한다" xmlns="http://www.w3.org/2000/svg">
-    <text x="20" y="28" font-size="12" font-weight="700" fill="var(--fig-ink2)">memory(10) → rag(20) · 질문 원문 저장</text>
+    <text x="20" y="28" font-size="12" font-weight="700" fill="var(--fig-ink2)">memory(10) 다음 rag(20), 질문 원문 저장</text>
     <g font-size="11" text-anchor="middle">
       <rect x="20" y="40" width="130" height="40" rx="9" fill="var(--c-blue)" opacity="0.12"/>
       <text x="85" y="64" fill="var(--fig-ink)">사용자 발화</text>
@@ -141,7 +141,7 @@ Spring AI 1.0.0에서 Memory Advisor는 이전 메시지를 현재 질문 앞에
       <animateMotion path="M150 60 L440 60 L550 60" dur="3.4s" repeatCount="indefinite"/>
       <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.1;0.8;0.95" dur="3.4s" repeatCount="indefinite"/>
     </circle>
-    <text x="20" y="128" font-size="12" font-weight="700" fill="var(--fig-ink2)">rag(5) → memory(10) · 질문과 검색 결과 저장</text>
+    <text x="20" y="128" font-size="12" font-weight="700" fill="var(--fig-ink2)">rag(5) 다음 memory(10), 질문과 검색 결과 저장</text>
     <g font-size="11" text-anchor="middle">
       <rect x="20" y="140" width="130" height="40" rx="9" fill="var(--c-blue)" opacity="0.12"/>
       <text x="85" y="164" fill="var(--fig-ink)">사용자 발화</text>

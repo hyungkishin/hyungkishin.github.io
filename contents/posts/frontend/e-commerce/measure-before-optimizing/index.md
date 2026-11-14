@@ -127,12 +127,12 @@ Before의 빠른 FCP가 칠한 것은 `Loading home...` 한 줄이다. After의 
   </defs>
   <rect x="1" y="1" width="758" height="298" rx="16" fill="currentColor" fill-opacity=".035" stroke="currentColor" stroke-opacity=".12"/>
   <text x="26" y="34" font-size="18" font-weight="700" fill="currentColor">899ms를 사용자 지연으로 읽으면 생기는 오판</text>
-  <text x="26" y="54" font-size="12" fill="currentColor" opacity=".58">같은 빌드 · 다른 감속 방식 · 같은 FCP 이름</text>
+  <text x="26" y="54" font-size="12" fill="currentColor" opacity=".58">같은 빌드에서 감속 방식만 바꿔 잰 FCP</text>
 
   <rect x="22" y="72" width="716" height="88" rx="12" fill="currentColor" fill-opacity=".035" stroke="currentColor" stroke-opacity=".14"/>
   <text x="38" y="94" font-size="11" font-weight="700" fill="currentColor" opacity=".58">LANTERN 시뮬레이션</text>
   <rect x="38" y="106" width="184" height="40" rx="8" fill="#dc6648" fill-opacity=".09" stroke="#dc6648" stroke-width="1.5"/>
-  <text x="51" y="123" font-size="12" font-weight="700" fill="currentColor">Simulated FCP</text><text x="51" y="138" font-size="10.5" fill="currentColor" opacity=".62">1,360 → 2,259ms · +899ms</text>
+  <text x="51" y="123" font-size="12" font-weight="700" fill="currentColor">Simulated FCP</text><text x="51" y="138" font-size="10.5" fill="currentColor" opacity=".62">1,360 → 2,259ms (899ms 증가)</text>
   <path id="fcp-bad-path" d="M222 126H514" fill="none" stroke="#dc6648" stroke-width="2" marker-end="url(#fcp-bad-arrow)"/>
   <rect x="316" y="114" width="104" height="22" rx="11" fill="currentColor" fill-opacity=".08"/><text x="368" y="129" font-size="10.5" text-anchor="middle" fill="#dc6648">숫자만 비교</text>
   <rect x="514" y="106" width="204" height="40" rx="8" fill="#dc6648" fill-opacity=".09" stroke="#dc6648" stroke-width="1.5"/>
@@ -142,7 +142,7 @@ Before의 빠른 FCP가 칠한 것은 `Loading home...` 한 줄이다. After의 
   <rect x="22" y="176" width="716" height="102" rx="12" fill="currentColor" fill-opacity=".035" stroke="currentColor" stroke-opacity=".14"/>
   <text x="38" y="198" font-size="11" font-weight="700" fill="currentColor" opacity=".58">적용형 감속</text>
   <rect x="38" y="212" width="184" height="48" rx="8" fill="#0f9f91" fill-opacity=".09" stroke="#0f9f91" stroke-width="1.5"/>
-  <text x="51" y="231" font-size="12" font-weight="700" fill="currentColor">Applied FCP</text><text x="51" y="248" font-size="10.5" fill="currentColor" opacity=".62">1,627 → 1,705ms · +78ms</text>
+  <text x="51" y="231" font-size="12" font-weight="700" fill="currentColor">Applied FCP</text><text x="51" y="248" font-size="10.5" fill="currentColor" opacity=".62">1,627 → 1,705ms (78ms 증가)</text>
   <path id="fcp-good-path" d="M222 236H514" fill="none" stroke="#0f9f91" stroke-width="2" marker-end="url(#fcp-good-arrow)"/>
   <rect x="307" y="224" width="122" height="22" rx="11" fill="currentColor" fill-opacity=".08"/><text x="368" y="239" font-size="10.5" text-anchor="middle" fill="#0f9f91">도착 순서 확인</text>
   <rect x="514" y="212" width="204" height="48" rx="8" fill="#0f9f91" fill-opacity=".09" stroke="#0f9f91" stroke-width="1.5"/>

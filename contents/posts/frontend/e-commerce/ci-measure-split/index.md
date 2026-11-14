@@ -2,7 +2,7 @@
 title: "다운로드를 절반으로 줄였는데 CI 시간은 그대로였다"
 description: "Playwright 설치에 걸린 176초는 다음 실행에서 재현되지 않았다. CI 단계를 나눠 다운로드와 전체 실행 시간을 다시 쟀다."
 date: 2026-09-11
-update: 2026-09-11
+update: 2026-11-14
 tags:
   - front-end
   - e-commerce
@@ -98,7 +98,7 @@ setup 구간은 27초, 검증 체인은 65초였다. 검증 항목과 실행 횟
 실험 전에 무엇을 만족해야 채택할지 적었다. 결과를 보고 기준을 만들면 어떤 결과든 성공이 된다.
 
 ```
-기능 검증 동일 (Storybook 18 · E2E 12 통과)
+기능 검증 동일 (Storybook 18개와 E2E 12개 통과)
 AND setup 중앙값이 측정 편차보다 크게 감소
 AND job 전체 중앙값도 감소
 ```
@@ -138,7 +138,7 @@ FFmpeg (playwright ffmpeg v1011)
 Chrome Headless Shell 151.0.7922.34
 ```
 
-기능 검증은 세 번 모두 같았다. 단위·통합 375, Storybook 18, E2E 12.
+기능 검증은 세 번 모두 같았다. 단위 테스트와 통합 테스트를 합해 375개, Storybook 18개, E2E 12개가 통과했다.
 
 ## 그런데 채택하지 않았다
 

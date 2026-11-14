@@ -128,7 +128,7 @@ const SeriesShowcase = ({ posts }) => {
             <Card key={rule.id} to={target}>
               <Eyebrow>
                 <span>{rule.id}</span>
-                <Count>· {seriesPosts.length}편</Count>
+                <Count>{seriesPosts.length}편</Count>
               </Eyebrow>
               <Name>{rule.name}</Name>
               <Tagline>{rule.tagline}</Tagline>

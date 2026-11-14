@@ -32,7 +32,7 @@ export default function BlogIndex({ data }) {
       {featured && (
         <section className="cover-story" aria-labelledby="cover-title">
           <div className="cover-copy">
-            <p className="cover-kicker">{featured.rule.name} · 첫 편</p>
+            <p className="cover-kicker">{featured.rule.name} 첫 편</p>
             <h1 id="cover-title">{featured.posts[0].frontmatter.title}</h1>
             <p className="cover-deck">1만 원을 보낸다고 하자. 서버 로그에 찍힌 건 ‘접수됨’까지 걸린 시간이다. 심사와 은행 처리까지 재려면 타이머를 어디서 꺼야 할까?</p>
             <div className="cover-actions">

@@ -79,7 +79,7 @@ this.chatClient = builder
 아래 그림에서 파란 점 하나가 요청 한 건이다. 다섯 고리를 통과하는 순서가 곧 지난 다섯 라운드의 결론이다.
 
 <figure class="agent-fig">
-  <div class="cap-head"><span class="cap-tag">one request · five orders</span><span class="cap-tag">5 → 10 → 20 → 50 → 100</span></div>
+  <div class="cap-head"><span class="cap-tag">요청 한 건에 적용한 Advisor 순서</span><span class="cap-tag">5 → 10 → 20 → 50 → 100</span></div>
   <svg viewBox="0 0 720 270" role="img" aria-label="요청 한 건이 InputGuardrail, Memory, RAG 를 지나 모델과 Tool 을 왕복하고 OutputGuardrail 과 Performance 를 거쳐 응답이 된다. 공격 요청은 첫 층에서 소멸한다" xmlns="http://www.w3.org/2000/svg">
     <g font-size="11" text-anchor="middle">
       <rect x="16" y="40" width="150" height="54" rx="10" fill="var(--c-amber)" opacity="0.12"/>

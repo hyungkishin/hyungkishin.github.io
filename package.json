@@ -54,10 +54,21 @@
     "utterances-react-component": "^1.0.0"
   },
   "devDependencies": {
+    "@babel/parser": "^7.28.6",
+    "entities": "^2.0.0",
     "eslint-config-react-app": "^7.0.1",
     "gh-pages": "^5.0.0",
+    "hast-util-from-parse5": "^6.0.0",
+    "hast-util-raw": "^6.1.0",
+    "js-yaml": "^3.13.1",
     "jsdom": "^29.1.1",
-    "prettier": "2.8.8"
+    "mdast-util-to-hast": "^10.2.0",
+    "parse5": "^6.0.0",
+    "prettier": "2.8.8",
+    "remark-gfm": "^1.0.0",
+    "remark-parse": "^9.0.0",
+    "unified": "^9.2.2",
+    "vfile": "^4.0.0"
   },
   "keywords": [
     "gatsby",
@@ -67,6 +78,7 @@
   "main": "n/a",
   "scripts": {
     "build": "gatsby build",
+    "postbuild": "node scripts/check-rendered-prose.mjs public",
     "develop": "gatsby develop",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "lint:tone": "node scripts/tone-guard.mjs",
@@ -75,11 +87,13 @@
     "start": "npm run develop",
     "serve": "gatsby serve",
     "clean": "gatsby clean",
-    "test": "node --test src/utils/__tests__/",
-    "deploy-gh": "gatsby build && gh-pages -d public",
-    "deploy-gh-prefix-paths": "gatsby build --prefix-paths && gh-pages -d public",
-    "deploy": "gatsby build && gh-pages -d public -b master",
-    "tts": "node scripts/tts.mjs"
+    "test": "node --test src/utils/__tests__/*.test.js scripts/*.test.mjs",
+    "deploy-gh": "npm run build && gh-pages -d public",
+    "deploy-gh-prefix-paths": "npm run build -- --prefix-paths && gh-pages -d public",
+    "deploy": "npm run build && gh-pages -d public -b master",
+    "tts": "node scripts/tts.mjs",
+    "prepare": "node scripts/install-prose-hook.mjs",
+    "check:prose": "node scripts/check-public-prose.mjs"
   },
   "repository": {
     "type": "git",

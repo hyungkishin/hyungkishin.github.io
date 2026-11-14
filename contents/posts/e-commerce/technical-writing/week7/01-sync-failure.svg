@@ -42,7 +42,7 @@
 
   <!-- Node 5 - Final -->
   <rect x="50" y="360" width="320" height="56" rx="8" fill="#e94560" filter="url(#shadow)"/>
-  <text x="210" y="384" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="700">🔥 상품 조회 · 주문 목록 · 쿠폰 발급</text>
+  <text x="210" y="384" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="700">🔥 상품 조회, 주문 목록, 쿠폰 발급</text>
   <text x="210" y="404" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="700">전체 API 마비</text>
 
   <!-- Caption -->

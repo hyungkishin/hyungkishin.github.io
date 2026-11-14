@@ -32,6 +32,6 @@
   <text x="761" y="381" text-anchor="middle" class="small muted">처리 능력 증설 가정 없음</text>
 
   <path d="M 42 557 H 918" stroke="#e2e8f0" stroke-width="2"/>
-  <text x="42" y="598" class="small">60과 120은 설정 상한의 합이다. 실제 연결·동시 SQL 수는 따로 잰다.</text>
-  <text x="42" y="637" class="small muted">위·아래는 증설 전후 비교다. DB 대기가 늘어나는지는 측정으로 확인한다.</text>
+  <text x="42" y="598" class="small">60과 120은 설정 상한의 합이다. 연결 수와 동시에 실행한 SQL 수는 따로 잰다.</text>
+  <text x="42" y="637" class="small muted">위는 증설 전, 아래는 증설 후다. DB 대기가 늘어나는지는 측정으로 확인한다.</text>
 </svg>

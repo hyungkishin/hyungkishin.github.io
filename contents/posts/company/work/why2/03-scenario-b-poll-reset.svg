@@ -49,6 +49,6 @@
   <text x="56" y="255" fill="#9ca3af" font-size="10">  dedup 이 막아야 할 위치가 있다</text>
   <text x="56" y="278" fill="#9ca3af" font-size="10">- 결함 3 이 그 위치보다 먼저 status 를</text>
   <text x="56" y="293" fill="#9ca3af" font-size="10">  PRE_POLL_DONE 으로 돌려놓는다</text>
-  <text x="56" y="316" fill="#9ca3af" font-size="10">- 그 결과 dedup 분기 자체가</text>
-  <text x="56" y="331" fill="#9ca3af" font-size="10">  무관한 코드가 되어버린다</text>
+  <text x="56" y="316" fill="#9ca3af" font-size="10">- 두 번째 클릭도 중복 검사에</text>
+  <text x="56" y="331" fill="#9ca3af" font-size="10">  걸리지 않아 인증을 다시 요청한다</text>
 </svg>

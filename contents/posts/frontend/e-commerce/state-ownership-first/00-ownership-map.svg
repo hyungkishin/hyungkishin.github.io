@@ -20,19 +20,19 @@
 
   <!-- 1 -->
   <text x="380" y="176" font-size="16.5" font-weight="600" fill="#6d28d9" text-anchor="end">서버 데이터</text>
-  <text x="422" y="176" font-size="15" fill="#475569">Query Cache · 화면</text>
+  <text x="422" y="176" font-size="15" fill="#475569">Query Cache와 화면</text>
 
   <!-- 2 -->
   <text x="380" y="230" font-size="16.5" font-weight="600" fill="#6d28d9" text-anchor="end">URL 검색 조건</text>
-  <text x="422" y="230" font-size="15" fill="#475569">query key · API 요청 · 필터 UI</text>
+  <text x="422" y="230" font-size="15" fill="#475569">query key, API 요청, 필터 UI</text>
 
   <!-- 3 -->
   <text x="380" y="284" font-size="16.5" font-weight="600" fill="#6d28d9" text-anchor="end">Store의 ID 목록</text>
-  <text x="422" y="284" font-size="15" fill="#475569">장바구니 개수 · 상품 포함 여부</text>
+  <text x="422" y="284" font-size="15" fill="#475569">장바구니 개수와 상품 포함 여부</text>
 
   <!-- 4 -->
   <text x="380" y="338" font-size="16.5" font-weight="600" fill="#6d28d9" text-anchor="end">입력 중인 값</text>
-  <text x="422" y="338" font-size="15" fill="#475569">글자 수 · 검증 결과 · 버튼 상태</text>
+  <text x="422" y="338" font-size="15" fill="#475569">글자 수, 검증 결과, 버튼 상태</text>
 
   <text x="40" y="398" font-size="13.5" fill="#64748b">오른쪽은 값을 보관하거나 표현하지만 진실을 확정하지 않는다.</text>
   <text x="40" y="420" font-size="13.5" fill="#64748b">다시 계산할 수 있는 값은 별도의 원본으로 저장하지 않는다.</text>

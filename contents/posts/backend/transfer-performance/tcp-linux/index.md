@@ -26,9 +26,9 @@ TCP로 받은 바이트는 보낸 순서대로 읽을 수 있다. 각 방향에�
 
 ## write에서 tcp_sendmsg까지
 
-번호가 어디서 붙는지 보려고 평문 소켓에 쓰는 자바 코드 한 줄, `socket.getOutputStream().write(bytes)`부터 내려가 봤다. OpenJDK 25 GA 기본 구현인 `NioSocketImpl`은 요청한 길이를 다 쓸 때까지 쓰기를 이어 간다. Unix 쪽 `SocketDispatcher.write0`에서 만나는 호출은 평범한 `write(fd, buf, len)`다. 자바의 `write`가 정상 반환하면 로컬 쓰기가 끝난 것이다. 상대의 ACK는 커널이 따로 처리한다. [OpenJDK의 소켓 쓰기](https://github.com/openjdk/jdk/blob/6c48f4ed707bf0b15f9b6098de30db8aae6fa40f/src/java.base/share/classes/sun/nio/ch/NioSocketImpl.java#L395-L455) · [Unix 네이티브 호출](https://github.com/openjdk/jdk/blob/6c48f4ed707bf0b15f9b6098de30db8aae6fa40f/src/java.base/unix/native/libnio/ch/SocketDispatcher.c#L68-L75)
+번호가 어디서 붙는지 보려고 평문 소켓에 쓰는 자바 코드 한 줄, `socket.getOutputStream().write(bytes)`부터 내려가 봤다. OpenJDK 25 GA 기본 구현인 `NioSocketImpl`은 요청한 길이를 다 쓸 때까지 쓰기를 이어 간다. Unix 쪽 `SocketDispatcher.write0`에서 만나는 호출은 평범한 `write(fd, buf, len)`다. 자바의 `write`가 정상 반환하면 로컬 쓰기가 끝난 것이다. 상대의 ACK는 커널이 따로 처리한다. [OpenJDK의 소켓 쓰기](https://github.com/openjdk/jdk/blob/6c48f4ed707bf0b15f9b6098de30db8aae6fa40f/src/java.base/share/classes/sun/nio/ch/NioSocketImpl.java#L395-L455), [Unix 네이티브 호출](https://github.com/openjdk/jdk/blob/6c48f4ed707bf0b15f9b6098de30db8aae6fa40f/src/java.base/unix/native/libnio/ch/SocketDispatcher.c#L68-L75)
 
-그 아래는 **Linux v6.12**의 일반 IPv4 TCP 소스를 봤다. 소켓 파일에 `write`하면 진입점은 `sock_write_iter`다. 뒤에 나올 실험 코드처럼 `send`를 쓰면 `sendto`와 마찬가지로 `__sys_sendto`를 지난다. 두 시스템 호출 모두 `__sock_sendmsg`를 거친다. IPv4에서는 `inet_sendmsg`가 해당 소켓의 프로토콜에 맞는 송신 함수를 호출한다. [write 진입점](https://github.com/torvalds/linux/blob/adc218676eef25575469234709c2d87185ca223a/net/socket.c#L1148-L1166) · [send 진입점](https://github.com/torvalds/linux/blob/adc218676eef25575469234709c2d87185ca223a/net/socket.c#L2182-L2236) · [IPv4의 송신 함수 선택](https://github.com/torvalds/linux/blob/adc218676eef25575469234709c2d87185ca223a/net/ipv4/af_inet.c#L846-L855)
+그 아래는 **Linux v6.12**의 일반 IPv4 TCP 소스를 봤다. 소켓 파일에 `write`하면 진입점은 `sock_write_iter`다. 뒤에 나올 실험 코드처럼 `send`를 쓰면 `sendto`와 마찬가지로 `__sys_sendto`를 지난다. 두 시스템 호출 모두 `__sock_sendmsg`를 거친다. IPv4에서는 `inet_sendmsg`가 해당 소켓의 프로토콜에 맞는 송신 함수를 호출한다. [write 진입점](https://github.com/torvalds/linux/blob/adc218676eef25575469234709c2d87185ca223a/net/socket.c#L1148-L1166), [send 진입점](https://github.com/torvalds/linux/blob/adc218676eef25575469234709c2d87185ca223a/net/socket.c#L2182-L2236), [IPv4의 송신 함수 선택](https://github.com/torvalds/linux/blob/adc218676eef25575469234709c2d87185ca223a/net/ipv4/af_inet.c#L846-L855)
 
 TCP 소켓이면 `tcp_sendmsg`가 소켓을 잠그고 `tcp_sendmsg_locked`를 부른다. 앞서 쓰던 송신 버퍼에 여유가 있으면 데이터를 이어 붙이고, 자리가 더 필요하면 새 `sk_buff`를 송신 큐에 단다. 블로킹 쓰기는 버퍼 자리가 날 때까지 여기서 기다릴 수도 있다. 자바 코드 한 줄을 따라왔는데 아직 송신 측 버퍼다. [TCP 송신 버퍼와 대기](https://github.com/torvalds/linux/blob/adc218676eef25575469234709c2d87185ca223a/net/ipv4/tcp.c#L1137-L1358)
 
@@ -36,19 +36,19 @@ TCP 소켓이면 `tcp_sendmsg`가 소켓을 잠그고 `tcp_sendmsg_locked`를 �
 
 첫 줄과 둘째 줄은 각각 9바이트다. 이 두 줄을 세그먼트 몇 개로 보낼지는 `write`를 부르는 쪽에서 정하지 않는다. Linux의 `tcp_write_xmit`은 큐에서 전송할 데이터를 꺼내기 전에 MSS(세그먼트 하나에 실을 수 있는 TCP 데이터의 최대 크기)와 두 윈도우의 여유를 본다.
 
-**수신 윈도우**는 상대가 더 받을 수 있다고 알려 준 범위다. **혼잡 윈도우**는 송신 측에서 아직 확인받지 않은 채 경로에 내보낼 수 있는 양을 제한한다. 상대 버퍼가 아무리 넉넉해도 혼잡 윈도우가 꽉 차 있으면 보통 새 데이터는 더 보내지 못한다. [Linux의 전송 판단과 세그먼트 분할](https://github.com/torvalds/linux/blob/adc218676eef25575469234709c2d87185ca223a/net/ipv4/tcp_output.c#L2734-L2828) · [RFC 5681의 혼잡·수신 윈도우](https://www.rfc-editor.org/rfc/rfc5681.html#section-2)
+**수신 윈도우**는 상대가 더 받을 수 있다고 알려 준 범위다. **혼잡 윈도우**는 송신 측에서 아직 확인받지 않은 채 경로에 내보낼 수 있는 양을 제한한다. 상대 버퍼가 아무리 넉넉해도 혼잡 윈도우가 꽉 차 있으면 보통 새 데이터는 더 보내지 못한다. [Linux의 전송 판단과 세그먼트 분할](https://github.com/torvalds/linux/blob/adc218676eef25575469234709c2d87185ca223a/net/ipv4/tcp_output.c#L2734-L2828), [RFC 5681의 혼잡 윈도우와 수신 윈도우](https://www.rfc-editor.org/rfc/rfc5681.html#section-2)
 
 전송 조건이 맞으면 `tcp_transmit_skb`가 버퍼를 하위 계층에 넘긴다. TSO(TCP 세그멘테이션 오프로딩)를 쓰면 큰 버퍼를 그대로 넘기고 분할도 아래에 맡긴다.
 
-중복 ACK 등에서 손실을 추정하거나 재전송 타이머가 만료되면 송신 측은 해당 바이트를 다시 보낸다. 이때 같은 바이트에는 같은 번호가 붙는다. 수신 측은 이 번호로 이미 받은 바이트를 가려낸다. [Linux의 세그먼테이션 오프로딩](https://github.com/torvalds/linux/blob/adc218676eef25575469234709c2d87185ca223a/Documentation/networking/segmentation-offloads.rst) · [빠른 재전송](https://www.rfc-editor.org/rfc/rfc5681.html#section-3.2) · [재전송 타이머](https://www.rfc-editor.org/rfc/rfc6298.html#section-5)
+중복 ACK 등에서 손실을 추정하거나 재전송 타이머가 만료되면 송신 측은 해당 바이트를 다시 보낸다. 이때 같은 바이트에는 같은 번호가 붙는다. 수신 측은 이 번호로 이미 받은 바이트를 가려낸다. [Linux의 세그먼테이션 오프로딩](https://github.com/torvalds/linux/blob/adc218676eef25575469234709c2d87185ca223a/Documentation/networking/segmentation-offloads.rst), [빠른 재전송](https://www.rfc-editor.org/rfc/rfc5681.html#section-3.2), [재전송 타이머](https://www.rfc-editor.org/rfc/rfc6298.html#section-5)
 
 ## 수신 커널의 ACK와 애플리케이션의 read
 
 이제 수신 측이다. 일반적인 IPv4 연결에서 세그먼트는 `tcp_v4_rcv`로 들어와 `tcp_v4_do_rcv`를 거치고, 연결을 이미 맺은 소켓이면 `tcp_rcv_established`로 넘어간다. 보통 데이터가 순서대로 오면 커널이 수신 큐에 넣고 ACK를 보낼지 판단한다. 상대 프로그램의 읽기 호출은 이 경로에 없다.
 
-순서가 어긋나면 먼저 온 데이터를 따로 보관할 수도 있다. 그래도 누적 ACK는 중간에 비어 있는 바이트를 건너뛰지 않는다. 반대로 순서대로 다 왔어도 커널이 ACK를 잠시 늦출 수 있다. 캡처에서 ACK 개수를 세어 송신 코드의 `write` 횟수를 복원할 수 없는 이유다. [IPv4 TCP 진입점](https://github.com/torvalds/linux/blob/adc218676eef25575469234709c2d87185ca223a/net/ipv4/tcp_ipv4.c#L2176) · [연결된 소켓의 수신](https://github.com/torvalds/linux/blob/adc218676eef25575469234709c2d87185ca223a/net/ipv4/tcp_ipv4.c#L1894-L1916) · [수신 큐와 ACK 판단](https://github.com/torvalds/linux/blob/adc218676eef25575469234709c2d87185ca223a/net/ipv4/tcp_input.c#L6208-L6267)
+순서가 어긋나면 먼저 온 데이터를 따로 보관할 수도 있다. 그래도 누적 ACK는 중간에 비어 있는 바이트를 건너뛰지 않는다. 반대로 순서대로 다 왔어도 커널이 ACK를 잠시 늦출 수 있다. 캡처에서 ACK 개수를 세어 송신 코드의 `write` 횟수를 복원할 수 없는 이유다. [IPv4 TCP 진입점](https://github.com/torvalds/linux/blob/adc218676eef25575469234709c2d87185ca223a/net/ipv4/tcp_ipv4.c#L2176), [연결된 소켓의 수신](https://github.com/torvalds/linux/blob/adc218676eef25575469234709c2d87185ca223a/net/ipv4/tcp_ipv4.c#L1894-L1916), [수신 큐와 ACK 판단](https://github.com/torvalds/linux/blob/adc218676eef25575469234709c2d87185ca223a/net/ipv4/tcp_input.c#L6208-L6267)
 
-상대 프로그램이 일반 소켓에서 `read`나 `recv`를 호출하고 나서야 `tcp_recvmsg`에서 수신 큐의 데이터를 사용자 버퍼로 복사한다. 큐에 18바이트가 들어 있어도 `recv(4)`를 불렀다면 한 번에 최대 4바이트까지다. 요청 길이를 크게 잡아도 지금 읽을 수 있는 만큼만 돌아올 수 있다. [읽기 함수](https://github.com/torvalds/linux/blob/adc218676eef25575469234709c2d87185ca223a/net/ipv4/tcp.c#L2836-L2853) · [사용자 버퍼로 복사](https://github.com/torvalds/linux/blob/adc218676eef25575469234709c2d87185ca223a/net/ipv4/tcp.c#L2742-L2755)
+상대 프로그램이 일반 소켓에서 `read`나 `recv`를 호출하고 나서야 `tcp_recvmsg`에서 수신 큐의 데이터를 사용자 버퍼로 복사한다. 큐에 18바이트가 들어 있어도 `recv(4)`를 불렀다면 한 번에 최대 4바이트까지다. 요청 길이를 크게 잡아도 지금 읽을 수 있는 만큼만 돌아올 수 있다. [읽기 함수](https://github.com/torvalds/linux/blob/adc218676eef25575469234709c2d87185ca223a/net/ipv4/tcp.c#L2836-L2853), [사용자 버퍼로 복사](https://github.com/torvalds/linux/blob/adc218676eef25575469234709c2d87185ca223a/net/ipv4/tcp.c#L2742-L2755)
 
 ## 실험에서 ACK와 read의 순서 확인하기
 
@@ -67,7 +67,7 @@ recv(6) -> b' 2000\n'
 
 그제야 4바이트, 8바이트, 남은 6바이트를 차례로 읽어 봤다. 두 번째 결과인 `1000\nT18`에는 첫 송금의 금액과 다음 송금의 번호가 함께 들어 있다. 둘을 다시 나눠 준 건 송신 때의 호출 횟수가 아니라 코드에 넣어 둔 줄바꿈이었다. [RFC 9293의 시퀀스 번호](https://www.rfc-editor.org/rfc/rfc9293.html#section-3.4)
 
-캡처는 Docker Desktop에서 Linux 7.0.12-linuxkit(aarch64), Python 3.12.16으로 실행했다. 아래 명령은 외부 네트워크를 끄고 컨테이너의 `lo`만 본다. 여기서 관찰할 수 있는 건 ACK와 첫 읽기의 순서까지다. 물리망에서 지연이 얼마나 생기고 패킷이 몇 개로 나뉘는지는 별도로 재야 한다. [재현 코드](./evidence/ack_before_read.py) · [실행 출력](./evidence/loopback.txt)
+캡처는 Docker Desktop에서 Linux 7.0.12-linuxkit(aarch64), Python 3.12.16으로 실행했다. 아래 명령은 외부 네트워크를 끄고 컨테이너의 `lo`만 본다. 여기서 관찰할 수 있는 건 ACK와 첫 읽기의 순서까지다. 물리망에서 지연이 얼마나 생기고 패킷이 몇 개로 나뉘는지는 별도로 재야 한다. [재현 코드](./evidence/ack_before_read.py), [실행 출력](./evidence/loopback.txt)
 
 ```bash
 docker run --rm --network none -i python:3.12-slim python - < ack_before_read.py

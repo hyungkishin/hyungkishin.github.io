@@ -33,7 +33,7 @@
   </g>
   <g class="name"><text x="75" y="85">송신 TCP</text><text x="250" y="85">수신 커널</text><text x="422" y="85">수신 앱</text></g>
   <g class="axis"><path d="M75 99V290"/><path d="M250 99V290"/><path d="M422 99V290"/></g>
-  <g class="data"><text x="162" y="132">SEQ 1000 · 8 B</text><text x="162" y="194">누적 ACK 1008</text><text x="336" y="255">읽힌 바이트</text></g>
+  <g class="data"><text x="162" y="132">SEQ 1000 (8 B)</text><text x="162" y="194">누적 ACK 1008</text><text x="336" y="255">읽힌 바이트</text></g>
   <g class="wire"><path d="M76 146H247"/><path d="M249 207H78"/><path d="M251 269H419"/></g>
   <rect x="338" y="177" width="147" height="46" rx="8" fill="#f1f6ff" stroke="#cfdbf1"/>
   <text class="note" x="412" y="206">read 호출 전</text>

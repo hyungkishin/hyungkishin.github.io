@@ -38,10 +38,6 @@ const Category = styled.span`
   letter-spacing: 0.04em;
 `
 
-const Sep = styled.span`
-  color: ${(props) => props.theme.colors.mutedText};
-`
-
 const HeroTitle = styled.h1`
   margin: 0 0 16px;
   font-size: 44px;
@@ -84,13 +80,7 @@ const Hero = ({ post }) => {
     <Wrapper to={slug}>
       <Eyebrow>
         <span>Latest</span>
-        {category && (
-          <>
-            <Sep>·</Sep>
-            <Category>{category.label}</Category>
-          </>
-        )}
-        <Sep>·</Sep>
+        {category && <Category>{category.label}</Category>}
         <span>{date}</span>
       </Eyebrow>
       <HeroTitle>{title}</HeroTitle>

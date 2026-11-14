@@ -35,5 +35,5 @@
   <text x="30" y="403" class="name">메서드 영역</text>
   <text x="166" y="403" class="detail">클래스 구조와 메서드 코드 등</text>
   <path d="M38 414v14h13" class="child"/>
-  <text x="60" y="436" class="detail">클래스·인터페이스별 런타임 상수 풀</text>
+  <text x="60" y="436" class="detail">클래스나 인터페이스마다 있는 런타임 상수 풀</text>
 </svg>

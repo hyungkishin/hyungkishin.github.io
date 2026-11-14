@@ -117,7 +117,7 @@ if (handoff.handoff()) {
 입력 검사를 통과한 요청이었다. 응답을 검사하는 Output Guardrail(order 50)에서 시스템 프롬프트의 표식을 찾아 본문을 바꿨다. 고객 화면에 표시된 문구는 “요청하신 내용은 안내해 드릴 수 없습니다”였다.
 
 <figure class="agent-fig">
-  <div class="cap-head"><span class="cap-tag">layered defense · measured</span><span class="cap-tag">input miss → output catch</span></div>
+  <div class="cap-head"><span class="cap-tag">입력 검사와 응답 검사 결과</span><span class="cap-tag">input miss → output catch</span></div>
   <svg viewBox="0 0 720 260" role="img" aria-label="공격 두 건의 경로. 알려진 인젝션은 입력 층에서 소멸한다. 변형 인젝션은 입력 층을 지나 모델이 프롬프트를 유출하지만 출력 층이 응답을 치환한다" xmlns="http://www.w3.org/2000/svg">
     <g font-size="11" text-anchor="middle">
       <rect x="16" y="96" width="112" height="58" rx="10" fill="var(--c-blue)" opacity="0.10"/>
