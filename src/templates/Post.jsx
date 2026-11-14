@@ -35,7 +35,7 @@ const Post = ({ data, pageContext }) => {
       />
       <Article>
         <Article.Header title={title} date={date} isoDate={isoDate} series={seriesRule} />
-        <Article.Body html={post.html} slug={slug} />
+        <Article.Body html={post.html} slug={slug} plainImages={seriesRule?.id === "optimizing-java"} />
         {tags?.length > 0 && <nav aria-label="글 태그"><TagList tagList={tags} /></nav>}
         {seriesPosts.length > 1 && (
           <Article.Series

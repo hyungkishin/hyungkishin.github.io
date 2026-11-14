@@ -4,7 +4,7 @@ import mediumZoom from "medium-zoom"
 import mermaid from "mermaid"
 
 import Toc from "./Toc"
-import prepareDiagrams from "./prepareDiagrams.mjs"
+import prepareDiagrams, { playOnView } from "./prepareDiagrams.mjs"
 import "../../../series-reader/diagram.css"
 import StyledMarkdown from "./StyledMarkdown"
 import PrismTheme from "./PrismTheme"
@@ -28,7 +28,7 @@ const PostBottomAdWrapper = styled.div`
   margin-top: 40px;
 `
 
-const Body = ({ html, slug }) => {
+const Body = ({ html, slug, plainImages }) => {
   const [toc, setToc] = useState([])
   const theme = useTheme()
   const ref = useRef(null)
@@ -49,12 +49,12 @@ const Body = ({ html, slug }) => {
   }, [toc])
 
   const zoom = useMemo(() => {
-    if (typeof window === "undefined") return null
+    if (plainImages || typeof window === "undefined") return null
     return mediumZoom({
       background: theme.colors.zoomBackground,
       margin: 24,
     })
-  }, [theme.colors.zoomBackground])
+  }, [plainImages, theme.colors.zoomBackground])
 
   const renderMermaid = useCallback(async () => {
     const codeBlocks = ref.current.querySelectorAll("pre code.language-mermaid")
@@ -125,7 +125,7 @@ const Body = ({ html, slug }) => {
   }, [])
 
   useEffect(() => {
-    const unbindDiagrams = prepareDiagrams(ref.current, window)
+    const unbindDiagrams = plainImages ? playOnView(ref.current, window) : prepareDiagrams(ref.current, window)
     ref.current.querySelectorAll("table").forEach(table => {
       if (table.parentElement.classList.contains("table-scroll")) return
       const scroll = document.createElement("div")
@@ -142,7 +142,7 @@ const Body = ({ html, slug }) => {
       return { id: heading.id, text: heading.textContent, depth: heading.tagName.slice(1) }
     }))
     return unbindDiagrams
-  }, [html])
+  }, [html, plainImages])
 
   useEffect(() => {
     renderMermaid()
@@ -167,6 +167,7 @@ const Body = ({ html, slug }) => {
 
       <StyledMarkdown
         id="article-body"
+        $plainImages={plainImages}
         dangerouslySetInnerHTML={{ __html: html }}
         itemProp="articleBody"
         ref={ref}

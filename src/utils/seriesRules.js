@@ -9,6 +9,13 @@
 // 시리즈 = 슬러그 규칙. indexSlug 는 그 시리즈의 목록 페이지 경로다.
 const SERIES_RULES = [
   {
+    id: "optimizing-java",
+    name: "자바 최적화를 읽으며",
+    tagline: "『자바 최적화』 3장부터 7장까지의 독서 기록",
+    indexSlug: "/books/optimizing-java/",
+    slugs: ["/books/optimizing-java/chapter-03-jvm/"],
+  },
+  {
     id: "transfer-performance",
     name: "송금 한 건으로 읽는 백엔드",
     tagline: "송금 요청에 걸린 시간을 재려고 보니 어디서 타이머를 끌지부터 정해야 했다. 수수료를 계산하는 JVM 안에서도, 은행에 보낸 요청의 응답을 기다릴 때도 재는 구간이 달라진다.",

@@ -217,6 +217,24 @@ const StyledMarkdown = styled.div`
   }
   & th { font-weight: 650; background: ${props => props.theme.colors.background}; }
 
+  & table.runtime-layers {
+    max-width: 38em;
+    font: inherit;
+    table-layout: fixed;
+  }
+  & .runtime-layers :is(th, td) {
+    min-width: 0;
+    padding: .55em .8em;
+    vertical-align: baseline;
+    background: transparent;
+  }
+  & .runtime-layers th {
+    width: 44%;
+  }
+  & .runtime-layers thead th {
+    background-color: ${props => props.theme.name === "dark" ? "#303236" : "#f0f0f0"};
+  }
+
   & :not(pre) > code {
     padding: .09em .27em;
     font: .87em/1.5 "SFMono-Regular", Consolas, monospace;
@@ -306,7 +324,7 @@ const StyledMarkdown = styled.div`
     display: block;
     width: 100%;
     height: auto;
-    cursor: zoom-in;
+    cursor: ${props => props.$plainImages ? "auto" : "zoom-in"};
   }
 
   & :not(.diagram) > figcaption {
