@@ -31,10 +31,10 @@ tags:
 AMP는 일반적인 React 환경과 달리 아래 제한이 있다
 
 ☝️. **React Hook 사용 제한**  
-- `useEffect`, `useState` 등 hook 기반 로직 사용 불가
+- 이 AMP 기사에는 브라우저에서 React를 실행하지 않는다. 클릭 뒤 `useState`로 상태를 바꾸거나 `useEffect`로 화면을 갱신하는 코드는 옮길 수 없다.
 
 ✌️. **Sass/SCSS 등 외부 스타일 방식 제한**  
-- 모든 스타일은 inline 또는 제한된 CSS 내에서 처리해야 함
+- 컴파일 전 스타일을 무엇으로 작성했든, AMP 검증기는 완성된 HTML에서 CSS가 어디에 몇 바이트 들어갔는지 본다.
 
 🫰. **일반 script 태그 사용 불가**  
 - AMP 런타임과 허용된 확장 스크립트는 사용할 수 있다. 기존 기사 페이지의 임의 자바스크립트를 그대로 옮길 수는 없었다.
@@ -86,16 +86,18 @@ pages에서 화면 뼈대부터 만든 뒤, 여러 페이지에서 같이 쓸 �
 > AMP 페이지는 별도로 구성하되 디자인과 구조는 기존 화면에 최대한 맞춘다.
 
 ## 기사 본문에서 amp 태그로 변환하는 util 함수 만들기 
-- 일반 HTML 태그는 사용 불가, AMP 전용 태그만 사용 가능
-- `<img>` 태그는 `<amp-img>`로, `<script>` 태그는 `<amp-script>`로 대체해야 한다
-- `<style amp-custom>` 태그에는 **최대 50KB까지만** CSS 작성 가능
-- 애니메이션 전용 `<style amp-keyframes>`는 **최대 500KB까지** 허용된다.
-  단, `<body>` 하단에만 위치하고 키프레임 규칙만 작성 가능하다
+- `div`, `article` 같은 표준 HTML 태그는 그대로 쓴다. 바꾸거나 빼야 하는 태그만 골라 처리한다
+- `<img>` 태그는 `<amp-img>`로, `<iframe>`은 `<amp-iframe>`으로 바꿔야 한다
+- 직접 작성한 `<script>`는 쓸 수 없다. AMP 런타임과 확장 컴포넌트 스크립트, `application/ld+json` 같은 JSON 타입만 남는다
+- `<style amp-custom>`과 인라인 `style` 속성을 합쳐 **75,000바이트까지** CSS 작성 가능
+- 애니메이션 전용 `<style amp-keyframes>`는 따로 **최대 500,000바이트까지** 허용된다.
+  단, `<body>`의 마지막 자식으로만 둘 수 있다
 - JS 이벤트 핸들러 제거 , javascript: 링크 제거 
-- 허용되지 않는 태그 하위 호환
-  - font, area, form
+- 하위 호환이 필요한 태그 정리
+  - font, area
+- form은 금지 태그가 아니다. amp-form 확장을 넣어야 쓸 수 있다
 
-👉 **총 CSS + 인라인 스타일 합산이 75KB를 넘지 않도록** 주의해야 한다 - [ 관련 공식문서 ](https://amp.dev/documentation/guides-and-tutorials/learn/spec/amphtml)
+👉 크기 한도의 근거는 [ AMP HTML 명세 ](https://amp.dev/documentation/guides-and-tutorials/learn/spec/amphtml)에 있다
 
 ---
 
@@ -113,7 +115,7 @@ pages에서 화면 뼈대부터 만든 뒤, 여러 페이지에서 같이 쓸 �
     
     <!--  공통 대상 : Style  -->
     <style amp-custom>
-      /* AMP 전용 CSS 들어올 자리 ( 용량 50KB 안넘기게 살살 다뤄줘 ) */
+      /* AMP 전용 CSS 들어올 자리 ( 인라인 style 까지 합쳐 75,000바이트 안넘기게 살살 다뤄줘 ) */
     </style>
     
   </head>
@@ -128,9 +130,7 @@ pages에서 화면 뼈대부터 만든 뒤, 여러 페이지에서 같이 쓸 �
       </article>
       
       <!--  갖가지 광고 예쁘게 공통으로 말아 -->
-      <ad>
-        광고 들어갈 자리 Lazy Load 적용 대상
-      </ad>
+      <!-- 실제 광고를 넣을 때는 amp-ad 확장을 등록하고 광고사 설정을 넣는다. -->
       
     </main>
     
@@ -140,26 +140,27 @@ pages에서 화면 뼈대부터 만든 뒤, 여러 페이지에서 같이 쓸 �
 </html>
 ```
 
+기사 본문의 자리를 보기 위해 필수 `amp-boilerplate`와 런타임 스크립트는 예제에서 생략했다. 광고를 넣을 때는 `amp-ad` 컴포넌트를 쓴다.
+
 ---
 
 ## AMP 규칙에 맞는 Style 
 
 Amp 용으로 style 잡는게 좀 까다로웠다 ( sass 방식이 왜 안돼 ... 하나하나 분석하다가 이건 도저히 아니다 싶었다. )
 
-AMP는 `<style amp-custom>` 단 하나만 허용
-- 모든 사용자 정의 스타일은 `<head>` 안의 `<style amp-custom>` 안에 작성해야 함.
-- `<style>` 태그가 두 개 이상 있으면 AMP 유효성 검사에서 실패. ( 별 ... )
-- 총 CSS 용량은 75KB 이하
-- CSS 속성은 inline 스타일로 작성해야 함. ( CSS-in-JS 방식은 사용 불가 )
-  - `<style amp-custom>` 내부 전체 CSS 크기 합이 75KB (75,000 bytes)를 넘으면 안 됨.
-- 초과 시 AMP validation 실패는 곧 페이지 노출 불가로 이어진다.
+기사 스타일을 넣을 `<style amp-custom>`은 하나만 둘 수 있다.
+- 사용자 정의 스타일은 `<head>` 안의 `<style amp-custom>`이나 요소의 인라인 `style` 속성에 쓴다.
+- `<style amp-custom>`이 두 개 이상 있으면 AMP 유효성 검사에서 실패. ( 별 ... )
+  - 필수 `amp-boilerplate` 스타일과 `<body>` 끝의 `amp-keyframes`는 이 개수에 넣지 않는다.
+- `<style amp-custom>`과 인라인 `style`을 합친 크기가 75,000바이트를 넘으면 안 됨.
+- Next.js 14 Pages Router 문서는 AMP 페이지에서 CSS-in-JS만 지원하고 CSS Modules는 지원하지 않는다고 적어 두었다. 이건 개발 도구 쪽 제한이다. 어떤 방식으로 쓰든 검증받는 건 빌드가 만든 AMP HTML이고, 위의 개수와 크기 조건도 완성된 HTML에 적용된다.
+- 조건을 넘으면 AMP 검증에 실패하고, 그 문서는 유효한 AMP 페이지로 제공되지 않는다. 일반 기사 페이지 열람이나 검색 노출 전체가 막히는 건 아니다.
 
 미지원 CSS 속성/기능
 - @import 사용 불가 
 - !important 사용 불가
-- position: fixed는 예외적으로 일부 AMP 컴포넌트에서만 허용 (ex. <amp-sidebar>)
-- animation, keyframes는 제한적으로만 허용됨 
-- filter, backdrop-filter, mix-blend-mode 등 일부 CSS 속성 사용 불가.
+- transition과 animation은 GPU 가속이 되는 속성(`opacity`, `transform`)에만 쓸 수 있다
+- `position: fixed`, `filter`, `backdrop-filter`, `mix-blend-mode`는 AMP 명세의 금지 항목에 없다. 쓰기 전에 AMP Validator로 확인한다.
 
 AMP 구성요소의 스타일링
 - `<amp-img>`,`<amp-carousel>`, `<amp-sidebar>` 등 AMP 컴포넌트는 반드시 지정된 방식으로 스타일링해야 함.
@@ -175,7 +176,7 @@ AMP 구성요소의 스타일링
 ![google search console](img_2.png)
 
 구글 Search Console 에서 AMP 메뉴를 확인하니 Google Amp validator 검증에 실패해
-유효하지 않은 페이지로 판단해 노출하지 않은 모양이다.
+유효하지 않은 AMP 페이지로 판단해 AMP 버전을 노출하지 않은 모양이다.
 
 ![안되는 이유가 있지..](img_5.png)
 
@@ -240,9 +241,9 @@ if (isTag(el)) {
 
 image-size + fetch ⚠️
 
-별도 설치가 필요한 라이브러리는 아니었지만 안정성과 성능 사이에서 고민이 있었다.  
+원격 이미지 크기 하나를 알아내려고 요청을 얼마나 더 보내야 할지가 고민이었다.
 
-AMP에서는 <amp-img>에 반드시 width와 height가 있어야 한다.  
+기사에 쓰는 `<amp-img layout="responsive">`는 `width`와 `height`가 있어야 이미지가 오기 전에도 자리를 잡는다.
 그런데 콘텐츠에 이 정보가 누락된 경우도 있어서 서버에서 이미지를 직접 fetch하고 image-size로 크기를 추출해야 했다.  
 
 img 태그의 크기를 알 수 없는 경우에만 별도 호출하기로 했다. 
@@ -271,3 +272,8 @@ const { width, height } = imageSize(buffer);
 ![아... 영롱해](img_6.png)
 
 오래된 기사에서 폭과 높이를 찾을 수 없는 사진만 서버가 한 번 더 내려받아 크기를 읽는다. 에디터가 이미 크기를 적어 준 사진에는 그 값을 쓴다. AMP 검증 한 건을 잡겠다고 기사를 열 때마다 본문 사진 전부를 다시 받을 필요는 없었다.
+
+참고
+- [AMP HTML 명세: 허용 태그와 스타일시트 크기](https://amp.dev/documentation/guides-and-tutorials/learn/spec/amphtml/)
+- [AMP 페이지 스타일 작성법](https://amp.dev/documentation/guides-and-tutorials/develop/style_and_layout/style_pages/)
+- [Next.js 14 Pages Router의 AMP 지원](https://nextjs.org/docs/14/pages/building-your-application/configuring/amp)

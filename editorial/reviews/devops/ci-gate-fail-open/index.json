@@ -1,0 +1,6 @@
+{
+  "sha256": "2016d75aa736966f9897f1d42c47511d9422e3f1d32a3bf06d06bcb7bc845941",
+  "before": "`--build-arg` 없이 빌드해도 builder 단계의 검증은 이 기본값을 읽고 통과한다. 하지만 요청을 처리하는 runner는 새 `FROM`에서 시작한다.",
+  "after": "기본값을 지우고 runner에서도 `ARG APP_ORIGIN`을 받은 뒤 `ENV APP_ORIGIN=$APP_ORIGIN`으로 이미지에 남겼다. 인자 없이",
+  "reason": "builder의 검증을 통과하고도 요청 시 값이 없어진 이유를 먼저 밝히고, 실제 runner에 어떤 두 줄을 추가했는지 연결했다."
+}

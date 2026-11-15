@@ -137,7 +137,9 @@ if (event.isComposing) return
 
 컴포넌트 밖에서도 소유권 문제가 하나 터졌다. 스택 전환 때 create-next-app의 `eslint-config-next`를 버리고 직접 세운 flat config를 이식했는데 리뷰에서 게이트의 구멍 셋이 나왔다.
 
-`react/jsx-key`가 없었다. 버린 프리셋이 조용히 켜 주던 룰이라 교체와 함께 사라졌다. key 누락은 리스트 재정렬 때 상태가 엉뚱한 아이템에 붙는 프로덕션 버그다. 룰이 `**/*.{ts,tsx}`에만 걸려 있어 `.jsx` 파일은 검사 대상이 아니었다. 성능 룰이라고 error로 승격한 `no-html-link-for-pages`는 App Router에서 검사를 수행하지 않는 규칙이었다.
+`react/jsx-key`가 없었다. 버린 프리셋이 조용히 켜 주던 룰이라 교체와 함께 사라졌다. key 누락은 리스트 재정렬 때 상태가 엉뚱한 아이템에 붙는 프로덕션 버그다. 룰이 `**/*.{ts,tsx}`에만 걸려 있어 `.jsx` 파일은 검사 대상이 아니었다. 성능 룰이라고 error로 승격한 `no-html-link-for-pages`는 이 과제의 App Router 경로를 일부만 잡았다.
+
+과제에 설치한 플러그인 16.2.10에 링크 두 개를 넣어 보면 차이가 보인다. `<a href="/">`는 잡혔다. `<a href="/products">`는 통과했다. 규칙은 `src/app`을 읽어서 상품 목록 경로에 `^/products$`라는 정규식을 만들고, 링크를 검사할 때는 끝에 `/`를 붙인다. `/products/`로 바뀐 링크 끝에는 슬래시가 하나 더 있어서 이 정규식에 걸리지 않는다. [플러그인 16.2.10 규칙 소스](https://github.com/vercel/next.js/blob/v16.2.10/packages/eslint-plugin-next/src/rules/no-html-link-for-pages.ts)
 
 설정을 덜어 내면서 원래 검사하던 파일도 빠졌다. 누락된 룰을 복원하고 글롭을 `js,jsx,mjs`까지 넓혔다. 개별 룰을 수동으로 승격하던 부분에는 core-web-vitals 프리셋을 적용해 플러그인 버전이 바뀌면 승격 목록도 따라가게 했다.
 디폴트를 버릴 때는 버려지는 것의 목록을 확인해야 한다. 프리셋은 설정이 아니라 그 팀이 쌓은 실패의 목록이라서다.

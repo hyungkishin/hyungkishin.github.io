@@ -92,12 +92,14 @@ SQL, chunk size, ranking limit 같은 공통 설정은 `RankingBatchConstants`�
 Step 1은 기존 MV 데이터를 삭제하는 Cleanup Tasklet이고, Step 2는 `product_metrics`에서 읽어서 MV에 적재하는 Chunk-Oriented Step이에요.
 
 처음엔 "Aggregate Step 시작할 때 기존 데이터 DELETE하고 INSERT하면 되지 않나?" 싶었어요.
-하나의 Step에 넣으면 코드도 간결하고 트랜잭션도 하나로 묶이니까요.
+하나의 Step에 넣으면 코드도 간결하고 트랜잭션도 하나로 묶일 것 같았거든요.
 
-근데 하나의 트랜잭션이면 Aggregate가 실패했을 때 Cleanup까지 롤백돼요.
-이전 데이터가 그대로 남아 있게 되는 거죠.
+근데 Chunk-Oriented Step은 Step 전체가 아니라 chunk마다 커밋해요.
+지금은 TOP 100에 chunk size 100이라 데이터 chunk가 하나뿐이에요. 처리 범위를 늘려 chunk가 여러 개가 되면 얘기가 달라져요.
+DELETE를 커밋한 뒤 5번째 chunk 안에서 실패하면 롤백되는 건 5번째 chunk뿐이에요. 마지막 커밋은 4번째 chunk고요.
+MV에는 이전 데이터가 지워진 채 4번째 chunk까지의 순위만 남아요.
 
-그래서 분리했는데, **이것도 문제가 있었어요.**
+Cleanup과 Aggregate를 두 Step으로 나눴지만, **이것도 문제가 있었어요.**
 Cleanup이 끝나고 Aggregate가 도는 사이에 유저가 랭킹 페이지에 접속하면 빈 화면을 봐요.
 Aggregate에서 네트워크 에러로 재시도가 길어지면 그 시간 동안 랭킹이 없어요.
 
@@ -170,8 +172,8 @@ Tasklet 하나에 JDBC로 SELECT 하고 INSERT 하면 끝이에요.
 
 근데 이건 "지금 100건이니까 괜찮다"에 기대는 판단이에요.
 상품이 수만 개로 늘어나고 TOP 10,000을 집계해야 하는 날이 오면, chunk_size=1000으로 10개 chunk가 돌아야 해요.
-중간에 7번째 chunk에서 DB 커넥션이 끊긴다고 해봐요. Tasklet 방식은 처음부터 다시 돌아야 해요.
-Chunk 방식은 실패한 chunk부터 재시작할 수 있어요.
+중간에 5번째 chunk에서 DB 커넥션이 끊긴다고 해봐요. Tasklet 방식은 처음부터 다시 돌아야 해요.
+Chunk 방식은 5번째 chunk만 롤백되고 4번째 chunk까지는 커밋돼 있어요. 재시작하면 5번째 chunk부터 다시 처리할 수 있어요.
 
 다만 "재시작할 수 있다"고 말하려면 조건이 하나 더 붙어요.
 
@@ -185,7 +187,7 @@ Chunk 방식은 실패한 chunk부터 재시작할 수 있어요.
 코드 리뷰에서 이런 질문이 왔어요.
 "chunk 5에서 실패하고 재시작되면, `beforeStep`이 다시 0을 박아넣어서 chunk 6의 첫 상품이 1위로 적재되는 거 아니냐?"
 
-맞아요.
+순위가 1로 돌아가는 건 맞아요. 다만 실패한 5번째 chunk가 롤백됐다면 다시 읽는 건 5번째 chunk의 첫 상품이에요. 그 상품에 1위가 찍혀요.
 실행 중인 `RankingWriter`에만 순위를 저장하면 재시작할 때 이전 값을 복원할 곳이 없어요.
 
 `ExecutionContext`에 저장/복구하도록 수정했어요.
@@ -299,3 +301,7 @@ Shadow Table + `RENAME TABLE` 또는 append-only + 최신 `ranking_date` 조회�
 한 번에 끝난 배치의 순위표만 봤다면 `currentRank`가 사라질 일도 없었겠죠. 이제 이 배치를 다시 본다면 중간에 멈춘 뒤 다음 순위가 어디서 이어지는지부터 확인할 겁니다. API 쪽에는 잘못된 파라미터가 들어왔을 때의 응답과 아직 비어 있는 MV를 조회한 고객의 화면이 남아 있고요.
 
 > 10주 회고는 별도 포스팅으로 분리했어요. 이 글은 "누적 테이블 위에 주간 랭킹을 얹었을 때 생기는 문제"에 집중하는 쪽이 맞다고 판단했어요.
+
+## 참고 자료
+
+- [Spring Batch Reference: Chunk-oriented Processing](https://docs.spring.io/spring-batch/reference/step/chunk-oriented-processing.html)

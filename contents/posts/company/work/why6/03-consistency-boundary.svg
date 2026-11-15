@@ -22,7 +22,7 @@
   <text x="590" y="184" fill="#4b5563" font-size="11" text-anchor="middle">큐 거부 / pod 종료 / 외부 API 실패 → 유실</text>
 
   <!-- ===== AFTER row ===== -->
-  <text x="60" y="270" fill="#10b981" font-size="14" font-weight="600">NEXT (Outbox 도입 후)</text>
+  <text x="60" y="270" fill="#10b981" font-size="14" font-weight="600">검토 중인 Outbox 구조</text>
   <text x="60" y="288" fill="#4b5563" font-size="11">상태 전이와 outbox INSERT 가 같은 트랜잭션. 경계가 밖으로 한 칸 이동.</text>
 
   <!-- DB + outbox -->
@@ -37,8 +37,8 @@
   <!-- consumer + DLQ -->
   <rect x="460" y="310" width="400" height="60" rx="10" fill="#f1f5f9" stroke="#38bdf8" stroke-width="2"/>
   <text x="660" y="336" fill="#38bdf8" font-size="12" font-weight="600" text-anchor="middle">OutboxPublisher + retry + DLQ</text>
-  <text x="660" y="354" fill="#4b5563" font-size="11" text-anchor="middle">실패해도 재처리 가능, 유실 0</text>
+  <text x="660" y="354" fill="#4b5563" font-size="11" text-anchor="middle">미발송 이벤트를 다시 읽어 재시도</text>
 
   <!-- Footnote -->
-  <text x="460" y="430" fill="#9ca3af" font-size="11" text-anchor="middle">"DB 는 됐는데 이벤트가 안 갔다" 는 상태가 구조적으로 사라진다</text>
+  <text x="460" y="430" fill="#9ca3af" font-size="11" text-anchor="middle">상태 변경이 커밋되면 발송할 이벤트도 DB에 남는다</text>
 </svg>

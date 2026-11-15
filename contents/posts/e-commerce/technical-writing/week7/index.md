@@ -226,7 +226,7 @@ Spring의 `@Transactional`은 CGLIB 프록시 기반이라, 같은 객체 내부
 
 ```kotlin
 // 2단계: 트랜잭션 밖에서 Kafka 비동기 전송 (DB 커넥션 점유 안 함)
-// 모든 future를 병렬 발행 후 allOf로 한 번에 대기 (순차 get 대비 Kafka RTT 1회로 감소)
+// 각 전송을 먼저 시작하고 allOf로 묶어 기다린다.
 private fun relayEvents(events: List<OutboxEvent>) {
     val futures = events.map { event -> sendAsync(event) }
 
@@ -257,9 +257,9 @@ private fun relayEvents(events: List<OutboxEvent>) {
 }
 ```
 
-처음에는 `futures[index].get(10초)`로 순차 대기했는데, 100건이면 최악의 경우 1000초를 기다려야 했어요.
+처음에는 각 future에 `get(10초)`를 호출했어요. 여러 future가 끝나지 않으면 다음 것을 기다릴 때마다 대기 기한이 새로 시작됩니다.
 
-`CompletableFuture.allOf()`로 바꾸면 모든 future가 병렬로 진행되고, 전체 대기 시간이 "가장 느린 1건"의 시간으로 줄어듭니다.
+지금은 전송들을 먼저 시작하고 `allOf().get(SEND_TIMEOUT_SECONDS * 2, ...)`로 한 번만 기다려요. 상수가 10이라 배치의 대기 기한은 20초입니다. 이때까지 끝나지 않은 future도 실패 목록에 들어가지만, 기다리기를 그만둔다고 이미 보낸 Kafka 요청이 취소되지는 않아요.
 
 상태 업데이트도 건별 트랜잭션에서 batch UPDATE로 바꿨어요.
 100건을 처리하면 이전에는 100번의 UPDATE + 100번의 트랜잭션 커밋이었는데, 이제는 성공 ID를 모아서 `WHERE id IN (...)` 한 번, 실패도 한 번으로 끝납니다.
@@ -320,7 +320,7 @@ Outbox 패턴은 "최소 한 번(at-least-once)" 발행을 보장하는 구조�
 
 여기서 한 가지 걱정되는 엣지 케이스가 있어요.
 
-예를 들어 Relay의 `future.get()`은 10초까지만 기다리고 Producer의 `delivery.timeout.ms`는 15초라고 해 보죠. Relay가 10초에 FAILED를 기록해도 Producer 쪽 전송은 계속될 수 있어요. Kafka에 실제로 기록된 게 12초째라면 Relay에 남은 상태와 결과가 달라집니다.
+예를 들어 배치가 20초를 기다리고 FAILED를 기록한 다음, 22초째에 브로커에서 성공 응답이 돌아올 수도 있어요. 릴레이가 다시 발행하면 같은 이벤트가 두 번 전달됩니다.
 
 Kafka에는 메시지가 들어갔는데 Outbox는 FAILED 상태라서, 다음 재시도 때 같은 메시지를 한 번 더 보내게 돼요.
 이런 경우가 있기 때문에 Consumer 쪽 멱등성이 필요합니다.
@@ -501,7 +501,9 @@ Kafka retention이 7일이면, 7일이 지난 이벤트는 재전달될 일이 �
 ### Producer 설정
 
 ```yaml
-# kafka.yml
+# kafka.yml 수정 예시 (spring.kafka 아래 일부)
+properties:
+  request.timeout.ms: 20000                    # 공통 properties라 producer에도 들어간다
 producer:
   key-serializer: org.apache.kafka.common.serialization.StringSerializer
   value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
@@ -509,13 +511,19 @@ producer:
   properties:
     enable.idempotence: true                   # 재시도 시 중복 방지 (시퀀스 넘버 기반)
     max.in.flight.requests.per.connection: 5   # idempotent + 5면 Kafka가 순서 보장
-    delivery.timeout.ms: 15000                 # 15초 안에 전달 못 하면 예외
+    delivery.timeout.ms: 30000                 # request.timeout.ms 20초 + linger.ms 0 이상
 ```
 
 `acks=all`은 리더 브로커뿐 아니라 ISR 복제본 전부가 메시지를 기록해야 성공으로 간주해요.
-리더가 ACK 직후 종료돼도 복제본에 남아 있으니 메시지가 유실되지 않습니다.
+리더가 ACK 직후 종료돼도, ACK에 참여한 다른 복제본이 살아 있으면 그 복사본에서 이어갈 수 있어요.
 
-`delivery.timeout.ms`를 15초로 잡은 건, OutboxRelayScheduler의 `future.get(10초)` 타임아웃보다 충분히 크되 기본값 120초처럼 길지 않게 하기 위해서예요.
+과제에 남긴 값은 위 예시와 달랐어요. 단건 `future.get(10초)`를 쓰던 때를 생각해 `delivery.timeout.ms`를 15초로 잡았는데, 공통 설정의 `request.timeout.ms`는 이미 20초였습니다.
+
+이 두 값으로 kafka-clients 3.7.1에서 producer를 만들면 첫 메시지를 보내기도 전에 `ConfigException`이 납니다. 클라이언트가 생성 시점에 `delivery.timeout.ms ≥ linger.ms + request.timeout.ms`를 검사하거든요. 이 버전의 기본 `linger.ms`는 0입니다. 그래서 위 예시에서는 20초짜리 요청을 유지하고 전체 전달 기한을 30초로 잡았어요.
+
+이 설정이 producer의 검사를 통과해도, 앞에서 릴레이가 기다리는 시간은 여전히 20초예요. producer가 결과를 확정하기 전에 릴레이가 기다리기를 멈출 수 있다는 게 두 기한을 따로 봐야 하는 이유입니다.
+
+이 설정으로 글 끝에 적은 k6 결과가 어떻게 나왔는지는 아직 설명하지 못했습니다. 실행 프로필에서 다른 값이 덮어썼을 수도 있고, producer가 이 공통 properties를 받지 않았을 수도 있어요. 둘 다 가설입니다. producer가 생성될 때 남기는 `ProducerConfig values:` 로그에서 실제 `request.timeout.ms`, `linger.ms`, `delivery.timeout.ms`를 확인해야 어느 쪽인지 정할 수 있어요.
 
 ### Avro + Schema Registry
 
@@ -585,8 +593,8 @@ fun consume(record: ConsumerRecord<Any, Any>, acknowledgment: Acknowledgment) {
 
 `acknowledge()`를 호출하지 않으면 offset이 올라가지 않기 때문에, Consumer가 중간에 종료돼도 해당 메시지는 재전달돼요.
 
-중요한 건 poison pill(파싱 불가능한 메시지)이나 requestId가 없는 메시지에서도 빠짐없이 ack를 호출해야 한다는 점이에요.
-안 하면 그 메시지가 무한 재전달되면서 뒤의 정상 메시지까지 처리가 밀립니다.
+poison pill(파싱 불가능한 메시지)이나 requestId가 없는 메시지에서도 ack를 호출했어요.
+다만 ack를 빠뜨린다고 그 메시지가 바로 다시 오지는 않습니다. listener가 예외 없이 반환하면 컨테이너는 다음 레코드로 넘어가요. 커밋 위치는 partition마다 하나라서, 뒤 레코드를 ack하면 빠뜨린 레코드의 위치도 함께 지나갑니다. 그 전에 consumer가 재시작되거나 리밸런스되면 마지막 커밋 위치부터 다시 읽고요. 버릴 메시지를 확인한 자리에서 ack해 두면 그 위치가 바로 커밋 대상에 들어갑니다.
 
 멱등성 체크(`tryMarkHandled`)는 Consumer에서 직접 호출하지 않고 `IssueCouponFromQueueUseCase` 안에서 비즈니스 로직과 같은 `@Transactional`로 묶어서 처리해요.
 이렇게 해야 멱등 마킹과 쿠폰 발급이 원자적으로 동작합니다.
@@ -721,3 +729,9 @@ DLT 모니터링 인프라(Grafana + kafka-exporter)는 아직 구성하지 못�
 
 판단마다 "왜 이걸 골랐고 뭘 잃었는지"는 코드에 주석으로, 이 글에 근거로 남겨두었어요.
 나중에 이 코드를 다시 열었을 때, "그때 왜 이렇게 했더라?"에 답할 수 있도록.
+
+## 참고자료
+
+- [Apache Kafka 3.7.1, KafkaProducer의 delivery.timeout.ms 검사](https://github.com/apache/kafka/blob/3.7.1/clients/src/main/java/org/apache/kafka/clients/producer/KafkaProducer.java#L531-L549)
+- [과제 저장소의 kafka.yml](https://github.com/hyungkishin/loop-pack-be-l2-vol3-kotlin/blob/640693fd44dfffd5973d54447b779a4e3d542e2b/modules/kafka/src/main/resources/kafka.yml#L13-L22)
+- [Spring for Apache Kafka, Message Listener Containers](https://docs.spring.io/spring-kafka/reference/kafka/receiving-messages/message-listener-container.html)

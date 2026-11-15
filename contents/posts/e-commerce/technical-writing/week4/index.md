@@ -251,38 +251,45 @@ fun listen(message: ConsumerRecord<String, String>, ack: Acknowledgment) {
 
 "처리 실패했으면 ack 안 하고 재시도해야 하는 거 아냐?"
 
-맞는 말입니다. 하지만 이 consumer는 **보조 흐름(fallback)** 성격입니다.
+다시 시도하는 게 맞는 서비스도 있습니다. 하지만 이 consumer는 **보조 흐름(fallback)** 성격입니다.
 단건 유실보다 지연 전파가 더 위험한 서비스였기 때문에, 실패해도 ack 하는 쪽을 택했습니다.
 
 > 정산, 주문 확정, 법정 고지처럼 단건 유실이 치명적인 도메인에서는 반대로 DLQ + 재처리가 맞습니다.
 > 이 판단은 서비스 성격에 따라 달라집니다.
 
-### ack 안 하면 어떻게 되나요?
+### ack만 빼면 재시도가 되나요?
 
-`MANUAL_IMMEDIATE` + `concurrency=1` 구조에서 ack을 안 하면 이런 일이 벌어집니다.
+아닙니다. `MANUAL_IMMEDIATE`는 listener가 `acknowledge()`를 부를 때 offset을 커밋하는 방식입니다.
+ack 없이 정상 반환하면 컨테이너는 다음 레코드를 넘겨줍니다. consumer의 읽기 위치(position)는 이미 이번 poll에서 받은 레코드 뒤에 가 있고, 자동으로 되돌아가지 않습니다.
 
-1. 같은 메시지를 **무한 재시도**합니다. 외부 API 장애면 끝없이 반복됩니다.
-2. 해당 partition의 **후속 메시지 전부 blocking**됩니다. partition stall입니다.
-3. 뒤에 있는 멀쩡한 메시지들도 처리 못하게 되면서 **장애가 번집니다.**
+달라지는 건 커밋 위치뿐입니다. 실패한 레코드는 커밋되지 않은 채 남고, 뒤 레코드를 ack하면 그 뒤 위치가 커밋되면서 함께 지나갑니다.
+그 전에 consumer가 재시작되거나 리밸런스되면 마지막 커밋 위치부터 다시 읽습니다. 실패한 레코드가 다시 오긴 하지만, 이미 처리한 뒤 메시지까지 같이 옵니다.
+
+같은 레코드를 다시 받으려면 재시도 경로를 따로 만들어야 합니다.
+
+- listener에서 `ack.nack(sleep)`을 부르면 컨테이너가 그 레코드 위치로 seek해서 다음 poll에서 다시 넘겨줍니다.
+- 예외를 던지면 에러 핸들러(`DefaultErrorHandler`)가 seek하고 backoff에 따라 다시 시도합니다.
+
+`concurrency=1`에서 이 경로를 타면 재시도하는 동안 같은 partition의 뒤 메시지는 기다립니다. 외부 API 장애가 길어지고 재시도 횟수에 상한이 없으면 그 partition은 장애가 끝날 때까지 멈춥니다. partition stall입니다.
 
 ```mermaid
 flowchart LR
-    subgraph stall["partition stall"]
+    subgraph stall["재시도 중인 partition"]
         direction TB
-        msg1["실패 메시지<br/>(ack 안 함)"]
+        msg1["실패 메시지<br/>(nack 또는 예외 후 seek)"]
         msg2["정상 메시지 1<br/>(대기)"]
         msg3["정상 메시지 2<br/>(대기)"]
         msg4["정상 메시지 3<br/>(대기)"]
-        msg1 -.->|"blocking"| msg2 -.-> msg3 -.-> msg4
+        msg1 -.->|"재시도하는 동안 대기"| msg2 -.-> msg3 -.-> msg4
     end
 
     style msg1 fill:#e94560,color:#ffffff
-    style msg2 fill:#4a4a4a,color:#e0e0e0
-    style msg3 fill:#4a4a4a,color:#e0e0e0
-    style msg4 fill:#4a4a4a,color:#e0e0e0
+    style msg2 fill:#f1f5f9,color:#334155
+    style msg3 fill:#f1f5f9,color:#334155
+    style msg4 fill:#f1f5f9,color:#334155
 ```
 
-실패 한 건 때문에 뒤에 있는 수십~수백 건이 다 밀리게 됩니다.
+이 토픽에는 다른 서비스 메시지까지 분당 1만 건이 들어오니, 재시도가 길어지는 만큼 그 뒤가 전부 밀립니다.
 이 서비스에서는 단건 유실보다 이 지연 전파가 더 위험했습니다.
 
 ### ack 보장 패턴: try/finally
@@ -316,7 +323,7 @@ try {
 | Streaming 파싱 실패 | O | `warn` (size/offset만 권장) | 재시도해봤자 의미 없습니다 (깨진 메시지) |
 | 관심 없는 메시지 | O | 없음 | 내 관심사가 아닙니다 |
 | 처리 성공 | O | `info` | 정상입니다 |
-| 처리 실패 | **O (finally)** | `error` (상관키+cause) | partition stall 방지 |
+| 처리 실패 | **O (finally)** | `error` (상관키+cause) | 재시도로 partition을 붙잡지 않음 |
 
 ---
 
@@ -415,9 +422,14 @@ Jackson에 본문 전체를 넘기기 전에 우리 서비스의 메시지인지
 - 모든 경로에서 `try/finally`로 ack 보장
 - 상관키 null 방어로 검색 가능한 키 최소 하나 확보
 
-이번 보조 발송에서는 실패를 기록하고 ack하기로 했습니다. 한 건의 재발송을 기다리는 동안 같은 partition의 다음 알림까지 밀리는 쪽이 더 큰 손실이라고 판단했습니다.
+이번 보조 발송에서는 실패를 기록하고 ack하기로 했습니다. 한 건을 재시도하는 동안 같은 partition의 다음 알림까지 밀리는 쪽이 더 큰 손실이라고 판단했습니다.
 
 다만 이건 consumer 쪽의 대응입니다. 구조 자체의 문제는 남아 있습니다.
 하나의 토픽에 여러 서비스 메시지가 섞여 있으면 consumer마다 대상 메시지를 구분하는 비용이 발생합니다.
 
 장기적으로는 도메인별 토픽 분리를 검토할 수 있습니다. 이번 필터링은 producer를 변경하기 어려운 조건에서 처리 비용을 줄이기 위한 조치였습니다.
+
+## 참고자료
+
+- [Spring for Apache Kafka, Message Listener Containers (AckMode, nack)](https://docs.spring.io/spring-kafka/reference/kafka/receiving-messages/message-listener-container.html)
+- [Apache Kafka 4.0, KafkaConsumer (position과 committed position)](https://kafka.apache.org/40/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html)

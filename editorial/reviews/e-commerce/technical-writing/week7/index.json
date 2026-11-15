@@ -1,0 +1,6 @@
+{
+  "sha256": "be31a2874ae8b10e9148609bc37c8fff9f37ab48876c5d032a436454ab3e572e",
+  "before": "과제에 남긴 값은 위 예시와 달랐어요. 단건 `future.get(10초)`를 쓰던 때를 생각해 `delivery.timeout.ms`를 15초로 잡았는데, 공통",
+  "after": "이 두 값으로 kafka-clients 3.7.1에서 producer를 만들면 첫 메시지를 보내기도 전에 `ConfigException`이 납니다. 클라이언트가",
+  "reason": "동작하는 설정 예를 먼저 보여준 뒤 과제에 남은 15초와 20초를 나란히 읽게 해서, 생성 실패와 전송 결과를 기다리는 타임아웃을 가를 수 있다."
+}

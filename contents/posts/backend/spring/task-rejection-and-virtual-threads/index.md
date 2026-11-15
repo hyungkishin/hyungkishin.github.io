@@ -231,26 +231,24 @@ private void invokeListener(ApplicationListener<?> listener, ApplicationEvent ev
 
 `publishEvent` 호출자 코드가 어떤 자리에 있느냐로 결과가 갈린다
 
-**옵션 A: `@Transactional` 안에서 publishEvent**
-- 거부 예외 -> `@Transactional`이 catch -> DB rollback
+**옵션 A: 트랜잭션 안에서 부른 일반 `@EventListener`가 작업을 제출**
+- 거부 예외 -> 호출자가 잡지 않으면 `@Transactional`이 catch -> DB rollback (`TaskRejectedException`은 RuntimeException)
 - DB도 안 바뀜, 이벤트도 안 나감
 - **정합성은 유지**: 다만 배치 자체가 실패
 
-**옵션 B: DB commit 후 publishEvent (예: `@TransactionalEventListener(AFTER_COMMIT)`)**
-- DB는 이미 commit
-- 이벤트 발행만 거부됨
-- 호출자가 catch 안 하면 **DB는 변경, 이벤트는 영구 유실**
-- **정합성 깨짐**
+**옵션 B: `@TransactionalEventListener(AFTER_COMMIT)`가 커밋 뒤에 작업을 제출**
+
+이벤트는 트랜잭션 안에서 발행한다. 이때 Spring은 리스너를 나중에 부를 콜백을 등록하고, DB가 커밋된 뒤에 그 콜백에서 비동기 작업을 제출한다. 이 제출이 거부되면 DB 변경은 남고 리스너 본문은 한 줄도 실행되지 않는다.
 
 회고에서 5,235건이 사라진 자리는 **옵션 B**.
-DB의 `EXPIRED_AUTO` 상태 전이는 commit됐다. 그 뒤의 `@Async` 리스너 호출에서 큐 거부 -> 호출자(트랜잭션 밖)가 잡지 않으니 stack trace 한 줄로 끝.
+DB의 `EXPIRED_AUTO` 상태 전이는 commit됐다. 그 뒤에 `@Async` 작업을 제출하다 거부됐고 재시도할 기록도 남지 않았다.
 
 `AsyncUncaughtExceptionHandler`는 이 흐름에 **개입하지 않는다.** 그게 도달하려면 task가 실행되고 있어야 한다. 거부는 실행 전이다.  
 handler를 아무리 잘 설정해도 이 자리는 못 잡는다.
 
 **진짜 자리는 두 군데:**
 1. `executor.submit`이 거부할 가능성 자체 (큐 한도)
-2. `AFTER_COMMIT`처럼 commit 이후에 발행하는 시점
+2. 커밋 후에 작업을 제출해, 거부돼도 이미 바뀐 DB 상태를 되돌릴 수 없는 시점
 
 Outbox가 답인 정확한 이유: DB 변경과 outbox INSERT를 **같은 트랜잭션**에 묶으면, "이벤트 발행 의도"가 DB에 영구 기록된다. 발행은 별도 publisher의 책임. 거부되면 retry. 옵션 B의 정합성 구멍이 닫힌다.
 
@@ -425,14 +423,16 @@ P0에서 Outbox publisher를 한 개만 둘 수 있고 다른 발신 경로가 �
 
 ### 4가지 조합
 
-| 리스너 종류 | `@Async` 유무 | 트랜잭션 경계 | 거부 시 결과 |
+| 리스너 종류 | `@Async` 유무 | 리스너 실행 또는 작업 제출 시점 | 예외나 거부의 결과 |
 |---|---|---|---|
-| `@EventListener` | 없음 | 같은 트랜잭션 (동기 호출) | rollback (DB도 안 바뀜) |
-| `@EventListener` | 있음 | 분리 (별도 스레드) | DB는 commit 됨, 이벤트만 유실 |
-| `@TransactionalEventListener(BEFORE_COMMIT)` | 없음 | 같은 트랜잭션 | rollback |
-| `@TransactionalEventListener(AFTER_COMMIT)` | 있음 | DB commit 후 발행 | **DB는 commit, 이벤트 유실** |
+| `@EventListener` | 없음 | 발행 스레드가 트랜잭션 안에서 본문 실행 | 본문 예외가 발행자로 전파, rollback (DB도 안 바뀜) |
+| `@EventListener` | 있음 | 발행 스레드가 트랜잭션 안에서 executor에 제출 | 제출 거부는 발행자로 전파, 잡지 않으면 rollback. 이후 별도 스레드에서 난 본문 예외는 발행자에게 전파되지 않음 |
+| `@TransactionalEventListener(BEFORE_COMMIT)` | 없음 | commit 직전 같은 트랜잭션 | rollback |
+| `@TransactionalEventListener(AFTER_COMMIT)` | 있음 | DB commit 후 발행 스레드가 제출 | **DB는 commit, 이벤트 유실** |
 
-마지막 두 줄이 우리 사고 자리.
+`@Async`를 붙여도 `executor.submit`을 부르는 쪽은 발행 스레드다. 앞의 호출 경로에서 본 것처럼 `SimpleApplicationEventMulticaster`는 기본적으로 호출한 스레드에서 리스너를 부르고, `errorHandler`가 없으면 리스너 예외를 발행자에게 전파한다. 그래서 둘째 줄의 rollback은 세 조건이 겹칠 때 일어난다. 멀티캐스터가 기본 동기 실행이고, executor가 `AbortPolicy`로 즉시 거절하고, `publishEvent` 호출자가 예외를 잡지 않는 경우다. `TaskRejectedException`은 RuntimeException이라 `@Transactional`의 기본 규칙상 rollback 대상이다. 반면 제출에 성공한 뒤 별도 스레드에서 생긴 예외는 그 자체로 발행 트랜잭션을 롤백시키지 않는다.
+
+마지막 줄이 우리 사고 자리. 제출 거부가 commit 이후에 일어나서 DB 변경을 되돌릴 수 없다. [Spring의 트랜잭션 이벤트 단계](https://docs.spring.io/spring-framework/reference/data-access/transaction/event.html), [SimpleApplicationEventMulticaster의 기본 실행과 예외 전파](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/event/SimpleApplicationEventMulticaster.html)
 
 ### `@Async` + `@TransactionalEventListener(AFTER_COMMIT)`의 함정
 
@@ -501,7 +501,7 @@ publisher가 거부 만나면 retry. outbox 레코드는 DB에 있으니 **유�
 @TransactionalEventListener(phase = AFTER_COMMIT)
 @Async("workflowEventExecutor")
 fun on(e: WorkflowStatusChanged) {
-    slackClient.send(e)   // 이 자리가 거부되면? AFTER_COMMIT이라 못 막음
+    slackClient.send(e)   // 제출이 거부되면 이 줄은 실행조차 안 됨. 여기서 실패해도 이미 commit 이후
 }
 ```
 
@@ -554,7 +554,7 @@ DB에 이벤트를 남기는 후속안은 [Outbox 도입을 검토한 회고](/c
 3. **누가 기다리나요?** 제출자와 작업 스레드는 다를 수 있습니다. 제출한 가상 스레드가 대기 중에 언마운트되는지도 확인합니다.
 4. **50은 어디서 나와야 하나요**. Little's Law (`L = λW`). 목적지마다 평균 체류 시간, 연결 대기, 할당량을 확인해 동시성과 초당 시작 건수를 각각 정합니다.
 5. **분산 환경에서 in-memory throttle 안전할까요**. pod N대면 클러스터 한도는 N × `concurrencyLimit`. 같은 외부 할당량을 공유하면 인스턴스별 예산을 나누거나 공통 제한기를 둡니다.
-6. **왜 Outbox가 답인가요**. `@TransactionalEventListener(AFTER_COMMIT) + @Async` 조합은 DB commit 후 발행이라, 거부되면 정합성이 깨져요. Outbox는 DB 변경과 outbox INSERT를 같은 트랜잭션에 묶어 정합성 경계를 DB로 통일합니다.
+6. **왜 Outbox가 답인가요**. `@TransactionalEventListener(AFTER_COMMIT) + @Async`에서는 DB 커밋 뒤에 작업을 제출해요. 제출이 거부되면 상태 변경은 남는데 후속 작업은 실행되지 않아요. Outbox는 DB 변경과 outbox INSERT를 같은 트랜잭션에 묶어 정합성 경계를 DB로 통일합니다.
 
 이번 사고에서 큐를 없애는 조치는 실행기를 포화시키는 경로를 바꿨다. 이미 커밋한 상태 변경에 대해 나중에라도 이벤트 처리를 다시 시도하려면 발행할 내용을 DB에 함께 남겨야 한다.
 

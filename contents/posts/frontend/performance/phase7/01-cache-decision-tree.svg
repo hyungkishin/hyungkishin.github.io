@@ -93,10 +93,9 @@
   <text x="780" y="525" text-anchor="middle" class="text-no-sub">잘못 캐시되면 사고</text>
 
   <polygon points="440,578 580,616 440,654 300,616" class="node-decision"/>
-  <text x="440" y="610" text-anchor="middle" class="text-decision">RSC Flight 요청?</text>
-  <text x="440" y="628" text-anchor="middle" class="text-decision">(accept != text/html,</text>
-  <text x="440" y="644" text-anchor="middle" class="text-decision">sec-fetch-dest = empty)</text>
-  <text x="245" y="621" class="label-no">No</text>
+  <text x="440" y="610" text-anchor="middle" class="text-decision">RSC 요청?</text>
+  <text x="440" y="628" text-anchor="middle" class="text-decision">RSC: 1</text>
+  <text x="448" y="671" class="label-no">No</text>
   <text x="610" y="621" class="label-yes">Yes</text>
 
   <path d="M580 616 L700 616" class="arrow-no" marker-end="url(#arrow-red)"/>
@@ -104,12 +103,12 @@
 
   <rect x="700" y="586" width="160" height="60" rx="10" class="node-no"/>
   <text x="780" y="611" text-anchor="middle" class="text-no">no-store</text>
-  <text x="780" y="629" text-anchor="middle" class="text-no-sub">HTML과 같은 객체 금지</text>
+  <text x="780" y="629" text-anchor="middle" class="text-no-sub">별도 키가 없으면 캐시 우회</text>
 
   <rect x="270" y="682" width="340" height="76" rx="12" class="node-yes"/>
   <text x="440" y="708" text-anchor="middle" class="text-yes">HTML 요청 (public)</text>
   <text x="440" y="728" text-anchor="middle" class="text-yes-sub">public, max-age=60,</text>
-  <text x="440" y="746" text-anchor="middle" class="text-yes-sub">s-maxage=N, stale-while-revalidate=60, Vary: Accept</text>
+  <text x="440" y="746" text-anchor="middle" class="text-yes-sub">s-maxage=N, stale-while-revalidate=60</text>
 
   <rect x="80" y="788" width="720" height="74" rx="10" class="node-cost"/>
   <text x="100" y="818" class="text-cost-title">포기한 것</text>

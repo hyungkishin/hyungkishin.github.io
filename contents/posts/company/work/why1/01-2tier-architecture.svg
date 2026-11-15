@@ -28,7 +28,7 @@
 
   <rect x="300" y="190" width="240" height="56" rx="10" fill="#f1f5f9" stroke="#0ea5e9" stroke-width="1.2"/>
   <text x="420" y="210" fill="#4b5563" font-size="11" text-anchor="middle">L1 hit ratio target ≥ 99%</text>
-  <text x="420" y="230" fill="#64748b" font-size="11" text-anchor="middle">RTT 0, 파싱 0회</text>
+  <text x="420" y="230" fill="#64748b" font-size="11" text-anchor="middle">Redis 왕복 0회, 파싱 0회</text>
 
   <!-- L2 Redis -->
   <rect x="620" y="120" width="240" height="68" rx="10" fill="#f1f5f9" stroke="#ef4444" stroke-width="2"/>
@@ -39,7 +39,7 @@
   <!-- DB -->
   <rect x="620" y="240" width="240" height="60" rx="10" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
   <text x="740" y="266" fill="#1f2937" font-size="13" font-weight="600" text-anchor="middle">RDB</text>
-  <text x="740" y="284" fill="#4b5563" font-size="11" text-anchor="middle">SETNX lock 보유 pod 1대만 직격</text>
+  <text x="740" y="284" fill="#4b5563" font-size="11" text-anchor="middle">lock을 얻은 요청이 먼저 조회</text>
 
   <!-- Arrows: Caller -> L1 -->
   <line x1="220" y1="148" x2="296" y2="148" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
@@ -69,5 +69,5 @@
   <!-- Bottom note -->
   <rect x="60" y="468" width="800" height="48" rx="6" fill="#f1f5f9" stroke="#334155" stroke-width="1"/>
   <text x="460" y="492" fill="#4b5563" font-size="12" text-anchor="middle">L2 키와 스키마는 그대로 유지: 마이그레이션 비용 0, rollback은 config flag 한 줄</text>
-  <text x="460" y="508" fill="#64748b" font-size="11" text-anchor="middle">L1 hit이 곧 hot path. RTT/parse 둘 다 0으로 떨어진다</text>
+  <text x="460" y="508" fill="#64748b" font-size="11" text-anchor="middle">L1에서 찾으면 Redis 왕복과 JSON 파싱을 건너뛴다</text>
 </svg>

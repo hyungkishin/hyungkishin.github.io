@@ -64,12 +64,13 @@ ERD에서는 다음 세 가지를 가장 오래 고민했다.
 예외 처리를 통해 멱등성을 보완해야 한다.
 
 이 문제를 피하기 위해 조회 단계를 제거하고  
-DB의 원자적 제약을 직접 썼다.
+DB의 원자적 제약을 직접 썼다. MySQL에서 쓴 쿼리는 아래와 같다.
 
 ```sql
-INSERT INTO likes (user_id, product_id)
-ON CONFLICT (user_id, product_id) DO NOTHING
+INSERT IGNORE INTO likes (user_id, product_id, created_at) VALUES (:userId, :productId, NOW())
 ```
+
+`(user_id, product_id)`가 이미 있으면 행이 추가되지 않고 영향 받은 행 수가 0으로 돌아온다. 이 값이 1일 때만 상품의 카운트를 올린다.
 
 이 방식의 장점은 명확하다.
 
@@ -81,12 +82,13 @@ ON CONFLICT (user_id, product_id) DO NOTHING
 취소도 동일한 원칙을 적용했다.  
 SELECT 없이 DELETE를 수행하고 영향 받은 행 수로 결과를 판단한다.
 
-카운트 변경 역시 DB에서 처리한다.
+카운트 변경 역시 DB에서 처리한다. DELETE가 지운 행이 있을 때만 아래 UPDATE를 호출한다.
 
-```sql
-UPDATE product
-SET like_count = GREATEST(like_count - 1, 0)
+```text
+UPDATE ProductEntity p SET p.likeCount = p.likeCount - 1 WHERE p.id = :id AND p.likeCount > 0
 ```
+
+JPQL이라 테이블 대신 엔티티 이름을 쓴다. `p.id = :id`가 갱신 대상을 취소한 상품 한 행으로 좁힌다. MySQL의 UPDATE는 WHERE가 없으면 테이블의 모든 행을 바꾼다. `p.likeCount > 0`은 카운트가 0 아래로 내려가지 않게 막는다.
 
 상품 존재 확인 이후 Soft Delete가 발생하는 경합 상황은 허용했다.  
 좋아요는 고빈도 연산이다. 해당 시점에 존재했던 상품에 대한 행위 자체는  
@@ -270,3 +272,8 @@ ordered_at은 비즈니스 이벤트 발생 시점이다.
 - 데이터가 장기적으로 독립적으로 존재할 수 있는가  
 
 예를 들어 주문 항목에 상품 스냅샷을 남긴 이유는 상품 정보가 바뀐 뒤에도 구매 당시의 이력을 보여주기 위해서다. 다음 사람이 `order_item.product_id`에 FK가 없는 이유를 물으면, ERD의 빈 선 대신 그 요구사항을 먼저 보여줄 수 있다.
+
+## 참고 자료
+
+- [MySQL 8.4 Reference Manual: UPDATE Statement](https://dev.mysql.com/doc/refman/8.4/en/update.html)
+- [좋아요 등록과 삭제 쿼리](https://github.com/hyungkishin/loop-pack-be-l2-vol3-kotlin/blob/640693fd44dfffd5973d54447b779a4e3d542e2b/apps/commerce-api/src/main/kotlin/com/loopers/infrastructure/like/LikeJpaRepository.kt#L13)

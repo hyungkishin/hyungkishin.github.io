@@ -76,12 +76,13 @@ Resilience4j 서킷브레이커를 넣었다.
 처음에 failure-rate-threshold를 50%로 잡았다.
 PG의 평시 실패율이 40%대인 걸 모르고 넣었더니, 정상 운영 중에 서킷이 열렸다.
 CB는 "PG 요청이 실패했을 때만 열려야 한다"가 아니라 "PG의 평시 노이즈를 넘어서는 실패가 감지될 때 열려야 한다".
-평시 40%라면 threshold는 최소 60% 이상이어야 한다.
+그래서 먼저 최근 10건 중 실패가 몇 건일 때 결제를 막을지 정해야 했다.
 설정은 70%로 올렸다. 당시 적어둔 근거는 "평시 40% + 20% 마진"이었는데, 이 계산만으로는 70%를 택한 이유까지 설명할 수 없다.
 
-`minimumNumberOfCalls`도 기본값 100에서 10으로 줄였다.
-100이면 100번 호출이 쌓이기 전까지 failure rate 계산 자체가 안 되므로, PG가 터져도 서킷이 안 열린다.
-10이면 10번째 호출 이후부터 판단이 시작된다.
+`minimumNumberOfCalls`도 기본값 100에서 10으로 적었다.
+100이면 100번 호출이 쌓이기 전까지 failure rate 계산 자체가 안 돼서, PG가 터져도 서킷이 안 열린다고 봤다.
+그런데 창 크기가 10인 COUNT_BASED 창에서는 Resilience4j 2.2.0이 최소 호출 수와 창 크기 중 작은 값을 쓴다. 설정을 생략해도 10번째 호출부터 판단이 시작된다.
+임계값은 '이상'으로 비교한다. 최근 10건 중 7건이 실패하면 70%라서 서킷이 열린다. 평시 실패율이 40%여도 10건짜리 창에서 7건이 실패하는 일은 생길 수 있다.
 
 POST 요청에 retry를 걸었다가 뺐다.
 결제 요청을 retry하면 이중 결제가 발생할 수 있다.
@@ -126,15 +127,15 @@ Outbox 패턴으로 해결했다. 이벤트를 Kafka에 직접 보내지 않는�
 
 ## 8주차: Redis ZSET으로 대기열을 만들다
 
-선착순 쿠폰 발급의 대기열을 Redis ZSET으로 구현했다.
+주문 API 앞에 둘 대기열을 Redis ZSET으로 구현했다.
 `ZADD NX`의 원자성 덕분에 분산 환경에서도 중복 진입이 차단된다.
 NX 옵션이 "이미 있으면 무시"라서, 10개의 서버 인스턴스에서 동시에 같은 유저가 요청해도 하나만 들어간다.
 
-score에 타임스탬프를 넣으면 선착순 정렬이 자동으로 된다.
-`ZRANGEBYSCORE`로 "score가 작은 순서대로(= 먼저 온 순서대로)" 꺼내면 끝이다.
+score에 밀리초 타임스탬프를 넣으면 먼저 온 순서로 정렬된다. 같은 밀리초에 들어온 회원끼리는 도착 순서가 아니라 member 문자열의 사전순으로 나온다.
+스케줄러는 `ZPOPMIN`으로 score가 작은 순서대로 꺼낸다. 꺼내는 순간 대기열에서 지워지므로, 토큰을 발급하기 전에 서버가 멈추면 그 회원은 대기열에도 토큰에도 남지 않는다.
 
 대기열 토큰 검증을 추가하면서 기존 API 테스트가 전부 깨졌다.
-토큰 없이 접근하면 401이 뜨니까.
+로그인한 회원이라도 입장 토큰이 없으면 403이 뜨니까.
 테스트 픽스처에 토큰 발급 과정을 넣어야 했다.
 "기능을 추가하면 기존 테스트가 깨진다"는 건 알고 있었다. 그래도 인증/인가 같은 횡단 관심사가 추가되면 깨지는 범위가 테스트 전체라는 걸 체감했다.
 
@@ -187,7 +188,7 @@ Cleanup이 끝나고 Aggregate가 실패하면 유저는 빈 화면을 본다.
 
 처음 돌린 배치가 순위를 잘 썼으니 끝인 줄 알았다. 그런데 중간에 멈췄다가 다시 쓰면 몇 위부터 시작할까? `currentRank`가 멤버 변수에만 있으니 재시작한 Writer는 앞에서 몇 위까지 저장했는지 알 수 없었다.
 `beforeStep()`에서 0으로 초기화하면 정상 흐름에서는 돌아간다.
-chunk 5에서 실패하고 재시작하면 beforeStep이 다시 0을 박아넣는다. 그래서 chunk 6의 첫 상품이 1위로 적재된다.
+chunk 5까지 커밋하고 멈춘 Step을 재시작하면 beforeStep이 다시 0을 박아넣는다. 그래서 chunk 6의 첫 상품이 1위로 적재된다. chunk 5를 쓰다가 실패해 롤백됐다면 재시작은 chunk 5부터 다시 하고, chunk 5의 첫 상품이 1위가 된다.
 ExecutionContext에 마지막 rank를 저장해야 진짜 재시작이 된다.
 
 `ORDER BY (계산 컬럼) DESC LIMIT 100`이 대용량에서 Filesort 폭탄이라는 사실.
@@ -278,3 +279,10 @@ MV 적재 쿼리가 인덱스 없는 Filesort라서 대용량에서 DB 부하를
 하나의 서비스에서 연결해보니 왜 이 조합이 나오는지가 보인다.
 캐시를 넣으면 무효화 전략이 따라오고, 이벤트를 쓰면 멱등성이 따라오고, 배치를 넣으면 재시작 안전성이 따라온다.
 10주 전의 나는 "기능이 돌아간다"에서 멈췄다. 지금의 나는 "이게 깨지는 조건은 뭐지?"에서 시작한다. 마지막 주에 그 질문을 던진 곳이, 다음 상품에 순위 하나를 붙이는 Writer였다.
+
+## 참고자료
+
+- [Resilience4j 2.2.0, CircuitBreakerMetrics의 최소 호출 수와 임계값 비교](https://github.com/resilience4j/resilience4j/blob/v2.2.0/resilience4j-circuitbreaker/src/main/java/io/github/resilience4j/circuitbreaker/internal/CircuitBreakerMetrics.java#L40-L51)
+- [Redis ZPOPMIN](https://redis.io/docs/latest/commands/zpopmin/)
+- [과제 저장소의 CreateOrderUseCase 토큰 검사](https://github.com/hyungkishin/loop-pack-be-l2-vol3-kotlin/blob/640693fd44dfffd5973d54447b779a4e3d542e2b/apps/commerce-api/src/main/kotlin/com/loopers/application/order/CreateOrderUseCase.kt#L35)
+- [Spring Batch, Chunk-oriented Processing](https://docs.spring.io/spring-batch/reference/step/chunk-oriented-processing.html)

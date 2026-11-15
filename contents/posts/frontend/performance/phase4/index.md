@@ -21,7 +21,7 @@ tags:
 | **SI** (Speed Index)               | 화면이 시각적으로 완성되는 속도        | 영화 시작할 때 화면이 빠르게 차오르는 느낌          |
 | **FCP** (First Contentful Paint)   | 첫 텍스트나 이미지가 뜨는 시점        | 영화 타이틀이 처음 뜨는 순간                  |
 | **LCP** (Largest Contentful Paint) | 메인 이미지나 큰 텍스트가 완전히 보일 때  | 표지부터 다 읽고 본문 읽을 준비 완료             |
-| **TBT** (Total Blocking Time)      | JS가 렌더링을 막은 총 시간         | 문 열고 들어가려는데 안에서 JS 처리 중이라 안 열리는 상황 |
+| **TBT** (Total Blocking Time)      | FCP 이후 50ms를 넘긴 메인 스레드 작업에서 넘친 시간의 합 | 문 열고 들어가려는데 안에서 JS 처리 중이라 안 열리는 상황 |
 
 ## 무엇을 바꿀 것인가
 **CLS (Cumulative Layout Shift)**  
@@ -234,19 +234,9 @@ CLS를 줄일 때는 이미지가 들어갈 자리를 미리 잡았다. 이번�
 > 첫 진입시, 콘텐츠가 직관적으로 뜰 때까지 기다리는 시간이 줄어들었다.  
 
 ## TBT
-🚫 TBT는 JS가 렌더링을 막고 있는 시간을 말한다.  
+🚫 TBT는 메인 스레드 작업 가운데 50ms를 넘긴 것만 골라, 50ms를 넘긴 부분을 더한 값이다. Lighthouse는 FCP부터 TTI까지 잰다. 70ms 작업과 40ms 작업이 있었다면 TBT는 20ms다.
 
-TBT 에 직접 영향을 주는 요소로는 **JS 번들 크기**와 **렌더링 시점** 이지만 JS 번들 크기를 0.7MB 정도 다이어트했고 
-Tree Shaking 으로 불필요한 코드도 제거했었다.
-
-코드 스플리팅, 불필요한 JS 제거, 그리고 불필요하게 SSR로 처리되던 인터랙티브한 위젯들 (ex. 댓글, 공유 모듈) 이 주요 원인이었다.   
-
-그런데, 앞서 FCP, CLS 를 해소하면서 자연스레 해소 되어버렸다.  
-
-**"사용자에게 먼저 보여줄 콘텐츠만 빠르게 준비하고, 나머지는 뒤로 미루자"** 라는 목표가
-브라우저가 긴 JS 작업에 막히지 않고 렌더링 병목을 해소하는 것으로 이어졌다.
-
-> TBT 점수는 **0ms** 를 달성 하였다.
+앞에서 JS 번들을 0.7MB 정도 줄이고 첫 화면에 필요 없는 위젯의 실행을 미뤘다. 그 뒤 Lighthouse에서 나온 TBT는 **0ms**였다. 이 측정 구간에서는 합산할 만큼 길게 메인 스레드를 막은 작업이 없었다. 어느 변경이 긴 작업을 없앴는지까지 알려면 전후 Performance 기록에서 작업 시간을 따로 비교해야 한다.
 
 ## 중간 배포 🙏
 중간 배포 전에 본 건 Lighthouse에서 측정한 CLS, FCP, TBT였다. Search Console에서 받은 경고까지 달라질지는 배포 후에 봐야 했다.
@@ -268,14 +258,15 @@ Tree Shaking 으로 불필요한 코드도 제거했었다.
 
 남은 항목은 영향을 나눠 측정하며 순차적으로 수정할 계획이다.     
 
-아 참, 중간 배포 뒤 Search Console에서 반가운 변화가 하나 더 보였다. 느린 URL과 빠른 URL의 분포가 자리를 바꿨다 🥰.
+아 참, 중간 배포 무렵 Search Console 데스크톱 보고서에서도 반가운 그래프가 보였다. 빠른 URL로 분류된 쪽이 더 많아졌다 🥰.
 
 ![이 사진 크몽의 bk 님이 올리셨던데... 저도 따라해 보니... 기분이 좋습니다 :) ](img_8.png)
 
+여기서 ‘하루 만에 빨라졌다’고 말하고 싶지만, 하루 뒤에 한 건 Lighthouse를 다시 돌린 일이다. Search Console의 Core Web Vitals 보고서는 지난 28일간 실제 방문에서 수집한 지표의 75번째 백분위수로 URL 그룹을 분류한다. 이 그래프가 세는 건 각 상태에 속한 URL 수다. 이번 배포가 그 URL들을 옮겼는지는 그래프 한 장으로 알 수 없다. [Search Console 보고서의 집계 기준](https://support.google.com/webmasters/answer/9205520)
+
 ## 마무리
 
-CLS, FCP, TBT 를 모두 안정화하면서 Lighthouse 점수가 이전과는 다르게 상당히 올라갔다.   
-Lighthouse, PageSpeed Insights, 서치콘솔까지 성능이 올라간 효과가 확실히 반영되기 시작했다.
+CLS, FCP, TBT 를 모두 안정화하면서 Lighthouse 점수가 이전과는 다르게 상당히 올라갔다.
 
 하지만 아직 못 올린 **LCP (Largest Contentful Paint)** 와 **SI (Speed Index)**
 
@@ -284,10 +275,13 @@ Lighthouse, PageSpeed Insights, 서치콘솔까지 성능이 올라간 효과가
 | LCP | 답도없음 | 가장 큰 콘텐츠(대개 대표 이미지)를 더 빠르게 렌더링해야 함 |
 | SI  | 어떡함  | 시각적으로 완성되는 속도를 높이기 위해 불필요한 CSS/JS를 줄이고, critical 리소스만 우선 처리 필요 |
 
-목표로 두었던 건 Lighthouse 성능 점수 90점 이상이었다. 그 점수와 Core Web Vitals의 실제 사용자 지표는 따로 봐야 한다. 검색 순위나 체류 시간, 광고 노출이 늘었는지는 이번 측정으로 확인하지 못했다.
+목표로 두었던 건 Lighthouse 성능 점수 90점 이상이었다. 검색 순위나 체류 시간, 광고 노출이 늘었는지는 이번 측정으로 확인하지 못했다.
 
 다음에 볼 화면은 같은 뉴스 홈이다. 첫 화면에서 가장 큰 기사 사진은 왜 늦게 뜨고, 그동안 화면은 어디까지 그려져 있을까? LCP와 SI가 남았다.
 
 참고 
 - [Core Web Vitals 측정항목 기준점을 정의하는 방법](https://web.dev/articles/defining-core-web-vitals-thresholds?hl=ko)
+- [Total Blocking Time 정의](https://web.dev/articles/tbt)
+- [CrUX 집계 방식](https://developer.chrome.com/docs/crux/methodology/)
+- [CrUX 데이터를 쓰는 도구와 28일 집계 주기](https://developer.chrome.com/docs/crux/methodology/tools)
 - [크몽 - bk 님](https://blog.kmong.com/%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%A5%BC-%EC%9C%84%ED%95%9C-%EA%B2%80%EC%83%89%EC%97%94%EC%A7%84-%EC%B5%9C%EC%A0%81%ED%99%94-cls%EA%B0%80-%EB%AC%B4%EC%97%87%EC%9D%B8%EC%A7%80-%EC%9D%B4-%EA%B8%80-%EB%B3%B4%EA%B3%A0%EB%8F%84-%EB%AA%A8%EB%A5%B4%EB%A9%B4-%EB%8B%B9%EC%8B%A0%EC%9D%80-%EC%9B%90%EC%88%AD%EC%9D%B4-1ccd4da309d8)

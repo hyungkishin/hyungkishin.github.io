@@ -169,7 +169,7 @@ T5 16:05:38.355 PerformanceLoggingAdvisor  LLM call elapsedMs=5844 promptTokens=
 
 <figure class="agent-fig">
   <div class="cap-head"><span class="cap-tag">tool calling round trip</span><span class="cap-tag">qwen2.5 measured</span></div>
-  <svg viewBox="0 0 720 250" role="img" aria-label="Tool 호출 한 번은 LLM 왕복 두 번을 만든다. 1차 왕복 약 1349 토큰은 측정 사각지대였고 2차 왕복 2803 토큰만 advisor 에 잡혔다. Tool 실행 자체는 2ms 다" xmlns="http://www.w3.org/2000/svg">
+  <svg viewBox="0 0 720 250" role="img" aria-label="Tool 호출 한 번은 LLM 왕복 두 번을 만든다. Tool 실행 자체는 2ms 다. advisor 에 기록된 promptTokens 2803 과 5844ms 는 두 왕복을 합친 값이다" xmlns="http://www.w3.org/2000/svg">
     <g>
       <rect x="16" y="96" width="120" height="58" rx="12" fill="var(--c-blue)" opacity="0.10"/>
       <rect x="16" y="96" width="120" height="58" rx="12" fill="none" stroke="var(--c-blue)" stroke-opacity="0.4"/>
@@ -178,9 +178,9 @@ T5 16:05:38.355 PerformanceLoggingAdvisor  LLM call elapsedMs=5844 promptTokens=
     </g>
     <g>
       <rect x="228" y="30" width="180" height="58" rx="12" fill="var(--c-amber)" opacity="0.10"/>
-      <rect x="228" y="30" width="180" height="58" rx="12" fill="none" stroke="var(--c-amber)" stroke-opacity="0.45" stroke-dasharray="5 4"/>
+      <rect x="228" y="30" width="180" height="58" rx="12" fill="none" stroke="var(--c-amber)" stroke-opacity="0.45"/>
       <text x="318" y="55" text-anchor="middle" font-size="12" fill="var(--fig-ink)">1차 LLM : Tool 선택</text>
-      <text x="318" y="73" text-anchor="middle" font-size="10.5" fill="var(--c-amberink)">~1349 tokens : 측정 사각지대</text>
+      <text x="318" y="73" text-anchor="middle" font-size="10.5" fill="var(--c-amberink)">도구 이름과 인자 반환</text>
     </g>
     <g>
       <rect x="228" y="162" width="180" height="58" rx="12" fill="var(--c-green)" opacity="0.09"/>
@@ -192,7 +192,7 @@ T5 16:05:38.355 PerformanceLoggingAdvisor  LLM call elapsedMs=5844 promptTokens=
       <rect x="520" y="96" width="184" height="58" rx="12" fill="var(--c-blue)" opacity="0.12"/>
       <rect x="520" y="96" width="184" height="58" rx="12" fill="none" stroke="var(--c-blue)" stroke-opacity="0.5"/>
       <text x="612" y="121" text-anchor="middle" font-size="12" font-weight="700" fill="var(--c-blueink)">2차 LLM : 응답 생성</text>
-      <text x="612" y="139" text-anchor="middle" font-size="10.5" fill="var(--fig-muted)">promptTokens 2803 / 5844ms</text>
+      <text x="612" y="139" text-anchor="middle" font-size="10.5" fill="var(--fig-muted)">Tool 결과로 답변 작성</text>
     </g>
     <path d="M136 112 C 180 90, 196 68, 228 62" fill="none" stroke="var(--fig-hair)" stroke-width="1.6"/>
     <path d="M318 88 L318 162" fill="none" stroke="var(--fig-hair)" stroke-width="1.6"/>
@@ -201,25 +201,27 @@ T5 16:05:38.355 PerformanceLoggingAdvisor  LLM call elapsedMs=5844 promptTokens=
       <animateMotion path="M136 112 C 180 90, 196 68, 228 62 L318 62 L318 191 L408 191 C 470 184, 490 150, 520 125 L700 125" dur="6s" repeatCount="indefinite"/>
       <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.06;0.92;1" dur="6s" repeatCount="indefinite"/>
     </circle>
-    <text x="360" y="242" text-anchor="middle" font-size="10.5" fill="var(--fig-muted)">같은 발화가 Tool 없는 챗봇에서는 50 토큰, Tool 3개를 얹으면 왕복 합계 약 4150 토큰</text>
+    <text x="360" y="242" text-anchor="middle" font-size="10.5" fill="var(--fig-muted)">입력 2,803토큰 (두 호출 합계), 응답까지 5,844ms</text>
   </svg>
-  <figcaption>Tool 호출 한 번은 LLM 왕복 두 번이다. advisor 는 마지막 왕복만 잡아서 <b>1차 왕복 약 1349 토큰이 그래프에서 빠져 있었다</b>. 점선 박스가 그 사각지대다.</figcaption>
+  <figcaption>이 질문에 모델은 두 번 응답했다. advisor에 찍힌 <b>입력 토큰은 두 호출의 합</b>이고, 응답 시간에는 그 사이의 도구 실행도 들어간다.</figcaption>
 </figure>
 
-그래서 실제 가격이 얼마인지 4셀 비교로 쟀다. 같은 발화를 Tool 없는 순수 챗봇과 Tool 3개 붙은 상담봇에 각각 넣은 것이다.
+그럼 도구를 붙였을 때 입력 토큰은 얼마나 늘었을까? 같은 발화를 Tool 없는 순수 챗봇과 Tool 3개 붙은 상담봇에 각각 넣은 것이다.
 
 | 발화 | Tool 없는 `/chat` | Tool 붙은 `/assistant` |
 |---|---|---|
 | "안녕하세요" | promptTokens 32 | promptTokens 1329 |
-| "주문번호 2024-1234 배달 어디쯤?" | promptTokens 50 | promptTokens 2803 (2차 왕복) |
+| "주문번호 2024-1234 배달 어디쯤?" | promptTokens 50 | promptTokens 2803 (두 왕복 합) |
 
-인사 한마디에 1297토큰 차이가 난다. 이 1297의 큰 몫은 시스템 프롬프트이고, Tool 3개가 얹는 스키마는 그중 일부다. 2주차 로그에서 Tool 하나를 더할 때 늘어난 값은 호출당 50~60토큰 정도였다. 주문 문의는 50 대 2803인데, advisor가 못 잡은 1차 왕복 약 1349토큰을 더하면 실제로는 약 4150토큰. 80배가 넘는다. 응답 시간도 2062ms에서 5844ms로 늘었다.
+인사 한마디에 1297토큰 차이가 난다. 이 1297의 큰 몫은 시스템 프롬프트이고, Tool 3개가 얹는 스키마는 그중 일부다. 2주차 로그에서 Tool 하나를 더할 때 늘어난 값은 호출당 50~60토큰 정도였다. 주문 문의는 50 대 2803, 56배다. 응답 시간도 2062ms에서 5844ms로 늘었다.
 
-한 번의 취소 상담에서 고객이 기다린 시간은 첫 모델 요청부터 두 번째 답변이 끝날 때까지다. 비용을 계산할 때도 두 모델 요청에 사용된 입력과 출력 토큰을 모두 더한다.
+2803은 2차 왕복 하나의 값이 아니다. Spring AI 1.0.0의 `OllamaChatModel`은 도구를 실행한 뒤 모델을 다시 부를 때 첫 응답을 함께 넘긴다. 두 번째 응답의 usage를 만들면서 첫 응답의 promptTokens와 completionTokens를 더한다. advisor는 이렇게 합친 마지막 응답을 받았다. 그래서 2803에 1차 왕복의 토큰을 따로 더하면 같은 토큰을 두 번 세게 된다. [OllamaChatModel 1.0.0의 usage 누적 코드](https://github.com/spring-projects/spring-ai/blob/v1.0.0/models/spring-ai-ollama/src/main/java/org/springframework/ai/ollama/OllamaChatModel.java#L159-L195)
+
+앞의 왕복 로그에서 시각도 같은 쪽을 가리킨다. advisor 로그는 38.355초에 찍혔고 elapsedMs는 5844다. 측정은 32.5초 무렵에 시작됐다는 뜻이고, 도구가 실행된 36.847초보다 4초 넘게 앞이다. 5844ms에는 첫 모델 요청부터 두 번째 답변이 끝날 때까지가 들어 있다. 왕복별 사용량과 비용은 이번에 따로 남기지 않았다. 나누어 보려면 요청마다 Ollama 원시 응답의 `prompt_eval_count`와 `eval_count`를 기록해야 한다.
 
 ## 다음 이야기
 
-같은 문의에서 상담봇이 사용한 토큰은 단순 호출의 80배가 넘었다. 조건을 하나씩 빼고 보니 차이의 상당 부분은 시스템 프롬프트에서 생겼다. 이 실험에서 도구 하나를 추가할 때 늘어난 양은 호출당 50~60토큰이었다.
+같은 문의에서 상담봇의 두 왕복에 들어간 입력 토큰은 단순 호출의 56배였다. 조건을 하나씩 빼고 보니 차이의 상당 부분은 시스템 프롬프트에서 생겼다. 이 실험에서 도구 하나를 추가할 때 늘어난 양은 호출당 50~60토큰이었다.
 
 풀지 못한 것도 있다. cancelOrder는 LLM 경로에서 여전히 잘 호출되지 않는다. 4가지 outcome을 직접 두드린 실험에서도 실제 호출은 4건 중 1건뿐이었다. description 문제인지, 7B 모델의 한계인지, Spring AI와 Ollama 통합의 문제인지 이번 표본으로는 가릴 수 없었다. 결국 멱등성 4분기는 단위 테스트로 검증했다. orderId만 알면 남의 주문도 조회되는 권한 문제는 Spring Security의 영역이라 시리즈 밖에 뒀다.
 

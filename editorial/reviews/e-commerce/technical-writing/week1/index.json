@@ -1,0 +1,6 @@
+{
+  "sha256": "da83ff83653e4c734fbcc0c2acd86113703bb28e073d8cdefe5277ccc464e627",
+  "before": "코드 수정으로 해결이 안 되니, 다음 수순으로 docker-java를 수동 업그레이드했습니다.",
+  "after": "이 버전은 누가 정하고 있었을까요? Spring Boot 3.4.4의 Dependency Management BOM에는 Testcontainers 1.20.6과",
+  "reason": "docker-java의 버전을 직접 올려 본 뒤라서 그 버전을 골랐던 의존성을 찾아보는 문단이 이어진다."
+}

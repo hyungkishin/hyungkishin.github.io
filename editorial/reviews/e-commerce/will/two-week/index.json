@@ -1,0 +1,6 @@
+{
+  "sha256": "32307047d105069b416e28c8f16bfed03bbdf2c1250ee6f7fce5c73583f3b426",
+  "before": "카운트 변경 역시 DB에서 처리한다. DELETE가 지운 행이 있을 때만 아래 UPDATE를 호출한다.",
+  "after": "JPQL이라 테이블 대신 엔티티 이름을 쓴다. `p.id = :id`가 갱신 대상을 취소한 상품 한 행으로 좁힌다. MySQL의 UPDATE는 WHERE가 없으면",
+  "reason": "DELETE가 지웠는지 확인한 다음 UPDATE의 WHERE를 읽으면 이미 취소한 좋아요나 다른 상품의 수량이 내려가지 않는 이유가 보인다."
+}

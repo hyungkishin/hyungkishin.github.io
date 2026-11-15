@@ -157,7 +157,7 @@ resilience4j.retry.instances.pgQueryRetry:   # 조회 전용
 resilience4j.circuitbreaker.instances:
   pgRequest:                              # 결제 요청 전용
     sliding-window-size: 10
-    minimum-number-of-calls: 10           # 이게 없으면 기본값 100 → 100건 전에는 실패율 계산 안 됨
+    minimum-number-of-calls: 10           # 생략해도 COUNT_BASED 창에서는 창 크기 10이 쓰임
     failure-rate-threshold: 70
     wait-duration-in-open-state: 10s
     permitted-number-of-calls-in-half-open-state: 3
@@ -198,25 +198,29 @@ stateDiagram-v2
     direction LR
     [*] --> CLOSED
 
-    CLOSED --> OPEN: 최근 10건 중 실패 70%+\n또는 느린 호출(3초+) 60%+
+    CLOSED --> OPEN: 최근 10건 중 실패 70%+\n또는 3초 초과 호출 60% 이상
     OPEN --> HALF_OPEN: 10초 경과 (자동 전이)
-    HALF_OPEN --> CLOSED: 시험 3건 통과
-    HALF_OPEN --> OPEN: 시험 중 실패
+    HALF_OPEN --> CLOSED: 시험 3건 실패율 70% 미만\n이고 느린 호출 60% 미만
+    HALF_OPEN --> OPEN: 시험 3건 실패율 70%+\n또는 느린 호출 60%+
 
     note right of CLOSED: ✅ 정상 운영\nPG 호출 허용
-    note right of OPEN: 🚫 차단\nPG 호출 없이 즉시 fallback\nthread 점유 0ms
+    note right of OPEN: 🚫 차단\nPG 호출 없이 즉시 fallback\nPG 응답 대기 없음
     note right of HALF_OPEN: 🔎 탐색\n3건만 PG로 보내서\n복구 여부 확인
 ```
+
+HALF_OPEN에서도 시험 3건을 모두 받은 뒤 같은 기준으로 판정합니다. 3건 중 1건만 실패하고 세 호출 모두 3초 안에 끝났다면, 실패율은 약 33%이고 느린 호출은 없어서 서킷이 닫혀요. 실패율로 다시 열리려면 3건이 모두 실패해야 합니다. 느린 호출은 2건(67%)이면 다시 열립니다.
 
 | 설정 | 값 | 왜 이 값인가 |
 |------|-----|-------------|
 | sliding-window | 10 | 100으로 잡으면 50건 터지는 동안 계속 보내게 됩니다 |
-| minimum-number-of-calls | 10 | 기본값은 100. 이걸 안 내리면 100건 전에는 실패율 계산 자체가 안 됩니다 |
-| failure-rate-threshold | 70% | PG 기본 실패율 40%에서 30%p 여유. 50%면 정상 운영 중에도 서킷이 열립니다 |
-| slow-call-threshold | 3초 / 60% | read-timeout과 같은 기준입니다. 2.9초짜리가 반복되면 곧 timeout 납니다 |
+| minimum-number-of-calls | 10 | 창 크기와 같게 적었습니다. 생략해도 COUNT_BASED 창에서는 기본값 100 대신 창 크기 10이 쓰입니다 |
+| failure-rate-threshold | 70% | PG 기본 실패율 40%에서 30%p 여유. 50%면 평소에도 서킷이 열릴 수 있습니다. 70%도 10건 중 7건이 실패하면 열립니다 |
+| slow-call-threshold | 3초 / 60% | 호출 시간이 3초를 넘은 비율입니다. read-timeout은 네트워크 읽기 대기에 별도로 걸립니다 |
 | pgRequest wait-duration | 10초 | 결제는 빠르게 복구 시도해야 합니다 |
 | pgQuery wait-duration | 30초 | 조회는 관대하게. 복구 스케줄러가 계속 시도할 수 있도록 |
 | automatic-transition | true | 트래픽 없는 시간대에도 HALF_OPEN 전이가 되도록 |
+
+임계값은 '이상'으로 비교합니다. 평소 실패율이 40%여도 최근 10건이라는 작은 표본에서는 7건이 실패할 수 있어요. 호출마다 실패할 확률이 40%로 서로 독립이라고 가정하면, 10건 중 7건 이상이 실패할 확률은 약 5.5%입니다. 같은 가정에서 50% 임계값(5건 이상)은 약 37%예요. 창은 호출마다 한 칸씩 밀리며 다시 판정하니, 호출이 많으면 그런 10건을 만날 수 있습니다. 70%는 50%보다 덜 열리게 하는 값이지, 평시에 열리지 않는다는 보장은 아닙니다.
 
 > **포기한 것**: CB OPEN 10초 동안 들어오는 모든 결제는, PG가 50%는 성공시키고 있었더라도 시도조차 하지 않고 실패합니다.
 
@@ -301,7 +305,7 @@ flowchart TD
 
 이 서비스에서는 PG에 보냈는지 안 보냈는지 확실하지 않으면 PENDING을 유지합니다.
 복구 스케줄러가 orderId로 PG에 직접 물어보고, 거래가 있으면 반영하고, 없으면 그때 FAILED로 전이시킵니다.
-결과가 확정되기까지 최대 5분이 걸립니다. 그래도 유령 결제는 안 생깁니다.
+콜백이 먼저 오면 그때 결과를 반영합니다. 콜백까지 놓치면 5분이 지난 뒤에야 스케줄러의 조회 대상이 돼요.
 
 > PG에 보내는 orderId는 주문 ID 그대로가 아니라 `{날짜}_{주문ID}_{결제ID}` 조합키로 만들었습니다.
 > 예를 들면 `20260320_000001_42` 같은 형태입니다.
@@ -414,8 +418,9 @@ flowchart TD
 콜백 중복이나 콜백과 스케줄러가 동시에 같은 건을 처리하려는 경우를 방어하기 위해 `SELECT FOR UPDATE` + `isTerminal()` 체크를 두었습니다.  
 먼저 도착한 쪽이 처리하고, 나중 쪽은 무시하는 방식입니다.
 
-> **포기한 것**: REQUESTED 상태가 최대 5분간 지속됩니다.
-> 유저 입장에서는 "결제 버튼 눌렀는데 아무 반응이 없는" 상태가 5분간 이어질 수 있습니다.
+> **포기한 것**: 콜백이 오지 않으면 REQUESTED 상태가 적어도 5분 지속됩니다.
+> 스케줄러가 1분마다 5분이 지난 건을 찾으니, 서버가 떠 있어도 첫 복구 조회는 대략 5~6분 뒤에 나갑니다. 그 조회가 실패하면 다음 주기로 밀려 결과 확정은 더 늦어집니다.
+> 유저 입장에서는 "결제 버튼 눌렀는데 아무 반응이 없는" 상태가 그동안 이어질 수 있습니다.
 
 여기까지의 판단들이 결국 Payment의 상태 설계로 모이게 됩니다.
 
@@ -458,10 +463,10 @@ FAILED여도 Order는 PENDING 유지. 다른 카드로 다시 시도할 수 있�
 | 결제 POST에 Retry 미적용 | 중복 결제 방지 | 네트워크 순단 시 재시도 없이 PENDING 유지 |
 | 조회 GET에만 Retry (max-attempts 2 = 재시도 1회) | 복구 스케줄러 안정성 확보 | PG 500이 순간 부하여도 재시도 안 함 |
 | 서킷 인스턴스 분리 (pgRequest/pgQuery) | 결제 서킷 열려도 복구 조회 가능 | 인스턴스 2개 관리 비용 |
-| CB threshold 70% (PG 실패율 40% + 30%p 여유) | 정상 운영 시 서킷 미작동 보장 | 실패율 70% 넘어야 차단. 감지가 50%보다 늦음 |
-| fallback 시 PENDING 유지 + orderId 복구 | PG 성공 건 유실 방지 | 최대 5분간 결과 미확정 |
+| CB threshold 70% (PG 실패율 40% + 30%p 여유) | 정상 운영 중 서킷이 열릴 가능성을 50%보다 낮춤 | 실패율로는 10건 중 7건부터 차단. 3초를 넘긴 호출이 6건이면 실패가 적어도 차단 |
+| fallback 시 PENDING 유지 + orderId 복구 | PG 성공 건 유실 방지 | 콜백이 없으면 첫 복구 조회 대상까지 5분 |
 | 트랜잭션 분리 | DB 커넥션풀 보호 | PENDING 고착 가능성 |
-| 복구 스케줄러 5분 | 콜백 유실 보상 | 최대 5분간 결과 미확정 |
+| 5분이 지난 미확정 건을 1분마다 조회 | 콜백 유실 보상 | 첫 조회까지 대략 5~6분, 조회가 실패하면 더 늦음 |
 
 ---
 
@@ -476,8 +481,13 @@ PG가 느려지면 thread가 묶이고, thread가 DB 커넥션을 쥔 채로 남
 트랜잭션을 쪼개서 PG 호출 동안 커넥션을 잡지 않도록 했고,   
 서킷도 결제와 조회로 나눠서 결제가 실패해도 복구 조회는 가능하도록 했습니다.  
 
-그동안 고객 화면에는 어떤 결과를 보여줘야 할까요? 복구 조회까지 5분간 승인 여부가 비어 있고, 결제 서킷이 열린 동안에는 PG가 절반은 성공시킬 수 있어도 새 결제 요청을 보낼 수 없습니다.
+그동안 고객 화면에는 어떤 결과를 보여줘야 할까요? 콜백이 없으면 첫 복구 조회까지 승인 여부가 비어 있고, 결제 서킷이 열린 동안에는 PG가 절반은 성공시킬 수 있어도 새 결제 요청을 보낼 수 없습니다.
 
-PG 하나 때문에 서비스 전체에서 응답이 실패하는 것보다는 낫지만, 5분이라는 미확정 구간은 프론트에서 polling이나 push로 풀어야 하는 영역이라 서버만으로는 줄이기 어렵습니다.
+PG 하나 때문에 서비스 전체에서 응답이 실패하는 것보다는 낫지만, 이 미확정 구간은 프론트에서 polling이나 push로 풀어야 하는 영역이라 서버만으로는 줄이기 어렵습니다.
 
 Bulkhead 도입, 결제 취소 API 연동, PENDING 체류 시간 단축은 다음으로 미뤄뒀습니다.
+
+## 참고자료
+
+- [Resilience4j 2.2.0, CircuitBreakerMetrics의 최소 호출 수와 임계값 비교](https://github.com/resilience4j/resilience4j/blob/v2.2.0/resilience4j-circuitbreaker/src/main/java/io/github/resilience4j/circuitbreaker/internal/CircuitBreakerMetrics.java#L40-L51)
+- [Resilience4j CircuitBreaker 문서: 상태 전이 조건](https://resilience4j.readme.io/docs/circuitbreaker)

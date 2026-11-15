@@ -1,6 +1,6 @@
 ---
 title: "큐 거부 0건을 성공이라고 부른 직후, Outbox까지 가야 했습니다"
-description: "배치 이벤트 5,235건이 사라진 뒤 큐 거부 건수와 이벤트 보존 여부를 따로 추적했다."
+description: "배치 직후 리스너 작업 5,235건이 거부됐다. 같은 배치를 다시 돌려 거부가 0건이 되면, 모든 알림이 도착했다고 할 수 있을까?"
 date: 2026-05-02
 update: 2026-11-15
 tags:
@@ -27,7 +27,7 @@ tags:
 | 13:31 | 탐지 | system alert 인지. **탐지까지 24분.** |
 | 14:09 | 복구 | 영향 서버 재배포 완료 |
 
-62분의 기록에서 두 시각을 다시 봤다. 처음 작업이 거부된 시각과 사람이 알아챈 시각 사이가 24분이었다. 평소라면 그 사이에 운영 알림이 와야 했다.
+62분의 기록에서 두 시각을 다시 봤다. 배치가 시작된 13시 7분부터 사람이 알아챈 13시 31분까지 24분이었다. 평소라면 그 사이에 운영 알림이 와야 했다.
 
 ## 무슨 일이 있었나
 
@@ -58,11 +58,11 @@ DB는 정상이었다. 문제는 그다음. 상태 전이 1건당 리스너가 3
 ThreadPoolTaskExecutor().apply {
     corePoolSize  = N
     maxPoolSize   = M
-    queueCapacity = K   // 초과 시 TaskRejectedException -> 영구 유실
+    queueCapacity = K   // 큐가 차고 스레드 수도 M에 이르면 새 작업을 거부
 }
 ```
 
-큐가 넘치면 태스크는 거부되고, 거부된 태스크를 다시 살릴 장치는 없다. 두 차례에 걸쳐 5,235건이 사라졌다. 한편 enum이 없는 서버에서는 `No enum constant WorkflowStatus.EXPIRED_AUTO`로 500 에러 9건이 났다.
+큐와 스레드가 모두 찼을 때 거부된 작업을 다시 넣는 장치는 없었다. 두 차례에 걸쳐 거부된 5,235건은 리스너 작업 수다. 한편 enum이 없는 서버에서는 `No enum constant WorkflowStatus.EXPIRED_AUTO`로 500 에러 9건이 났다.
 
 Slack 알림 리스너도 분석과 SMS 리스너가 쓰는 executor에 작업을 넣었다. 큐가 꽉 찼을 때는 운영자에게 보낼 알림도 함께 거부됐다. 앞의 24분 동안 사람이 알아채지 못한 이유였다.
 
@@ -73,7 +73,7 @@ Slack 알림 리스너도 분석과 SMS 리스너가 쓰는 executor에 작업�
 ```kotlin
 SimpleAsyncTaskExecutor("workflow-event-").apply {
     setVirtualThreads(true)
-    concurrencyLimit = 50              // 초과 시 caller 블로킹, 유실 없음
+    concurrencyLimit = 50              // 초과 시 거부 대신 caller 블로킹
     setTaskTerminationTimeout(30_000L)
 }
 ```
@@ -83,7 +83,7 @@ SimpleAsyncTaskExecutor("workflow-event-").apply {
 | 항목 | BEFORE | AFTER (VT) |
 |---|---|---|
 | 큐 초과 시 동작 | 거부, 유실 | caller 블로킹, 지연 |
-| 이벤트 유실 건수 | 5,235건 | 0 |
+| 큐 거부 건수 | 5,235건 | 0 (같은 배치 재실행) |
 | 배치 속도 | 빠름 | 외부 API 속도에 종속 |
 
 같은 배치를 다시 돌렸다. 큐 거부 0건. 회의에서 "성공"이라는 말이 나왔고, 나도 고개를 끄덕였다.
@@ -94,9 +94,9 @@ retro 미팅에서 누군가 물었다. executor pod이 종료되면 그 안의 
 
 답은 간단했다. in-memory니까 사라진다. 그리고 그 간단한 답이 "성공"이라는 말을 거둬들였다.
 
-VT 기반의 1차 조치는 큐 거부에 따른 유실을 줄였지만 프로세스 종료 시 유실까지 해결하지는 못했다. 메모리에만 남은 이벤트는 pod이 종료되면 복구할 수 없다. 외부 API 지연 시 대기량과 메모리 사용량도 별도로 제한하고 측정해야 한다.
+VT 기반의 1차 조치 뒤 재실행에서 큐 거부는 0건이었다. 거부로 버려지던 경로는 막았지만 프로세스 종료 시 유실까지 해결하지는 못했다. 메모리에만 남은 이벤트는 pod이 종료되면 복구할 수 없다. 외부 API 지연 시 대기량과 메모리 사용량도 별도로 제한하고 측정해야 한다.
 
-테스트에서 본 거부 0건 뒤에 "아직 메모리에 남아 있는 위험"이 있었다. 이벤트가 기다리는 동안 pod을 내리는 경우는 그 수치로 확인할 수 없었다.
+테스트에서 본 거부 0건 뒤에 "아직 메모리에 남아 있는 위험"이 있었다. 이 카운터는 큐가 작업을 거절한 횟수만 센다. 리스너 작업이 모두 끝났는지, 이벤트가 기다리는 동안 pod을 내리면 어떻게 되는지는 그 수치로 확인할 수 없었다. 이벤트가 하나도 빠지지 않았다고 말하려면 상태 전이 2,100건마다 리스너 세 개의 처리 완료 기록을 맞춰 봐야 한다.
 
 <style>
 .metric-fig{--fig-surface:#ffffff;--fig-ink:#0f172a;--fig-ink2:#334155;--fig-muted:#94a3b8;--fig-hair:#e6eaf1;--fig-baseline:#d0d7e2;--c-green:#16a34a;--c-greenink:#15803d;--c-red:#ef4444;--c-redink:#b91c1c;--c-blue:#2f6fed;--c-blueink:#1d4ed8;--c-amber:#d97706;--c-amberink:#b45309;margin:2.4em 0;border:1px solid var(--fig-hair);border-radius:18px;background:var(--fig-surface);padding:18px 20px 10px;overflow:hidden;box-shadow:0 1px 2px rgba(2,6,23,.05),0 14px 40px rgba(2,6,23,.09)}
@@ -228,6 +228,10 @@ Outbox 도입이 분기 안에 들어갈지는 솔직히 자신이 없고(PR이 
 
 회의실에서 다 같이 안도했던 순간은 기억난다. 큐에서 거부한 작업 수가 0건이 됐을 때다. 큐가 꽉 차서 작업을 거절하던 문제는 실제로 줄었다.
 
-그때 프로세스를 중지해 봤다면 대기 중이던 이벤트를 어디서 다시 읽을 수 있었을까? 이벤트 5,235건을 놓치고도 확인한 건 거부 횟수뿐이었다.
+그때 프로세스를 중지해 봤다면 대기 중이던 이벤트를 어디서 다시 읽을 수 있었을까? 배치를 다시 돌리고 확인한 건 거부 횟수뿐이었다.
 
 지금도 Pod가 내려가면 그 안에서 기다리던 작업은 꺼내 올 곳이 없다. Outbox를 검토 목록에 남겨 둔 이유다.
+
+## 참고자료
+
+- [Spring Framework의 SimpleAsyncTaskExecutor 동시성 제한](https://docs.spring.io/spring-framework/docs/6.2.8/javadoc-api/org/springframework/core/task/SimpleAsyncTaskExecutor.html#setConcurrencyLimit(int))

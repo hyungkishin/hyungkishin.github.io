@@ -85,16 +85,17 @@ Claude은 매번 "이렇게 수정하면 해결될 것입니다"라고 했고,
 testImplementation("com.github.docker-java:docker-java-api:3.5.1")
 ```
 
-Spring Boot는 Dependency Management BOM을 통해 testcontainers, docker-java, junit-jupiter의 버전을 서로 호환되는 조합으로 고정합니다.  
+이 버전은 누가 정하고 있었을까요?
+Spring Boot 3.4.4의 Dependency Management BOM에는 Testcontainers 1.20.6과 JUnit Jupiter 5.11.4가 있습니다. docker-java 항목은 없습니다.
 
-이 조합에는 이유가 있는데요,   
-특정 버전의 testcontainers가 특정 버전의 docker-java와 정상 동작하도록 미리 맞춰 둔 결과이기 때문입니다.
+docker-java 버전은 Testcontainers가 정합니다.
+Testcontainers core 1.20.6의 POM이 `docker-java-api`와 `docker-java-transport-zerodep`를 3.4.1로 선언합니다. Boot가 고른 Testcontainers를 쓰면 docker-java 3.4.1이 전이 의존성으로 따라옵니다.
 
-그런데 docker-java만 수동으로 override하면, Spring Boot가 의도한 버전 트리를 깨뜨리게 됩니다.  
-업그레이드한 docker-java 3.5.1은 Spring Boot 3.4.4와 검증되지 않은 조합이었습니다.  
+그런데 `docker-java-api`만 3.5.1로 올리면, Testcontainers 1.20.6이 선언한 조합에서 한 모듈만 벗어납니다.
+추가한 줄은 `docker-java-api` 하나뿐이라, 같은 POM이 선언한 `docker-java-transport-zerodep` 3.4.1은 이 줄로 바뀌지 않습니다.
 
-그때 `context7에서 현재 버전과 일치하는 버전으로 체크 부탁해`라고 요청했다면, 적어도 docker-java 버전을 바꾸기 전에 프로젝트의 BOM부터 확인했을 겁니다.
-BOM이 관리하는 버전을 신뢰했어야 했습니다.  
+그때 `context7에서 현재 버전과 일치하는 버전으로 체크 부탁해`라고 요청했다면, 적어도 docker-java 버전을 바꾸기 전에 그 버전이 어디서 오는지부터 확인했을 겁니다.
+BOM이 고른 Testcontainers와, 그 Testcontainers가 선언한 docker-java 조합을 신뢰했어야 했습니다.
 
 ## 22 files changed, AM 5시
 
@@ -136,26 +137,29 @@ AI에게 한 줄만 던졌습니다.
 
 > Docker Desktop의 버전과 현재 프로젝트 환경이 충돌하는 게 있는지 확인해.
 
-진짜 원인은 Docker Desktop의 버전 문제였습니다.
+당시 환경은 이랬습니다.
 
-- Docker Desktop 29.1.2
-- Engine API 1.52
-- docker-java 3.4.x
+- Docker Desktop에 들어 있던 Docker Engine 29.1.2
+- docker-java 3.4.1 (Testcontainers 1.20.6이 선언한 버전)
 
-Testcontainers는 내부적으로 docker-java를 사용합니다.   
-docker-java는 `/version`, `/info` API를 호출해 Docker Engine과 API version 협상을 진행합니다.  
+Docker Desktop을 Engine 28 계열로 downgrade하니,
+무슨 문제였는지 기억조차 흐려질 정도로 빠르게 해결되었습니다.
 
-Docker CLI는 API 버전이 맞지 않아도 fallback 전략으로 동작합니다.   
-반면 docker-java는 응답을 strict하게 파싱하죠.  
-
-Docker Desktop 29.1.2가 반환하는 API 응답을 docker-java 3.4.x가 유효한 응답으로 인식하지 못한 것이었습니다.
+밤새 22개 파일을 수정한 그 모든 작업은 필요 없었습니다.
 
 > CLI 정상 ≠ 라이브러리 정상
 
-Docker Desktop을 .28 버전으로 downgrade하니,   
-무슨 문제였는지 기억조차 흐려질 정도로 빠르게 해결되었습니다.  
+같은 엔진에서 CLI는 성공했고, Testcontainers는 실패했습니다. Docker Desktop을 내리자 E2E가 돌아왔습니다. 여기까지가 제가 본 사실입니다.
 
-밤새 22개 파일을 수정한 그 모든 작업은 필요 없었습니다.
+둘의 차이로 의심하는 지점은 API 버전입니다.
+Docker 공식 버전표에서 Engine 29.1은 API 1.52까지 지원하고, 받아들이는 최소 API는 1.44입니다. 28 계열의 최소 API는 1.24입니다.
+Docker CLI는 데몬과 API 버전을 협상해 둘 다 지원하는 가장 높은 버전을 씁니다.
+docker-java가 1.44보다 낮은 API 버전으로 요청했다면 29.1.2는 거절하고 28 계열은 받아들였을 것입니다. CLI 성공, Testcontainers 실패, downgrade 후 복구가 모두 이 가설로 설명됩니다.
+
+다만 가설입니다.
+당시 로그에서 docker-java가 요청한 경로의 API 버전(`/v1.xx/info` 같은)과 데몬의 응답 본문을 확인하지 않았습니다.
+downgrade는 최소 API만 바꾼 게 아니라 Docker Desktop과 엔진 전체를 바꿨습니다. 그래서 복구만으로는 버전 거절인지, 다른 엔진 차이인지 갈라지지 않습니다.
+처음에 비교했어야 했던 접속 방식(CLI의 context와 Testcontainers가 고른 소켓 경로)도 함께 확인해야 원인을 하나로 좁힐 수 있습니다.
 
 
 ## AI는 언제 멈춰야 할까?
@@ -175,7 +179,7 @@ AI는 내가 제공한 전제 안에서 가능한 모든 해결책을 시도합�
 
 1. 환경 확인 (`docker info`, Docker Desktop 버전)
 2. 네트워크/소켓 직접 테스트 (docker-java가 사용하는 소켓 경로)
-3. 라이브러리 버전 호환성 확인 (BOM 기준)
+3. 라이브러리 버전 호환성 확인 (BOM과 전이 의존성 기준)
 4. 그 다음에 코드 수정
 
 저는 4번부터 시작했어요.
@@ -197,9 +201,9 @@ AI는 내가 제공한 전제 안에서 가능한 모든 해결책을 시도합�
 
 ## TL;DR
 
-- Docker 연결 실패는 코드 문제가 아니었습니다.
-- Docker Desktop과 docker-java 간 API negotiation 이슈였습니다.
-- BOM이 관리하는 버전을 신뢰했어야 했죠.
+- Docker 연결 실패는 코드 문제가 아니었습니다. Docker Engine을 29.1.2에서 28 계열로 내리자 해결됐습니다.
+- docker-java의 요청 API 버전이 29.1 계열의 최소 API 1.44보다 낮았다는 가설은 요청 경로와 데몬 응답으로 아직 확인하지 않았습니다.
+- BOM이 고른 Testcontainers와, 그 Testcontainers가 선언한 docker-java 조합을 신뢰했어야 했죠.
 - AI에 수정을 요청할 때도 재현 조건과 검증 범위를 명시해야 합니다.
 
 > "AI를 멈추는 판단"의 중요성을 깨달았습니다.
@@ -212,3 +216,9 @@ AI는 내가 제공한 전제 안에서 가능한 모든 해결책을 시도합�
 - Integration과 E2E를 어떻게 구조적으로 분리할 것인가?
 - Testcontainers 공통 베이스를 만들 것인가?
 - CI 환경에서 Docker 전략은 어떻게 가져갈 것인가?
+
+## 참고자료
+
+- [Spring Boot 3.4.4 spring-boot-dependencies POM](https://repo.maven.apache.org/maven2/org/springframework/boot/spring-boot-dependencies/3.4.4/spring-boot-dependencies-3.4.4.pom): Testcontainers 1.20.6, JUnit Jupiter 5.11.4 관리. docker-java 항목 없음
+- [Testcontainers 1.20.6 POM](https://repo.maven.apache.org/maven2/org/testcontainers/testcontainers/1.20.6/testcontainers-1.20.6.pom): docker-java-api, docker-java-transport-zerodep 3.4.1 선언
+- [Docker Engine API 버전표](https://docs.docker.com/reference/api/engine/): Engine 29.1의 API 1.52와 최소 API 1.44, CLI의 API 버전 협상

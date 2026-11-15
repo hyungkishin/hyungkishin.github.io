@@ -31,7 +31,7 @@ base.retry      // 3
 
 읽을 때는 `base`의 값이 보였는데 증가시킨 뒤에는 `child`만 바뀌었다.
 
-프로퍼티 읽기는 객체 자신에서 시작해 없으면 `[[Prototype]]` 링크를 따라 올라간다. `child`에는 `retry`가 없으므로 `base`에서 `3`을 찾는다. 프로퍼티 쓰기는 올라가지 않는다. 대입은 그 객체 자신에 프로퍼티를 만든다. `child.retry++`는 `child.retry = child.retry + 1`이라 읽기가 `base`에서 오고 쓰기가 `child`로 간다.
+프로퍼티 읽기는 객체 자신에서 시작해 없으면 `[[Prototype]]` 링크를 따라 올라간다. `child`에는 `retry`가 없으므로 `base`에서 `3`을 찾는다. 대입도 체인에서 같은 이름을 찾는다. `base.retry`처럼 쓰기 가능한 데이터 프로퍼티를 만나면 그 값을 고치지 않고 대입을 받은 `child` 자신에 새 프로퍼티를 만든다. `child.retry++`는 `child.retry = child.retry + 1`이라 읽기가 `base`에서 오고 쓰기가 `child`로 간다.
 
 ![child 에서 시작한 읽기가 프로토타입까지 올라가 값을 찾고, 쓰기는 child 자신에 새 슬롯을 만드는 과정](./01-read-up-write-down.svg)
 
@@ -62,9 +62,20 @@ Object.hasOwn(fresh, 'retry') // false
 
 `Object.prototype`이 붙지 않아 `toString`도 `hasOwnProperty`도 없다. 문자열 키 맵으로 쓰기에는 안전하고 그대로 `String()`에 넘기면 예외가 난다.
 
-> 읽기는 체인을 탐색하고 쓰기는 탐색하지 않는다. 두 연산이 같은 표현식 안에 있어도 대상 객체가 다르다.
+> 읽기는 체인에서 찾은 값을 가져온다. 상속한 프로퍼티가 쓰기 가능한 데이터 프로퍼티면 대입은 받는 객체에 새 값을 만든다. 두 연산이 같은 표현식 안에 있어도 대상 객체가 다르다.
 
-이 규칙이 설명하는 범위는 데이터 프로퍼티까지다. 프로토타입에 세터가 정의되어 있으면 대입이 자기 프로퍼티를 만들지 않고 그 세터를 호출한다. 접근자 프로퍼티가 섞인 체인에서는 위 문장이 그대로 성립하지 않는다.
+부모의 `retry`가 `writable: false`면 결과가 달라진다. 대입은 체인에서 찾은 프로퍼티의 descriptor를 보고 어떻게 쓸지 정하기 때문이다.
+
+```js
+const locked = Object.defineProperty({}, 'retry', { value: 3, writable: false })
+const item = Object.create(locked)
+
+Reflect.set(item, 'retry', 4) // false
+Object.hasOwn(item, 'retry')  // false
+item.retry                    // 3
+```
+
+`Reflect.set`은 실패를 `false`로 돌려준다. 같은 대입을 `item.retry = 4`로 쓰면 엄격 모드에서는 `TypeError`가 나고 느슨한 모드에서는 조용히 무시된다. 프로토타입을 `Object.freeze`로 동결해도 데이터 프로퍼티가 모두 쓰기 불가가 되므로 자식의 `retry++`가 같은 자리에서 막힌다. 프로토타입에 세터가 정의되어 있으면 대입은 자기 프로퍼티를 만들지 않고 그 세터를 호출한다. 이 분기는 [ECMAScript 명세의 OrdinarySetWithOwnDescriptor](https://tc39.es/ecma262/multipage/ordinary-and-exotic-objects-behaviours.html#sec-ordinarysetwithowndescriptor)에 있다.
 
 ## 프로토타입에 올린 배열이 인스턴스 전부에서 공유되는 이유
 

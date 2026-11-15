@@ -107,7 +107,7 @@ class S3Warmup(
 | 외부 호출 | 첫 호출 | 두 번째 | 패턴 |
 |---|---|---|---|
 | S3 PutObject | 5001ms timeout | 887ms 성공 | 첫만 느림, cold start |
-| 외부 OCR API | 130ms RST | 130ms RST | 매번 같음, 다른 원인 |
+| 외부 OCR API | 130ms RST | 130ms RST | 두 번 모두 연결 실패 |
 | 사내 LLM Proxy | 정상 | 정상 | 무관 |
 
 ![외부 호출별 진단 매핑](./08-our-ocr-diagnosis.svg)
@@ -136,16 +136,16 @@ S3에서는 두 번째 업로드가 끝났지만 OCR에서는 두 번째 연결�
       <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.06;0.1;0.88;1" dur="7s" repeatCount="indefinite"/>
     </text>
     <text x="440" y="102" font-size="11" fill="var(--c-greenink)" font-weight="700">두 번째부터 0.3s</text>
-    <text x="40" y="150" font-size="12" fill="var(--fig-muted)" font-weight="600">OCR: 몇 번을 불러도 130ms RST (잠긴 문)</text>
+    <text x="40" y="150" font-size="12" fill="var(--fig-muted)" font-weight="600">OCR: 몇 번을 불러도 130ms RST (원인 확인 중)</text>
     <line x1="40" y1="228" x2="360" y2="228" stroke="var(--fig-baseline)"/>
     <rect x="40" width="22" rx="3" fill="var(--c-red)" y="228" height="0"><animate attributeName="height" values="0;0;10;10;0;0" keyTimes="0;0.06;0.09;0.88;0.92;1" dur="7s" repeatCount="indefinite"/><animate attributeName="y" values="228;228;218;218;228;228" keyTimes="0;0.06;0.09;0.88;0.92;1" dur="7s" repeatCount="indefinite"/></rect><rect x="80" width="22" rx="3" fill="var(--c-red)" y="228" height="0"><animate attributeName="height" values="0;0;10;10;0;0" keyTimes="0;0.13;0.16;0.88;0.92;1" dur="7s" repeatCount="indefinite"/><animate attributeName="y" values="228;228;218;218;228;228" keyTimes="0;0.13;0.16;0.88;0.92;1" dur="7s" repeatCount="indefinite"/></rect><rect x="120" width="22" rx="3" fill="var(--c-red)" y="228" height="0"><animate attributeName="height" values="0;0;10;10;0;0" keyTimes="0;0.2;0.23;0.88;0.92;1" dur="7s" repeatCount="indefinite"/><animate attributeName="y" values="228;228;218;218;228;228" keyTimes="0;0.2;0.23;0.88;0.92;1" dur="7s" repeatCount="indefinite"/></rect><rect x="160" width="22" rx="3" fill="var(--c-red)" y="228" height="0"><animate attributeName="height" values="0;0;10;10;0;0" keyTimes="0;0.27;0.3;0.88;0.92;1" dur="7s" repeatCount="indefinite"/><animate attributeName="y" values="228;228;218;218;228;228" keyTimes="0;0.27;0.3;0.88;0.92;1" dur="7s" repeatCount="indefinite"/></rect><rect x="200" width="22" rx="3" fill="var(--c-red)" y="228" height="0"><animate attributeName="height" values="0;0;10;10;0;0" keyTimes="0;0.34;0.37;0.88;0.92;1" dur="7s" repeatCount="indefinite"/><animate attributeName="y" values="228;228;218;218;228;228" keyTimes="0;0.34;0.37;0.88;0.92;1" dur="7s" repeatCount="indefinite"/></rect><rect x="240" width="22" rx="3" fill="var(--c-red)" y="228" height="0"><animate attributeName="height" values="0;0;10;10;0;0" keyTimes="0;0.41;0.44;0.88;0.92;1" dur="7s" repeatCount="indefinite"/><animate attributeName="y" values="228;228;218;218;228;228" keyTimes="0;0.41;0.44;0.88;0.92;1" dur="7s" repeatCount="indefinite"/></rect><rect x="280" width="22" rx="3" fill="var(--c-red)" y="228" height="0"><animate attributeName="height" values="0;0;10;10;0;0" keyTimes="0;0.48;0.51;0.88;0.92;1" dur="7s" repeatCount="indefinite"/><animate attributeName="y" values="228;228;218;218;228;228" keyTimes="0;0.48;0.51;0.88;0.92;1" dur="7s" repeatCount="indefinite"/></rect><rect x="320" width="22" rx="3" fill="var(--c-red)" y="228" height="0"><animate attributeName="height" values="0;0;10;10;0;0" keyTimes="0;0.55;0.58;0.88;0.92;1" dur="7s" repeatCount="indefinite"/><animate attributeName="y" values="228;228;218;218;228;228" keyTimes="0;0.55;0.58;0.88;0.92;1" dur="7s" repeatCount="indefinite"/></rect>
     <rect x="420" y="196" width="128" height="24" rx="7" fill="var(--c-red)" opacity="0.14"/>
-    <text x="484" y="212" font-size="11" fill="var(--c-redink)" text-anchor="middle" font-weight="700">warmup ×100
+    <text x="484" y="212" font-size="11" fill="var(--c-redink)" text-anchor="middle" font-weight="700">반복 호출
       <animate attributeName="opacity" values="1;1;0.3;1;1" keyTimes="0;0.7;0.75;0.8;1" dur="7s" repeatCount="indefinite"/>
     </text>
     <text x="484" y="234" font-size="10.5" fill="var(--fig-muted)" text-anchor="middle">변화 없음</text>
   </svg>
-  <figcaption>비슷하게 보고된 증상이지만 원인은 달랐다. 위는 반복하면 풀리는 <b>첫 호출 비용</b>이고, 아래는 반복해도 똑같이 끊기는 <b>outbound 차단</b>이다. 아래 사례에서는 warmup으로 연결 실패가 해결되지 않는다.</figcaption>
+  <figcaption>S3는 두 번째부터 업로드에 성공했다. OCR은 warmup 뒤에도 약 130ms 만에 연결이 끊겼다.</figcaption>
 </figure>
 
 ## 원인에 따라 조치를 구분했다
@@ -155,8 +155,12 @@ S3에서는 두 번째 업로드가 끝났지만 OCR에서는 두 번째 연결�
 | 외부 호출 | 진단 | 처방 |
 |---|---|---|
 | S3 PutObject | Cold start (JIT + IRSA + TLS) | warmup 코드 추가 |
-| 외부 OCR API | Outbound 차단 | SRE 담당자에게 확인 요청, ServiceEntry 등록 요청 |
+| 외부 OCR API | Outbound 차단 의심 (확인 중) | SRE 담당자에게 확인 요청, ServiceEntry 등록 요청 |
 | 사내 LLM Proxy | 무관 | 그대로 유지 |
+
+의심한 곳은 Istio 사이드카였다. outbound 정책이 `REGISTRY_ONLY`면 프록시는 레지스트리에 없는 호스트로 요청을 보내지 않는다. 기본값인 `ALLOW_ANY`에서는 그 요청도 통과한다. 그래서 ServiceEntry 등록을 요청한 것만으로는 진단이 끝나지 않았다.
+
+먼저 이 클러스터에 어떤 정책이 걸려 있었는지, 같은 시각 프록시가 요청을 어디까지 보냈는지 확인해야 했다. 등록 후 같은 pod에서 OCR 호출을 다시 해 본 결과까지는 당시 기록에 없다.
 
 사후에 정리한 진단 순서는 이렇다. 이 순서대로 갔으면 이름을 잘못 붙일 일이 없었다.
 
@@ -176,7 +180,7 @@ S3에서는 두 번째 업로드가 끝났지만 OCR에서는 두 번째 연결�
 | 증상 | 원인 카테고리 | Warmup으로 풀리나? | 검토할 조치 |
 |---|---|---|---|
 | 첫 호출 느리고 두 번째부터 빠름 | Cold start (JIT/connection/STS) | YES | App startup 시 dummy 호출 |
-| 매번 똑같이 빠르게 RST/timeout | Outbound 차단 (방화벽, mesh) | NO | SRE, ServiceEntry, SG, NAT |
+| 매번 똑같이 빠르게 RST/timeout | Outbound 차단 의심 (방화벽, mesh) | NO | SRE, 프록시 로그, ServiceEntry, SG, NAT |
 | 매번 비슷한 시간 (예: 1.7s) | 외부 API 자체 시간 | NO | 외부 API plan 인상 / 다른 API |
 | burst 시 일부 거절 (429) | 외부 rate limit | NO | concurrency 직렬화 / commitment tier |
 
@@ -193,3 +197,7 @@ S3에서는 두 번째 업로드가 끝났지만 OCR에서는 두 번째 연결�
 S3의 첫 호출이 느린 이유를 찾으면서 JIT 컴파일, TLS 핸드셰이크, IRSA까지 살펴봤다. 그러고는 OCR에서도 시간을 재 보기도 전에 같은 처방부터 썼다. 두 번째에도 똑같이 끊기는지만 봤어도 워밍업으로 고칠 문제가 아니라는 걸 알 수 있었다.
 
 남은 숙제도 있다. GraalVM Native Image는 startup 50ms가 매력적이지만 PGO 없는 peak 처리량 하락과 reflection 설정 부담 때문에 평가 전이고, AppCDS는 startup 5~10% 단축 여지가 있다. OCR의 ServiceEntry 등록은 인프라 팀 일정에 물려 있고, OkHttp의 connect/read timeout 명시도 대기 중이다.
+
+## 참고자료
+
+- [Istio 문서: Accessing External Services](https://istio.io/latest/docs/tasks/traffic-management/egress/egress-control/)

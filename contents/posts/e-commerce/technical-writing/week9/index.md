@@ -111,9 +111,9 @@ TTL은 2일로 잡았어요.
 masterRedisTemplate.expire(key, TTL_DAYS, TimeUnit.DAYS)  // TTL_DAYS = 2
 ```
 
-1일이면 자정에 어제 키가 사라집니다.
-자정 직후에 "어제의 인기상품"을 조회하면 빈 결과가 나와요.
-2일이면 오늘 새벽 3시에도 어제 키가 만료되지 않아 전일 조회가 됩니다.
+`EXPIRE`는 명령을 실행한 시각부터 시간을 셉니다. 1일로 걸면 키는 자정이 아니라 TTL을 건 시각에서 24시간 뒤에 사라져요.
+어제 키의 TTL이 어제 자정 직후 첫 이벤트에서 걸렸다면, 오늘 자정 직후에 어제 키가 사라집니다. 그때 "어제의 인기상품"을 조회하면 빈 결과가 나와요.
+2일이면 어제 키가 오늘 하루 동안 남아 있어 전일 조회가 됩니다. 날짜 경계에 맞춰 지우려면 만료 시각을 따로 계산해 `EXPIREAT`으로 걸어야 합니다.
 3일로 늘리면 메모리가 1.5배. 상품 10만 개 기준으로 ZSET 하나당 6~8MB니까 3일치는 18~24MB 정도인데, 굳이 더 쌓아둘 이유가 없었어요.
 
 ---
@@ -245,7 +245,9 @@ private fun ensureTtl(key: String) {
 }
 ```
 
-키 개수가 날짜 단위라 많아야 2~3개. 맵 엔트리도 그만큼만 생깁니다.
+평소 당일 이벤트만 처리하면 Redis에는 최근 며칠의 날짜 키가 남아요. 지연된 이벤트가 예전 날짜의 키를 다시 만들면 더 늘어날 수 있습니다. 반면 이 맵은 날짜를 지우지 않습니다. 프로세스가 떠 있는 동안 날짜마다 엔트리가 하나씩 늘어요.
+
+엔트리 하나는 작아서, 메모리보다 TTL 쪽이 더 걸립니다. 코드대로라면 날짜 키가 만료된 뒤 그 날짜의 늦은 이벤트가 도착할 때 `ZINCRBY`가 ZSET을 새로 만듭니다. 맵에는 이미 그 키가 있으니 `EXPIRE`를 건너뛰고, 다시 생긴 키에는 TTL이 없어요. 만료가 지난 날짜를 맵에서도 지워야 늦은 이벤트가 다시 TTL을 겁니다.
 
 ---
 
@@ -433,3 +435,8 @@ N+1도 같은 맥락이었어요.
 
 다음 주차는 일간을 주간/월간으로 확장하는 배치 작업이라고 합니다.
 `ZUNIONSTORE`로 7개 키를 합치는 구조가 되겠지만, 거기서도 시간 단위를 어떻게 자르는지 같은 판단이 또 나올 것 같아요.
+
+## 참고자료
+
+- [Redis EXPIRE](https://redis.io/docs/latest/commands/expire/)
+- [과제 저장소의 RankingScoreUpdater](https://github.com/hyungkishin/loop-pack-be-l2-vol3-kotlin/blob/640693fd44dfffd5973d54447b779a4e3d542e2b/apps/commerce-streamer/src/main/kotlin/com/loopers/infrastructure/ranking/RankingScoreUpdater.kt#L22)

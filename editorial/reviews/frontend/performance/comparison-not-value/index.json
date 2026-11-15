@@ -1,0 +1,6 @@
+{
+  "sha256": "5a6f27f4048645a8ddfa82b26537a0758a46e1e4e95d170042d540baeb5110ec",
+  "before": "두 장면은 trace 시간축에서 375ms에 찍힌 캡처다. Before에는 `Loading home`만 있고, After에는 홈 제목과 설명이 든 Hero 영역이",
+  "after": "표의 1,360ms와 2,259ms는 이 캡처의 시각이 아니다. [simulated",
+  "reason": "두 캡처에 실제로 무엇이 찍혔는지 확인한 뒤 표의 1,360ms와 2,259ms가 다른 시간축의 추정값임을 설명했다."
+}

@@ -14,7 +14,7 @@ tags:
 
 발송 지연 신고를 받고 1만 1천 건에 건당 1.5초를 곱했다. 약 다섯 시간이었다. 팀에서는 큐가 그만큼 밀렸을 가능성을 두고 파티션 증설을 검토했다.
 
-파티션을 늘리기 전에 열어 본 지표에서 대기 메시지는 최대 한 건, time lag은 최대 12초였다. 왜 계산에서는 다섯 시간이 나왔을까?
+파티션을 늘리기 전에 열어 본 지표에서 offset lag은 최대 1, time lag은 최대 12초였다. 왜 계산에서는 다섯 시간이 나왔을까?
 
 <style>
 .metric-fig,.fig-defs{
@@ -62,7 +62,7 @@ tags:
 | 단계 | 확인한 것 | 결과 |
 |---|---|---|
 | 단순 추산 | 1.1만 × 1.5초 ≈ 5시간 | 가설(추정) |
-| offset lag | 최대 대기 메시지 1건 | "큐에 쌓였다"가 지워짐 |
+| offset lag | 최대 1 (offset 차이) | "큐에 쌓였다"가 지워짐 |
 | time lag | 최대 12초 | "5시간 지연"이 지워짐 |
 | 처리량과 입력량 그래프 | 밀린 구간 없음 | backlog 자체가 없음 |
 
@@ -104,33 +104,38 @@ tags:
     </circle>
     <circle cx="52" cy="211" r="4" fill="var(--fig-surface)" stroke="var(--fig-ink2)" stroke-width="1.6"/>
     <g transform="translate(556,30)"><rect width="128" height="21" rx="7" fill="var(--c-orange)" opacity="0.16"/><text x="12" y="14.5" fill="var(--c-orangeink)" font-size="12" font-weight="700">직렬 추산 약 5시간</text></g>
-    <g transform="translate(520,224)"><rect width="164" height="21" rx="7" fill="var(--c-blue)" opacity="0.16"/><text x="12" y="14.5" fill="var(--c-blueink)" font-size="12" font-weight="700">최대 12초, 대기 최대 1건</text></g>
+    <g transform="translate(520,224)"><rect width="164" height="21" rx="7" fill="var(--c-blue)" opacity="0.16"/><text x="12" y="14.5" fill="var(--c-blueink)" font-size="12" font-weight="700">최대 12초, offset lag 최대 1</text></g>
     <text x="56" y="230" fill="var(--fig-muted)" font-size="10.5" letter-spacing="0.03em">발송 시작</text>
   </svg>
   <figcaption>같은 지점에서 출발한 두 선. 위는 <b>건수 x 건당시간</b>이 그린 추정, 아래는 컨슈머가 실제로 보고한 지연. 추정 처리 시간과 관측된 대기 시간은 측정 대상이 다르므로 직접 같은 값으로 해석할 수 없다.</figcaption>
 </figure>
 
 관측 구간에서는 추정치에 해당하는 대규모 적체가 확인되지 않았다.
-(참고로 "대기 1건"과 "time lag 12초"는 같은 순간의 값이 아니라 각각의 최댓값이다. 12초는 리밸런싱 같은 순간의 1회 스파이크였다.)
+offset lag 1과 time lag 12초는 각각의 최댓값이다. 두 값이 같은 시점에 찍힌 것은 아니다.
 
 ## lag은 어디를 재고 있나
 
 12초와 5시간의 간극을 설명하려면 lag이 재는 구간의 경계가 필요하다.
 
 Kafka는 producer가 메시지를 broker의 파티션에 넣고 consumer가 순서대로 읽어 가는 구조다.
-각 파티션에는 두 위치가 있다. 가장 마지막에 들어온 메시지 위치(latest offset)와 consumer가 지금까지 읽은 위치(consumer offset).
+각 파티션에서 lag을 계산할 때 두 경계를 쓴다. 하나는 consumer가 조회한 end offset이다. 기본 격리 수준인 `read_uncommitted`에서는 high watermark, 즉 복제가 끝난 마지막 레코드의 다음 위치를 쓴다. 다른 하나는 consumer group이 커밋한 offset이다. 이것도 다음에 읽을 위치를 가리킨다.
 
-- **offset lag** = 이 둘의 차이. 아직 안 읽은 메시지 수.
-- **time lag** = 가장 오래된 미소비 메시지가 얼마나 기다렸는가.
+- **offset lag** = 두 경계 사이의 offset 거리.
+- **time lag**은 대시보드가 시간으로 표시한 지연이다. 초 단위 값을 해석하려면 그 지표가 어느 레코드의 어떤 시각을 기준으로 삼는지 확인해야 한다.
 
-측정 위치에 따라 값도 달라진다.
+offset 거리는 메시지 수와 같지 않을 수 있다. compaction으로 지워진 레코드나 트랜잭션의 커밋 마커 같은 제어 레코드도 offset을 하나씩 차지한다. 이런 빈 구간이 있으면 애플리케이션이 받을 메시지는 거리보다 적다.
+앞의 표에서 읽을 수 있는 건 이 거리의 최댓값이 1이었다는 데까지다. offset 하나에 해당하는 레코드를 애플리케이션이 실제로 받았는지는 별개의 문제다.
+
+끝 경계도 하나가 아니다. consumer를 `read_committed`로 돌리면 아직 끝나지 않은 트랜잭션 앞, LSO(last stable offset)까지만 읽을 수 있다. 그래서 lag을 잴 때 어느 끝 경계를 조회했는지도 같이 봐야 한다.
+
+실행 중인 consumer의 읽기 위치(position)는 커밋한 offset보다 앞서 있을 수 있다. 어느 쪽을 기준으로 재느냐에 따라 값도 달라진다.
 컨슈머가 읽어 간 위치(position)를 기준으로 하면 처리 중인 메시지는 이미 읽힌 뒤라 lag에 잡히지 않는다.
 커밋 오프셋을 기준으로 하면 처리한 뒤 커밋하는 흔한 설정에서 처리 중 메시지도 lag에 남는다.
 그리고 Kafka 밖의 지연은 어느 쪽으로도 보이지 않는다. producer가 늦게 넣는 것, 벤더가 접수한 뒤 늦게 배송하는 것 모두.
 
 <figure class="metric-fig">
-  <div class="cap-head"><span class="cap-tag">메시지 처리 중 lag을 재는 구간</span><span class="cap-tag">queue only</span></div>
-  <svg viewBox="0 0 660 196" role="img" aria-label="메시지 한 건이 네 단계를 지나는데 lag은 파티션 대기 구간 하나만 잰다. producer 투입 전, consumer 처리 중, 벤더 배송은 lag 사각지대다" xmlns="http://www.w3.org/2000/svg">
+  <div class="cap-head"><span class="cap-tag">읽기 위치로 lag을 잴 때</span><span class="cap-tag">consumer position</span></div>
+  <svg viewBox="0 0 660 196" role="img" aria-label="consumer의 position을 기준으로 잰 offset lag은 poll 전의 대기를 반영한다. 이미 읽은 뒤의 처리는 포함하지 않는다" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="e2-blue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--c-blue)"/><stop offset="1" stop-color="var(--c-blue)" stop-opacity="0.7"/></linearGradient>
       <linearGradient id="e2-slate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--fig-baseline)"/><stop offset="1" stop-color="var(--fig-baseline)" stop-opacity="0.55"/></linearGradient>
@@ -138,7 +143,7 @@ Kafka는 producer가 메시지를 broker의 파티션에 넣고 consumer가 순�
     <g stroke="var(--c-blue)" stroke-width="1.2">
       <line x1="174" y1="52" x2="174" y2="60"/><line x1="374" y1="52" x2="374" y2="60"/><line x1="174" y1="52" x2="374" y2="52"/>
     </g>
-    <text x="274" y="42" text-anchor="middle" fill="var(--c-blueink)" font-size="11" font-weight="700">lag이 재는 유일한 구간</text>
+    <text x="274" y="42" text-anchor="middle" fill="var(--c-blueink)" font-size="11" font-weight="700">position 기준 offset lag</text>
     <g stroke="var(--fig-surface)" stroke-width="2">
       <rect x="44"  y="64" width="130" height="44" rx="2" fill="url(#e2-slate)"/>
       <rect x="174" y="64" width="200" height="44" rx="2" fill="url(#e2-blue)"/>
@@ -158,7 +163,7 @@ Kafka는 producer가 메시지를 broker의 파티션에 넣고 consumer가 순�
       <text x="434" y="128">consumer 처리 중</text>
       <text x="555" y="128">벤더 배송</text>
     </g>
-    <text x="330" y="166" text-anchor="middle" fill="var(--fig-muted)" font-size="10.5">파티션 대기만 offset lag과 time lag에 잡힌다. 나머지 세 구간은 lag 사각지대.</text>
+    <text x="330" y="166" text-anchor="middle" fill="var(--fig-muted)" font-size="10.5">이미 poll한 레코드는 처리 중이어도 읽기 위치 뒤에 있다.</text>
   </svg>
   <figcaption>메시지 한 건은 네 구간을 지난다. position 기준 lag은 <b>읽기 전 파티션 대기</b>를 확인하는 데 사용한다. producer 투입 전, consumer가 이미 읽어 처리 중, 벤더 접수 후 배송의 지연은 lag에 보이지 않는다.</figcaption>
 </figure>
@@ -180,7 +185,7 @@ lag은 "큐에 쌓여 대기 중인 양"을 재는 지표지 "전체 지연"을 
 
 다시 잰 결과는 이렇다. 평시 offset lag은 0 근처, time lag 최대 12초 그대로. 월말 월간 리포트 1.1만 건 버스트 때 time lag 최대 약 10분. 단순 추산의 5시간과는 자릿수가 다르다. 파티션은 늘리지 않았고 발송은 정상으로 돌아왔다.
 
-파티션을 늘릴지 판단할 때는 건당 시간에 전체 건수를 곱하는 대신, 처리량을 따라가지 못해 파티션에 실제로 쌓인 메시지가 몇 건인지 확인했다.
+파티션을 늘릴지 판단할 때는 건당 시간에 전체 건수를 곱하는 대신, 브로커의 끝 위치와 컨슈머 그룹의 커밋 위치가 계속 벌어지는지 확인했다.
 
 ## 이 지표로도 알 수 없는 것
 
@@ -191,3 +196,7 @@ lag은 "큐에 쌓여 대기 중인 양"을 재는 지표지 "전체 지연"을 
 > lag 0은 밀린 게 없다는 뜻이지, 느리지 않다는 뜻이 아니다.
 
 발송이 늦어질 수 있는 또 한 곳은 컨슈머가 사용하는 캐시다. Redis 조회 P95로 기록된 5.68초 중 어디까지가 Redis 서버에서 보낸 시간인지 다음 편에서 확인한다.
+
+## 참고자료
+
+- [Apache Kafka 4.0, KafkaConsumer (offset, position, committed position, read_committed)](https://kafka.apache.org/40/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html)

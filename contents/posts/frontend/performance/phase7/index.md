@@ -129,7 +129,7 @@ export const revalidate = 60
 
 - `/api/*` 는 캐시 X. 사용자 데이터를 다른 사람한테 흘리지 않게.
 - `/_next/static/*` 는 파일명에 hash 가 박혀 있다. 1년 immutable.
-- `/_next/data/*` 는 RSC payload. 60초 캐시 + 60초 stale 허용.
+- `/_next/data/*` 는 Pages Router 페이지로 클라이언트 전환할 때 받는 JSON이다. App Router의 RSC payload는 이 경로로 오지 않는다. 60초 캐시 + 60초 stale 허용.
 - `/images/*` 는 CMS 업로드 이미지. 하루 캐시.
 - 마지막 `Vary: Accept, Accept-Encoding` 이 진짜 함정 자리였다.
 
@@ -140,33 +140,17 @@ export const revalidate = 60
 Next App Router 는 같은 URL 을 두 가지 응답으로 준다.
 
 - 첫 진입 → HTML
-- 클라이언트 라우팅 진입 → RSC payload (`application/x-component`)
+- 클라이언트 라우팅 진입 → RSC payload (`text/x-component`)
 
-CF 는 URL 만 보고 캐시 키를 잡는다.
+브라우저 주소창에는 같은 기사 주소가 남는다. 네트워크 탭에서 보면 요청은 다르다. Next.js 14.2.35는 화면을 이동할 때 `RSC: 1`과 현재 라우터 상태를 보내고, 자동 prefetch에는 `Next-Router-Prefetch: 1`도 붙인다. 요청 URL에도 라우터 상태와 prefetch 여부 등을 반영한 `_rsc` 쿼리가 붙는다. [14.2.35 라우터의 요청 코드](https://github.com/vercel/next.js/blob/v14.2.35/packages/next/src/client/components/router-reducer/fetch-server-response.ts#L62-L111)
 
-만약 두 응답이 같은 키로 섞이면?
+근데 CloudFront는 그 차이를 어디까지 볼까? 원본으로 헤더를 전달하는 것과, 캐시에서 꺼낼 응답을 고를 때 그 헤더를 쓰는 건 서로 다른 설정이다. 예를 들어 `RSC`를 원본에 전달하더라도 캐시 키에서 그 헤더와 `_rsc` 쿼리를 모두 빼면, 같은 기사 경로로 받은 HTML과 RSC가 한 자리에 들어갈 수 있다. 브라우저가 기사 HTML을 기다리는데 `text/x-component`가 온다.
 
-첫 진입 사용자가 받은 RSC payload 를, 다른 사용자가 *HTML 자리* 에서 받게 된다.
+당시 내가 적어 둔 `Vary: Accept`만으로는 이 문제를 해결했다고 말할 수 없다. CloudFront는 캐시 키에 넣을 헤더와 쿼리를 **해당 경로의 cache policy**에서 고른다. 캐시하려면 화면 이동과 prefetch를 포함해 다른 응답을 만드는 요청이 다른 키를 쓰는지 확인해야 한다. 그 구분을 확인할 수 없으면 해당 응답은 공유 캐시에서 빼는 편이 낫다.
 
-화면이 그냥 깨져버린다.
+확인할 때는 HTML 요청과 실제 라우터 요청을 번갈아 보내 본다. `X-Cache`가 Hit여도 엉뚱한 응답에 맞은 것일 수 있다. 각 요청의 `Content-Type`과 본문이 원래 기대한 형식인지까지 봐야 한다.
 
-처음에 이거 보고 머리가 아팠다.
-
-> CF 가 빠른데, 빠르게 *틀린 응답*을 퍼뜨리고 있었다.
-
-해결은 `Vary: Accept` 한 줄이다.
-
-CF 는 `Vary` 에 적힌 헤더를 캐시 키에 *포함*시킨다.
-
-HTML 요청은 `Accept: text/html`, RSC 요청은 `Accept: text/x-component`.  
-캐시 키가 갈라진다. 같은 URL 이라도 두 응답이 따로 캐시된다.
-
-`Accept-Encoding` 도 같이 박았다.  
-gzip 응답을 압축 안 한 브라우저에 그대로 주면 그것도 깨진다.
-
-`Vary` 가 늘어날수록 캐시 키가 잘게 쪼개진다.  
-hit률이 살짝 떨어진다.  
-근데 *잘못된 응답을 캐시해 재사용하는 것* 보단 낫다.
+압축은 또 다른 설정이다. CloudFront 캐시 정책에서 gzip이나 Brotli 지원을 켜면 정규화한 `Accept-Encoding`이 캐시 키에 들어간다.
 
 ---
 
@@ -209,9 +193,7 @@ Next 의 `<Link>` 는 viewport 에 들어온 링크를 자동으로 prefetch 한
 
 그게 CF 로 안 가고 *origin 직격* 으로 가는 자리가 있었다.
 
-이유를 봤더니, prefetch 요청이 `Next-Router-Prefetch: 1` 같은 커스텀 헤더를 들고 갔다.  
-그 헤더가 CF 의 cache key 에 포함돼서 매번 다른 키로 잡혔다.  
-같은 URL 인데 prefetch 인지 아닌지에 따라 키가 갈라지니까 캐시 hit 못 함.
+자동 prefetch에는 `Next-Router-Prefetch: 1`이 붙었다. 카드 30장의 요청은 애초에 서로 다른 기사 주소로 간다. 같은 기사라도 prefetch와 클릭 이동의 캐시 키를 나누면 한쪽이 채운 캐시를 다른 쪽에서는 쓸 수 없다. 그때의 헤더 하나만으로 캐시 미스 30건을 모두 설명할 수는 없다.
 
 뉴스 홈 카드는 *30개 중 사용자가 평균 1~2개* 만 본다.  
 나머지 28개 prefetch 는 origin 비용만 만든다.
@@ -223,7 +205,7 @@ Next 의 `<Link>` 는 viewport 에 들어온 링크를 자동으로 prefetch 한
 <Link href="..." prefetch={false}>...</Link>
 ```
 
-또 다른 방법은 CloudFront에서 `Next-Router-Prefetch` 헤더를 원본 서버에는 전달하되 캐시 키에서는 빼는 것이다.
+또 다른 방법은 CloudFront에서 `Next-Router-Prefetch` 헤더를 원본 서버에는 전달하되 캐시 키에서는 빼는 것이다. 이 방법은 prefetch 응답과 클릭해서 이동할 때의 응답이 같을 때만 쓸 수 있다. Next.js 14 문서에 따르면 동적 라우트의 prefetch는 첫 `loading.js` 까지만 담는다. 두 응답이 다른데 헤더를 캐시 키에서만 빼면, prefetch가 받아 간 일부 응답이 클릭 이동에 재사용될 수 있다. 그런 경로는 헤더를 캐시 키에 남기거나 캐시를 우회해야 한다.
 
 prefetch 끄면 클릭 직후 응답 시간이 100~200ms 늘어난다.  
 이 홈에서는 클릭할 때 조금 더 기다리더라도, 대부분 읽지 않는 기사 28건을 미리 요청하지 않는 쪽을 택했다.
@@ -235,9 +217,9 @@ prefetch 끄면 클릭 직후 응답 시간이 100~200ms 늘어난다.
 이중 압축이 함정이었다.
 
 Next 는 default 로 gzip 압축을 켠다 (`compress: true`).  
-CF 도 default 로 압축을 시도한다.
+CloudFront도 behavior에서 자동 압축을 켤 수 있다.
 
-origin 이 이미 gzip 한 응답을 CF 가 또 gzip 하면 의미가 없다.  
+원본 응답에 이미 `Content-Encoding: gzip`이 있으면 CloudFront는 다시 압축하지 않고 그 응답을 전달한다.
 근데 더 큰 문제는 따로 있었다.
 
 brotli 압축을 지원하는 브라우저에 *gzip 응답이 고정*돼서 내려간다.  
@@ -272,3 +254,11 @@ origin 은 압축 안 한 응답을 그대로 내려보낸다.
 ## 다음 문제
 
 홈의 HTML을 공유할 수 있게 됐어도 기사 본문의 사진에는 공통 컴포넌트의 props를 건넬 자리가 없다. CMS 에디터가 보낸 HTML 문자열 안에 `<img>`가 들어 있기 때문이다. 다음 편에서는 그 문자열에서 첫 사진을 찾는다.
+
+참고
+- [Next.js 14 getStaticProps: HTML과 JSON을 함께 만드는 이유](https://nextjs.org/docs/14/pages/building-your-application/data-fetching/get-static-props)
+- [Next.js 14.2 App Router 요청 헤더 정의](https://github.com/vercel/next.js/blob/v14.2.35/packages/next/src/client/components/app-router-headers.ts)
+- [Next.js 14 Linking and Navigating: 정적 라우트와 동적 라우트의 prefetch](https://nextjs.org/docs/14/app/building-your-application/routing/linking-and-navigating)
+- [CloudFront 캐시 정책으로 캐시 키 정하기](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-the-cache-key.html)
+- [CloudFront origin request policy와 캐시 정책의 관계](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-origin-requests.html)
+- [CloudFront가 원본 응답의 Vary를 다루는 방식](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/RequestAndResponseBehaviorCustomOrigin.html)

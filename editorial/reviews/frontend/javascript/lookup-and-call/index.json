@@ -1,0 +1,6 @@
+{
+  "sha256": "53362d6b672eecabad67bdad89e1b0dd253dd8441a6b4a8f44de4cfb4c6cb902",
+  "before": "`Object.prototype`이 붙지 않아 `toString`도 `hasOwnProperty`도 없다. 문자열 키 맵으로 쓰기에는 안전하고 그대로",
+  "after": "부모의 `retry`가 `writable: false`면 결과가 달라진다. 대입은 체인에서 찾은 프로퍼티의 descriptor를 보고 어떻게 쓸지 정하기 때문이다.",
+  "reason": "자식에게 자기 프로퍼티가 없다는 앞 예제를 기억한 채, 부모의 쓰기 권한까지 바꾸면 대입 결과가 어떻게 달라지는지 비교할 수 있다."
+}

@@ -54,7 +54,7 @@ ORDER BY like_count DESC LIMIT 20;
 ```
 type: ALL          -- 풀 테이블 스캔
 key: NULL          -- 인덱스 안 탐
-rows: 99,203       -- 거의 전부 읽음
+rows: 99,203       -- 검사할 것으로 추정한 행 수
 Extra: Using where; Using filesort   -- 메모리에서 정렬까지
 ```
 
@@ -120,12 +120,14 @@ graph LR
 
 **인덱스에는 저장 공간과 쓰기 비용이 추가됩니다.**
 
-인덱스 하나를 추가하면, 모든 INSERT와 UPDATE에서 해당 B-Tree를 갱신해야 합니다.  
+인덱스 하나를 추가하면, INSERT마다 그 B-Tree에도 항목이 들어갑니다.
+InnoDB는 갱신한 행을 클러스터 인덱스에 기록해요. 기본 키를 그대로 두고 `like_count`만 바꾸면, 보조 인덱스 중에서는 이 컬럼을 키에 포함한 것만 갱신합니다.
 
 좋아요가 눌릴 때마다 `like_count` 값이 바뀌고  
 그때마다 `idx_product_brand_like_count` 트리에서 위치가 이동합니다.  
 
-> 인덱스가 6개면 이 비용이 두 배죠.  
+> 인덱스가 6개면 INSERT는 6개 트리를 모두 갱신합니다.
+> 여기에 전체 인기순용 인덱스까지 추가하면, 좋아요 UPDATE마다 `like_count`가 들어간 보조 인덱스 두 개를 갱신해요.
 > 전체 조회(브랜드 미지정)는 사용 빈도가 낮습니다.  
 > 이쪽은 TTL 5분짜리 캐시로 커버하기로 했고요.
 
@@ -157,16 +159,18 @@ rows: 2,000
 Extra: Using where; Backward index scan
 ```
 
+`rows`는 실제로 읽은 행 수가 아니라 옵티마이저가 검사할 것으로 추정한 값입니다. 실제로 잰 시간은 앞의 27ms와 아래 성능 비교 표에 있습니다.
+
 ```mermaid
 xychart-beta
-    title "EXPLAIN rows 비교 (10만 건 기준)"
+    title "EXPLAIN 추정 행 수 비교 (10만 건 기준)"
     x-axis ["브랜드+최신순", "브랜드+인기순", "브랜드+가격순", "전체 인기순"]
-    y-axis "스캔 행 수" 0 --> 100000
+    y-axis "추정 행 수 (rows)" 0 --> 100000
     bar [99203, 99203, 99203, 99203]
     bar [2000, 2000, 2000, 99203]
 ```
 
-| 쿼리 | Before | After | filesort |
+| 쿼리 | Before (type / 추정 rows) | After (type / 추정 rows) | filesort |
 |------|--------|-------|----------|
 | 브랜드+최신순 | ALL / 99,203 rows | ref / 2,000 rows | 제거됨 |
 | 브랜드+인기순 | ALL / 99,203 rows | ref / 2,000 rows | 제거됨 |
@@ -493,7 +497,7 @@ Like 도메인이 Product 캐시 구현을 몰라도 되게 됐습니다.
 이게 왜 문제 ? 다음과 같습니다.
 
 - product 100건 x images 평균 3건 = **300행 결과셋** (100행이어야 할 것이)
-- FETCH JOIN + 컬렉션이면 중복 행이 생겨서 `DISTINCT`가 강제됨
+- Hibernate 6은 FETCH JOIN으로 반복된 product를 메모리에서 하나로 합침. `DISTINCT`가 없어도 엔터티는 100건이고, `DISTINCT`는 SQL에 distinct를 붙일 뿐. 이미지 컬럼이 행마다 달라 DB가 보내는 300행은 줄지 않음
 - 안 쓸 이미지 바이트를 네트워크로 전송하고 메모리에 올림
 
 `LEFT JOIN FETCH p.images`를 제거하고  
@@ -554,7 +558,7 @@ sequenceDiagram
     rect rgb(80, 20, 20)
         Note over C,M: AS-IS: 매 요청마다 Full Scan
         C->>U: 상품 목록 요청
-        U->>M: SELECT * (type: ALL, 99,203 rows, 27ms)
+        U->>M: SELECT * (type: ALL, 추정 99,203 rows, 27ms)
         M-->>C: 응답
     end
 
@@ -569,7 +573,7 @@ sequenceDiagram
         Note over C,M: TO-BE: Cache Miss
         C->>U: 상품 목록 요청
         U->>R: GET → null
-        U->>M: SELECT * (type: ref, 2,000 rows, 1ms)
+        U->>M: SELECT * (type: ref, 추정 2,000 rows, 1ms)
         U->>R: SET (TTL 5분)
         M-->>C: 응답
     end
@@ -627,7 +631,7 @@ Offset 기반이든 Cursor 기반이든 넣어야 합니다.
 
 ## 정리
 
-인덱스 3개로 스캔 행 수 98% 감소, Redis 캐시로 DB 부하 80% 절감했습니다.
+인덱스 3개로 EXPLAIN 추정 행 수가 99,203에서 2,000으로 98% 줄었고, 같은 쿼리의 실측 시간은 27ms에서 1ms가 됐습니다. Redis 캐시로 DB 부하 80% 절감했습니다.
 
 그리고 다음과 같은 판단을 했어요.
 - 인덱스는 6개가 아니라 **3개**. 전체 조회는 캐시로 커버하죠.
@@ -659,9 +663,15 @@ graph TD
 ```
 
 비정규화로 정렬 컬럼을 확보하고  
-인덱스로 스캔 범위를 줄이고  
+인덱스로 읽을 범위를 줄이고
 불필요한 JOIN을 걷어내고  
 그 위에 캐시를 얹고  
 마지막으로 캐시 무효화를 트랜잭션과 정합시켰습니다.  
 
-같은 상품 목록이라도 캐시에 있으면 MySQL까지 가지 않고, 캐시가 비어 있으면 다시 그 정렬 쿼리가 실행됩니다. 처음 `EXPLAIN`에서 본 10만 행 스캔을 그대로 뒀다면, 캐시가 비는 날마다 DB는 처음과 같은 일을 했을 겁니다.
+같은 상품 목록이라도 캐시에 있으면 MySQL까지 가지 않고, 캐시가 비어 있으면 다시 그 정렬 쿼리가 실행됩니다. 처음 `EXPLAIN`에서 본 풀 테이블 스캔을 그대로 뒀다면, 캐시가 비는 날마다 DB는 처음과 같은 일을 했을 겁니다.
+
+## 참고 자료
+
+- [MySQL 8.4 Reference Manual: EXPLAIN Output Format](https://dev.mysql.com/doc/refman/8.4/en/explain-output.html)
+- [MySQL 8.4 Reference Manual: Optimizing UPDATE Statements](https://dev.mysql.com/doc/refman/8.4/en/update-optimization.html)
+- [Hibernate 6.5 Query Language Guide: Duplicate removal](https://docs.hibernate.org/orm/6.5/querylanguage/html_single/Hibernate_Query_Language.html#hql-distinct)

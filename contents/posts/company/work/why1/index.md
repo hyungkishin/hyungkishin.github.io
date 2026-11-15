@@ -33,14 +33,14 @@ P95가 조금씩 밀릴 때도 저 그림에서 바뀌는 건 없었다. DB를 �
 
 ## 네트워크 왕복과 역직렬화 비용
 
-응답 한 건의 시간을 실제로 분해해 보면 이렇다.
+기존 Redis 조회에 4~6ms가 걸렸다. 어느 작업을 줄일 수 있을지 보려고 구간별 비용을 대략 잡아 봤다.
 
 - Redis 왕복 시간(RTT): 같은 AZ(데이터센터 구역) 안에서도 0.3~1ms
 - 수백 KB Map을 받아오는 데: 1~수 ms
 - Map을 객체로 변환(`readValue`)하는 데: 1~5ms
 - 변환된 Map에서 키 하나 꺼내는 데: 수 마이크로초
 
-키 조회 자체는 마이크로초 단위였다. 대부분의 시간은 데이터 전송과 역직렬화에 사용됐다.
+Map에서 키를 하나 찾는 동안에는 Redis에 갈 일이 없다. 비용이 커 보인 쪽은 그전에 수백 KB를 옮겨서 Map을 만드는 과정이었다.
 
 <style>
 .metric-fig{--fig-surface:#ffffff;--fig-ink:#0f172a;--fig-ink2:#334155;--fig-muted:#94a3b8;--fig-hair:#e6eaf1;--fig-baseline:#d0d7e2;--c-green:#16a34a;--c-greenink:#15803d;--c-red:#ef4444;--c-redink:#b91c1c;--c-blue:#2f6fed;--c-blueink:#1d4ed8;--c-amber:#d97706;--c-amberink:#b45309;margin:2.4em 0;border:1px solid var(--fig-hair);border-radius:18px;background:var(--fig-surface);padding:18px 20px 10px;overflow:hidden;box-shadow:0 1px 2px rgba(2,6,23,.05),0 14px 40px rgba(2,6,23,.09)}
@@ -52,7 +52,7 @@ P95가 조금씩 밀릴 때도 저 그림에서 바뀌는 건 없었다. DB를 �
 </style>
 
 <figure class="metric-fig">
-  <svg viewBox="0 0 660 244" role="img" aria-label="같은 요청이 위에서는 매번 Redis까지 왕복해 4~6ms를 내고 아래에서는 L1에서 0ms에 끝난다" xmlns="http://www.w3.org/2000/svg">
+  <svg viewBox="0 0 660 244" role="img" aria-label="같은 요청이 위에서는 매번 Redis까지 왕복해 4~6ms를 내고 아래에서는 L1에서 Redis 왕복 없이 값을 찾는다" xmlns="http://www.w3.org/2000/svg">
     <text x="24" y="30" font-size="12" fill="var(--fig-muted)" font-weight="600">지금: 물 한 잔에 옆집까지</text>
     <rect x="24" y="44" width="120" height="52" rx="10" fill="none" stroke="var(--c-blue)" stroke-opacity="0.5"/>
     <text x="84" y="74" font-size="13" fill="var(--fig-ink)" text-anchor="middle" font-weight="700">앱</text>
@@ -73,11 +73,11 @@ P95가 조금씩 밀릴 때도 저 그림에서 바뀌는 건 없었다. DB를 �
     <circle cx="84" cy="203" r="0" fill="var(--c-green)" opacity="0.55">
       <animate attributeName="r" values="0;9;9;0;0" keyTimes="0;0.08;0.16;0.24;1" dur="2.8s" repeatCount="indefinite"/>
     </circle>
-    <text x="160" y="206" font-size="11" fill="var(--c-greenink)" font-weight="700">0ms
+    <text x="160" y="206" font-size="11" fill="var(--c-greenink)" font-weight="700">Redis 왕복 0회
       <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.1;0.2;0.3;1" dur="2.8s" repeatCount="indefinite"/>
     </text>
   </svg>
-  <figcaption>같은 요청 한 건. 위는 매번 네트워크를 건너며 <b>4~6ms</b>를 내고, 아래는 프로세스 안에서 <b>0ms</b>에 끝난다. hit률은 두 경우 모두 100%다.</figcaption>
+  <figcaption>위쪽은 Redis에서 값을 찾은 요청이다. 아래쪽은 같은 값을 L1에서 찾았을 때의 경로다. 이 요청은 Redis에 다녀올 필요가 없다.</figcaption>
 </figure>
 
 왕복 시간이 1ms이고 초당 요청이 100건이면 요청별 왕복 시간을 합친 값은 초당 100ms다. 병렬 처리되므로 이 값이 그대로 사용자 응답 지연에 더해지는 것은 아니지만, 변경이 드문 데이터를 반복 조회하는 비용을 보여준다.
@@ -126,9 +126,9 @@ flowchart LR
   LK --> DB["DB"]
 ```
 
-- 요청의 99%는 L1에서 값을 찾는다. 이때는 Redis에 다녀오거나 응답을 파싱할 일이 없다.
+- L1 적중률은 99%를 가정했다. L1에서 값을 찾으면 Redis 왕복도, 응답 파싱도 생략한다.
 - 새 pod이 뜨거나 L1 TTL이 만료되면 L2에 한 번 다녀온다. 배포 직후에도 DB가 아니라 Redis까지만 간다.
-- L2마저 비어 있으면 그때만 DB로 간다. 단, 아무나 가지 않는다.
+- L2마저 비어 있으면 먼저 lock을 얻은 요청이 DB에서 읽어 온다.
 
 ```kotlin
 override fun findByYearAndKey(year: Int, key: String): Result<Record, ReadError> {
@@ -143,7 +143,7 @@ override fun findByYearAndKey(year: Int, key: String): Result<Record, ReadError>
 
 L1과 L2가 둘 다 비는 순간이 있다. 새 배포 직후의 첫 요청. 여기서 pod들이 전부 DB로 달려가면 Caffeine 단독안에서 봤던 stampede가 그대로 재현된다.
 
-Redis 분산 lock을 획득한 pod만 DB를 조회해 L2를 채운다. 다른 pod은 대기한 뒤 L2에서 결과를 조회한다.
+먼저 lock을 얻은 요청이 DB에서 값을 읽어 L2를 채운다. 다른 요청은 50ms 간격으로 L2를 다섯 번 확인한다. 그때까지 값이 없으면 DB를 직접 조회하므로 같은 조회가 겹칠 수도 있다.
 
 ```kotlin
 val acquired = redis.opsForValue()
@@ -170,7 +170,13 @@ repeat(5) {
 
 staging에서 lock TTL을 일부러 1초로 줄여 놓고 돌려보니 문제가 보였다. DB 조회가 lock TTL보다 오래 걸리면 lock이 자동 만료되고, 그 사이 다른 pod이 새 lock을 잡는다. 뒤늦게 조회를 끝낸 원래 pod이 `del`을 부르면 남이 잡고 있는 lock을 지워버린다. 잠금이 풀리면 여러 파드가 DB를 동시에 조회할 수 있다.
 
-"내 lock인지 확인한다"와 "지운다"는 두 동작이고, 두 동작 사이에는 누구든 끼어들 수 있다. Lua script로 `if get(key) == myPodId then del`을 한 번에 묶어야 안전하다.
+"내 lock인지 확인한다"와 "지운다"는 두 동작이고, 두 동작 사이에는 누구든 끼어들 수 있다. 그래서 위 코드는 Lua script로 `if get(key) == podId then del`을 한 번에 실행한다.
+
+그런데 비교하는 값이 `podId`다. 같은 pod 안에서 일어난 두 번의 획득은 값이 같아서 구분되지 않는다. 같은 pod의 요청 A가 lock을 잡았는데 DB 조회가 TTL 10초를 넘겼다고 해보자. lock이 만료되고, 같은 pod의 요청 B가 lock을 다시 잡는다. A가 조회를 끝내고 `finally`에서 해제 스크립트를 부르면, Redis에 든 값도 같은 `podId`라서 B의 lock이 지워진다.
+
+해제 대상을 가르려면 획득할 때마다 새 토큰(UUID 같은 값)을 lock 값으로 저장하고, 해제할 때 그 토큰과 비교해야 한다. Redis 문서도 이 값이 모든 클라이언트와 모든 lock 요청에 걸쳐 고유해야 한다고 적는다.
+
+토큰이 막는 건 남의 lock을 지우는 일까지다. A의 lock이 만료돼도 A가 이미 보낸 DB 조회는 계속 돈다. 그동안 B도 조회를 시작하므로 두 조회는 겹친다. Redis 문서도 상호 배제는 lock 유효 시간 안에서만 성립한다고 적는다. 그래서 `findAllByYear`가 운영에서 10초를 넘길 수 있는지 조회 시간 분포로 확인해야 한다. 넘길 수 있다면 해제 대상을 바로잡아도 DB 조회는 중첩된다.
 
 ## Pub/Sub 메시지 유실에 대비한 무효화
 
@@ -221,9 +227,13 @@ Pub/Sub 메시지는 구독 연결이 끊어진 동안 재전달되지 않는다
 
 | 결정 | 얻은 것 | 포기한 것 |
 |---|---|---|
-| L1 + L2 2단 | 99% 요청 0ms 응답 | 메시지 손실 시 최대 1분 stale |
+| L1 + L2 2단 | L1 적중 요청은 Redis 왕복과 응답 파싱 0회 | 메시지 손실 시 최대 1분 stale |
 | L2 키 스키마 그대로 유지 | 마이그레이션 0, rollback 한 줄 | L2 hit path 추가 튜닝 |
-| 분산 lock + Lua compare-and-del | DB stampede가 배포당 1회로 수렴 | lock TTL 넘는 호출까지 고려할 것 |
+| 분산 lock + Lua compare-and-del | L2에 값이 채워지면 기다리던 요청이 DB 조회를 생략 | `podId` 비교라 같은 pod의 이전 획득과 새 획득을 구분 못 함, TTL을 넘긴 조회는 다음 조회와 겹침 |
 | L1 TTL 1분 + Pub/Sub | 즉시 정합 + 메시지 손실 안전망 | 1분 stale 구간이 도메인에 따라 위험 |
 
-아직 정하지 못한 것도 남아 있다. `maximumSize(4)`는 측정값이 아니라 "당년+전년+이전년+여유"라는 직관이고, eviction 메트릭이 쌓이면 다시 볼 자리다. L2 Hash 분리는 L1이 99%를 흡수하는 지금은 이득이 작아 접어뒀다. circuit breaker 임계는 Resilience4j 기본값 그대로다.
+아직 정하지 못한 것도 남아 있다. `maximumSize(4)`는 측정값이 아니라 "당년+전년+이전년+여유"라는 직관이고, eviction 메트릭이 쌓이면 다시 볼 자리다. L2를 Hash로 나눌지는 L1의 실제 적중률을 보고 결정하기로 했다. Redis까지 가는 요청이 얼마나 남는지에 따라 줄일 전송량도 달라진다. circuit breaker 임계는 Resilience4j 기본값 그대로다. L1 적중 경로에서 빠진 건 Redis 왕복과 파싱이다. 사용자 응답의 P95가 얼마로 바뀌었는지는 L1 전후를 같은 구간과 같은 집계 기준으로 재야 말할 수 있다.
+
+## 참고자료
+
+- [Redis, Distributed Locks with Redis](https://redis.io/docs/latest/develop/clients/patterns/distributed-locks/)

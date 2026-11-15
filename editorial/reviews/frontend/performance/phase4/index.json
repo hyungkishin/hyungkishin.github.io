@@ -1,0 +1,6 @@
+{
+  "sha256": "23341523d19265149bd8c3545fc66afa31efa5558c6df06f551ff236a42ba4cd",
+  "before": "아 참, 중간 배포 무렵 Search Console 데스크톱 보고서에서도 반가운 그래프가 보였다. 빠른 URL로 분류된 쪽이 더 많아졌다 🥰.",
+  "after": "여기서 ‘하루 만에 빨라졌다’고 말하고 싶지만, 하루 뒤에 한 건 Lighthouse를 다시 돌린 일이다. Search Console의 Core Web Vitals",
+  "reason": "Search Console 그래프를 보고 반가웠던 저자의 감정은 남겼다. 이어지는 문단에서 집계 기간을 확인해 하루 전 배포의 효과로 단정할 수 있는지 가린다."
+}

@@ -67,14 +67,15 @@ function ProductList({ products }: { products: Product[] }) {
     setFilteredCount(products.filter(p => p.inStock).length)
   }, [products])
 
-  // products가 바뀌면 → 리렌더 → effect 실행 → setState → 리렌더 한 번 더
+  return <span>{filteredCount}</span>
 }
 ```
 
 이 코드는 분명히 돌아간다.
 화면에 숫자도 잘 뜬다.
-그런데 `products`가 바뀔 때마다 리렌더가 한 번 더 돈다.
-상태가 원본과 어긋날 틈도 생긴다.
+그런데 `products`가 바뀌어 재고 있는 상품 수가 달라지면 리렌더가 한 번 더 돈다.
+개수가 그대로면 React는 새 값과 이전 값을 `Object.is`로 비교해 그 리렌더를 건너뛸 수 있다([useState 문서](https://react.dev/reference/react/useState)).
+리렌더 횟수와 상관없이 상태가 원본과 어긋날 틈은 생긴다.
 `filteredCount`는 `products`에서 항상 계산되는 값이다.
 그걸 따로 저장하니까 원본과 사본을 맞춰주는 짐이 생긴다.
 
@@ -83,7 +84,7 @@ function ProductList({ products }: { products: Product[] }) {
 function ProductList({ products }: { products: Product[] }) {
   const filteredCount = products.filter(p => p.inStock).length
 
-  // useState도 useEffect도 없다. products가 바뀌면 알아서 다시 계산된다.
+  return <span>{filteredCount}</span>
 }
 ```
 

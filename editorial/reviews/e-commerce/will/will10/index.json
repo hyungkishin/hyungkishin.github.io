@@ -1,0 +1,6 @@
+{
+  "sha256": "155c9ca90be1ac15576254cbd1821739aa566433e58a9c711c4b7d66a46030c4",
+  "before": "Resilience4j 서킷브레이커를 넣었다. 처음에 failure-rate-threshold를 50%로 잡았다. PG의 평시 실패율이 40%대인 걸 모르고",
+  "after": "`minimumNumberOfCalls`도 기본값 100에서 10으로 적었다. 100이면 100번 호출이 쌓이기 전까지 failure rate 계산 자체가 안",
+  "reason": "실패율 70%를 골랐던 당시 판단을 살린 뒤, 열 번의 호출 중 실제로 몇 번 실패하면 열리는지를 설명해 설정 근거와 동작을 나눴다."
+}

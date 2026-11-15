@@ -51,13 +51,28 @@ await Promise.any([delay(80, '느림'), delay(5, '빠름')])  // '빠름'
 
 `race`는 가장 먼저 결정된 것을 그대로 따르고 거부도 결과로 받는다. `any`는 가장 먼저 이행된 것을 고르고 전부 거부됐을 때만 `AggregateError`로 실패한다. 타임아웃을 붙일 때는 `race`, 여러 미러 중 먼저 응답에 성공한 하나를 선택할 때는 `any`다.
 
-빈 배열은 즉시 이행된다.
+빈 배열을 넘기면 기다릴 작업이 없다.
 
 ```js
 await Promise.all([]) // []
 ```
 
-목록을 필터링한 결과가 비면 대기 없이 다음 줄로 간다. 이 경로에서 `Promise.all` 앞뒤에 둔 로딩 표시가 켜졌다 꺼지는 사이 렌더가 한 번도 일어나지 않는다.
+`Promise.all([])`이 돌려주는 프로미스는 이미 빈 배열로 이행된 상태다. 그런데 이걸 `await`하면 아래 두 로그 중 어느 것이 먼저 찍힐까?
+
+```js
+const run = async () => {
+  await Promise.all([])
+  console.log('await 뒤')
+}
+run()
+console.log('동기 코드 끝')
+// 동기 코드 끝
+// await 뒤
+```
+
+`동기 코드 끝`이 먼저다. 이미 이행된 프로미스라도 `await` 다음 줄은 마이크로태스크에서 다시 시작한다. [ECMAScript의 Await](https://tc39.es/ecma262/multipage/control-abstraction-objects.html#await)
+
+그 짧은 틈에 로딩 표시를 한 프레임 보여줄 수 있을까? 같은 클릭 핸들러에서 표시를 켜고 `await Promise.all([])` 직후에 바로 끄면 브라우저는 다음 렌더링 전에 두 변경을 모두 처리한다. 예를 들어 실제 네트워크 응답을 기다리는 경우에는 그사이에 표시가 그려질 기회가 생긴다. [HTML 이벤트 루프](https://html.spec.whatwg.org/multipage/webappapis.html#event-loop-processing-model)
 
 ## 배열에 담긴 순간 이미 시작한 작업들
 

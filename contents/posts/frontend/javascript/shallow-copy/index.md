@@ -30,7 +30,7 @@ config.retry.count // 5
 
 값이 바뀌었다. 동결은 실패하지 않았다.
 
-`Object.freeze(obj)`는 `obj`를 확장 불가로 만들고 `obj`의 자기 프로퍼티를 쓰기 불가와 재정의 불가로 바꾼다. 여기서 프로퍼티는 `retry`와 `timeout` 두 개다. `retry` 슬롯에 담긴 값은 객체를 가리키는 참조다. 잠긴 것은 그 참조를 다른 값으로 바꾸는 일이다. 참조가 가리키는 객체는 `freeze`의 대상에 들어간 적이 없다.
+`Object.freeze(config)`를 호출하면 새 프로퍼티를 추가하거나 기존 프로퍼티의 정의를 바꿀 수 없다. 이 예제의 `retry`와 `timeout`은 둘 다 데이터 프로퍼티라 값도 덮어쓸 수 없게 된다. 그런데 `retry`에 저장된 값은 객체를 가리키는 참조다. 참조가 가리키는 안쪽 객체는 `freeze`에 넘긴 적이 없다.
 
 ```js
 Object.isFrozen(config)       // true
@@ -91,7 +91,18 @@ deepFreeze(node)
 
 > `freeze`가 잠그는 대상은 값이 아니라 프로퍼티 슬롯이다. 슬롯 안에 참조가 들어 있으면 잠금은 그 참조에서 멈춘다.
 
-동결이 막는 것은 이 객체를 경유하는 쓰기까지다. 같은 객체를 가리키는 다른 참조가 있으면 그쪽으로는 변경이 들어온다. `freeze` 이전에 전달한 중첩 객체 참조의 사용처는 별도로 확인해야 한다.
+이 잠금은 어느 변수로 접근했는지와 무관하다. 같은 객체를 다른 변수로 가리켜도 그 객체의 데이터 프로퍼티에는 쓸 수 없다.
+
+```js
+const alias = config
+Reflect.set(alias, 'timeout', 2000) // false
+alias.retry.count = 7
+config.retry.count     // 7
+```
+
+`alias`로도 `timeout`은 그대로 1000이다. `count`에 7을 쓸 수 있는 건 그 값을 가진 안쪽 객체가 여전히 열려 있어서다. 다른 모듈에 `config.retry`를 넘겨 두었다면 그 모듈도 같은 `count`를 고칠 수 있다.
+
+세터가 있는 프로퍼티도 있다. 동결하면 세터의 정의를 교체할 수 없지만, 이미 달려 있는 세터는 대입할 때 여전히 호출된다. 그 세터가 다른 객체를 고치는지까지 알려면 세터 안을 봐야 한다. [ECMAScript 동결 규칙](https://tc39.es/ecma262/multipage/abstract-operations.html#sec-setintegritylevel)
 
 ## `{ ...user }`가 지키는 경계와 넘기는 경계
 

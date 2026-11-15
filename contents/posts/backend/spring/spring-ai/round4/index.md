@@ -62,16 +62,20 @@ tags:
 
 100토큰씩 자르자 기준 시간과 그 기준이 적용되는 조건이 서로 다른 청크에 들어갔다. 검색한 네 조각에는 조건만 있고 기준 시간은 없었다. 그래서 검색 결과가 네 건이나 있어도 답변에서 보상 기준이 빠졌다.
 
-재미있는 것은 같은 B에서 반대 증거도 나왔다는 점이다. 취소 정책 질문은 오히려 A보다 정확하게 인용됐다. 잘게 쪼갠 덕에 CREATED/ACCEPTED가 적힌 조각과 더 가깝게 매칭된 것이다. 작은 청크가 늘 나쁜 게 아니라 질문에 따라 갈리는 트레이드오프라는 뜻이다. 한편 C(2000)는 실험 자체가 성립하지 않았다. 정책 문서가 전부 2000토큰 미만이라 800이든 2000이든 똑같이 1청크가 되기 때문이다. 문서가 작으면 큰 청크 실험은 의미가 없다.
+재미있는 것은 같은 B에서 반대 증거도 나왔다는 점이다. 취소 정책 질문은 오히려 A보다 정확하게 인용됐다. 잘게 쪼갠 덕에 CREATED/ACCEPTED가 적힌 조각과 더 가깝게 매칭된 것이다. 작은 청크가 늘 나쁜 게 아니라 질문에 따라 갈리는 트레이드오프라는 뜻이다.
 
-기본값은 800/350으로 되돌렸다. 이 정책 문서들은 "## 접수 시한"처럼 조항 단위로 이미 끊겨 있어서, 800이면 한 조항이 한 청크에 온전히 들어간다. 숫자와 그 숫자의 조건이 한 조각에 있어야 한다는 것이 이번 실험의 교훈이다.
+C(2000/800)도 A와 같은 7행이었다. 정책 문서가 2000토큰보다 짧다는 것만으로 나오는 결과는 아니다. Spring AI 1.0.0의 `TokenTextSplitter`는 남은 토큰에서 `chunkSize`만큼 떼어 문자열로 바꾼다. 그 문자열에서 마지막 마침표나 물음표, 느낌표, 줄바꿈을 찾는다. 그 위치가 `minChunkSizeChars`번째 글자보다 뒤에 있으면 거기서 자른다. 남은 토큰은 다음 청크가 된다. 짧은 조각을 앞 청크에 합치는 단계는 없다. [TokenTextSplitter 1.0.0의 분할 코드](https://github.com/spring-projects/spring-ai/blob/v1.0.0/spring-ai-commons/src/main/java/org/springframework/ai/transformer/splitter/TokenTextSplitter.java#L99-L128)
+
+그럼 이 실험에서 A와 C는 왜 똑같이 7행이었을까? 당시 넣은 정책 파일 일곱 개를 같은 splitter에 다시 넣었다. 가장 짧은 문서가 485토큰, 가장 긴 문서가 584토큰이었고, 두 설정 모두 파일마다 청크가 하나씩 나왔다. 구두점 없이 `cat`을 공백으로 이어 붙인 1,199토큰짜리 문서는 A에서 둘, C에서 하나로 갈라졌다. 같은 2,000토큰 미만이라도 어느 문서를 넣느냐에 따라 결과가 달라진다. [실험에 쓴 정책 파일 일곱 개](https://github.com/hyungkishin/loop-play-spring-ai-agent/tree/c213d52/src/main/resources/knowledge)
+
+기본값은 800/350으로 되돌렸다. A에서는 문서마다 청크가 하나였으니 기준 시간과 조건이 다른 청크로 갈라지지 않았다. 다만 splitter는 자를 위치를 고를 때 "## 접수 시한" 같은 조항 제목을 따로 보지 않는다. 800토큰을 넘는 정책 문서가 들어오면 한 조항 안에서도 잘릴 수 있다. 숫자와 그 숫자의 조건이 한 조각에 있어야 한다는 것이 이번 실험의 교훈이다.
 
 ```java
 @Bean
 public TokenTextSplitter tokenTextSplitter() {
     return new TokenTextSplitter(
             800,    // chunkSize
-            350,    // minChunkSizeChars : 이보다 작으면 앞 청크에 병합
+            350,    // minChunkSizeChars : 마지막 구두점이 이 글자 위치보다 뒤일 때만 거기서 자름
             5,      // minChunkLengthToEmbed
             10_000, // maxNumChunks
             true    // keepSeparator
