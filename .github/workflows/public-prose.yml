@@ -18,7 +18,7 @@ jobs:
           node-version: 22
           cache: yarn
       - run: yarn install --frozen-lockfile --ignore-scripts
-      - run: node --test scripts/public-prose.test.mjs scripts/check-rendered-prose.test.mjs scripts/tone-guard.test.mjs scripts/voice-gate.test.mjs scripts/claude-voice-hook.test.mjs
+      - run: node --test scripts/public-prose.test.mjs scripts/check-rendered-prose.test.mjs scripts/tone-guard.test.mjs scripts/review-voice.test.mjs scripts/voice-calibration.test.mjs scripts/voice-gate.test.mjs scripts/claude-voice-hook.test.mjs
       - run: node scripts/check-public-prose.mjs --all
       - name: 변경한 원고와 편집 기록 대조
         env:

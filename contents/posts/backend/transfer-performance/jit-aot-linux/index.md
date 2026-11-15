@@ -142,4 +142,4 @@ java -Xlog:aot=info,class+load=info -XX:AOTCache=fees.aot -cp fees.jar FeeRuns
 
 두 번째 명령의 클래스 로드 로그는 `FeeRuns source: shared objects file`이었다. HotSpot이 공유 아카이브에서 클래스를 읽었다는 뜻이다. JDK 25는 미리 로드하고 링크한 클래스와 학습 때 모은 메서드 프로파일 등을 다음 JVM 시작에 쓸 수 있다. `fees.aot`를 배포할 때도 이 캐시를 읽을 JVM이 필요하다. 앞에서 Linux가 직접 실행한 파일은 `fee-native`였다. 클래스 출처만 찍힌 이 한 줄로는 `quote`의 기계어까지 재사용했는지 판별할 수 없다. [캐시 생성과 클래스 로드 로그](./evidence/aot-cache.txt), [Oracle의 JDK 25 AOT 변경 설명](https://docs.oracle.com/en/java/javase/25/migrate/significant-changes-jdk-25.html)
 
-`quote`의 기계어에서 `fee` 호출 자리를 찾다 보면 한 가지가 더 걸린다. 메서드가 호출자 안으로 들어가 버리면, 그 메서드가 만든 객체의 수명은 어디까지일까? [다음 실험에서는 메서드가 반환된 후에도 힙에 남는 객체를 따라간다.](/backend/transfer-performance/jvm-memory/)
+이 예제의 `fee`는 수수료를 `int`로 돌려줬다. 금액을 영수증 객체에 담아 돌려주면 어떨까? 영수증을 만든 메서드는 끝났는데 호출자는 어디서 그 금액을 읽을까? [메서드가 반환된 뒤에도 남는 영수증](/backend/transfer-performance/jvm-memory/)

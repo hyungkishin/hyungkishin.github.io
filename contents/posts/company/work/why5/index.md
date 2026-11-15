@@ -17,17 +17,19 @@ S3 업로드는 앱을 띄운 직후 몇 초씩 걸렸다. 몇 번 더 호출하
 
 ## 이름이 너무 빨리 나왔다
 
-Spring + JDK 21 앱이 EKS 위에서 돈다. 외부로 나가는 호출은 세 갈래. S3 업로드, 외부 OCR API, 사내 LLM Proxy. 우선 S3에서 본 패턴이다.
+Spring + JDK 21 앱이 EKS 위에서 돈다. 외부로 나가는 호출은 세 갈래. S3 업로드, 외부 OCR API, 사내 LLM Proxy. 워밍업을 넣기 전 S3 업로드 시간부터 봤다.
 
 ```text
-1st call: 5~10s   (cold)
-2nd call: 0.3s    (warm)
-3rd call: 0.3s
+1st call: 5,001ms (timeout)
+2nd call:   887ms
+3rd call:   410ms
+5th call:   330ms
+10th call:  310ms
 ```
 
 ![호출 횟수별 응답 시간](./01-call-count-response-time.svg)
 
-처음만 느리고 다음부터 빠르다. "아, cold start네."
+첫 업로드는 타임아웃이었는데 두 번째는 1초도 안 걸렸다. 다섯 번째부터는 0.3초대였다. "아, cold start네."
 
 warmup을 넣자. S3에서 이 생각을 했을 때까지는 괜찮았다.
 
@@ -114,19 +116,28 @@ OCR 줄은 시간부터 S3와 달랐다. 130ms면 S3가 두 번째에 성공한 
 </style>
 
 <figure class="metric-fig">
-  <svg viewBox="0 0 660 250" role="img" aria-label="S3는 첫 호출만 느리고 이후 빨라지지만 OCR은 몇 번을 불러도 똑같이 130ms에 끊긴다" xmlns="http://www.w3.org/2000/svg">
-    <text x="40" y="26" font-size="12" fill="var(--fig-muted)" font-weight="600">S3: 첫 호출만 비싸다 (cold start)</text>
+  <svg viewBox="0 0 660 250" role="img" aria-label="S3는 첫 업로드가 타임아웃이었고 두 번째는 887ms에 성공했다. 외부 OCR은 두 번 모두 130ms 만에 연결이 끊겼다." xmlns="http://www.w3.org/2000/svg">
+    <text x="40" y="26" font-size="12" fill="var(--fig-muted)" font-weight="600">S3 업로드</text>
     <line x1="40" y1="110" x2="360" y2="110" stroke="var(--fig-baseline)"/>
-    <rect x="40" y="38" width="22" height="72" rx="3" fill="var(--c-amber)" opacity="0"><animate attributeName="opacity" values="0;0;0;0" keyTimes="0;0.5;0.9;1" dur="7s" repeatCount="indefinite"/></rect>
-    <rect x="40" width="22" rx="3" fill="var(--c-amber)" y="110" height="0"><animate attributeName="height" values="0;0;72;72;0;0" keyTimes="0;0.06;0.09;0.88;0.92;1" dur="7s" repeatCount="indefinite"/><animate attributeName="y" values="110;110;38;38;110;110" keyTimes="0;0.06;0.09;0.88;0.92;1" dur="7s" repeatCount="indefinite"/></rect>
-    <rect x="80" width="22" rx="3" fill="var(--c-green)" y="110" height="0"><animate attributeName="height" values="0;0;12;12;0;0" keyTimes="0;0.06;0.09;0.88;0.92;1" dur="7s" repeatCount="indefinite"/><animate attributeName="y" values="110;110;98;98;110;110" keyTimes="0;0.06;0.09;0.88;0.92;1" dur="7s" repeatCount="indefinite"/></rect><rect x="120" width="22" rx="3" fill="var(--c-green)" y="110" height="0"><animate attributeName="height" values="0;0;12;12;0;0" keyTimes="0;0.13;0.16;0.88;0.92;1" dur="7s" repeatCount="indefinite"/><animate attributeName="y" values="110;110;98;98;110;110" keyTimes="0;0.13;0.16;0.88;0.92;1" dur="7s" repeatCount="indefinite"/></rect><rect x="160" width="22" rx="3" fill="var(--c-green)" y="110" height="0"><animate attributeName="height" values="0;0;12;12;0;0" keyTimes="0;0.2;0.23;0.88;0.92;1" dur="7s" repeatCount="indefinite"/><animate attributeName="y" values="110;110;98;98;110;110" keyTimes="0;0.2;0.23;0.88;0.92;1" dur="7s" repeatCount="indefinite"/></rect><rect x="200" width="22" rx="3" fill="var(--c-green)" y="110" height="0"><animate attributeName="height" values="0;0;12;12;0;0" keyTimes="0;0.27;0.3;0.88;0.92;1" dur="7s" repeatCount="indefinite"/><animate attributeName="y" values="110;110;98;98;110;110" keyTimes="0;0.27;0.3;0.88;0.92;1" dur="7s" repeatCount="indefinite"/></rect><rect x="240" width="22" rx="3" fill="var(--c-green)" y="110" height="0"><animate attributeName="height" values="0;0;12;12;0;0" keyTimes="0;0.34;0.37;0.88;0.92;1" dur="7s" repeatCount="indefinite"/><animate attributeName="y" values="110;110;98;98;110;110" keyTimes="0;0.34;0.37;0.88;0.92;1" dur="7s" repeatCount="indefinite"/></rect><rect x="280" width="22" rx="3" fill="var(--c-green)" y="110" height="0"><animate attributeName="height" values="0;0;12;12;0;0" keyTimes="0;0.41;0.44;0.88;0.92;1" dur="7s" repeatCount="indefinite"/><animate attributeName="y" values="110;110;98;98;110;110" keyTimes="0;0.41;0.44;0.88;0.92;1" dur="7s" repeatCount="indefinite"/></rect><rect x="320" width="22" rx="3" fill="var(--c-green)" y="110" height="0"><animate attributeName="height" values="0;0;12;12;0;0" keyTimes="0;0.48;0.51;0.88;0.92;1" dur="7s" repeatCount="indefinite"/><animate attributeName="y" values="110;110;98;98;110;110" keyTimes="0;0.48;0.51;0.88;0.92;1" dur="7s" repeatCount="indefinite"/></rect>
-    <text x="51" y="32" font-size="10" fill="var(--c-amberink)" text-anchor="middle" font-weight="700">5s
-      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.06;0.1;0.88;1" dur="7s" repeatCount="indefinite"/>
-    </text>
-    <text x="440" y="102" font-size="11" fill="var(--c-greenink)" font-weight="700">두 번째부터 0.3s</text>
-    <text x="40" y="150" font-size="12" fill="var(--fig-muted)" font-weight="600">OCR: 몇 번을 불러도 130ms RST (원인 확인 중)</text>
+    <rect x="40" y="42" width="22" height="68" rx="2" fill="var(--c-amber)"><animate attributeName="opacity" values="0.4;1;1" dur="2s" repeatCount="indefinite"/></rect>
+    <rect x="90" y="98" width="22" height="12" rx="2" fill="var(--c-green)"><animate attributeName="opacity" values="0.4;1;1" dur="2s" repeatCount="indefinite"/></rect>
+    <rect x="140" y="104" width="22" height="6" rx="2" fill="var(--c-green)"><animate attributeName="opacity" values="0.4;1;1" dur="2s" repeatCount="indefinite"/></rect>
+    <rect x="190" y="105" width="22" height="5" rx="2" fill="var(--c-green)"><animate attributeName="opacity" values="0.4;1;1" dur="2s" repeatCount="indefinite"/></rect>
+    <rect x="240" y="106" width="22" height="4" rx="2" fill="var(--c-green)"><animate attributeName="opacity" values="0.4;1;1" dur="2s" repeatCount="indefinite"/></rect>
+    <text x="51" y="127" text-anchor="middle" font-size="11" fill="var(--fig-ink2)">1차</text>
+    <text x="101" y="127" text-anchor="middle" font-size="11" fill="var(--fig-ink2)">2차</text>
+    <text x="151" y="127" text-anchor="middle" font-size="11" fill="var(--fig-ink2)">3차</text>
+    <text x="201" y="127" text-anchor="middle" font-size="11" fill="var(--fig-ink2)">5차</text>
+    <text x="251" y="127" text-anchor="middle" font-size="11" fill="var(--fig-ink2)">10차</text>
+    <text x="70" y="51" font-size="11" fill="var(--c-amberink)">5,001ms 타임아웃</text>
+    <text x="380" y="82" font-size="12" fill="var(--c-greenink)">2차 887ms 성공</text>
+    <text x="380" y="104" font-size="12" fill="var(--c-greenink)">5차 330ms, 10차 310ms</text>
+    <text x="40" y="150" font-size="12" fill="var(--fig-muted)" font-weight="600">OCR 연결 두 번 (원인 확인 중)</text>
     <line x1="40" y1="228" x2="360" y2="228" stroke="var(--fig-baseline)"/>
-    <rect x="40" width="22" rx="3" fill="var(--c-red)" y="228" height="0"><animate attributeName="height" values="0;0;10;10;0;0" keyTimes="0;0.06;0.09;0.88;0.92;1" dur="7s" repeatCount="indefinite"/><animate attributeName="y" values="228;228;218;218;228;228" keyTimes="0;0.06;0.09;0.88;0.92;1" dur="7s" repeatCount="indefinite"/></rect><rect x="80" width="22" rx="3" fill="var(--c-red)" y="228" height="0"><animate attributeName="height" values="0;0;10;10;0;0" keyTimes="0;0.13;0.16;0.88;0.92;1" dur="7s" repeatCount="indefinite"/><animate attributeName="y" values="228;228;218;218;228;228" keyTimes="0;0.13;0.16;0.88;0.92;1" dur="7s" repeatCount="indefinite"/></rect><rect x="120" width="22" rx="3" fill="var(--c-red)" y="228" height="0"><animate attributeName="height" values="0;0;10;10;0;0" keyTimes="0;0.2;0.23;0.88;0.92;1" dur="7s" repeatCount="indefinite"/><animate attributeName="y" values="228;228;218;218;228;228" keyTimes="0;0.2;0.23;0.88;0.92;1" dur="7s" repeatCount="indefinite"/></rect><rect x="160" width="22" rx="3" fill="var(--c-red)" y="228" height="0"><animate attributeName="height" values="0;0;10;10;0;0" keyTimes="0;0.27;0.3;0.88;0.92;1" dur="7s" repeatCount="indefinite"/><animate attributeName="y" values="228;228;218;218;228;228" keyTimes="0;0.27;0.3;0.88;0.92;1" dur="7s" repeatCount="indefinite"/></rect><rect x="200" width="22" rx="3" fill="var(--c-red)" y="228" height="0"><animate attributeName="height" values="0;0;10;10;0;0" keyTimes="0;0.34;0.37;0.88;0.92;1" dur="7s" repeatCount="indefinite"/><animate attributeName="y" values="228;228;218;218;228;228" keyTimes="0;0.34;0.37;0.88;0.92;1" dur="7s" repeatCount="indefinite"/></rect><rect x="240" width="22" rx="3" fill="var(--c-red)" y="228" height="0"><animate attributeName="height" values="0;0;10;10;0;0" keyTimes="0;0.41;0.44;0.88;0.92;1" dur="7s" repeatCount="indefinite"/><animate attributeName="y" values="228;228;218;218;228;228" keyTimes="0;0.41;0.44;0.88;0.92;1" dur="7s" repeatCount="indefinite"/></rect><rect x="280" width="22" rx="3" fill="var(--c-red)" y="228" height="0"><animate attributeName="height" values="0;0;10;10;0;0" keyTimes="0;0.48;0.51;0.88;0.92;1" dur="7s" repeatCount="indefinite"/><animate attributeName="y" values="228;228;218;218;228;228" keyTimes="0;0.48;0.51;0.88;0.92;1" dur="7s" repeatCount="indefinite"/></rect><rect x="320" width="22" rx="3" fill="var(--c-red)" y="228" height="0"><animate attributeName="height" values="0;0;10;10;0;0" keyTimes="0;0.55;0.58;0.88;0.92;1" dur="7s" repeatCount="indefinite"/><animate attributeName="y" values="228;228;218;218;228;228" keyTimes="0;0.55;0.58;0.88;0.92;1" dur="7s" repeatCount="indefinite"/></rect>
+    <rect x="40" y="218" width="22" height="10" rx="2" fill="var(--c-red)"><animate attributeName="opacity" values="0.4;1;1" dur="2s" repeatCount="indefinite"/></rect>
+    <rect x="90" y="218" width="22" height="10" rx="2" fill="var(--c-red)"><animate attributeName="opacity" values="0.4;1;1" dur="2s" repeatCount="indefinite"/></rect>
+    <text x="51" y="245" text-anchor="middle" font-size="11" fill="var(--fig-ink2)">1차</text>
+    <text x="101" y="245" text-anchor="middle" font-size="11" fill="var(--fig-ink2)">2차</text>
     <rect x="420" y="196" width="128" height="24" rx="7" fill="var(--c-red)" opacity="0.14"/>
     <text x="484" y="212" font-size="11" fill="var(--c-redink)" text-anchor="middle" font-weight="700">반복 호출
       <animate attributeName="opacity" values="1;1;0.3;1;1" keyTimes="0;0.7;0.75;0.8;1" dur="7s" repeatCount="indefinite"/>
@@ -146,21 +157,17 @@ OCR 줄은 시간부터 S3와 달랐다. 130ms면 S3가 두 번째에 성공한 
 
 의심한 곳은 Istio 사이드카였다. outbound 정책이 `REGISTRY_ONLY`면 프록시는 레지스트리에 없는 호스트로 요청을 보내지 않는다. 기본값인 `ALLOW_ANY`에서는 그 요청도 통과한다. 그래서 ServiceEntry 등록을 요청한 것만으로는 진단이 끝나지 않았다.
 
-먼저 이 클러스터에 어떤 정책이 걸려 있었는지, 같은 시각 프록시가 요청을 어디까지 보냈는지 확인해야 했다. 등록 후 같은 pod에서 OCR 호출을 다시 해 본 결과까지는 당시 기록에 없다.
+먼저 이 클러스터에 어떤 정책이 걸려 있었는지, 같은 시각 프록시가 요청을 어디까지 보냈는지 확인해야 했다.
 
 실제로 한 일은 S3의 첫 호출을 보고 OCR에도 warmup을 넣은 것이었다. 그 전에 둘을 한 번씩만 더 불렀으면 됐다. S3는 성공했고 OCR은 또 끊겼으니까.
 
-## 곁가지 두 개
-
-이 사건을 파는 동안 두 가지 흔한 오해도 같이 정리됐다.
+## 같은 첫 호출을 비교하려면
 
 하나, "K8s probe가 있으면 되는 것 아닌가?" readiness probe를 통과하면 Pod로 트래픽을 보낼 수 있다. 그래도 JIT 컴파일이 덜 됐거나 커넥션 풀이 비어 있을 수 있다. 롤링 업데이트 중 준비되지 않은 Pod를 피하는 일과 첫 요청을 빠르게 처리하는 일은 따로 봐야 한다.
 
 둘, IDEA의 Spring Boot 실행 설정에서 시작 최적화를 켜면 `-XX:TieredStopAtLevel=1`이 붙는다. 이 옵션으로 띄운 JVM은 C2까지 컴파일하지 않는다. 로컬의 두 번째 호출과 서버의 두 번째 호출을 비교할 때는 실행한 JAR와 JVM 옵션부터 맞춰야 한다.
 
-## 마치며
-
-S3에는 미리 한 번 호출하는 코드가 남았다. OCR은 ServiceEntry 등록을 요청했고 OkHttp의 connect/read timeout 설정도 남아 있다. 등록 뒤 같은 Pod에서 다시 호출했을 때 두 번째 130ms가 사라졌는지, 거기까지 봐야 이 진단이 끝난다.
+S3에는 미리 한 번 호출하는 코드가 남았다. OCR은 ServiceEntry 등록을 요청했고 OkHttp의 connect/read timeout 설정도 남아 있다. 등록 뒤 같은 Pod에서 OCR을 다시 불렀을 때도 130ms에 끊겼을까? 그 결과는 당시 기록에 남아 있지 않다.
 
 ## 참고자료
 

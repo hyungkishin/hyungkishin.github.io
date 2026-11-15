@@ -75,8 +75,6 @@ static int quote(FeePolicy policy, int amountWon) {
 
 ## 두 JVM의 로그에서 같은 호출 찾기
 
-![두 JVM 모두 바이트코드 오프셋 2에서 수수료를 호출한다. 같은 위치의 JIT 로그에는 각 실행에서 사용한 수수료 정책이 나타난다.](./02-jit-lifecycle.svg)
-
 그래서 클래스 파일 하나로 JVM을 두 번 띄웠다. 두 JVM 모두 정률 객체와 정액 객체를 만들어 둔다. 첫 JVM의 `quote`에는 정률 객체만 넘기고 둘째 JVM의 같은 자리에는 정액 객체만 넘겼다. 어떤 수수료 정책을 넘겼는지가 두 로그에서 그대로 드러날까?
 
 Temurin OpenJDK 25.0.4.1에서 소스를 한 번 컴파일하고 송금액을 1원부터 100만 원까지 1원씩 늘리며 호출했다. 합계를 찍어 보니 정률 실행은 4,999,510,000원, 정액 실행은 100,000,000원이었다. [JDK 버전](./evidence/java-version.txt)
@@ -107,6 +105,8 @@ java -Xbatch -XX:+UnlockDiagnosticVMOptions -DflatFee=true \
 같은 `quote`를 레벨 4로 다시 컴파일한 줄에는 `RateFee::fee`라는 구체적인 이름이 붙었다. 뒤의 `inline (hot)`은 자주 실행된 정률 계산을 이번에는 `quote` 안에 넣었다는 뜻이다.
 
 정액 실행 로그를 같은 방법으로 열었더니 `@ 2` 옆에 `FlatFee::fee inline (hot)`이 찍혔다. 클래스 파일에는 두 번 다 `FeePolicy.fee`라고 적혀 있다. 로그를 대조하니 각 실행에서 실제로 넘긴 정책의 `fee`가 `quote` 안에 인라인됐다. [정액 실행 로그 발췌](./evidence/fee-jit-flat.txt)
+
+![두 JVM 모두 바이트코드 오프셋 2에서 수수료를 호출한다. 같은 위치의 JIT 로그에는 각 실행에서 사용한 수수료 정책이 나타난다.](./02-jit-lifecycle.svg)
 
 ## 호출자의 기계어에 무엇이 남았나
 

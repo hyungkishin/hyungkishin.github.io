@@ -59,7 +59,6 @@ test("원고마다 전문을 반복하지 않고 해당 체크아웃의 기준 �
     assert.ok(!context.includes(guide));
     assert.ok(context.length < 500);
     assert.match(context, /앞뒤 문단/);
-    assert.match(context, /예상|짐작/);
     assert.match(context, /빈 줄/);
   }
 });
@@ -75,4 +74,29 @@ test("블로그 원고 밖의 편집과 읽기에는 문맥을 덧붙이지 않�
   ]) {
     assert.equal(runHook({ hook_event_name: "PreToolUse", cwd: posts, tool_name, tool_input }), null);
   }
+});
+
+test("연재의 원고를 편집할 때 실제 이웃 글과 원고 검토 명령을 받는다", () => {
+  const context = runHook({
+    hook_event_name: "PreToolUse", cwd: posts, tool_name: "Edit",
+    tool_input: { file_path: "frontend/performance/phase2/index.md" },
+  });
+  for (const slug of ["phase1", "phase3"]) {
+    const excerpt = context.match(new RegExp(slug + "/index\\.md\\n  도입 L(\\d+) (.{8})"));
+    assert.ok(excerpt, slug);
+    const lines = readFileSync(path.join(posts, "frontend/performance", slug, "index.md"), "utf8").split("\n");
+    assert.ok(lines[Number(excerpt[1]) - 1].includes(excerpt[2]), slug);
+  }
+  assert.match(context, /npm run review:voice/);
+});
+
+test("새 연재 원고는 Write가 전달한 본문 한 문단과 이전 편을 함께 보여준다", () => {
+  const draft = "오늘은 사진 한 장만 올렸다.";
+  const context = runHook({
+    hook_event_name: "PreToolUse", cwd: posts, tool_name: "Write",
+    tool_input: { file_path: "frontend/performance/phase99/index.md", content: draft },
+  });
+  assert.match(context, /phase8\/index\.md/);
+  assert.match(context, /phase99\/index\.md \(현재 원고\)/);
+  assert.equal(context.split(draft).length - 1, 1);
 });

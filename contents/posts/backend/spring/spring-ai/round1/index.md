@@ -94,11 +94,11 @@ public SupportController(ChatClient.Builder builder) {
 
 원인을 조사하다가 처음 세운 가설부터 틀렸다는 걸 알았다. 응답은 `.call().entity(SupportResponse.class)`로 받는다. 그런데 `.entity()`를 쓰면 Spring AI의 `BeanOutputConverter`가 응답 스키마에서 뽑은 JSON 형식 지시를 프롬프트에 자동으로 덧붙인다. 즉 SIMPLE에도 형식 지시가 아예 없던 게 아니다. 자동으로 붙는 지시 하나는 이미 있었다. ENRICHED에만 더 있던 것은 "JSON 외 다른 텍스트는 출력하지 않습니다"라는 명시적 보강 한 줄이다.
 
-관측된 사실은 이렇다. 자동 지시만 있던 SIMPLE은 그 입력에서 3회 중 1회 자연어로 새어 나가 `BeanOutputConverter`가 JSON 추출에 실패했고 500이 났다. 자동 지시에 명시 보강까지 얹은 ENRICHED는 3회 모두 JSON을 지켰다. 다만 깨진 건 18회 전체에서 딱 1회다. 이 표본으로 "명시 한 줄이 500을 막는다"고 인과를 단정할 수는 없다. 말할 수 있는 데까지만 적으면, 형식 지시를 자동에만 맡기면 작은 페르소나 프롬프트에서도 파서가 깨질 수 있고 명시 보강이 그 확률을 낮추는 것으로 보인다. 아래 그림이 그 갈림길이다.
+같은 문의를 세 번 보냈을 때 SIMPLE에서 한 번은 자연어가 돌아왔다. `BeanOutputConverter`가 JSON을 읽을 수 없어 500이 났다. ENRICHED에서는 세 번 다 JSON이 왔다. 18번 중 깨진 건 딱 이 한 번이라, 문구를 더하면 얼마나 덜 깨지는지까지는 알 수 없다.
 
 <figure class="agent-fig">
   <div class="cap-head"><span class="cap-tag">prompt line vs http status</span><span class="cap-tag">.entity() path</span></div>
-  <svg viewBox="0 0 720 230" role="img" aria-label="같은 입력이 형식 지시가 있는 프롬프트에서는 JSON 을 거쳐 200, 없는 프롬프트에서는 자연어가 파서에 걸려 500 으로 갈라진다" xmlns="http://www.w3.org/2000/svg">
+  <svg viewBox="0 0 720 230" role="img" aria-label="두 프롬프트 모두 자동 JSON 형식 지시가 있다. 같은 문의에서 명시 보강을 더한 ENRICHED는 세 번 모두 200이었고, 자동 지시만 둔 SIMPLE은 세 번 중 한 번 자연어를 돌려줘 500이 났다." xmlns="http://www.w3.org/2000/svg">
     <rect x="16" y="83" width="120" height="64" rx="12" fill="var(--c-blue)" opacity="0.10"/>
     <rect x="16" y="83" width="120" height="64" rx="12" fill="none" stroke="var(--c-blue)" stroke-opacity="0.4"/>
     <text x="76" y="110" text-anchor="middle" font-size="12" fill="var(--fig-ink)">같은 입력</text>
@@ -142,10 +142,10 @@ public SupportController(ChatClient.Builder builder) {
       <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.08;0.62;0.7" dur="5.6s" repeatCount="indefinite"/>
     </circle>
   </svg>
-  <figcaption>둘 다 <b>자동 형식 지시</b>는 있었다. 차이는 명시 보강 한 줄뿐이고, 18회 중 깨진 1회가 아래 레인이다. 인과 단정이 아니라 상관 관측이다.</figcaption>
+  <figcaption>둘 다 <b>자동 형식 지시</b>는 있었다. ENRICHED에는 JSON만 출력하라는 문구도 따로 적었다. 아래쪽에는 18회 중 유일하게 파서가 읽지 못한 SIMPLE 응답을 그렸다.</figcaption>
 </figure>
 
-여기서 프롬프트를 보는 눈이 하나 바뀐다. 형식 지시는 자동으로 붙지만, 그 자동 지시를 모델이 지킬지는 보강 문구와 페르소나 프롬프트에 따라 흔들린다. 프롬프트와 `BeanOutputConverter`가 한 몸으로 배포된다는 사실은 그대로다. 프롬프트 변경은 컴파일 검사로 검증되지 않으며 실행 시 응답 파싱 실패로 500이 발생할 수 있다. 프롬프트 수정을 코드 수정과 같은 무게로 리뷰해야 하는 이유다.
+프롬프트 문장을 바꿔도 자바 코드는 그대로 컴파일된다. 그런데 그 문장을 읽고 나온 답은 바로 `BeanOutputConverter`로 들어간다. 프롬프트를 고친 뒤에는 같은 문의를 다시 보내 파서까지 통과하는지 봐야 했다.
 
 ## 일관성 1.0이라는 함정
 
@@ -209,7 +209,7 @@ data:님
 
 JSON이 한 글자씩 도착하는 광경은 잠깐 웃기고 나서 곤란해진다. 부분 JSON은 클라이언트가 쓸 수 없다. 결국 클라이언트는 청크를 다 모아서 파싱해야 하고, 그러면 체감상 `.call()`과 똑같아진다. 얻은 것은 첫 글자가 빨리 도착한다는 사실 하나뿐이다.
 
-정리하면 호출 방식과 응답 형식은 짝이다. 구조화된 JSON이 필요하면 `.call()`, 사람이 읽는 자연어면 `.stream()`. 짝을 어기면 500이 나거나(형식 지시 없는 `.call()`), 스트리밍이 무의미해진다(JSON 강제 `.stream()`). 스트리밍 경로에는 자연어 전용 프롬프트를 따로 둬야 한다는 숙제가 여기서 생겼다.
+분류 결과를 쓸 때는 JSON 전체를 받아 파싱하면 된다. 반대로 고객이 답의 첫 문장부터 읽게 하고 싶다면, 스트리밍 쪽에는 자연어로 답해 달라는 프롬프트를 따로 줘야겠다.
 
 ## 측정은 컨트롤러 밖에서
 
