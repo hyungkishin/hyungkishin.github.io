@@ -40,7 +40,7 @@
   <g transform="translate(340, 100)">
     <rect x="0" y="0" width="280" height="380" rx="10" fill="#f1f5f9" stroke="#ef4444" stroke-width="2"/>
     <text x="140" y="30" fill="#ef4444" font-size="14" font-weight="600" text-anchor="middle">외부 OCR API</text>
-    <text x="140" y="50" fill="#64748b" font-size="11" text-anchor="middle">outbound 차단 케이스</text>
+    <text x="140" y="50" fill="#64748b" font-size="11" text-anchor="middle">outbound 차단 의심 케이스</text>
 
     <g transform="translate(20, 70)">
       <rect x="0" y="0" width="240" height="80" rx="6" fill="#ffffff" stroke="#334155" stroke-width="1"/>
@@ -52,16 +52,16 @@
     <g transform="translate(20, 170)">
       <rect x="0" y="0" width="240" height="50" rx="6" fill="#ffffff" stroke="#ef4444" stroke-width="1"/>
       <text x="120" y="20" fill="#ef4444" font-size="11" font-weight="600" text-anchor="middle">진단</text>
-      <text x="120" y="38" fill="#1f2937" font-size="11" text-anchor="middle">매번 같음 → 인프라 차단</text>
+      <text x="120" y="38" fill="#1f2937" font-size="11" text-anchor="middle">매번 같음 → 인프라 차단 의심</text>
     </g>
 
     <g transform="translate(20, 240)">
       <rect x="0" y="0" width="240" height="120" rx="6" fill="#ffffff" stroke="#ef4444" stroke-width="2"/>
       <text x="120" y="22" fill="#ef4444" font-size="11" font-weight="600" text-anchor="middle">처방</text>
-      <text x="20" y="46" fill="#4b5563" font-size="11">1. SRE 컨택</text>
-      <text x="20" y="66" fill="#4b5563" font-size="11">2. ServiceEntry / SG / NAT</text>
-      <text x="20" y="86" fill="#4b5563" font-size="11">3. Warmup 무관 (절대 못 풂)</text>
-      <text x="20" y="104" fill="#ef4444" font-size="11" font-weight="600">   → Warmup ✕</text>
+      <text x="20" y="46" fill="#4b5563" font-size="11">1. SRE 확인, ServiceEntry 요청</text>
+      <text x="20" y="66" fill="#4b5563" font-size="11">2. 확인 중: 정책 / 프록시 로그</text>
+      <text x="20" y="86" fill="#4b5563" font-size="11">3. 등록 뒤 같은 호출로 재시험</text>
+      <text x="20" y="104" fill="#ef4444" font-size="11" font-weight="600">   → Warmup 뒤에도 RST</text>
     </g>
   </g>
 

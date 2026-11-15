@@ -219,11 +219,12 @@ ESLint랑 Prettier, husky를 깔자고 AI에게 시켰더니 몇 초 만에 파�
 안 쓴 걸 왜 내지? 되는 것만 내면 되는 거 아닌가?</p>
 <p>7주차 성능 과제에서 좀 달라졌다.
 홈 화면이 느려서 감으로 preload를 붙이려다 멈췄다.
-대신 요청 시각이랑 hero geometry를 따로 쟀다.
-범인은 폰트 burst였다. preload를 붙였으면 엉뚱한 데를 고칠 뻔했다.</p>
-<p>결과는 LCP 중앙값 42,175ms에서 3,384ms.
+그런데 첫 화면에 뭐가 늦게 떴다는 걸까? 글자가 보이기까지의 시간과 가장 큰 사진이 뜨기까지의 시간을 따로 봤다.
+한글 제목을 라틴 문자로 바꾼 빌드에서는 처음 몰려온 폰트 파일이 가벼워졌고, Lighthouse가 추정한 FCP도 2,259ms에서 1,356ms로 줄었다.</p>
+<p>사진 쪽 기록은 달랐다. 원래는 홈 데이터를 받은 뒤에야 브라우저가 hero를 발견했다. 첫 HTML에 사진을 싣자 요청 시작이 626ms에서 41ms로 당겨졌다. 화면에 그려질 폭에 맞춰 이미지 파일 크기도 줄였다.
+홈 LCP 중앙값은 42,175ms에서 3,384ms로 내려갔다. 여러 변경을 함께 넣은 두 빌드의 차이다. <a href="https://github.com/hyungkishin/loop-pack-fe-l2-vol1/blob/a91033db6eaf1e7df76b5c68e97186133613c063/docs/week-07-performance.md">당시 측정 기록</a>
 숫자만 보면 통쾌한데, 사실 저기서 배운 건 42초가 3초 된 게 아니었다.
-<strong>감으로 짚은 원인이 틀렸다는 것</strong>이었다.</p>
+<strong>감으로 짚은 원인과 측정이 가리킨 자리가 달랐다는 것</strong>이었다.</p>
 <p>그때도 범위를 적으라는 건 여전히 귀찮았다. 42,169<del>42,184ms, 3,264</del>3,387ms.
 이걸 왜 적으라는 건지는 마지막 주에 알게 된다.</p>
 <h2>내 테스트는 통과하고 있었다</h2>
@@ -379,4 +380,4 @@ CI 구성을 바꿨는데 cold 측정을 다시 안 했다.</p>
           >
             window.___chunkMapping="{\"app\":[\"/app-263d41856e8ba543d076.js\"],\"component---src-pages-404-jsx\":[\"/component---src-pages-404-jsx-9f8a72d2ed2a45ceab73.js\"],\"component---src-pages-index-jsx\":[\"/component---src-pages-index-jsx-75fab5a7b0b0a580eb71.js\"],\"component---src-pages-search-jsx\":[\"/component---src-pages-search-jsx-4e18011dfc37e4849bed.js\"],\"component---src-pages-tags-jsx\":[\"/component---src-pages-tags-jsx-aabe6ace5b38b6a66f5d.js\"],\"component---src-templates-post-jsx\":[\"/component---src-templates-post-jsx-4ec71b80d25e7d733a83.js\"],\"component---src-templates-resume-jsx\":[\"/component---src-templates-resume-jsx-8ff92a2c23e4e010df0e.js\"],\"component---src-templates-series-index-jsx\":[\"/component---src-templates-series-index-jsx-7379c8ab3cf4f132a104.js\"]}";
           </script>
-        <script>window.___webpackCompilationHash="f2243d0419b6dc6298d0";</script><script src="/webpack-runtime-17e3da00f8073df829b4.js" async></script><script src="/framework-89f49a7f766ec31641df.js" async></script><script src="/app-263d41856e8ba543d076.js" async></script><!-- slice-end id="_gatsby-scripts-1" --></body></html>
+        <script>window.___webpackCompilationHash="7a551ca0219089dbb706";</script><script src="/webpack-runtime-17e3da00f8073df829b4.js" async></script><script src="/framework-89f49a7f766ec31641df.js" async></script><script src="/app-263d41856e8ba543d076.js" async></script><!-- slice-end id="_gatsby-scripts-1" --></body></html>
