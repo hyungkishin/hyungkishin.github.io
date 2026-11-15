@@ -34,9 +34,7 @@ Cache-Control: private, no-cache, no-store, must-revalidate
 
 처음엔 `next.config.mjs`에 캐시 헤더를 잘못 넣었나 했다. 해당 설정은 없었다. Next.js가 응답에 자동으로 붙이는 헤더였다.
 
-왜 그런가 봤더니, 페이지가 다 *dynamic* 으로 잡혀 있었다.
-
-빌드 로그를 보면 페이지마다 마크가 찍힌다.
+그럼 왜 붙였을까. 빌드 로그를 보면 페이지마다 마크가 찍힌다.
 
 ```text
 ○  Static (build time)
@@ -44,7 +42,7 @@ Cache-Control: private, no-cache, no-store, must-revalidate
 λ  Server (dynamic at runtime)
 ```
 
-거의 다 `λ` 였다.
+거의 다 `λ` 였다. 페이지가 다 *dynamic* 으로 잡혀 있었다.
 
 > 아 그래서 캐시가 안 먹혔구나.
 
@@ -160,6 +158,8 @@ Next App Router 는 같은 URL 을 두 가지 응답으로 준다.
 
 기사 하나가 정책으로 한 시간만 다른 URL 로 301 redirect 되고 있었다.  
 정책 끝나서 redirect 제거했는데 다음 1년 동안 그 자리 사용자가 계속 옛 redirect 로 가더라.
+
+![직원이 기사 방 문에 붙은 301 화살표 안내문을 떼었는데, 몇 달이 지나도 독자들이 열린 문을 지나쳐 다른 복도로 간다.](./scene-removed-redirect-sign.webp)
 
 CF 가 *301 응답을 캐시* 하고 있었다.
 

@@ -52,6 +52,8 @@ System.arraycopy(seats, 0, seats, 1, 4);
 
 출력은 `[A, A, B, C, D]`였다. 손으로 `seats[i + 1] = seats[i]`를 앞에서부터 네 번 반복하면 `[A, A, A, A, A]`가 된다. 첫 번째 쓰기에서 B를 지워 버리기 때문이다. 세 번째 칸에 남은 B는 어디서 온 걸까?
 
+![손으로 앞에서부터 옮긴 좌석 줄은 전부 A가 됐고, 한 번의 호출로 옮긴 옆 줄에는 세 번째 자리에 B가 남아 있다.](./scene-theater-seats-shift.webp)
+
 Java 명세는 출발지와 도착지가 같은 배열일 때 “as if”라는 말을 쓴다. 원래 구간을 임시 배열에 먼저 복사한 것처럼(“were first copied to a temporary array”) 목적지의 값이 정해진다는 뜻이다. 위 호출에서 `0`과 `1`은 각각 시작 인덱스이고 `4`는 복사할 **원소 수**다. 호출자는 이미 있는 목적지 배열을 건넨다. 메서드는 그 안의 값을 바꾼다. [Java SE 25의 arraycopy 계약](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/System.html#arraycopy(java.lang.Object,int,java.lang.Object,int,int))
 
 C를 쓴다면 `memmove`가 떠오른다. 두 구간이 겹쳐도 호출 전의 원본을 기준으로 결과가 정해진다는 점이 같다. `memmove`의 길이 단위는 바이트다. Java에서는 `int[]`의 네 원소와 `String[]`의 네 참조가 서로 다른 복사 작업이다. C의 `memcpy`는 구간이 겹치면 동작이 정의되지 않는다. [Linux 매뉴얼의 memmove](https://man7.org/linux/man-pages/man3/memmove.3.html), [memcpy의 겹침 조건](https://man7.org/linux/man-pages/man3/memcpy.3.html)

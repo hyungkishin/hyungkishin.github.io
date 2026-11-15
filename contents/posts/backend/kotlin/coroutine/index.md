@@ -65,6 +65,8 @@ main : 오늘도 커피 3 잔 ...
 
 원하는 순서로 바뀌었다. 그런데 `sleep` 앞에도, 커피 앞에도 찍힌 스레드 이름은 `main`이다. 디스패처를 따로 지정하지 않은 이 예에서 두 코루틴은 같은 `runBlocking` 이벤트 루프를 썼다.
 
+![커피 잔 두 개를 놓고 자리를 비운 사람 대신 다른 사람이 같은 타자기에 앉아 sleep 줄을 먼저 찍는다.](./scene-one-stool-typewriter.webp)
+
 부모가 첫 번째 `yield()`에 도달하면 자식이 실행될 수 있다. 자식은 두 변수를 선언하고 다시 `yield()`를 호출한다. 그사이에 부모가 `sleep`을 출력하고, 자식이 재개되면 커피 잔 수가 찍힌다. `yield()`를 호출해도 다른 코루틴이 실행된다는 보장은 없다. [kotlinx.coroutines의 yield 문서](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/yield.html)
 
 ## 두 번째 yield 다음 줄로 어떻게 돌아올까?

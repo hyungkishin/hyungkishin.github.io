@@ -318,6 +318,8 @@ const $ = load(contents, { xmlMode: false, decodeEntities: false }, false);
 한 번은 iframe 이 self-closing 처럼 처리되면서 HTML 쪽에서 이상하게 나오는 문제가 있었다.
 HTML 의 iframe 은 void element 가 아니라서 `<iframe />` 처럼 닫히면 안 된다.
 
+![교정자가 라이트 테이블 위 본문 HTML 출력물에서 스스로 닫힌 iframe 태그에 빨간 동그라미를 치고, 옆 태블릿에서 어긋나 보이는 임베드 영역을 본다.](./scene-self-closing-iframe-proof.webp)
+
 이런 건 성능 최적화 글에 안 어울릴 정도로 사소해 보이는데
 실제 본문 렌더링에서는 바로 화면 문제로 이어진다.
 

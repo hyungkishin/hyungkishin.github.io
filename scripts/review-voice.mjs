@@ -42,9 +42,27 @@ function readingBlocks(source) {
     const sample = ["pre", "table"].includes(node.tagName) ? title.split("\n")[0] : title;
     const excerpt = sample.replace(/\s+/g, " ").trim();
     if (!kind && !excerpt) continue;
-    blocks.push({ line: node.position.start.line, kind, excerpt });
+    blocks.push({ line: node.position.start.line, kind, excerpt, paragraph: node.tagName === "p" && !kind });
   }
   return blocks;
+}
+
+function sampleParagraphPairs(blocks, selected) {
+  const pairs = [];
+  for (let i = 0; i < blocks.length - 1; i++) {
+    if (blocks[i].paragraph && blocks[i + 1].paragraph && !(selected.has(i) && selected.has(i + 1))) {
+      pairs.push(i);
+    }
+  }
+  // 앞부분의 질문만 계속 뽑지 않도록 원고 전반과 후반에서 한 쌍씩 읽는다.
+  const middle = Math.ceil(pairs.length / 2);
+  for (const section of [pairs.slice(0, middle), pairs.slice(middle)]) {
+    if (!section.length) continue;
+    const index = section.find(i => /[?？]/.test(blocks[i].excerpt))
+      ?? section[Math.floor(section.length / 2)];
+    selected.add(index);
+    selected.add(index + 1);
+  }
 }
 
 function worksheet(source) {
@@ -56,16 +74,21 @@ function worksheet(source) {
       for (const i of [index - 1, index, index + 1]) selected.add(i);
     }
   });
+  sampleParagraphPairs(blocks, selected);
   const rows = [];
+  let previousIndex = -1;
   for (const [index, block] of blocks.entries()) {
     if (!selected.has(index)) continue;
+    if (index > previousIndex + 1) rows.push("  …");
+    previousIndex = index;
     const sample = block.excerpt.length > 110 ? block.excerpt.slice(0, 109) + "…" : block.excerpt;
     rows.push(`L${block.line} [${block.kind || "본문"}] ${sample}`.trimEnd());
   }
   return [
     "원고 읽기 메모",
     "다음 코드나 그림을 보기 직전, 앞 문장에서 무엇이 궁금해졌는가?",
-    "읽다가 막힌 줄에 독자의 질문을 적고, 이어지는 설명에서 그 답을 찾아본다.",
+    "예상과 다른 값이 처음 보인 줄을 찾는다. 어느 출력이나 코드에서 그 짐작을 확인할 수 있는가?",
+    "앞뒤를 소리 내어 읽는다. 빈 줄 하나를 둔다면, 어느 말을 독자가 잠깐 더 생각할 수 있는가?",
     "", ...rows, "", "편집 기준과 검토 기록 양식은 editorial/voice-review.md에서 확인한다.",
   ].join("\n");
 }

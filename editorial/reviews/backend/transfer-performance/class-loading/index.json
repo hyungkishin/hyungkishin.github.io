@@ -1,0 +1,6 @@
+{
+  "sha256": "71d5555d2a328b79c18466df4c6bcbd629481bbf8b059e70c6f6e34b3fc5f528",
+  "before": "상세 초기화 절차](https://docs.oracle.com/javase/specs/jls/se25/html/jls-12.html#jls-12.4.2)",
+  "after": "초기화 도중에 같은 스레드가 자기 클래스의 값을 읽는 경우도 돌려 봤다. `static final int value = read() + 1`에서",
+  "reason": "JAR을 건드리지 않았는데 두 번째 접근에서 NoClassDefFoundError가 났다는 문단 끝에서, 첫 실패가 남긴 기록 때문에 서랍이 열리지 않는 장면을 보여 주면 다음 문단의 초기화 재진입 실험으로 자연스럽게 넘어간다."
+}

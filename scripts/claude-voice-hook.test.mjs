@@ -59,6 +59,8 @@ test("원고마다 전문을 반복하지 않고 해당 체크아웃의 기준 �
     assert.ok(!context.includes(guide));
     assert.ok(context.length < 500);
     assert.match(context, /앞뒤 문단/);
+    assert.match(context, /예상|짐작/);
+    assert.match(context, /빈 줄/);
   }
 });
 

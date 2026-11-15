@@ -78,6 +78,8 @@ tags:
 
 로그에서 성공으로 센 634건 중 벤더가 접수한 건 453건이었다. 성공을 기록한 시점부터 다시 봤다. [HTTP 200인데 발송에 실패한 181건](/backend/observability/when-metrics-lie-error-rate/)
 
+![발송 직원이 봉투마다 승인 도장을 찍고 634를 셌지만, 받는 쪽에서는 453통만 접수함에 넣고 나머지는 도장이 찍힌 채 안에 쪽지를 넣어 돌려보낸다.](./scene-stamped-envelopes-returned.webp)
+
 모든 발송을 하나씩 끝낼 때까지 걸릴 시간은 약 다섯 시간으로 추산됐다. 그날 메시지 하나가 Kafka에서 기다린 시간(time lag)은 최대 12초였다. 두 수치의 차이에서 파티션을 늘릴 근거가 있는지 다시 봤다. [Kafka lag 0은 무엇을 의미할까](/backend/observability/when-metrics-lie-kafka-lag/)
 
 캐시 조회 P95는 5.68초였다. 그중 Redis가 명령을 실행한 시간은 얼마일까? 타이머의 시작 위치와 공유 커넥션에서 대기하는 구간을 살폈다. [Redis P95 5.68초는 어디서 잰 시간일까](/backend/observability/when-metrics-lie-redis-p95/)

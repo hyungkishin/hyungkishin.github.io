@@ -176,17 +176,13 @@ protected Object doSubmit(Callable<Object> task, AsyncTaskExecutor executor, Cla
 }
 ```
 
-`executor.submit(task)`가 거부되면: task는 **실행조차 시작 안 됐다.** task 안의 `try-catch`도 작동 안 한다.  
+`executor.submit(task)`에서 거부됐다. 그런데 갈래 A에서 본 `catch (Throwable ex)`는 어디 있었지?
 
-`handleError` 안 들어옴. `AsyncUncaughtExceptionHandler`도 안 호출됨.
+![꽉 찬 투입구에서 튕겨 나온 소포가 바닥에 떨어져 있고, 열린 소포 안에는 catch라고 적힌 안전망이 한 번도 펼쳐지지 않은 채 접혀 있다.](./scene-net-inside-rejected-parcel.webp)
+
+람다 `task` 안이다. 람다를 받아 주지도 않았는데 안에 있는 catch가 돌 리가 없다. `handleError` 안 들어옴. `AsyncUncaughtExceptionHandler`도 안 호출됨.
 
 > 예외는 `doSubmit` > `invoke` > caller로 그대로 propagate.
-
-**여기서 잡아둘 invariant 하나.**
-
-이 작업은 "실패한 게 아니라": **"아예 실행조차 안 된 상태로 사라졌다."**
-
-그래서 `AsyncUncaughtExceptionHandler`도 개입 못 한다.
 
 ### 거부된 예외는 어디까지 가나
 

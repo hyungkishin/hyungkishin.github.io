@@ -1,6 +1,6 @@
 {
-  "sha256": "84029cff2e0933ec8aa842a96e63d992bf5cee6f9a12ec702fab80f01f56412e",
-  "before": "`@Async`를 붙여도 `executor.submit`을 부르는 쪽은 발행 스레드다. 앞의 호출 경로에서 본 것처럼",
-  "after": "마지막 줄이 우리 사고 자리. 제출 거부가 commit 이후에 일어나서 DB 변경을 되돌릴 수 없다. [Spring의 트랜잭션 이벤트",
-  "reason": "실행 스레드가 달라지는 시점을 먼저 짚어야 같은 제출 거부가 발행 중과 커밋 후에 서로 다른 결과를 내는 이유를 알 수 있다."
+  "sha256": "699ce3ff2a3dd599895d543415dd55222b47360f857a36be7c8d97c4f1703304",
+  "before": "`executor.submit(task)`에서 거부됐다. 그런데 갈래 A에서 본 `catch (Throwable ex)`는 어디 있었지?",
+  "after": "람다 `task` 안이다. 람다를 받아 주지도 않았는데 안에 있는 catch가 돌 리가 없다. `handleError` 안 들어옴.",
+  "reason": "앞 문단은 submit에서 거부됐는데 catch가 어디 있었는지 묻고, 뒤 문단은 그 catch가 제출조차 안 된 람다 안에 있었다고 답한다. 그래서 받아 주지 않은 꾸러미 안에 그물이 들어 있는 장면을 바로 이 사이에 둔다."
 }

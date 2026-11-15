@@ -46,6 +46,26 @@ test("HTML 표와 figure, 마크다운 이미지를 원고의 읽기 순서대�
   assert.match(result.stdout, /L17[^\n]*결론/);
 });
 
+test("표나 소제목이 없어도 독자의 예상이 어긋나는 일반 문단과 바로 다음 문단을 보여준다", () => {
+  const paragraphs = Array.from({ length: 36 }, (_, index) => `${index}번 주문을 처리했다.`);
+  paragraphs[8] = "참조를 생성자에 넘겼는데 무슨 값을 반환하지?";
+  paragraphs[9] = "생성자를 부르기 직전의 스택을 다시 그렸다.";
+  const result = review(paragraphs.join("\n\n"));
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /L17 \[본문\] 참조를[^\n]*\nL19 \[본문\] 생성자를/);
+  assert.ok(result.stdout.split("\n").filter(line => /^L\d+ /.test(line)).length <= 6);
+  assert.match(result.stdout, /\n\s*…\n/);
+});
+
+test("질문이나 전환어가 없어도 원고 중간의 실제 이웃한 문단을 읽을 수 있다", () => {
+  const source = Array.from({ length: 40 }, (_, index) => `캐시에 남은 항목은 ${index}개였다.`).join("\n\n");
+  const result = review(source);
+  assert.equal(result.status, 0, result.stderr);
+  const entries = [...result.stdout.matchAll(/^L(\d+) \[본문\]/gm)].map(match => Number(match[1]));
+  assert.ok(entries.some((line, index) => line > 3 && line < 77 && entries[index + 1] === line + 2));
+  assert.ok(entries.length <= 6);
+});
+
 test("빈 원고나 경로 누락은 실패로 보고한다", () => {
   for (const result of [review(""), spawnSync(process.execPath, [cli], { encoding: "utf8" })]) {
     assert.notEqual(result.status, 0);

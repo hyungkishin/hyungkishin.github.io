@@ -1,6 +1,6 @@
 {
-  "sha256": "155c9ca90be1ac15576254cbd1821739aa566433e58a9c711c4b7d66a46030c4",
-  "before": "Resilience4j 서킷브레이커를 넣었다. 처음에 failure-rate-threshold를 50%로 잡았다. PG의 평시 실패율이 40%대인 걸 모르고",
-  "after": "`minimumNumberOfCalls`도 기본값 100에서 10으로 적었다. 100이면 100번 호출이 쌓이기 전까지 failure rate 계산 자체가 안",
-  "reason": "실패율 70%를 골랐던 당시 판단을 살린 뒤, 열 번의 호출 중 실제로 몇 번 실패하면 열리는지를 설명해 설정 근거와 동작을 나눴다."
+  "sha256": "557cbfd9fc3e1a5d4bcb12d0799cce80536f34e2fff8b7f187797757f04e2f7a",
+  "before": "chunk 5까지 커밋하고 멈춘 Step을 재시작하면 chunk 6의 첫 상품이 1위로 적재된다. 1위는 chunk 1의 첫 상품이 이미 받았다.",
+  "after": "순위는 `currentRank` 멤버 변수에만 있었다. `beforeStep()`에서 0으로 초기화하면 정상 흐름에서는 돌아간다. 재시작할 때도",
+  "reason": "본문은 chunk 5를 커밋한 뒤 멈춘 경우와 쓰던 중 롤백한 경우를 구별한다. 기획의 'fifth stack ... mid-stroke'가 둘을 섞고 있었다."
 }

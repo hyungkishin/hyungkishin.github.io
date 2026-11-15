@@ -1,6 +1,6 @@
 {
-  "sha256": "da83ff83653e4c734fbcc0c2acd86113703bb28e073d8cdefe5277ccc464e627",
-  "before": "코드 수정으로 해결이 안 되니, 다음 수순으로 docker-java를 수동 업그레이드했습니다.",
-  "after": "이 버전은 누가 정하고 있었을까요? Spring Boot 3.4.4의 Dependency Management BOM에는 Testcontainers 1.20.6과",
-  "reason": "docker-java의 버전을 직접 올려 본 뒤라서 그 버전을 골랐던 의존성을 찾아보는 문단이 이어진다."
+  "sha256": "9b682479910073bfc1b014603dcd6f21acbf9985e3060d37e0f2654eeee53c5a",
+  "before": "두고 CLI는 붙었고, 회원가입 테스트는 연결조차 못 했습니다. 지금 돌아보면 여기서 두 클라이언트가 Docker에 붙는 방식부터 비교했어야 했습니다.",
+  "after": "이 시점에서 두 가지 방향 중 하나를 선택해야 했습니다.",
+  "reason": "같은 Docker Engine에서 CLI는 붙고 Testcontainers는 붙지 못한 대비를 먼저 보여 준 다음, 환경을 의심할지 코드를 의심할지 고르는 갈림길로 넘어가게 한다."
 }

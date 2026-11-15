@@ -519,11 +519,15 @@ producer:
 
 과제에 남긴 값은 위 예시와 달랐어요. 단건 `future.get(10초)`를 쓰던 때를 생각해 `delivery.timeout.ms`를 15초로 잡았는데, 공통 설정의 `request.timeout.ms`는 이미 20초였습니다.
 
-이 두 값으로 kafka-clients 3.7.1에서 producer를 만들면 첫 메시지를 보내기도 전에 `ConfigException`이 납니다. 클라이언트가 생성 시점에 `delivery.timeout.ms ≥ linger.ms + request.timeout.ms`를 검사하거든요. 이 버전의 기본 `linger.ms`는 0입니다. 그래서 위 예시에서는 20초짜리 요청을 유지하고 전체 전달 기한을 30초로 잡았어요.
+이 두 값으로 kafka-clients 3.7.1에서 producer를 만들면 첫 메시지를 보내기도 전에 `ConfigException`이 납니다. 클라이언트가 생성 시점에 `delivery.timeout.ms ≥ linger.ms + request.timeout.ms`를 검사하거든요. 이 버전의 기본 `linger.ms`는 0이니, 15초는 0 + 20초를 채우지 못합니다.
 
-이 설정이 producer의 검사를 통과해도, 앞에서 릴레이가 기다리는 시간은 여전히 20초예요. producer가 결과를 확정하기 전에 릴레이가 기다리기를 멈출 수 있다는 게 두 기한을 따로 봐야 하는 이유입니다.
+그런데 글 끝에 적은 k6 테스트에서는 500명 동시 요청에 쿠폰이 정확히 100장 발급됐어요. producer를 만들다 예외가 났다면 릴레이는 발급 요청을 Kafka에 한 건도 보내지 못했을 텐데요.
 
-이 설정으로 글 끝에 적은 k6 결과가 어떻게 나왔는지는 아직 설명하지 못했습니다. 실행 프로필에서 다른 값이 덮어썼을 수도 있고, producer가 이 공통 properties를 받지 않았을 수도 있어요. 둘 다 가설입니다. producer가 생성될 때 남기는 `ProducerConfig values:` 로그에서 실제 `request.timeout.ms`, `linger.ms`, `delivery.timeout.ms`를 확인해야 어느 쪽인지 정할 수 있어요.
+![delivery.timeout.ms 15초가 request.timeout.ms 20초보다 짧은 설정과, 별도 k6 실행에서 쿠폰 100장이 발급된 결과를 나란히 놓고 본다.](./scene-config-vs-result-board.webp)
+
+그럼 그때 k6는 어떤 설정으로 돌았을까요? 실행 프로필에서 다른 값이 덮어썼을 수도 있고, producer가 이 공통 properties를 받지 않았을 수도 있어요. 둘 다 가설입니다. producer가 생성될 때 남기는 `ProducerConfig values:` 로그에서 실제 `request.timeout.ms`, `linger.ms`, `delivery.timeout.ms`를 확인해야 어느 쪽인지 정할 수 있어요.
+
+위 예시는 이 검사를 통과하도록 고친 값입니다. 20초짜리 요청을 유지하고 전체 전달 기한을 30초로 잡았어요. 검사는 통과해도, 앞에서 릴레이가 기다리는 시간은 여전히 20초예요. producer가 결과를 확정하기 전에 릴레이가 기다리기를 멈출 수 있다는 게 두 기한을 따로 봐야 하는 이유입니다.
 
 ### Avro + Schema Registry
 

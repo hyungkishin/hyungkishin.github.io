@@ -1,6 +1,6 @@
 {
-  "sha256": "5a6f27f4048645a8ddfa82b26537a0758a46e1e4e95d170042d540baeb5110ec",
-  "before": "두 장면은 trace 시간축에서 375ms에 찍힌 캡처다. Before에는 `Loading home`만 있고, After에는 홈 제목과 설명이 든 Hero 영역이",
-  "after": "표의 1,360ms와 2,259ms는 이 캡처의 시각이 아니다. [simulated",
-  "reason": "두 캡처에 실제로 무엇이 찍혔는지 확인한 뒤 표의 1,360ms와 2,259ms가 다른 시간축의 추정값임을 설명했다."
+  "sha256": "92ede95a86f2a0bac092029d03ebd5f08d98e045d3d6e6d83abc0867f5fe06d4",
+  "before": "차이는 5ms다. 한글에 필요한 Pretendard 서브셋은 4,040ms에 도착했다. 첫 페인트는 그보다 2,335ms 먼저 끝났다.",
+  "after": "`@font-face` 92개에는 `font-display: swap`이 설정돼 있다. 브라우저는 서브셋을 기다리지 않고 대체 글꼴로 먼저 그렸다.",
+  "reason": "한글 서브셋이 4,040ms에 왔는데 첫 페인트는 그보다 2,335ms 먼저 끝났다는 앞 문단의 어긋남을 장면으로 남겨야, 다음 문단의 `font-display: swap`이 왜 대체 글꼴로 먼저 그렸는지 설명하는 근거로 읽힌다."
 }

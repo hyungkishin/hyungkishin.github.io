@@ -20,7 +20,7 @@
     <text x="60"  y="-16" fill="#4b5563" font-size="11" text-anchor="middle">DNS</text>
     <text x="180" y="-16" fill="#4b5563" font-size="11" text-anchor="middle">TCP</text>
     <text x="310" y="-16" fill="#4b5563" font-size="11" text-anchor="middle">TLS</text>
-    <text x="480" y="-16" fill="#4b5563" font-size="11" text-anchor="middle">서버 처리</text>
+    <text x="480" y="-16" fill="#4b5563" font-size="11" text-anchor="middle">첫 바이트 대기</text>
     <text x="670" y="-16" fill="#4b5563" font-size="11" text-anchor="middle">응답 수신</text>
 
     <!-- Variable bars (stacked horizontally below timeline) -->
@@ -38,7 +38,7 @@
 
     <!-- time_starttransfer -->
     <rect x="0" y="126" width="580" height="22" rx="3" fill="#10b981"/>
-    <text x="290" y="142" fill="#ffffff" font-size="11" font-weight="600" text-anchor="middle">time_starttransfer (+ TTFB, 첫 byte 도착)</text>
+    <text x="290" y="142" fill="#ffffff" font-size="11" font-weight="600" text-anchor="middle">time_starttransfer (첫 바이트 도착)</text>
 
     <!-- time_total -->
     <rect x="0" y="158" width="760" height="22" rx="3" fill="#ef4444"/>
@@ -49,9 +49,9 @@
   <g transform="translate(80, 360)">
     <rect x="0" y="0" width="760" height="80" rx="8" fill="#f1f5f9" stroke="#334155" stroke-width="1"/>
     <text x="20" y="24" fill="#1f2937" font-size="12" font-weight="600">진단 가이드</text>
-    <text x="20" y="44" fill="#4b5563" font-size="11">• namelookup만 큼 → DNS 캐시 / sun.net.inetaddr.ttl 점검</text>
-    <text x="20" y="60" fill="#4b5563" font-size="11">• appconnect - connect가 큼 → TLS handshake 비용 / connection pool 미사용</text>
-    <text x="400" y="44" fill="#4b5563" font-size="11">• starttransfer - appconnect가 큼 → 서버 처리 시간 / 외부 API 자체 시간</text>
-    <text x="400" y="60" fill="#4b5563" font-size="11">• total - starttransfer가 큼 → 응답 본문 다운로드 / 네트워크 대역폭</text>
+    <text x="20" y="44" fill="#4b5563" font-size="11">• namelookup이 큼 → DNS 조회 시간 확인</text>
+    <text x="20" y="60" fill="#4b5563" font-size="11">• appconnect - connect가 큼 → TLS 연결 시간 확인</text>
+    <text x="400" y="44" fill="#4b5563" font-size="11">• starttransfer - appconnect가 큼 → 요청 전송부터 첫 바이트까지</text>
+    <text x="400" y="60" fill="#4b5563" font-size="11">• total - starttransfer가 큼 → 첫 바이트 이후 응답 수신 시간</text>
   </g>
 </svg>

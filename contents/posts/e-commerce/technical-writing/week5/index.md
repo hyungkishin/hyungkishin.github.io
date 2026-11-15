@@ -34,10 +34,9 @@ class ProductEntity(...)
 ```
 
 `@Index`가 없습니다.
-`ddl-auto: create` 환경이니까 Entity에 없으면 DB에도 없죠.
-
 설계서만 쓰고 구현에 안 넣은 거였습니다.
-10만 건이 인덱스 없이 돌고 있었던 셈입니다.
+
+`ddl-auto: create` 환경이니까 Entity에 없으면 DB에도 없죠. 그렇다면 좋아요순 목록은 10만 건을 인덱스 없이 훑고 있어야 합니다.
 
 ---
 
@@ -55,14 +54,12 @@ ORDER BY like_count DESC LIMIT 20;
 type: ALL          -- 풀 테이블 스캔
 key: NULL          -- 인덱스 안 탐
 rows: 99,203       -- 검사할 것으로 추정한 행 수
-Extra: Using where; Using filesort   -- 메모리에서 정렬까지
+Extra: Using where; Using filesort   -- 별도 정렬
 ```
 
-`type: ALL`. 10만 행을 전부 읽습니다.
+`key: NULL`. 이 쿼리에 MySQL이 쓴 인덱스가 없습니다. `type: ALL`이니 상품 테이블을 전부 훑는 계획입니다.
 
-`Using filesort`.
-디스크(또는 메모리)에서 별도 정렬합니다.
-인덱스 순서로 읽으면 정렬이 필요 없는데 인덱스가 없으니까 직접 정렬해야 합니다.
+거기에 `Using filesort`까지 붙었습니다. 목록에 필요한 건 좋아요가 많은 상품 20개인데, 조건을 통과한 상품을 좋아요 순으로 따로 정렬해야 합니다.
 
 실측 27ms.
 이게 요청마다 반복됩니다.
@@ -504,6 +501,8 @@ Like 도메인이 Product 캐시 구현을 몰라도 되게 됐습니다.
 매핑도 `toDomainWithoutImages()`로 바꿨습니다.
 
 그리고 캐시 무효화도 빠뜨린 곳이 있었습니다.  
+
+![상품 가격을 고쳤는데 고객 화면에는 예전 가격이 남는 상황을 그렸다. 상품 상세 캐시의 만료 시간은 10분이다.](./scene-stale-price-display.webp)
 
 좋아요 추가/취소에서만 evict를 걸었는데  
 **상품 수정과 삭제에서는 안 걸었습니다.**   

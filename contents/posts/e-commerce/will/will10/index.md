@@ -186,9 +186,14 @@ Cleanup이 끝나고 Aggregate가 실패하면 유저는 빈 화면을 본다.
 "틀린 데이터보다 빈 데이터가 낫다"는 논리는 개발자 편의주의다.
 실무에서는 Shadow Table에 먼저 적재하고 RENAME TABLE로 무중단 교체한다. 아니면 append-only로 쌓고 최신 ranking_date를 조회한다.
 
-처음 돌린 배치가 순위를 잘 썼으니 끝인 줄 알았다. 그런데 중간에 멈췄다가 다시 쓰면 몇 위부터 시작할까? `currentRank`가 멤버 변수에만 있으니 재시작한 Writer는 앞에서 몇 위까지 저장했는지 알 수 없었다.
-`beforeStep()`에서 0으로 초기화하면 정상 흐름에서는 돌아간다.
-chunk 5까지 커밋하고 멈춘 Step을 재시작하면 beforeStep이 다시 0을 박아넣는다. 그래서 chunk 6의 첫 상품이 1위로 적재된다. chunk 5를 쓰다가 실패해 롤백됐다면 재시작은 chunk 5부터 다시 하고, chunk 5의 첫 상품이 1위가 된다.
+처음 돌린 배치가 순위를 잘 썼으니 끝인 줄 알았다. 그런데 중간에 멈췄다가 다시 쓰면 몇 위부터 시작할까?
+
+chunk 5까지 커밋하고 멈춘 Step을 재시작하면 chunk 6의 첫 상품이 1위로 적재된다. 1위는 chunk 1의 첫 상품이 이미 받았다.
+
+![다섯 번째 더미까지 마무리한 뒤 재시작하자 여섯 번째 더미의 첫 상자에도 맨 처음 상자와 똑같은 1위가 찍힌다.](./scene-two-first-places.webp)
+
+순위는 `currentRank` 멤버 변수에만 있었다. `beforeStep()`에서 0으로 초기화하면 정상 흐름에서는 돌아간다. 재시작할 때도 beforeStep이 다시 0을 박아넣는다. 재시작한 Writer는 앞에서 몇 위까지 저장했는지 알 수 없다. chunk 5를 쓰다가 실패해 롤백됐다면 재시작은 chunk 5부터 다시 하고, 이번에는 chunk 5의 첫 상품이 1위가 된다.
+
 ExecutionContext에 마지막 rank를 저장해야 진짜 재시작이 된다.
 
 `ORDER BY (계산 컬럼) DESC LIMIT 100`이 대용량에서 Filesort 폭탄이라는 사실.

@@ -22,7 +22,11 @@ Could not find a valid Docker environment
 
 터미널에서 `docker ps`를 쳐봤는데요, 정상이었습니다.
 `docker run hello-world`도 문제없이 돌아갔습니다.
-같은 Docker Engine을 두고 CLI에서는 컨테이너가 떴는데, 회원가입 테스트는 연결조차 못 했습니다. 지금 돌아보면 여기서 두 클라이언트가 Docker에 붙는 방식부터 비교했어야 했습니다.
+
+hello-world 컨테이너는 떴는데, Testcontainers는 `valid Docker environment`를 못 찾겠다고 합니다.
+같은 Docker Engine을 두고 CLI는 붙었고, 회원가입 테스트는 연결조차 못 했습니다. 지금 돌아보면 여기서 두 클라이언트가 Docker에 붙는 방식부터 비교했어야 했습니다.
+
+![같은 서버 상자에 꽂힌 두 케이블 중 hello-world를 띄운 터미널 쪽만 불이 들어오고 테스트 러너 쪽은 빨간 막대가 뜬 채 꺼져 있다.](./scene-same-box-two-cables.webp)
 
 이 시점에서 두 가지 방향 중 하나를 선택해야 했습니다.
 

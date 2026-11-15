@@ -66,6 +66,8 @@ v2를 넣은 마지막 줄에서 좀 더 볼 게 있다. v2에도 `Entry`가 있
 
 JAR을 빼지 않고도 `NoClassDefFoundError`를 낼 수 있다. 정적 필드 초기화식에 `Integer.parseInt("broken")`을 넣고 같은 로더에서 두 번 접근했다. 처음에는 `NumberFormatException`을 원인으로 둔 `ExceptionInInitializerError`가 나왔다. 두 번째가 `NoClassDefFoundError`였다. 그 사이 파일은 건드리지 않았다. 첫 번째 실패 때 JVM이 이 클래스의 초기화를 실패로 기록했기 때문이다. 두 번째 로그만 읽고 JAR부터 다시 배포하면 원인은 그대로 남는다. [JLS의 상세 초기화 절차](https://docs.oracle.com/javase/specs/jls/se25/html/jls-12.html#jls-12.4.2)
 
+![첫 방문자 때 서랍 열기에 실패해 표시를 붙인 직원이 두 번째 방문자에게는 서랍이 그대로 있는데도 열지 않고 고개를 젓는다.](./scene-tagged-broken-drawer.webp)
+
 초기화 도중에 같은 스레드가 자기 클래스의 값을 읽는 경우도 돌려 봤다. `static final int value = read() + 1`에서 `read()`가 읽은 값은 0이다. 아직 대입 전인데 같은 스레드가 재진입했으니 자신을 기다리지 않고 기본값을 읽었다. 그래서 최종값이 1이 된다.
 
 스레드를 둘로 늘리니 결과가 달랐다. A의 정적 초기화식은 B의 값을 읽고 B의 초기화식은 A의 값을 읽게 했다. 두 플랫폼 스레드를 동시에 진입시키고 덤프를 뜨니 `init-A`는 B의 초기화 완료를, `init-B`는 A의 초기화 완료를 기다리고 있었다. 다른 스레드가 시작한 초기화는 끝날 때까지 기다려야 한다. 이 경우에는 둘 다 돌아올 수 없다. 상대 클래스나 외부 작업을 기다리는 일을 정적 초기화식에서 빼면 기다림의 고리를 끊을 수 있다. [실제 스레드 덤프](./evidence/loader-output.txt)

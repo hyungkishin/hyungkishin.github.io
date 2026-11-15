@@ -80,6 +80,8 @@ String text = boxed.toString();
 
 코틀린에서는 같은 값을 `Int`로 선언하고 곧바로 `toString()`을 호출한다.
 
+![한 검표원은 0이 적힌 카드를 비닐 슬리브에 넣은 뒤 구멍을 뚫고, 옆 검표원은 슬리브 없이 같은 카드를 바로 뚫는다.](./scene-bare-int-ticket-punch.webp)
+
 ```kotlin
 val value: Int = 0
 val text = value.toString()

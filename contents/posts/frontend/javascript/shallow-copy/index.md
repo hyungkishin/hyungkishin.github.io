@@ -28,14 +28,18 @@ config.retry.count = 5
 config.retry.count // 5
 ```
 
-값이 바뀌었다. 동결은 실패하지 않았다.
+값이 바뀌었다. 예외도 나지 않았다.
 
-`Object.freeze(config)`를 호출하면 새 프로퍼티를 추가하거나 기존 프로퍼티의 정의를 바꿀 수 없다. 이 예제의 `retry`와 `timeout`은 둘 다 데이터 프로퍼티라 값도 덮어쓸 수 없게 된다. 그런데 `retry`에 저장된 값은 객체를 가리키는 참조다. 참조가 가리키는 안쪽 객체는 `freeze`에 넘긴 적이 없다.
+![자물쇠를 채운 유리 캐비닛은 그대로인데 안쪽 카드에 적힌 숫자가 3에서 5로 바뀌었다.](./scene-locked-cabinet-count.webp)
+
+`freeze`가 안 걸린 걸까? 바깥 객체와 `retry`에 각각 물어본다.
 
 ```js
 Object.isFrozen(config)       // true
 Object.isFrozen(config.retry) // false
 ```
+
+동결은 실패하지 않았다. `config`는 얼어 있고 `config.retry`만 열려 있다. `Object.freeze(config)`를 호출하면 새 프로퍼티를 추가하거나 기존 프로퍼티의 정의를 바꿀 수 없다. 이 예제의 `retry`와 `timeout`은 둘 다 데이터 프로퍼티라 값도 덮어쓸 수 없게 된다. 그런데 `retry`에 저장된 값은 객체를 가리키는 참조다. 참조가 가리키는 안쪽 객체는 `freeze`에 넘긴 적이 없다.
 
 첫 겹 프로퍼티에 직접 쓰면 막힌다. 막히는 방식은 코드가 실행되는 모드에 달렸다.
 

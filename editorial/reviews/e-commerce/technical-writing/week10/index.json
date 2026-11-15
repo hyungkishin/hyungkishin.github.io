@@ -1,6 +1,6 @@
 {
-  "sha256": "f2d542e8a0837bfbfcd4bc3b5c2ac42b6279ac26ad1ca58d9cad9137e0b38567",
-  "before": "근데 Chunk-Oriented Step은 Step 전체가 아니라 chunk마다 커밋해요. 지금은 TOP 100에 chunk size 100이라 데이터 chunk가",
-  "after": "Cleanup과 Aggregate를 두 Step으로 나눴지만, **이것도 문제가 있었어요.** Cleanup이 끝나고 Aggregate가 도는 사이에 유저가 랭킹",
-  "reason": "현재 TOP 100이 한 chunk에 들어가는 경우를 본 다음 규모가 커져 여러 번 커밋하는 상황에 같은 삭제 코드를 대입해 보게 했다."
+  "sha256": "848e02966bfef73f79e27998edbcd961f18fa8f4843ed831a06008b8d8f7ec97",
+  "before": "재시작한 배치가 다시 읽는 건 5번째 chunk의 첫 상품이에요. 앞에서 가정한 chunk_size=1000이라면 4,001위여야 할 그 상품에 1위가 찍혀요.",
+  "after": "실행 중인 `RankingWriter`에만 순위를 저장하면 재시작할 때 이전 값을 복원할 곳이 없어요.",
+  "reason": "4,001위여야 할 상품에 1위가 찍힌다는 결과를 먼저 보여 준 뒤, 실행 중인 Writer에만 순위를 들고 있어 재시작할 때 복원할 곳이 없다는 설명으로 이어 가기 위해서다."
 }

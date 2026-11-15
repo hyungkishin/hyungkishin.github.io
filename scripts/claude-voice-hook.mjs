@@ -45,7 +45,7 @@ function context() {
   if (!root || !inside(path.join(root, "contents/posts"), file)) return;
   if (!(notebook ? /\.ipynb$/i : /\.(md|mdx|markdown)$/i).test(file)) return;
   const guide = guideFor(root);
-  return `이 원고의 편집 기준은 ${guide}에 있다. 체크아웃이 바뀌었으면 이 파일을 다시 읽는다. 고칠 문장과 앞뒤 문단을 이어 읽고, 새 용어나 예제를 이해하는 데 필요한 근거가 앞에 있는지 확인한다.`;
+  return `이 원고의 편집 기준은 ${guide}에 있다. 체크아웃이 바뀌었으면 다시 읽는다. 고칠 문장과 앞뒤 문단에서 무엇이 예상과 달랐는지, 어느 출력에서 정체가 드러났는지 짚는다. 짐작에서 확인으로 넘어갈 때 빈 줄을 읽어 본다. 당시 말이나 장면에 남아 있는 농담은 살리고, 겪지 않은 일은 지어내지 않는다.`;
 }
 
 const additionalContext = context();

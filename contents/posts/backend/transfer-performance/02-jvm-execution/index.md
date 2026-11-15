@@ -102,6 +102,8 @@ java -Xbatch -XX:+UnlockDiagnosticVMOptions -DflatFee=true \
 
 첫 기록부터 `failed to inline`이 나온다. 레벨 3에서 HotSpot은 `FeePolicy::fee`의 대상을 하나로 정할 수 없었다. 인라이닝을 건너뛰어도 수수료 계산은 계속된다.
 
+![처음에는 수수료 전표를 열어 보지 않고 넘기던 직원이, 같은 전표가 수북이 쌓인 뒤에는 정률 계산기를 전표 받침에 아예 붙여 둔다.](./scene-clerk-tapes-rate-calculator.webp)
+
 같은 `quote`를 레벨 4로 다시 컴파일한 줄에는 `RateFee::fee`라는 구체적인 이름이 붙었다. 뒤의 `inline (hot)`은 자주 실행된 정률 계산을 이번에는 `quote` 안에 넣었다는 뜻이다.
 
 정액 실행 로그를 같은 방법으로 열었더니 `@ 2` 옆에 `FlatFee::fee inline (hot)`이 찍혔다. 클래스 파일에는 두 번 다 `FeePolicy.fee`라고 적혀 있다. 로그를 대조하니 각 실행에서 실제로 넘긴 정책의 `fee`가 `quote` 안에 인라인됐다. [정액 실행 로그 발췌](./evidence/fee-jit-flat.txt)

@@ -98,6 +98,8 @@ Spring Data JPA의 `@Modifying(clearAutomatically = true)`는 변경 후 context
 
 두 요청이 같은 잔액을 읽고 각각 출금 가능하다고 판단하면, 읽은 값은 두 번째 갱신 시점에 오래된 값일 수 있다. 애플리케이션에서 잔액을 확인한 다음 별도 UPDATE를 하는 check-then-act 구조는 동시 요청을 제어하지 못한다.
 
+![두 직원이 같은 잔액이 적힌 장부 사본을 각자 보고 동시에 출금 전표에 승인 도장을 찍는다.](./scene-twin-ledger-stamps.webp)
+
 조건부 UPDATE, `@Version`을 이용한 낙관적 잠금, 행 잠금은 서로 다른 선택지다. 조건부 UPDATE는 DB에서 갱신 조건을 함께 검사하고 영향을 받은 행 수로 성공 여부를 확인한다. 낙관적 잠금은 버전 충돌을 감지한다. 비관적 잠금은 충돌할 작업의 진행을 기다리게 한다. 충돌 빈도와 트랜잭션 길이에 따라 비용이 달라진다.
 
 MySQL InnoDB의 `SELECT ... FOR UPDATE`는 트랜잭션 안에서 잠금 조회를 수행한다. 외부 이상 탐지 API 응답을 기다리는 동안 계좌 행 잠금을 오래 잡는 구조라면 다른 송금도 기다릴 수 있다. 여러 계좌를 갱신할 때는 잠금 순서를 일관되게 정하고 deadlock 이후 재시도는 멱등성을 포함한 전체 업무 단위로 설계한다. [MySQL 잠금 조회](https://dev.mysql.com/doc/refman/8.4/en/innodb-locking-reads.html), [InnoDB deadlock 처리](https://dev.mysql.com/doc/refman/8.4/en/innodb-deadlocks-handling.html)

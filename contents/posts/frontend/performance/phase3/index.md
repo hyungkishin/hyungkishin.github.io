@@ -48,19 +48,23 @@ export default withBundleAnalyzer(nextConfig);
  
 ```
 
-분석 결과에서 먼저 눈에 들어온 건 `lodash-es`와 `moment-timezone`이었다. 700KB와 500KB. 둘 다 커 보였지만, 실제로 어디서 어떤 함수를 쓰는지부터 찾아봤다.
+빌드한 JS 청크를 `source-map-explorer`에 넣었다. 왼쪽에서 가장 큰 칸에는 `lodash-es@4.17.21`이라고 적혀 있다.
 
 ![프로젝트 내 js 번들 결과](img_1.png)
 
  
 ## lodash 최적화
 
-프로젝트에서 `lodash-es`를 import한 곳은 `debounce`를 쓰고 있었다. ESM 패키지니까 안 쓰는 코드가 tree shaking으로 빠졌을 거라고 생각할 수 있다. 그런데 이 빌드의 분석 결과에는 lodash 코드가 크게 남았다.
-
-사용처는 이 한 줄이었다.
+`lodash-es`를 import한 곳을 찾아보니 이 한 줄이었다.
 ```js
 import { debounce } from "lodash-es";
 ```
+
+쓰는 함수는 `debounce` 하나. 그런데 소스맵에서 `lodash-es`에 잡힌 크기는 709.67KB다. 그 안에 `isObject.js`라고 적힌 칸만 707.71KB.
+
+![debounce가 적힌 영수증 옆에서 점원이 서랍장 도면을 펼친다. 도면의 한 칸은 707.71KB이고 실제 배송 저울은 비어 있다.](./scene-one-screw-whole-cabinet.webp)
+
+저 숫자를 그대로 `debounce` 하나의 크기라고 읽어도 될까? 분석기가 빌드 결과를 원본 경로에 배분한 값이다. 기사 한 편을 열면서 브라우저가 실제로 몇 바이트를 받았는지는 네트워크 탭에서 따로 봐야 한다.
 
 프로젝트 전체에서 쓰는 함수가 하나라면 패키지의 진입점도 그 함수 하나로 좁힐 수 있다. `lodash.debounce`로 바꿔 같은 조건에서 다시 빌드했다.
 
@@ -149,10 +153,11 @@ experimental: {
 ![before](img_2.png)  ➡️
 ![after](img_3.png)
 
-3.11MB에서 2.38MB. 빌드 결과에서 빠진 건 약 23.5%다. 프로젝트가 lodash에서 쓰던 함수는 `debounce` 하나였는데, 그 사실은 분석기 그림만으로 몰라서 실제로 import한 자리까지 찾아봐야 했다.
+두 화면에서 `[combined]`라고 적힌 청크 합계가 3.11MB에서 2.38MB로 줄었다. 약 23.5%다. 사진에 나온 건 프로젝트 전체 합계다. 이 중에서 lodash import 한 줄로 몇 바이트가 줄었는지까지는 두 숫자로 나눠 볼 수 없다.
 
 이 뉴스 사이트에는 해외에서 접속하거나 구형 기기를 쓰는 독자도 있다. JS를 덜 받으면 그만큼 다운로드 부담은 줄 텐데, 홈에서도 기사가 눈에 띄게 빨리 뜰까? 번들 크기만으로는 답이 안 나왔다. [다음에는 뉴스 홈을 열어 시간을 쟀다.](../phase4/)
 
 참고
+- [source-map-explorer가 번들을 원본 경로별로 집계하는 방식](https://github.com/danvk/source-map-explorer)
 - [npm scripts](https://docs.npmjs.com/cli/v11/using-npm/scripts/)
 - [Moment Timezone 데이터 유틸리티](https://momentjs.com/timezone/docs/#/data-utilities/)

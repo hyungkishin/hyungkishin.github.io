@@ -13,11 +13,11 @@ tags:
 - Kotlin
 ---
 
-S3 업로드는 첫 호출에 5~10초가 걸렸고 두 번째에는 0.3초면 끝났다. 같은 앱에서 외부 OCR 호출도 실패하고 있었다. S3에서 본 패턴이 워낙 익숙해서 OCR도 같이 워밍업하면 될 줄 알았다.
+S3 업로드는 앱을 띄운 직후 몇 초씩 걸렸다. 몇 번 더 호출하면 0.3초 안팎으로 내려왔다. 같은 앱에서 외부 OCR 호출도 실패하고 있었다. S3에서 본 패턴이 워낙 익숙해서 OCR도 같이 워밍업하면 될 줄 알았다.
 
 ## 이름이 너무 빨리 나왔다
 
-Spring + JDK 21 앱이 EKS 위에서 돈다. 외부로 나가는 호출은 세 갈래. S3 업로드, 외부 OCR API, 사내 LLM Proxy. 어느 날 관측된 패턴은 이랬다.
+Spring + JDK 21 앱이 EKS 위에서 돈다. 외부로 나가는 호출은 세 갈래. S3 업로드, 외부 OCR API, 사내 LLM Proxy. 우선 S3에서 본 패턴이다.
 
 ```text
 1st call: 5~10s   (cold)
@@ -27,37 +27,21 @@ Spring + JDK 21 앱이 EKS 위에서 돈다. 외부로 나가는 호출은 세 �
 
 ![호출 횟수별 응답 시간](./01-call-count-response-time.svg)
 
-첫 호출만 느리고 두 번째부터 빠르다. 이 패턴은 서버 개발자에게 너무 익숙해서, 보는 순간 이름이 튀어나온다. "아, cold start네." 그리고 이름이 붙는 순간 진단은 끝난 것 같은 기분이 든다. 처방도 자동으로 따라온다. warmup을 넣자.
+처음만 느리고 다음부터 빠르다. "아, cold start네."
 
-여기서 저지른 실수는 하나다. "느림"이라는 한 단어로 S3와 OCR API를 같은 바구니에 담고, 같은 처방을 두 군데 다 적용한 것이다.
+warmup을 넣자. S3에서 이 생각을 했을 때까지는 괜찮았다.
+
+문제는 OCR에서도 첫 호출만 실패하는지 확인하기 전에 같은 처방을 썼다는 데 있었다.
 
 ## cold start를 의심한 근거
 
-cold start를 의심할 근거는 차고 넘쳤다. 첫 호출이 느려질 수 있는 이유를 쌓아보면 이렇다.
+S3 클라이언트에 아직 쓸 연결이 없으면 주소를 찾고 TCP 연결을 맺고 TLS 핸드셰이크를 거친다. IRSA로 임시 자격증명을 처음 받아야 할 수도 있다. 이미 열린 연결과 캐시된 자격증명을 쓰는 다음 요청에선 이 일들이 줄어든다.
 
-| 단계 | 첫 호출 | 이후 |
-|---|---|---|
-| JVM JIT | 인터프리터에서 C1/C2 컴파일 진행 | 네이티브 코드 |
-| TLS Handshake | Full handshake | Connection pool 재사용 (keep-alive) |
-| DNS | 실제 질의 (50~200ms) | OS/JVM DNS 캐시 |
-| TCP Connection | 3-way handshake | 기존 connection 재사용 |
-| 클래스 로딩 | lazy load | 이미 로드 |
-| AWS IRSA STS | AssumeRoleWithWebIdentity (1~2s) | 캐시된 임시 자격증명 |
-| Spring Lazy Init | 일부 빈 첫 사용 시 초기화 | 이미 초기화 |
+앱 쪽에서도 클래스를 처음 로딩하거나 지연 초기화한 빈을 만들 수 있다. 다만 업로드 로그에 찍힌 건 요청 전체 시간이었다. 5,001ms 중 몇 초를 STS에서 썼는지, JIT 컴파일을 기다린 시간이 있었는지는 이 로그로 알 수 없다.
 
-![JIT Tiered Compilation level 0~4](./02-jit-tiered-compilation.svg)
+## 5초를 어디서 썼을까
 
-![TLS handshake, cold vs warm](./03-tls-handshake-cold-warm.svg)
-
-![cold start 시간 분해](./06-cold-start-breakdown.svg)
-
-IRSA 첫 STS 호출 1~2초, lazy bean 초기화 1~3초, 여기에 JIT과 TLS와 DNS를 더하면 4~7초는 흔하게 나온다. 관측된 5~10초와 맞아떨어진다.
-
-이 계산으로는 S3 첫 호출이 왜 몇 초씩 걸릴 수 있는지 설명할 수 있었다. OCR도 같은 문제라면 두 번째 호출에서는 달라져야 했다. 그때는 이것부터 비교하지 않았다.
-
-## 호출 시간을 다섯 단계로 나눠 측정하기
-
-처방 전에 해야 했던 일은 시간을 분해하는 것이었다. "느리다" 한 단어 안에는 DNS, TCP, TLS, 서버 처리, 클라이언트 처리가 다 섞여 있다.
+네트워크 쪽부터 좁히려면 같은 Pod에서 요청을 보내고 시각을 나눠 볼 수 있다. HTTPS 주소 하나에 새로 연결할 때 curl은 다음 값을 찍는다.
 
 ![curl 시간 변수 의미](./04-curl-time-variables.svg)
 
@@ -71,11 +55,11 @@ curl -w "
 " -s -o /dev/null https://...
 ```
 
-DNS, TCP, TLS, 서버 처리, 클라이언트 처리 시간을 나눠 측정하면 지연이 발생한 구간을 좁힐 수 있다. warmup을 적용하기 전에 필요한 확인이었다.
+전부 요청 시작부터 잰 누적 시간이다. TLS 연결에 걸린 시간은 `time_appconnect - time_connect`로 본다. 그 뒤 첫 바이트가 올 때까지는 요청 전송과 서버 처리, 응답이 돌아오는 시간도 함께 들어간다. curl 한 번으로 서버 내부에서 쓴 시간까지 떼어낼 수는 없다.
 
 ## S3: 첫 호출 비용을 warmup으로 줄였다
 
-S3는 처음 가설이 맞았다. 첫 호출 비용이 실제로 컸고, startup 직후 dummy 호출로 그 비용을 미리 내면 됐다.
+S3에는 앱이 뜬 뒤 `HeadBucket` 요청을 보내는 코드를 넣었다. 첫 업로드가 오기 전에 S3를 한 번 써 두자는 의도였다.
 
 ```kotlin
 @Component
@@ -87,7 +71,7 @@ class S3Warmup(
 
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
         val s3 = s3Service ?: return
-        // 비동기 + timeout + try-catch. startup 블로킹 0, 실패 무시.
+        // 앱 시작 스레드는 HeadBucket 응답을 기다리지 않는다.
         CompletableFuture.runAsync {
             runCatching { s3.warmupHeadBucket() }
                 .onFailure { log.warn("S3 warmup failed (ignored): {}", it.message) }
@@ -98,7 +82,9 @@ class S3Warmup(
 
 ![warmup 전후 응답 시간](./05-warmup-effect.svg)
 
-측정에서도 하나 배웠다. 처음 관측된 "5초 timeout"은 실제 cold start 시간이 아니라 우리가 정해둔 한도였다. timeout을 30초로 임시로 올려 진짜 시간을 잰 뒤에야 warmup의 효과를 제대로 비교할 수 있었다. 기존 측정값에는 timeout에 도달했다는 사실만 반영돼 있었기 때문이다.
+warmup 전 첫 업로드에 찍힌 5,001ms는 우리가 정해 둔 5초에 걸려 요청이 끝난 시각이다. 성공까지 얼마나 더 기다려야 했는지는 그 숫자에 없다. 그래서 비교할 때는 timeout을 임시로 30초로 늘렸다. warmup 뒤의 첫 업로드는 320ms에 성공했다.
+
+코드에 나오는 10초는 별개다. `orTimeout`은 시간이 지나면 future를 예외로 완료한다. 이미 시작한 `HeadBucket` 호출을 그 자리에서 중단시키지는 않는다.
 
 ## OCR: 반복 연결 실패는 warmup으로 해결되지 않았다
 
@@ -106,15 +92,17 @@ class S3Warmup(
 
 | 외부 호출 | 첫 호출 | 두 번째 | 패턴 |
 |---|---|---|---|
-| S3 PutObject | 5001ms timeout | 887ms 성공 | 첫만 느림, cold start |
+| S3 PutObject | 5001ms timeout | 887ms 성공 | 두 번째 성공 |
 | 외부 OCR API | 130ms RST | 130ms RST | 두 번 모두 연결 실패 |
 | 사내 LLM Proxy | 정상 | 정상 | 무관 |
 
-![외부 호출별 진단 매핑](./08-our-ocr-diagnosis.svg)
+OCR 줄은 시간부터 S3와 달랐다. 130ms면 S3가 두 번째에 성공한 887ms보다도 짧다. 느린 호출이 아니었다. 약 130ms 만에 연결이 리셋(RST)된 호출이었다.
 
-OCR API는 반복 호출에서도 약 130ms 만에 연결이 리셋(RST)됐다. 첫 호출에만 비용이 집중되는 S3와 달랐으므로 outbound 정책과 네트워크 경로를 확인할 필요가 있었다. 일정한 실패 시간만으로 차단 위치를 특정할 수는 없다.
+![복도에서 두 문을 두 번씩 두드리는데 왼쪽 문은 두 번째에 열리고 오른쪽 문은 두 번 다 곧바로 닫혀 스톱워치에 똑같이 130ms가 찍힌다.](./scene-two-doors-stopwatch.webp)
 
-S3에서는 두 번째 업로드가 끝났지만 OCR에서는 두 번째 연결도 끊겼다. 비교할 값은 호출 시간과 함께 요청이 성공했는지였다.
+두 번째에는 어땠을까. S3 업로드는 성공했고 OCR은 또 130ms에 끊겼다. 첫 요청을 미리 보내 두자는 처방으로는 이 두 번째 실패를 설명할 길이 없었다.
+
+그래서 outbound 정책과 네트워크 경로를 확인할 필요가 있었다. 다만 실패 시간이 일정하다는 것만으로 차단 위치를 특정할 수는 없다.
 
 <style>
 .metric-fig{--fig-surface:#ffffff;--fig-ink:#0f172a;--fig-ink2:#334155;--fig-muted:#94a3b8;--fig-hair:#e6eaf1;--fig-baseline:#d0d7e2;--c-green:#16a34a;--c-greenink:#15803d;--c-red:#ef4444;--c-redink:#b91c1c;--c-blue:#2f6fed;--c-blueink:#1d4ed8;--c-amber:#d97706;--c-amberink:#b45309;margin:2.4em 0;border:1px solid var(--fig-hair);border-radius:18px;background:var(--fig-surface);padding:18px 20px 10px;overflow:hidden;box-shadow:0 1px 2px rgba(2,6,23,.05),0 14px 40px rgba(2,6,23,.09)}
@@ -148,13 +136,11 @@ S3에서는 두 번째 업로드가 끝났지만 OCR에서는 두 번째 연결�
   <figcaption>S3는 두 번째부터 업로드에 성공했다. OCR은 warmup 뒤에도 약 130ms 만에 연결이 끊겼다.</figcaption>
 </figure>
 
-## 원인에 따라 조치를 구분했다
-
-![느림의 원인 분류 진단 흐름](./07-slowness-diagnosis-flow.svg)
+## OCR 연결은 어디서 끊겼을까
 
 | 외부 호출 | 진단 | 처방 |
 |---|---|---|
-| S3 PutObject | Cold start (JIT + IRSA + TLS) | warmup 코드 추가 |
+| S3 PutObject | 첫 호출 지연, warmup 후 첫 업로드 성공 | warmup 코드 추가 |
 | 외부 OCR API | Outbound 차단 의심 (확인 중) | SRE 담당자에게 확인 요청, ServiceEntry 등록 요청 |
 | 사내 LLM Proxy | 무관 | 그대로 유지 |
 
@@ -162,27 +148,7 @@ S3에서는 두 번째 업로드가 끝났지만 OCR에서는 두 번째 연결�
 
 먼저 이 클러스터에 어떤 정책이 걸려 있었는지, 같은 시각 프록시가 요청을 어디까지 보냈는지 확인해야 했다. 등록 후 같은 pod에서 OCR 호출을 다시 해 본 결과까지는 당시 기록에 없다.
 
-사후에 정리한 진단 순서는 이렇다. 이 순서대로 갔으면 이름을 잘못 붙일 일이 없었다.
-
-```text
-1. 증상 측정 (어떤 호출 / 얼마나 / 어떤 패턴)
-2. 반복 호출 비교, 두 번째부터 빨라지는가
-3. 단계별 elapsed 분리, DNS/TCP/TLS/서버/클라이언트 (curl -w)
-4. 인프라 검증, pod 안에서 nc/curl로 outbound 가능한가
-5. 외부 API 한도 검증, 콘솔/문서에서 분당 요청 수와 동시 요청 수 제한
-6. 위 통과 + 첫 호출만 느리면 cold start 확정, warmup
-```
-
-실제로 한 일은 1에서 6으로의 직진이었다. 2번 하나만 챙겼어도 OCR은 초기에 걸러졌다. "두 번째부터 빨라지는가"라는 질문에 OCR의 답은 처음부터 "아니오"였으니까.
-
-비슷한 증상의 원인별 확인 항목을 만들어두면 다음에 빠르다.
-
-| 증상 | 원인 카테고리 | Warmup으로 풀리나? | 검토할 조치 |
-|---|---|---|---|
-| 첫 호출 느리고 두 번째부터 빠름 | Cold start (JIT/connection/STS) | YES | App startup 시 dummy 호출 |
-| 매번 똑같이 빠르게 RST/timeout | Outbound 차단 의심 (방화벽, mesh) | NO | SRE, 프록시 로그, ServiceEntry, SG, NAT |
-| 매번 비슷한 시간 (예: 1.7s) | 외부 API 자체 시간 | NO | 외부 API plan 인상 / 다른 API |
-| burst 시 일부 거절 (429) | 외부 rate limit | NO | concurrency 직렬화 / commitment tier |
+실제로 한 일은 S3의 첫 호출을 보고 OCR에도 warmup을 넣은 것이었다. 그 전에 둘을 한 번씩만 더 불렀으면 됐다. S3는 성공했고 OCR은 또 끊겼으니까.
 
 ## 곁가지 두 개
 
@@ -190,14 +156,15 @@ S3에서는 두 번째 업로드가 끝났지만 OCR에서는 두 번째 연결�
 
 하나, "K8s probe가 있으면 되는 것 아닌가?" readiness probe를 통과하면 Pod로 트래픽을 보낼 수 있다. 그래도 JIT 컴파일이 덜 됐거나 커넥션 풀이 비어 있을 수 있다. 롤링 업데이트 중 준비되지 않은 Pod를 피하는 일과 첫 요청을 빠르게 처리하는 일은 따로 봐야 한다.
 
-둘, 로컬 IDEA에서 잰 숫자는 운영 신호가 아니다. "Run with fast startup" 옵션은 `-XX:TieredStopAtLevel=1`로 C1까지만 컴파일하고, 옵션이 없어도 디버거 attach 자체가 JIT을 제약한다. warm 성능이 2~5배 느리게 측정된다. 성능을 잴 거면 빌드된 jar로 재야 한다.
+둘, IDEA의 Spring Boot 실행 설정에서 시작 최적화를 켜면 `-XX:TieredStopAtLevel=1`이 붙는다. 이 옵션으로 띄운 JVM은 C2까지 컴파일하지 않는다. 로컬의 두 번째 호출과 서버의 두 번째 호출을 비교할 때는 실행한 JAR와 JVM 옵션부터 맞춰야 한다.
 
 ## 마치며
 
-S3의 첫 호출이 느린 이유를 찾으면서 JIT 컴파일, TLS 핸드셰이크, IRSA까지 살펴봤다. 그러고는 OCR에서도 시간을 재 보기도 전에 같은 처방부터 썼다. 두 번째에도 똑같이 끊기는지만 봤어도 워밍업으로 고칠 문제가 아니라는 걸 알 수 있었다.
-
-남은 숙제도 있다. GraalVM Native Image는 startup 50ms가 매력적이지만 PGO 없는 peak 처리량 하락과 reflection 설정 부담 때문에 평가 전이고, AppCDS는 startup 5~10% 단축 여지가 있다. OCR의 ServiceEntry 등록은 인프라 팀 일정에 물려 있고, OkHttp의 connect/read timeout 명시도 대기 중이다.
+S3에는 미리 한 번 호출하는 코드가 남았다. OCR은 ServiceEntry 등록을 요청했고 OkHttp의 connect/read timeout 설정도 남아 있다. 등록 뒤 같은 Pod에서 다시 호출했을 때 두 번째 130ms가 사라졌는지, 거기까지 봐야 이 진단이 끝난다.
 
 ## 참고자료
 
 - [Istio 문서: Accessing External Services](https://istio.io/latest/docs/tasks/traffic-management/egress/egress-control/)
+- [curl 매뉴얼, 요청 단계별 누적 시간](https://curl.se/docs/manpage.html#-w)
+- [Java 21 CompletableFuture.orTimeout](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/CompletableFuture.html#orTimeout(long,java.util.concurrent.TimeUnit))
+- [IntelliJ IDEA의 Spring Boot 실행 옵션](https://www.jetbrains.com/help/idea/run-debug-configuration-spring-boot.html)
