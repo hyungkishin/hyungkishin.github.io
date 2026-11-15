@@ -1,6 +1,6 @@
 {
-  "sha256": "6ca0b2d332c8dc4ee7a78dd10c7e8a77e2845e8c7e04a0b03e2021826b6302ae",
+  "sha256": "2abf4e0aae3012b28925da482137bf394333bafdd58e9f45d93a173c5b133c8d",
   "before": "알림 미수신을 조사한 기록을 에러율, Kafka 대기량, Redis 조회 시간 세 편으로 나눴습니다.",
-  "after": "**[지표와 실제 상태가 다를 때 (프롤로그)](/backend/observability/when-metrics-lie/)**에서 세 지표를 함께 볼 수 있습니다.",
+  "after": "[지표와 실제 상태가 다를 때 (프롤로그)](/backend/observability/when-metrics-lie/)에서 세 지표를 함께 볼 수 있습니다.",
   "reason": "한 편을 세 지표로 나눴다고 말한 문장 바로 뒤에서, 원래 글이 빠진 자리와 옮겨 간 세 편을 한 장면으로 보여 주면 프롤로그 링크로 시선이 넘어간다."
 }
