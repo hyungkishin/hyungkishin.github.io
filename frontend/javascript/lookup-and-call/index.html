@@ -284,7 +284,18 @@ c<span class="token punctuation">.</span>legs <span class="token comment">// 3</
 <h2><code class="language-text">['1','2','3'].map(parseInt)</code>가 <code class="language-text">[1, NaN, NaN]</code>인 이유</h2>
 <p>문자열 배열을 숫자로 바꾸려고 <code class="language-text">parseInt</code>를 그대로 넘긴다.</p>
 <div class="gatsby-highlight" data-language="js"><pre class="language-js"><code class="language-js"><span class="token punctuation">[</span><span class="token string">'1'</span><span class="token punctuation">,</span> <span class="token string">'2'</span><span class="token punctuation">,</span> <span class="token string">'3'</span><span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span>parseInt<span class="token punctuation">)</span> <span class="token comment">// [ 1, NaN, NaN ]</span></code></pre></div>
-<p>첫 항목만 성공한다.</p>
+<p>첫 항목만 성공한다. <code class="language-text">parseInt('2')</code>를 직접 부르면 <code class="language-text">2</code>가 나오는데, <code class="language-text">map</code>을 거치면 <code class="language-text">NaN</code>이 된다.</p>
+<p><figure class='gatsby-resp-image-figure' style='margin-bottom: 1rem;'>
+    <span class='gatsby-resp-image-wrapper' style='position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 760px; '>
+      <span class='gatsby-resp-image-background-image' style="padding-bottom: 50%; position: relative; bottom: 0; left: 0; background-image: url('data:image/webp;base64,UklGRoIAAABXRUJQVlA4IHYAAADwAwCdASoUAAoAPtFUo0uoJKMhsAgBABoJYwCsAYv+ubzbMiDv8nUAAMyMyhOhvLbx4DQairAb8aRZBbeZcxEqSJ9MnZLdZuGHkbd/JmansthYmEwOefrNCMNB6ekBhFakNLLmVUOpjnBev6AfTVP0wsWb8AAA'); background-size: cover; display: block;"></span>
+  <img class='gatsby-resp-image-image' alt='우편실 직원이 기계에 종이 띠 세 장을 넣자, 영수증에서 첫 값만 1이고 뒤 두 값은 NaN이다.' title='' src='/static/d3fa0bb60ca437c0420be579ecc8b1dd/7df04/scene-map-parseint-receipt.webp' srcset='/static/d3fa0bb60ca437c0420be579ecc8b1dd/561c4/scene-map-parseint-receipt.webp 190w,
+/static/d3fa0bb60ca437c0420be579ecc8b1dd/3e041/scene-map-parseint-receipt.webp 380w,
+/static/d3fa0bb60ca437c0420be579ecc8b1dd/7df04/scene-map-parseint-receipt.webp 760w,
+/static/d3fa0bb60ca437c0420be579ecc8b1dd/b2cd5/scene-map-parseint-receipt.webp 1140w,
+/static/d3fa0bb60ca437c0420be579ecc8b1dd/94b1e/scene-map-parseint-receipt.webp 1280w' sizes='(max-width: 760px) 100vw, 760px' style='width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;' loading='lazy' decoding='async'>
+    </span>
+    <figcaption class='gatsby-resp-image-figcaption'>우편실 직원이 기계에 종이 띠 세 장을 넣자, 영수증에서 첫 값만 1이고 뒤 두 값은 NaN이다.</figcaption>
+  </figure></p>
 <p><code class="language-text">map</code>은 콜백을 부를 때 항상 인자 세 개를 넘긴다. 원소, 인덱스, 배열이다. 콜백이 몇 개를 받겠다고 선언했는지는 호출 방식에 영향을 주지 않는다. <code class="language-text">parseInt</code>는 두 번째 인자를 진법으로 읽는다.</p>
 <div class="gatsby-highlight" data-language="js"><pre class="language-js"><code class="language-js"><span class="token function">parseInt</span><span class="token punctuation">(</span><span class="token string">'1'</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token comment">// 1</span>
 <span class="token function">parseInt</span><span class="token punctuation">(</span><span class="token string">'2'</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token comment">// NaN</span>
@@ -375,4 +386,4 @@ counter<span class="token punctuation">.</span>n <span class="token comment">// 
           >
             window.___chunkMapping="{\"app\":[\"/app-263d41856e8ba543d076.js\"],\"component---src-pages-404-jsx\":[\"/component---src-pages-404-jsx-9f8a72d2ed2a45ceab73.js\"],\"component---src-pages-index-jsx\":[\"/component---src-pages-index-jsx-75fab5a7b0b0a580eb71.js\"],\"component---src-pages-search-jsx\":[\"/component---src-pages-search-jsx-4e18011dfc37e4849bed.js\"],\"component---src-pages-tags-jsx\":[\"/component---src-pages-tags-jsx-aabe6ace5b38b6a66f5d.js\"],\"component---src-templates-post-jsx\":[\"/component---src-templates-post-jsx-4ec71b80d25e7d733a83.js\"],\"component---src-templates-resume-jsx\":[\"/component---src-templates-resume-jsx-8ff92a2c23e4e010df0e.js\"],\"component---src-templates-series-index-jsx\":[\"/component---src-templates-series-index-jsx-7379c8ab3cf4f132a104.js\"]}";
           </script>
-        <script>window.___webpackCompilationHash="7a551ca0219089dbb706";</script><script src="/webpack-runtime-17e3da00f8073df829b4.js" async></script><script src="/framework-89f49a7f766ec31641df.js" async></script><script src="/app-263d41856e8ba543d076.js" async></script><!-- slice-end id="_gatsby-scripts-1" --></body></html>
+        <script>window.___webpackCompilationHash="bca18ce90e1c8b9fed06";</script><script src="/webpack-runtime-17e3da00f8073df829b4.js" async></script><script src="/framework-89f49a7f766ec31641df.js" async></script><script src="/app-263d41856e8ba543d076.js" async></script><!-- slice-end id="_gatsby-scripts-1" --></body></html>

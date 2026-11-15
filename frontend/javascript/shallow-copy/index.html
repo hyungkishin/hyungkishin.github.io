@@ -212,10 +212,22 @@ data-styled.g24[id="TagList__Tags-sc-1a02q9k-0"]{content:"chUkMH,"}/*!sc*/
 
 config<span class="token punctuation">.</span>retry<span class="token punctuation">.</span>count <span class="token operator">=</span> <span class="token number">5</span>
 config<span class="token punctuation">.</span>retry<span class="token punctuation">.</span>count <span class="token comment">// 5</span></code></pre></div>
-<p>값이 바뀌었다. 동결은 실패하지 않았다.</p>
-<p><code class="language-text">Object.freeze(config)</code>를 호출하면 새 프로퍼티를 추가하거나 기존 프로퍼티의 정의를 바꿀 수 없다. 이 예제의 <code class="language-text">retry</code>와 <code class="language-text">timeout</code>은 둘 다 데이터 프로퍼티라 값도 덮어쓸 수 없게 된다. 그런데 <code class="language-text">retry</code>에 저장된 값은 객체를 가리키는 참조다. 참조가 가리키는 안쪽 객체는 <code class="language-text">freeze</code>에 넘긴 적이 없다.</p>
+<p>값이 바뀌었다. 예외도 나지 않았다.</p>
+<p><figure class='gatsby-resp-image-figure' style='margin-bottom: 1rem;'>
+    <span class='gatsby-resp-image-wrapper' style='position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 760px; '>
+      <span class='gatsby-resp-image-background-image' style="padding-bottom: 50%; position: relative; bottom: 0; left: 0; background-image: url('data:image/webp;base64,UklGRpIAAABXRUJQVlA4IIYAAAAQBACdASoUAAoAPtFUo0uoJKMhsAgBABoJYwC7AYv+1edJ9A4gYqYegAD+mWZU5YkpNybwmjJtsEqVwQFBlbOzU7WgloFPuCVBpEE1mMFaYu3CrEtU9O8+50eCyyI5+vYYTBOgm7Di70W+PnZOXekCsJ2+E3p/O4VlNtgEOy0EGYT7YAAAAA=='); background-size: cover; display: block;"></span>
+  <img class='gatsby-resp-image-image' alt='자물쇠를 채운 유리 캐비닛은 그대로인데 안쪽 카드에 적힌 숫자가 3에서 5로 바뀌었다.' title='' src='/static/d0cf849047068a9d9962d1baab1e6aeb/7df04/scene-locked-cabinet-count.webp' srcset='/static/d0cf849047068a9d9962d1baab1e6aeb/561c4/scene-locked-cabinet-count.webp 190w,
+/static/d0cf849047068a9d9962d1baab1e6aeb/3e041/scene-locked-cabinet-count.webp 380w,
+/static/d0cf849047068a9d9962d1baab1e6aeb/7df04/scene-locked-cabinet-count.webp 760w,
+/static/d0cf849047068a9d9962d1baab1e6aeb/b2cd5/scene-locked-cabinet-count.webp 1140w,
+/static/d0cf849047068a9d9962d1baab1e6aeb/94b1e/scene-locked-cabinet-count.webp 1280w' sizes='(max-width: 760px) 100vw, 760px' style='width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;' loading='lazy' decoding='async'>
+    </span>
+    <figcaption class='gatsby-resp-image-figcaption'>자물쇠를 채운 유리 캐비닛은 그대로인데 안쪽 카드에 적힌 숫자가 3에서 5로 바뀌었다.</figcaption>
+  </figure></p>
+<p><code class="language-text">freeze</code>가 안 걸린 걸까? 바깥 객체와 <code class="language-text">retry</code>에 각각 물어본다.</p>
 <div class="gatsby-highlight" data-language="js"><pre class="language-js"><code class="language-js">Object<span class="token punctuation">.</span><span class="token function">isFrozen</span><span class="token punctuation">(</span>config<span class="token punctuation">)</span>       <span class="token comment">// true</span>
 Object<span class="token punctuation">.</span><span class="token function">isFrozen</span><span class="token punctuation">(</span>config<span class="token punctuation">.</span>retry<span class="token punctuation">)</span> <span class="token comment">// false</span></code></pre></div>
+<p>동결은 실패하지 않았다. <code class="language-text">config</code>는 얼어 있고 <code class="language-text">config.retry</code>만 열려 있다. <code class="language-text">Object.freeze(config)</code>를 호출하면 새 프로퍼티를 추가하거나 기존 프로퍼티의 정의를 바꿀 수 없다. 이 예제의 <code class="language-text">retry</code>와 <code class="language-text">timeout</code>은 둘 다 데이터 프로퍼티라 값도 덮어쓸 수 없게 된다. 그런데 <code class="language-text">retry</code>에 저장된 값은 객체를 가리키는 참조다. 참조가 가리키는 안쪽 객체는 <code class="language-text">freeze</code>에 넘긴 적이 없다.</p>
 <p>첫 겹 프로퍼티에 직접 쓰면 막힌다. 막히는 방식은 코드가 실행되는 모드에 달렸다.</p>
 <div class="gatsby-highlight" data-language="js"><pre class="language-js"><code class="language-js"><span class="token string">'use strict'</span>
 config<span class="token punctuation">.</span>timeout <span class="token operator">=</span> <span class="token number">2000</span>
@@ -356,4 +368,4 @@ Object<span class="token punctuation">.</span><span class="token function">keys<
           >
             window.___chunkMapping="{\"app\":[\"/app-263d41856e8ba543d076.js\"],\"component---src-pages-404-jsx\":[\"/component---src-pages-404-jsx-9f8a72d2ed2a45ceab73.js\"],\"component---src-pages-index-jsx\":[\"/component---src-pages-index-jsx-75fab5a7b0b0a580eb71.js\"],\"component---src-pages-search-jsx\":[\"/component---src-pages-search-jsx-4e18011dfc37e4849bed.js\"],\"component---src-pages-tags-jsx\":[\"/component---src-pages-tags-jsx-aabe6ace5b38b6a66f5d.js\"],\"component---src-templates-post-jsx\":[\"/component---src-templates-post-jsx-4ec71b80d25e7d733a83.js\"],\"component---src-templates-resume-jsx\":[\"/component---src-templates-resume-jsx-8ff92a2c23e4e010df0e.js\"],\"component---src-templates-series-index-jsx\":[\"/component---src-templates-series-index-jsx-7379c8ab3cf4f132a104.js\"]}";
           </script>
-        <script>window.___webpackCompilationHash="7a551ca0219089dbb706";</script><script src="/webpack-runtime-17e3da00f8073df829b4.js" async></script><script src="/framework-89f49a7f766ec31641df.js" async></script><script src="/app-263d41856e8ba543d076.js" async></script><!-- slice-end id="_gatsby-scripts-1" --></body></html>
+        <script>window.___webpackCompilationHash="bca18ce90e1c8b9fed06";</script><script src="/webpack-runtime-17e3da00f8073df829b4.js" async></script><script src="/framework-89f49a7f766ec31641df.js" async></script><script src="/app-263d41856e8ba543d076.js" async></script><!-- slice-end id="_gatsby-scripts-1" --></body></html>

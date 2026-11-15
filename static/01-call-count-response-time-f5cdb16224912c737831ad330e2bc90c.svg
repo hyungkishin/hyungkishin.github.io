@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 480" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="920" height="480" fill="#ffffff"/>
+
+  <text x="460" y="36" fill="#1f2937" font-size="18" font-weight="600" text-anchor="middle">호출 횟수별 응답 시간: 첫 호출만 유독 느리다</text>
+  <text x="460" y="58" fill="#64748b" font-size="12" text-anchor="middle">첫 요청은 제한 시간에 걸렸고, 뒤이은 요청은 성공했다</text>
+
+  <!-- Plot area -->
+  <g transform="translate(80, 100)">
+    <!-- Y axis -->
+    <line x1="0" y1="0" x2="0" y2="280" stroke="#9ca3af" stroke-width="1.5"/>
+    <!-- X axis -->
+    <line x1="0" y1="280" x2="760" y2="280" stroke="#9ca3af" stroke-width="1.5"/>
+
+    <!-- Linear scale: 56 pixels per second. -->
+    <text x="-12" y="4" fill="#4b5563" font-size="11" text-anchor="end">5s</text>
+    <line x1="-4" y1="0" x2="0" y2="0" stroke="#9ca3af"/>
+    <text x="-12" y="60" fill="#4b5563" font-size="11" text-anchor="end">4s</text>
+    <line x1="-4" y1="56" x2="0" y2="56" stroke="#9ca3af"/>
+    <line x1="0" y1="56" x2="760" y2="56" stroke="#f1f5f9" stroke-width="1"/>
+    <text x="-12" y="116" fill="#4b5563" font-size="11" text-anchor="end">3s</text>
+    <line x1="-4" y1="112" x2="0" y2="112" stroke="#9ca3af"/>
+    <line x1="0" y1="112" x2="760" y2="112" stroke="#f1f5f9" stroke-width="1"/>
+    <text x="-12" y="172" fill="#4b5563" font-size="11" text-anchor="end">2s</text>
+    <line x1="-4" y1="168" x2="0" y2="168" stroke="#9ca3af"/>
+    <line x1="0" y1="168" x2="760" y2="168" stroke="#f1f5f9" stroke-width="1"/>
+    <text x="-12" y="228" fill="#4b5563" font-size="11" text-anchor="end">1s</text>
+    <line x1="-4" y1="224" x2="0" y2="224" stroke="#9ca3af"/>
+    <line x1="0" y1="224" x2="760" y2="224" stroke="#f1f5f9" stroke-width="1"/>
+    <text x="-12" y="284" fill="#4b5563" font-size="11" text-anchor="end">0</text>
+    <line x1="-4" y1="280" x2="0" y2="280" stroke="#9ca3af"/>
+
+    <!-- Bars -->
+    <!-- 1st call: ~5s -->
+    <rect x="40" y="-0.06" width="50" height="280.06" rx="4" fill="#ef4444" opacity="0.85"/>
+    <text x="65" y="-7.06" fill="#ef4444" font-size="12" font-weight="600" text-anchor="middle">5,001ms (timeout)</text>
+    <text x="65" y="300" fill="#4b5563" font-size="11" text-anchor="middle">1st</text>
+
+    <!-- 2nd call: ~887ms -->
+    <rect x="140" y="230.33" width="50" height="49.67" rx="4" fill="#f59e0b" opacity="0.85"/>
+    <text x="165" y="223.33" fill="#f59e0b" font-size="12" font-weight="600" text-anchor="middle">887ms</text>
+    <text x="165" y="300" fill="#4b5563" font-size="11" text-anchor="middle">2nd</text>
+
+    <!-- 3rd call: ~400ms -->
+    <rect x="240" y="257.04" width="50" height="22.96" rx="4" fill="#a78bfa" opacity="0.85"/>
+    <text x="265" y="250.04" fill="#a78bfa" font-size="12" font-weight="600" text-anchor="middle">410ms</text>
+    <text x="265" y="300" fill="#4b5563" font-size="11" text-anchor="middle">3rd</text>
+
+    <!-- 5th call: ~330ms -->
+    <rect x="340" y="261.52" width="50" height="18.48" rx="4" fill="#38bdf8" opacity="0.85"/>
+    <text x="365" y="254.52" fill="#38bdf8" font-size="12" font-weight="600" text-anchor="middle">330ms</text>
+    <text x="365" y="300" fill="#4b5563" font-size="11" text-anchor="middle">5th</text>
+
+    <!-- 10th call: ~310ms -->
+    <rect x="440" y="262.64" width="50" height="17.36" rx="4" fill="#10b981" opacity="0.85"/>
+    <text x="465" y="255.64" fill="#10b981" font-size="12" font-weight="600" text-anchor="middle">310ms</text>
+    <text x="465" y="300" fill="#4b5563" font-size="11" text-anchor="middle">10th</text>
+
+    <!-- 50th call: ~290ms -->
+    <rect x="540" y="263.76" width="50" height="16.24" rx="4" fill="#10b981" opacity="0.85"/>
+    <text x="565" y="256.76" fill="#10b981" font-size="12" font-weight="600" text-anchor="middle">290ms</text>
+    <text x="565" y="300" fill="#4b5563" font-size="11" text-anchor="middle">50th</text>
+
+    <!-- 100th call: ~280ms -->
+    <rect x="640" y="264.32" width="50" height="15.68" rx="4" fill="#10b981" opacity="0.85"/>
+    <text x="665" y="257.32" fill="#10b981" font-size="12" font-weight="600" text-anchor="middle">280ms</text>
+    <text x="665" y="300" fill="#4b5563" font-size="11" text-anchor="middle">100th</text>
+
+    <!-- X axis label -->
+    <text x="380" y="335" fill="#64748b" font-size="11" text-anchor="middle">호출 횟수 (cold → warm)</text>
+  </g>
+
+  <!-- Annotation: cold zone -->
+  <g transform="translate(120, 110)">
+    <rect x="0" y="0" width="80" height="22" rx="4" fill="#f1f5f9" stroke="#ef4444" stroke-width="1"/>
+    <text x="40" y="15" fill="#ef4444" font-size="11" font-weight="600" text-anchor="middle">cold zone</text>
+  </g>
+
+  <g transform="translate(560, 110)">
+    <rect x="0" y="0" width="100" height="22" rx="4" fill="#f1f5f9" stroke="#10b981" stroke-width="1"/>
+    <text x="50" y="15" fill="#10b981" font-size="11" font-weight="600" text-anchor="middle">warm steady</text>
+  </g>
+
+  <!-- Bottom note -->
+  <text x="460" y="450" fill="#9ca3af" font-size="11" text-anchor="middle">첫 호출에는 JIT, TLS, DNS, IRSA 처리가 겹칠 수 있다. 이후 호출은 캐시와 연결을 재사용할 수 있다</text>
+</svg>

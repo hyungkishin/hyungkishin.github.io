@@ -79,6 +79,17 @@
 </tbody>
 </table></div>
 <p>두 JVM 모두 Temurin 25.0.4.1, 힙 32MiB에서 <code class="language-text">saved = null</code>을 실행했다. 한쪽에서는 큐에 통지가 왔지만 다른 쪽에서는 2초가 지나도 통지가 없었다. 한 변수에서 참조를 없앤 뒤에도 그 객체에 닿는 길이 남았는지가 두 실행의 차이다.</p>
+<p></p><figure class="gatsby-resp-image-figure" style="margin-bottom: 1rem;">
+    <span class="gatsby-resp-image-wrapper" style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 760px; ">
+      <span class="gatsby-resp-image-background-image" style="padding-bottom: 50%; position: relative; bottom: 0; left: 0; background-image: url('data:image/webp;base64,UklGRn4AAABXRUJQVlA4IHIAAACQAwCdASoUAAoAPtFUpEuoJKOhsAgBABoJYwC06CC0LU0+A5AAAP6yATY10WN8wwM6H2w13RuveAGxdHcHGSraOz0Ga2RX1WQg6MNd0VvFomIw1uclwqo73cWXNbypDgw2Z/gPfwXOe4zgAA/Xqmz/ZAA='); background-size: cover; display: block;"></span>
+  <img class="gatsby-resp-image-image" alt="같은 영수증을 버린 두 우편함 중 한쪽에만 통지 카드가 꽂히고 다른 쪽은 시계가 2초를 지나도 비어 있다." title="" src="/static/280fcbb17b6dbc652db297801a6102e6/7df04/scene-one-empty-mailbox.webp" srcset="/static/280fcbb17b6dbc652db297801a6102e6/561c4/scene-one-empty-mailbox.webp 190w,
+/static/280fcbb17b6dbc652db297801a6102e6/3e041/scene-one-empty-mailbox.webp 380w,
+/static/280fcbb17b6dbc652db297801a6102e6/7df04/scene-one-empty-mailbox.webp 760w,
+/static/280fcbb17b6dbc652db297801a6102e6/b2cd5/scene-one-empty-mailbox.webp 1140w,
+/static/280fcbb17b6dbc652db297801a6102e6/94b1e/scene-one-empty-mailbox.webp 1280w" sizes="(max-width: 760px) 100vw, 760px" style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;" loading="lazy" decoding="async">
+    </span>
+    <figcaption class="gatsby-resp-image-figcaption">같은 영수증을 버린 두 우편함 중 한쪽에만 통지 카드가 꽂히고 다른 쪽은 시계가 2초를 지나도 비어 있다.</figcaption>
+  </figure><p></p>
 <p>마지막 강한 참조가 사라진 줄은 코드에서 짚을 수 있다. 큐에서 통지를 받은 시점에는 GC가 약한 참조를 처리했다는 것도 안다. 영수증이 차지했던 자리에 다음 객체를 언제 할당했는지는 이 출력에 없다. <a href="/backend/transfer-performance/jvm-memory/evidence/receipt-stdout.txt">기본 실행 출력</a>, <a href="/backend/transfer-performance/jvm-memory/evidence/receipt-gc.txt">G1 로그</a>, <a href="/backend/transfer-performance/jvm-memory/evidence/receipt-no-explicit-gc.txt">대조 실행 명령과 출력</a></p>
 <h2 id="section-6">자료의 그림을 실제 코드와 맞춰 보기</h2>
 <p>네이버 D2의 2011년 JVM 그림에는 PermGen이 나온다. 그런데 영수증 예제를 실행한 JDK 25의 HotSpot에서는 그 이름을 찾을 수 없다. 지금은 클래스 메타데이터 대부분을 메타스페이스에 둔다. <a href="https://d2.naver.com/helloworld/1230">D2의 JVM Internal</a></p>

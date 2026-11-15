@@ -232,15 +232,14 @@ data-styled.g24[id="TagList__Tags-sc-1a02q9k-0"]{content:"chUkMH,"}/*!sc*/
 .agent-fig figcaption b{color:var(--fig-ink2);font-weight:600}
 @media (prefers-reduced-motion: reduce){.agent-fig svg animate,.agent-fig svg animateMotion{display:none}}
 </style>
-<h2>문서를 100토큰씩 나누자 보상 기준 시간이 답에서 빠졌다</h2>
-<p>처음 실행했을 때는 정책 문서 일곱 건이 각각 청크 하나로 저장됐다. 다시 실행해도 <code class="language-text">vector_store</code>에는 일곱 행만 있었다. 이미 적재한 <code class="language-text">faqId</code>는 건너뛰도록 했기 때문이다.</p>
-<p>보상 기준 시간과 그 조건을 함께 읽어야 질문에 답할 수 있다. 문서를 검색할 단위인 청크로 자른 뒤, 크기를 세 가지로 바꾸며 같은 질문 세트를 보냈다.</p>
+<h2>800토큰에서 2,000토큰으로 늘렸는데 왜 둘 다 7행일까?</h2>
+<p>검색에 쓸 문서 조각을 청크라고 한다. 이번에는 정책 파일 일곱 개를 잘라서 청크 하나당 <code class="language-text">vector_store</code> 한 행에 넣었다. 청크를 크게 잡으면 몇 행이나 줄어들까?</p>
 <table>
 <thead>
 <tr>
 <th>실험</th>
-<th>chunkSize / min</th>
-<th>vector_store row</th>
+<th>청크 크기(토큰) / 최소 구두점 위치(글자)</th>
+<th>저장된 행</th>
 <th>평균 입력 토큰</th>
 </tr>
 </thead>
@@ -265,13 +264,25 @@ data-styled.g24[id="TagList__Tags-sc-1a02q9k-0"]{content:"chUkMH,"}/*!sc*/
 </tr>
 </tbody>
 </table>
-<p>평균 입력 토큰은 4턴 기준이다. 동시 실행 로그에서 한 턴이 누락돼 5턴을 다 모으진 못했다.</p>
-<p>청크를 작게 나눈 B에서 "비 오는 날" 질문의 답이 이렇게 뭉개졌다. "기상 특보 발효 여부와 실제 지연 시간을 확인해야 합니다." 주요 단어는 남았지만 수치 조건은 누락됐다. 정책 원문에 있던 "예상 시간 + 30분", "60분 이상"이 답에서 사라진 것이다.</p>
-<p>100토큰씩 자르자 기준 시간과 그 기준이 적용되는 조건이 서로 다른 청크에 들어갔다. 검색한 네 조각에는 조건만 있고 기준 시간은 없었다. 그래서 검색 결과가 네 건이나 있어도 답변에서 보상 기준이 빠졌다.</p>
-<p>재미있는 것은 같은 B에서 반대 증거도 나왔다는 점이다. 취소 정책 질문은 오히려 A보다 정확하게 인용됐다. 잘게 쪼갠 덕에 CREATED/ACCEPTED가 적힌 조각과 더 가깝게 매칭된 것이다. 작은 청크가 늘 나쁜 게 아니라 질문에 따라 갈리는 트레이드오프라는 뜻이다.</p>
-<p>C(2000/800)도 A와 같은 7행이었다. 정책 문서가 2000토큰보다 짧다는 것만으로 나오는 결과는 아니다. Spring AI 1.0.0의 <code class="language-text">TokenTextSplitter</code>는 남은 토큰에서 <code class="language-text">chunkSize</code>만큼 떼어 문자열로 바꾼다. 그 문자열에서 마지막 마침표나 물음표, 느낌표, 줄바꿈을 찾는다. 그 위치가 <code class="language-text">minChunkSizeChars</code>번째 글자보다 뒤에 있으면 거기서 자른다. 남은 토큰은 다음 청크가 된다. 짧은 조각을 앞 청크에 합치는 단계는 없다. <a href="https://github.com/spring-projects/spring-ai/blob/v1.0.0/spring-ai-commons/src/main/java/org/springframework/ai/transformer/splitter/TokenTextSplitter.java#L99-L128">TokenTextSplitter 1.0.0의 분할 코드</a></p>
-<p>그럼 이 실험에서 A와 C는 왜 똑같이 7행이었을까? 당시 넣은 정책 파일 일곱 개를 같은 splitter에 다시 넣었다. 가장 짧은 문서가 485토큰, 가장 긴 문서가 584토큰이었고, 두 설정 모두 파일마다 청크가 하나씩 나왔다. 구두점 없이 <code class="language-text">cat</code>을 공백으로 이어 붙인 1,199토큰짜리 문서는 A에서 둘, C에서 하나로 갈라졌다. 같은 2,000토큰 미만이라도 어느 문서를 넣느냐에 따라 결과가 달라진다. <a href="https://github.com/hyungkishin/loop-play-spring-ai-agent/tree/c213d52/src/main/resources/knowledge">실험에 쓴 정책 파일 일곱 개</a></p>
-<p>기본값은 800/350으로 되돌렸다. A에서는 문서마다 청크가 하나였으니 기준 시간과 조건이 다른 청크로 갈라지지 않았다. 다만 splitter는 자를 위치를 고를 때 "## 접수 시한" 같은 조항 제목을 따로 보지 않는다. 800토큰을 넘는 정책 문서가 들어오면 한 조항 안에서도 잘릴 수 있다. 숫자와 그 숫자의 조건이 한 조각에 있어야 한다는 것이 이번 실험의 교훈이다.</p>
+<p>입력 토큰 평균은 로그가 남은 네 턴으로 냈다. 다섯 턴 중 하나는 누락됐다.</p>
+<p>A는 800토큰에 7행. C는 2,000토큰인데 또 7행이다. 당시 정책 파일 일곱 개를 같은 splitter에 다시 넣어 보니, 가장 짧은 개인정보 문서는 485토큰, 가장 긴 기상 지연 문서는 584토큰이었다. 어느 설정에서든 각 파일이 딱 한 조각으로 나왔다. <a href="https://github.com/hyungkishin/loop-play-spring-ai-agent/tree/c213d52/src/main/resources/knowledge">실험에 쓴 정책 파일 일곱 개</a></p>
+<p>두 설정이 항상 같은 결과를 내는 걸까? 이번엔 구두점 없이 <code class="language-text">cat</code>만 공백으로 이어서 1,199토큰을 넣었다. A에서는 두 조각, C에서는 한 조각이 나왔다. 입력이 800토큰을 넘기고 나서야 두 설정의 차이가 보였다.</p>
+<p>표에 적힌 350과 800은 어디에 쓰일까? Spring AI 1.0.0의 <code class="language-text">TokenTextSplitter</code>는 먼저 남은 토큰 중 최대 <code class="language-text">chunkSize</code>개를 문자열로 풀어 본다. 그 안에서 마지막 마침표, 물음표, 느낌표 또는 줄바꿈을 찾는다. 그 위치가 <code class="language-text">minChunkSizeChars</code>보다 뒤면 거기까지 자른다. 방금 넣은 <code class="language-text">cat</code>에는 그중 어느 것도 없다. 그래서 A는 앞의 800토큰에서 잘리고 C는 1,199토큰 전부가 한 조각에 들어갔다. <a href="https://github.com/spring-projects/spring-ai/blob/v1.0.0/spring-ai-commons/src/main/java/org/springframework/ai/transformer/splitter/TokenTextSplitter.java#L99-L128">TokenTextSplitter 1.0.0의 분할 코드</a></p>
+<p>정책 파일 일곱 개를 실제로 쪼갠 설정은 B였다. 기상 지연 문서 하나가 여덟 조각이 됐다. “비 오는 날 배달이 늦으면 보상받나요?”라는 문의에는 “기상 특보 발효 여부와 실제 지연 시간을 확인해야 합니다”라는 답이 왔다.</p>
+<p><figure class='gatsby-resp-image-figure' style='margin-bottom: 1rem;'>
+    <span class='gatsby-resp-image-wrapper' style='position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 760px; '>
+      <span class='gatsby-resp-image-background-image' style="padding-bottom: 50%; position: relative; bottom: 0; left: 0; background-image: url('data:image/webp;base64,UklGRoAAAABXRUJQVlA4IHQAAADwAwCdASoUAAoAPtFUo0uoJKMhsAgBABoJZQAAXjkNCpEvCR/hI4MAAP7J9HdX0V/DU8kP2vma7yNItVCsRisHWwLDicNoHUR4+T1gXeK2OF/Yrb/9yfpeibjRMTRbxEUmYbBCSfXl478RRPoACQiXoAAAAA=='); background-size: cover; display: block;"></span>
+  <img class='gatsby-resp-image-image' alt='기상 지연 정책 문서가 여덟 조각으로 잘린 뒤, 비 오는 현관에서 고객이 받은 답장에는 지연 시간 숫자가 비어 있다.' title='' src='/static/0831e0e53024468d9c01a26d60abffb0/7df04/scene-rainy-missing-minutes.webp' srcset='/static/0831e0e53024468d9c01a26d60abffb0/561c4/scene-rainy-missing-minutes.webp 190w,
+/static/0831e0e53024468d9c01a26d60abffb0/3e041/scene-rainy-missing-minutes.webp 380w,
+/static/0831e0e53024468d9c01a26d60abffb0/7df04/scene-rainy-missing-minutes.webp 760w,
+/static/0831e0e53024468d9c01a26d60abffb0/b2cd5/scene-rainy-missing-minutes.webp 1140w,
+/static/0831e0e53024468d9c01a26d60abffb0/94b1e/scene-rainy-missing-minutes.webp 1280w' sizes='(max-width: 760px) 100vw, 760px' style='width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;' loading='lazy' decoding='async'>
+    </span>
+    <figcaption class='gatsby-resp-image-figcaption'>기상 지연 정책 문서가 여덟 조각으로 잘린 뒤, 비 오는 현관에서 고객이 받은 답장에는 지연 시간 숫자가 비어 있다.</figcaption>
+  </figure></p>
+<p>지연 시간을 확인하라는데, 그래서 몇 분일까? 원문에 있던 ‘예상 시간 + 30분’과 ‘60분 이상’이 둘 다 빠졌다.</p>
+<p>숫자가 들어 있는 조각이 검색에서 빠졌을 수 있다. 하지만 당시 응답 기록에는 실제로 뽑힌 네 조각이 없다. 모델이 숫자를 봤는데도 답에서 빼먹었을 가능성이 남는다. 같은 B에서 취소 질문에는 오히려 주문 상태 <code class="language-text">CREATED</code>와 <code class="language-text">ACCEPTED</code>까지 들어간 답이 왔다. <a href="https://github.com/hyungkishin/loop-play-spring-ai-agent/blob/c213d52/docs/4%EC%A3%BC%EC%B0%A8/%EC%8B%A4%EC%B8%A1-raw/%EB%8B%A8%EA%B3%842-B-100.md">100토큰 설정에서 받은 응답 원문</a></p>
+<p>이 일곱 파일에는 800/350을 쓰기로 했다. 기상 지연 문서를 한 건 찾으면 기준 시간과 적용 조건을 같이 읽을 수 있어서다. 정책이 길어지면 다시 봐야 한다. 방금 본 splitter는 마침표와 줄바꿈을 찾으면서 같은 정책 조항이 어디까지인지는 따지지 않는다.</p>
 <div class="gatsby-highlight" data-language="java"><pre class="language-java"><code class="language-java"><span class="token annotation punctuation">@Bean</span>
 <span class="token keyword">public</span> <span class="token class-name">TokenTextSplitter</span> <span class="token function">tokenTextSplitter</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">TokenTextSplitter</span><span class="token punctuation">(</span>
@@ -393,7 +404,8 @@ data-styled.g24[id="TagList__Tags-sc-1a02q9k-0"]{content:"chUkMH,"}/*!sc*/
 </tbody>
 </table>
 <p>첫 문의라 이전 대화가 없었다. 대화 이력을 켜도 입력은 1,688토큰으로 같았다. 여기에 RAG를 추가했을 때 2,590토큰으로 늘었다. 차이는 902토큰이다.</p>
-<p>배달 후 환불에는 증빙이 필요하다. 위 답변만으로는 필요한 조항이 검색되지 않았는지, 프롬프트에 있었지만 답에 반영되지 않았는지, 증빙을 확인하라는 응답인지 구분하기 어렵다. 검색한 문서, 실제 프롬프트, 답변을 함께 기록해야 구분할 수 있다.</p>
+<p>배달 후 환불에는 증빙이 필요하다. 상담원에게 넘긴 답이 틀렸다고 단정할 수는 없다는 뜻이다. 902토큰을 더 넣고도 같은 답이 나올 경로가 적어도 셋이다. 필요한 조항이 검색되지 않았거나, 프롬프트에 있었지만 답에 반영되지 않았거나, 증빙을 확인하라는 뜻으로 같은 안내를 했거나.</p>
+<p>위 답변만으로는 셋을 구분하기 어렵다. 한 요청에서 검색한 문서, 실제 프롬프트, 답변을 함께 기록해야 가를 수 있다.</p>
 <p>검색에는 유사도 기준을 두고, 프롬프트에는 정책을 찾지 못했을 때 사용할 안내 문구를 적었다.</p>
 <div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text">[정책 인용 규칙]
 - 환불, 취소, 배달 지연 보상, 쿠폰 관련 질문은 제공된 Context 를 근거로만 답합니다.
@@ -402,7 +414,7 @@ data-styled.g24[id="TagList__Tags-sc-1a02q9k-0"]{content:"chUkMH,"}/*!sc*/
 - 정책 인용 시 원문의 수치 조건("24시간 이내", "예상 시간 + 30분")을 그대로 사용합니다.</code></pre></div>
 <p>인용 규칙을 빼고 “오늘 점심 뭐 먹을까요?”라고 물었더니 점심 메뉴를 추천하는 답이 나왔다. 검색 결과가 비었을 때 무엇을 답할지는 검색 임계값만으로 정할 수 없었다.</p>
 <h2>다음 이야기</h2>
-<p>이번 보상 문의에 답하려면 기준 시간과 적용 조건이 같은 청크에 담겨야 했다. 환불 문의에서 세 번 모두 같은 안내가 나온 이유는 확인이 덜 됐다. 당시의 유사도 점수도 남아 있지 않다.</p>
+<p>이번 보상 문의에는 기준 시간과 그 시간이 적용되는 조건이 모두 필요했다. 환불 문의에서 세 번 모두 같은 안내가 나온 이유는 확인이 덜 됐다. 당시의 유사도 점수도 남아 있지 않다.</p>
 <p>중복을 검사하는 <code class="language-text">alreadyLoaded</code>는 faqId만 비교한다. 그래서 같은 문서의 본문을 수정해도 재적재하지 않는다. 내용 변경까지 감지하려면 본문의 해시도 비교해야 한다.</p>
 <p>DataSource를 추가했더니 JDBC ChatMemory 자동 구성과 기존 Bean이 충돌했다. 이번 실험에서는 프로파일을 분리해 두 설정이 동시에 적용되지 않도록 했다.</p>
 <p>현재 질문에 개인정보가 포함되면 그 문장이 검색어로도 쓰인다. 다음 편에서는 모델을 호출하기 전과 고객에게 답을 보내기 전에 각각 어떤 검사를 할 수 있는지 확인했다.</p></div><div class="Body__PostBottomAdWrapper-sc-16q266i-1 htXuEU"><ins class="adsbygoogle" style="overflow-x:auto;overflow-y:hidden;display:block;text-align:center" data-ad-client="ca-pub-2692445439426078" data-ad-slot="2295339271" data-ad-format="auto" data-full-width-responsive="true" data-ad-layout-key=""></ins></div></div><nav aria-label="글 태그"><ul class="TagList__Tags-sc-1a02q9k-0 chUkMH"><li><a href="/tags/?q=AI">AI</a></li><li><a href="/tags/?q=Spring">Spring</a></li><li><a href="/tags/?q=SpringAI">SpringAI</a></li><li><a href="/tags/?q=RAG">RAG</a></li><li><a href="/tags/?q=PgVector">PgVector</a></li></ul></nav><details class="Series__Contents-sc-1wwrbht-0 iuMVRR"><summary>Spring AI로 배달 상담 에이전트 구현하기<!-- --> 목차 (<!-- -->7<!-- -->편)</summary><ol><li><a href="/backend/spring/spring-ai/intro/spring-ai/">Java와 Spring으로 상담 에이전트를 만들기로 한 이유</a></li><li><a href="/backend/spring/spring-ai/round1/">.call() 한 줄 아래에서 벌어지는 일</a></li><li><a href="/backend/spring/spring-ai/round2/">판단은 LLM, 실행은 Spring Bean</a></li><li><a href="/backend/spring/spring-ai/round3/">“그거 취소해줘”에서 주문번호는 어디서 찾을까</a></li><li><a aria-current="page" class="" href="/backend/spring/spring-ai/round4/">환불 문의에 입력을 902토큰 더 넣었는데 답은 같았다</a></li><li><a href="/backend/spring/spring-ai/round5/">상담봇의 입력 검사와 응답 검사는 각각 무엇을 걸러낼까</a></li><li><a href="/backend/spring/spring-ai/round6/">Advisor 체인과 운영 지표 통합</a></li></ol></details><nav aria-label="다른 글 읽기" class="Footer__Navigation-sc-1d9k77a-0 bYOcsl"><a rel="prev" href="/backend/spring/spring-ai/round3/"><span>시리즈 이전 편</span>“그거 취소해줘”에서 주문번호는 어디서 찾을까</a><a rel="next" href="/backend/spring/spring-ai/round5/"><span>시리즈 다음 편</span>상담봇의 입력 검사와 응답 검사는 각각 무엇을 걸 러낼까</a></nav><div id="bio" class="Bio__BioWrapper-sc-c63sem-0 ctLkjo"><div class="Bio__Profile-sc-c63sem-1 jbCuyN"></div><div><div class="Bio__Author-sc-c63sem-2 jSIMzS">@<!-- -->hyungkishin</div><div class="Bio__Description-sc-c63sem-3 gRoluW">신형기의 개발 기록. 송금, 커머스, 프런트엔드에서 마주친 문제를 코드와 실험으로 살펴봅니다.</div><div class="Bio__LinksWrapper-sc-c63sem-4 hrBIHF"><a href="https://github.com/hyungkishin" target="_blank" rel="noreferrer" aria-label="GitHub"><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 496 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"></path></svg></a></div></div></div><div class="Footer__Comments-sc-1d9k77a-1 lgoRZX"></div></article></main><footer class="journal-footer"><a class="footer-name" href="/">hyungkishin.blog</a><nav aria-label="바닥글 메뉴"><a href="/#posts">글 목록</a><a href="/#series">시리즈</a><a href="/tags/">태그</a><a href="/resume/">이력서</a><a href="https://github.com/hyungkishin">GitHub</a><a href="/rss.xml">RSS</a></nav></footer></div><div id="gatsby-announcer" style="position:absolute;top:0;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border:0" aria-live="assertive" aria-atomic="true"></div></div><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-BM7MKY5FBG"></script><script>
@@ -421,4 +433,4 @@ data-styled.g24[id="TagList__Tags-sc-1a02q9k-0"]{content:"chUkMH,"}/*!sc*/
           >
             window.___chunkMapping="{\"app\":[\"/app-263d41856e8ba543d076.js\"],\"component---src-pages-404-jsx\":[\"/component---src-pages-404-jsx-9f8a72d2ed2a45ceab73.js\"],\"component---src-pages-index-jsx\":[\"/component---src-pages-index-jsx-75fab5a7b0b0a580eb71.js\"],\"component---src-pages-search-jsx\":[\"/component---src-pages-search-jsx-4e18011dfc37e4849bed.js\"],\"component---src-pages-tags-jsx\":[\"/component---src-pages-tags-jsx-aabe6ace5b38b6a66f5d.js\"],\"component---src-templates-post-jsx\":[\"/component---src-templates-post-jsx-4ec71b80d25e7d733a83.js\"],\"component---src-templates-resume-jsx\":[\"/component---src-templates-resume-jsx-8ff92a2c23e4e010df0e.js\"],\"component---src-templates-series-index-jsx\":[\"/component---src-templates-series-index-jsx-7379c8ab3cf4f132a104.js\"]}";
           </script>
-        <script>window.___webpackCompilationHash="7a551ca0219089dbb706";</script><script src="/webpack-runtime-17e3da00f8073df829b4.js" async></script><script src="/framework-89f49a7f766ec31641df.js" async></script><script src="/app-263d41856e8ba543d076.js" async></script><!-- slice-end id="_gatsby-scripts-1" --></body></html>
+        <script>window.___webpackCompilationHash="bca18ce90e1c8b9fed06";</script><script src="/webpack-runtime-17e3da00f8073df829b4.js" async></script><script src="/framework-89f49a7f766ec31641df.js" async></script><script src="/app-263d41856e8ba543d076.js" async></script><!-- slice-end id="_gatsby-scripts-1" --></body></html>

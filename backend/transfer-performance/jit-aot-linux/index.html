@@ -36,6 +36,17 @@
 <p>OpenJDK 소스에도 기준이 둘이다. 메서드 진입용 컴파일은 호출 계수 하나, 또는 최소 호출 계수와 호출 횟수와 백에지 횟수의 합을 본다. OSR은 백에지를 본다. 거기에 설정, 컴파일 단계와 큐 부하까지 영향을 준다. 한 번 호출한 <code class="language-text">longLoop</code>의 로그만 봐도 왜 ‘2만 번 호출’을 고정 기준으로 외우면 안 되는지 알 수 있다. <a href="https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/share/compiler/compilationPolicy.cpp#L307-L361">메서드 진입과 백에지에서의 컴파일 정책</a>, <a href="https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/share/compiler/compilationPolicy.cpp#L386-L403">큐에 따른 기준 조정</a></p>
 <h3>정률만 보던 호출에 정액 정책이 처음 들어오면</h3>
 <p>인라이닝할 때 관찰한 타입이 도중에 바뀌는 경우도 궁금했다. 두 수수료 클래스는 시작부터 로드해 두고 정률 객체만 20만 번 넘겼다.</p>
+<p></p><figure class="gatsby-resp-image-figure" style="margin-bottom: 1rem;">
+    <span class="gatsby-resp-image-wrapper" style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 760px; ">
+      <span class="gatsby-resp-image-background-image" style="padding-bottom: 50%; position: relative; bottom: 0; left: 0; background-image: url('data:image/webp;base64,UklGRoAAAABXRUJQVlA4IHQAAAAQBACdASoUAAoAPtFWo0uoJKMhsAgBABoJZQCw7UYATMoT9tXCJU54QAD+tdznPRGbEdPioEFXWGDIEkTO3ZlC9HOsFOtH8dMPrMxoQvHLohGF8Qv7IyHRB8Wq71uGLWkQo1rCo9xpxRkbP8kMlisgq5AAAA=='); background-size: cover; display: block;"></span>
+  <img class="gatsby-resp-image-image" alt="퍼센트 도장만 빠르게 찍던 직원이 모양이 다른 전표가 들어오자 도장을 든 채 멈춘다." title="" src="/static/c27f892e294e697766dceec5cc532937/7df04/scene-frozen-percent-stamp.webp" srcset="/static/c27f892e294e697766dceec5cc532937/561c4/scene-frozen-percent-stamp.webp 190w,
+/static/c27f892e294e697766dceec5cc532937/3e041/scene-frozen-percent-stamp.webp 380w,
+/static/c27f892e294e697766dceec5cc532937/7df04/scene-frozen-percent-stamp.webp 760w,
+/static/c27f892e294e697766dceec5cc532937/b2cd5/scene-frozen-percent-stamp.webp 1140w,
+/static/c27f892e294e697766dceec5cc532937/94b1e/scene-frozen-percent-stamp.webp 1280w" sizes="(max-width: 760px) 100vw, 760px" style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;" loading="lazy" decoding="async">
+    </span>
+    <figcaption class="gatsby-resp-image-figcaption">퍼센트 도장만 빠르게 찍던 직원이 모양이 다른 전표가 들어오자 도장을 든 채 멈춘다.</figcaption>
+  </figure><p></p>
 <p>처음 정액 객체를 넘겼을 때 JFR에 찍힌 컴파일 번호는 58, 호출 위치는 3이었다. 사유는 <code class="language-text">class_check</code>였다. 정률일 거라고 가정한 기계어로는 이 호출을 계속할 수 없어 그 코드를 빠져나왔다. 이런 복귀를 역최적화라고 한다. 타입 검사에서 벗어난 값을 별도 분기로 처리하는 코드도 있는데, 이번 실행은 trap 기록까지 남겼다. <a href="/backend/transfer-performance/jit-aot-linux/evidence/osr-windows.txt">타입 교체와 trap 결과</a></p>
 <p>인라이닝으로 여러 자바 호출이 물리 프레임 하나에 들어가도 HotSpot은 역최적화 지점에 논리 호출별 메서드, 바이트코드 위치, 지역 변수와 피연산자 위치를 기록해 둔다. 복구 시 레지스터와 스택의 값을 읽어 해당 지점에 필요한 인터프리터 프레임들로 펼친다. 이번 타입 검사 실패는 정액 메서드 본문에 들어가기 전이어서 <code class="language-text">quote</code>의 인터페이스 호출을 다시 처리한다. 로그는 실패 지점을 보여 주고 프레임 복구 과정은 구현에서 확인할 수 있다. <a href="https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/share/code/scopeDesc.hpp#L46-L83">논리 호출의 디버그 정보</a>, <a href="https://github.com/openjdk/jdk25u/blob/fda231468e56663992785ec199a6efb8eca3cc7a/src/hotspot/share/runtime/deoptimization.cpp#L888-L905">인터프리터 프레임 복구</a></p>
 <h2 id="section-2">컴파일을 맡은 스레드를 누가 실행할까?</h2>

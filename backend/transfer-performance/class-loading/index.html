@@ -69,6 +69,17 @@
 <p>이 로딩 규칙을 직접 쓸 때는 <code class="language-text">getClassLoadingLock(name)</code> 안에서 <code class="language-text">findLoadedClass</code>로 중복 정의부터 막는다. 자체 탐색에서 클래스를 못 찾았을 때 부모에게 넘기면 된다. 검증이나 접근 권한 오류까지 무시하면 원래 실패를 숨겨 버린다. 또 로더를 나눠도 플러그인이 파일을 열거나 네트워크에 접근할 권한은 그대로다. JDK 24부터 Security Manager는 영구 비활성화됐으므로 신뢰할 수 없는 플러그인은 OS 권한을 제한한 별도 프로세스에 둔다. <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/ClassLoader.html">ClassLoader API</a>, <a href="https://openjdk.org/jeps/486">JEP 486</a></p>
 <h2 id="section-4">첫 초기화와 두 번째 접근의 예외가 다른 이유</h2>
 <p>JAR을 빼지 않고도 <code class="language-text">NoClassDefFoundError</code>를 낼 수 있다. 정적 필드 초기화식에 <code class="language-text">Integer.parseInt("broken")</code>을 넣고 같은 로더에서 두 번 접근했다. 처음에는 <code class="language-text">NumberFormatException</code>을 원인으로 둔 <code class="language-text">ExceptionInInitializerError</code>가 나왔다. 두 번째가 <code class="language-text">NoClassDefFoundError</code>였다. 그 사이 파일은 건드리지 않았다. 첫 번째 실패 때 JVM이 이 클래스의 초기화를 실패로 기록했기 때문이다. 두 번째 로그만 읽고 JAR부터 다시 배포하면 원인은 그대로 남는다. <a href="https://docs.oracle.com/javase/specs/jls/se25/html/jls-12.html#jls-12.4.2">JLS의 상세 초기화 절차</a></p>
+<p></p><figure class="gatsby-resp-image-figure" style="margin-bottom: 1rem;">
+    <span class="gatsby-resp-image-wrapper" style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 760px; ">
+      <span class="gatsby-resp-image-background-image" style="padding-bottom: 50%; position: relative; bottom: 0; left: 0; background-image: url('data:image/webp;base64,UklGRo4AAABXRUJQVlA4IIIAAADwAwCdASoUAAoAPtFUo0uoJKMhsAgBABoJZQCdABJtGqBWBM33nSWAAP6PkC+tMIT30yVmheJ/iRdvs27lMsDM2fy9Xb9+toYLdB9een6U7OFHoif20Lh56/uNFb2Rd5eXdbLrrYUwmTBHA8JZsIS8b9JUBCd0FyvSbNtjEmYrEYgA'); background-size: cover; display: block;"></span>
+  <img class="gatsby-resp-image-image" alt="첫 방문자 때 서랍 열기에 실패해 표시를 붙인 직원이 두 번째 방문자에게는 서랍이 그대로 있는데도 열지 않고 고개를 젓는다." title="" src="/static/97ceb23c9909f827d32e1d88e4cc27c6/7df04/scene-tagged-broken-drawer.webp" srcset="/static/97ceb23c9909f827d32e1d88e4cc27c6/561c4/scene-tagged-broken-drawer.webp 190w,
+/static/97ceb23c9909f827d32e1d88e4cc27c6/3e041/scene-tagged-broken-drawer.webp 380w,
+/static/97ceb23c9909f827d32e1d88e4cc27c6/7df04/scene-tagged-broken-drawer.webp 760w,
+/static/97ceb23c9909f827d32e1d88e4cc27c6/b2cd5/scene-tagged-broken-drawer.webp 1140w,
+/static/97ceb23c9909f827d32e1d88e4cc27c6/94b1e/scene-tagged-broken-drawer.webp 1280w" sizes="(max-width: 760px) 100vw, 760px" style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;" loading="lazy" decoding="async">
+    </span>
+    <figcaption class="gatsby-resp-image-figcaption">첫 방문자 때 서랍 열기에 실패해 표시를 붙인 직원이 두 번째 방문자에게는 서랍이 그대로 있는데도 열지 않고 고개를 젓는다.</figcaption>
+  </figure><p></p>
 <p>초기화 도중에 같은 스레드가 자기 클래스의 값을 읽는 경우도 돌려 봤다. <code class="language-text">static final int value = read() + 1</code>에서 <code class="language-text">read()</code>가 읽은 값은 0이다. 아직 대입 전인데 같은 스레드가 재진입했으니 자신을 기다리지 않고 기본값을 읽었다. 그래서 최종값이 1이 된다.</p>
 <p>스레드를 둘로 늘리니 결과가 달랐다. A의 정적 초기화식은 B의 값을 읽고 B의 초기화식은 A의 값을 읽게 했다. 두 플랫폼 스레드를 동시에 진입시키고 덤프를 뜨니 <code class="language-text">init-A</code>는 B의 초기화 완료를, <code class="language-text">init-B</code>는 A의 초기화 완료를 기다리고 있었다. 다른 스레드가 시작한 초기화는 끝날 때까지 기다려야 한다. 이 경우에는 둘 다 돌아올 수 없다. 상대 클래스나 외부 작업을 기다리는 일을 정적 초기화식에서 빼면 기다림의 고리를 끊을 수 있다. <a href="/backend/transfer-performance/class-loading/evidence/loader-output.txt">실제 스레드 덤프</a></p>
 <h2 id="section-5">플러그인을 내렸는데 클래스가 남는 경우</h2>

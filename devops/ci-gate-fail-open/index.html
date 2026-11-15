@@ -210,12 +210,21 @@ docs/a.md            -> 생략</code></pre></div>
 <p>그래서 판정을 뒤집었다. 바뀐 파일이 전부 문서처럼 생략해도 되는 경로일 때만 E2E를 건너뛴다. 모르는 경로가 하나라도 있거나 변경 목록을 읽지 못하면 테스트를 실행한다.</p>
 <p>이 판정은 원래 workflow YAML 안에 bash 30줄로 들어 있었다. 스크립트로 꺼내니 루트 파일을 추가하는 경우까지 12개 케이스로 따로 실행해 볼 수 있었다.</p>
 <h2>기준표에 없는 라우트는 번들이 커져도 통과했다</h2>
-<p>번들 예산은 라우트별 바이트 수를 임계값과 비교한다.
-홈 618 KiB, 상품 목록 635 KiB.
-7주차 측정값에 5%를 더한 값이다.</p>
-<p>진단 파일에 <code class="language-text">/checkout</code>을 넣고 5,000,000 B를 줬다.
-종료 코드 0이었다.</p>
-<p>비교 코드는 진단 파일이 아니라 <strong>예산표에 적힌 라우트</strong>를 순회했다. <code class="language-text">/checkout</code>은 비교조차 하지 않은 채 종료된 것이다. 지금은 새 라우트에 예산을 정하거나 제외 이유를 적어야 통과한다. 실습용 화면과 Next 내부 라우트는 제외 목록에서 이유를 확인할 수 있다.</p>
+<p>번들 예산은 라우트별 바이트 수를 임계값과 비교한다. 홈 618 KiB, 상품 목록 635 KiB. 7주차 측정값에 5%를 더한 값이다.</p>
+<p>진단 파일에 <code class="language-text">/checkout</code>을 넣고 5,000,000 B를 줬다. 제대로 막는다면 여기서 실패해야 했다. 종료 코드는 0이었다.</p>
+<p><figure class='gatsby-resp-image-figure' style='margin-bottom: 1rem;'>
+    <span class='gatsby-resp-image-wrapper' style='position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 760px; '>
+      <span class='gatsby-resp-image-background-image' style="padding-bottom: 50%; position: relative; bottom: 0; left: 0; background-image: url('data:image/webp;base64,UklGRooAAABXRUJQVlA4IH4AAADQAwCdASoUAAoAPtFUo0uoJKMhsAgBABoJZQCsABtt+VJwrG3floAA/uCgZ6d2Mo89zuH5oCa/TwtN/nt8bhSVjWkkzuEijzkb00jPvJKHPEOVOMRRP5ZdJJkpXWkPA0O38dM5Xk7tHAqvZH6xNs35felsZ2t2CbmQEIEAAAA='); background-size: cover; display: block;"></span>
+  <img class='gatsby-resp-image-image' alt='터무니없이 큰 /checkout 상자가 저울 벨트를 지나가는데 게이트에는 초록불이 켜지고 단말에는 exit 0이 찍힌다.' title='' src='/static/dcf85aae362dd6a9dd472fb54ed4cab6/7df04/scene-oversized-crate-green-gate.webp' srcset='/static/dcf85aae362dd6a9dd472fb54ed4cab6/561c4/scene-oversized-crate-green-gate.webp 190w,
+/static/dcf85aae362dd6a9dd472fb54ed4cab6/3e041/scene-oversized-crate-green-gate.webp 380w,
+/static/dcf85aae362dd6a9dd472fb54ed4cab6/7df04/scene-oversized-crate-green-gate.webp 760w,
+/static/dcf85aae362dd6a9dd472fb54ed4cab6/b2cd5/scene-oversized-crate-green-gate.webp 1140w,
+/static/dcf85aae362dd6a9dd472fb54ed4cab6/94b1e/scene-oversized-crate-green-gate.webp 1280w' sizes='(max-width: 760px) 100vw, 760px' style='width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;' loading='lazy' decoding='async'>
+    </span>
+    <figcaption class='gatsby-resp-image-figcaption'>터무니없이 큰 /checkout 상자가 저울 벨트를 지나가는데 게이트에는 초록불이 켜지고 단말에는 exit 0이 찍힌다.</figcaption>
+  </figure></p>
+<p>비교 코드는 진단 파일이 아니라 <strong>예산표에 적힌 라우트</strong>를 순회했다. <code class="language-text">/checkout</code>은 비교조차 하지 않은 채 종료된 것이다. 예산표에 없는 라우트는 예산을 넘을 수도 없었다.</p>
+<p>지금은 새 라우트에 예산을 정하거나 제외 이유를 적어야 통과한다. 실습용 화면과 Next 내부 라우트는 제외 목록에서 이유를 확인할 수 있다.</p>
 <p>이미 예산이 있는 홈에서도 놓치는 변화가 있었다. 588 KiB가 610 KiB로 늘어도 상한 618 KiB보다 작아서 통과한다. 그래서 상한과 별개로 기준선 파일에 실제 측정값을 커밋했다. 이제 22 KiB가 늘면 그 변화가 같은 PR의 diff에 나타난다.</p>
 <h2>기본값을 넣으니 환경 변수 누락을 검사할 수 없었다</h2>
 <p>환경 변수 검증은 build 전에 돈다.
@@ -295,7 +304,8 @@ docs/a.md            -> 생략</code></pre></div>
 </tr>
 </tbody>
 </table>
-<p>같은 검증을 세 번씩 돌렸을 때 중앙값 차이는 16초였다. 스텝마다 <code class="language-text">pnpm</code>을 다시 띄우니 처음엔 거기서 16초를 다 썼다고 생각했다. 그런데 기록에 남은 건 job 시간이다. 셸이나 <code class="language-text">pnpm</code>이 뜨는 시간만 따로 잰 적은 없었다.</p>
+<p>같은 검증을 세 번씩 돌렸을 때 중앙값 차이는 16초였다. 스텝마다 <code class="language-text">pnpm</code>을 다시 띄우니 처음엔 거기서 16초를 다 썼다고 생각했다.</p>
+<p>그런데 기록에 남은 건 job 시간이다. 셸이나 <code class="language-text">pnpm</code>이 뜨는 시간만 따로 잰 적은 없었다.</p>
 <p>그래도 나눈 구성을 유지한다.
 어느 스텝이 느린지 모르는 상태로 돌아가면 다음 측정의 출발점이 없다.</p>
 <p>job을 둘로 나눈 것은 채택했다.
@@ -409,4 +419,4 @@ PR에서 생략한 검증을 병합 직전에 다시 도는 방어선인데, mer
           >
             window.___chunkMapping="{\"app\":[\"/app-263d41856e8ba543d076.js\"],\"component---src-pages-404-jsx\":[\"/component---src-pages-404-jsx-9f8a72d2ed2a45ceab73.js\"],\"component---src-pages-index-jsx\":[\"/component---src-pages-index-jsx-75fab5a7b0b0a580eb71.js\"],\"component---src-pages-search-jsx\":[\"/component---src-pages-search-jsx-4e18011dfc37e4849bed.js\"],\"component---src-pages-tags-jsx\":[\"/component---src-pages-tags-jsx-aabe6ace5b38b6a66f5d.js\"],\"component---src-templates-post-jsx\":[\"/component---src-templates-post-jsx-4ec71b80d25e7d733a83.js\"],\"component---src-templates-resume-jsx\":[\"/component---src-templates-resume-jsx-8ff92a2c23e4e010df0e.js\"],\"component---src-templates-series-index-jsx\":[\"/component---src-templates-series-index-jsx-7379c8ab3cf4f132a104.js\"]}";
           </script>
-        <script>window.___webpackCompilationHash="7a551ca0219089dbb706";</script><script src="/webpack-runtime-17e3da00f8073df829b4.js" async></script><script src="/framework-89f49a7f766ec31641df.js" async></script><script src="/app-263d41856e8ba543d076.js" async></script><!-- slice-end id="_gatsby-scripts-1" --></body></html>
+        <script>window.___webpackCompilationHash="bca18ce90e1c8b9fed06";</script><script src="/webpack-runtime-17e3da00f8073df829b4.js" async></script><script src="/framework-89f49a7f766ec31641df.js" async></script><script src="/app-263d41856e8ba543d076.js" async></script><!-- slice-end id="_gatsby-scripts-1" --></body></html>

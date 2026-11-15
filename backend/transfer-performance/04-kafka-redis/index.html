@@ -66,6 +66,17 @@
 <p>메모리가 부족할 때의 정책도 캐시의 의미를 바꾼다. <code class="language-text">maxmemory</code> 한계에 도달하면 eviction 정책에 따라 키를 제거하거나 쓰기를 거절한다. 삭제해도 다시 조회할 수 있는 캐시와, 삭제되면 위험 판정의 입력이 사라지는 집계를 같은 정책으로 취급할 수는 없다. TTL이 남아 있다는 이유만으로 키가 계속 존재한다고 가정해서도 안 된다. <a href="https://redis.io/docs/latest/develop/reference/eviction/">Redis의 키 퇴거 정책</a></p>
 <h2 id="section-7">이상 거래 탐지의 시간 창과 늦은 이벤트</h2>
 <p>최근 거래 횟수로 위험도를 판단한다면 집계의 시간 기준이 업무 결과를 바꾼다. 가상 규칙으로 최근 5분 동안의 송금 횟수를 사용한다고 하자. 이 5분은 송금이 발생한 시각 기준인지, 탐지 애플리케이션이 이벤트를 처리한 시각 기준인지 정해야 한다. 전자는 event time, 후자는 processing time이다.</p>
+<p></p><figure class="gatsby-resp-image-figure" style="margin-bottom: 1rem;">
+    <span class="gatsby-resp-image-wrapper" style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 760px; ">
+      <span class="gatsby-resp-image-background-image" style="padding-bottom: 50%; position: relative; bottom: 0; left: 0; background-image: url('data:image/webp;base64,UklGRpwAAABXRUJQVlA4IJAAAABQBACdASoUAAoAPtFUo0uoJKMhsAgBABoJYwCdL1ABr0vqbK3/ZaKGk8AAAM3oiO0eqPerItoVF7vi79zT0BzM0YL1eLFnic81SuT0dGgnJfFtLGClj6so6BpEvZ7oqz//+08D8661oKZ+UYLO4qzmDMQx09g+ZuNfWMrv+EHDV7nzdB5Qz3olICQF4rCAAAA='); background-size: cover; display: block;"></span>
+  <img class="gatsby-resp-image-image" alt="10시 4분에 도착한 비둘기 쪽지에는 10시 1분이 찍혀 있다. 같은 송금을 어느 시각에 셀지에 따라 최근 5분 집계가 달라질 수 있다." title="" src="/static/61a6d9b19d63dac2f486e215d019f8b1/7df04/scene-late-pigeon-closed-window.webp" srcset="/static/61a6d9b19d63dac2f486e215d019f8b1/561c4/scene-late-pigeon-closed-window.webp 190w,
+/static/61a6d9b19d63dac2f486e215d019f8b1/3e041/scene-late-pigeon-closed-window.webp 380w,
+/static/61a6d9b19d63dac2f486e215d019f8b1/7df04/scene-late-pigeon-closed-window.webp 760w,
+/static/61a6d9b19d63dac2f486e215d019f8b1/b2cd5/scene-late-pigeon-closed-window.webp 1140w,
+/static/61a6d9b19d63dac2f486e215d019f8b1/94b1e/scene-late-pigeon-closed-window.webp 1280w" sizes="(max-width: 760px) 100vw, 760px" style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;" loading="lazy" decoding="async">
+    </span>
+    <figcaption class="gatsby-resp-image-figcaption">10시 4분에 도착한 비둘기 쪽지에는 10시 1분이 찍혀 있다. 같은 송금을 어느 시각에 셀지에 따라 최근 5분 집계가 달라질 수 있다.</figcaption>
+  </figure><p></p>
 <p>송금 발생 시각이 10시 1분인 이벤트가 통신 지연 때문에 10시 4분에 도착할 수 있다. 파티션의 오프셋은 도착한 기록의 위치를 나타낸다. 그 위치가 사건 발생 시각의 정렬을 뜻하지는 않는다. 계좌별로 같은 파티션을 사용해도 늦은 사건이 자동으로 제시간에 포함되지는 않는다. 이미 내려진 위험 판정을 다시 계산할지, 별도 보정 기록을 남길지도 규칙에 들어간다.</p>
 <p>Kafka Streams의 window 연산은 grace period로 늦게 도착한 이벤트를 받을 범위를 정한다. 해당 창의 끝과 grace를 넘어서 stream time이 진행하면 그 창에 속한 늦은 이벤트를 버린다. 이 기준은 서버 시계로 몇 초를 기다리는 것과 다르다. Redis로 직접 집계를 구현한다면 동일한 시간 규칙을 애플리케이션이 구현해야 한다. <a href="https://kafka.apache.org/41/streams/core-concepts/">Kafka Streams의 시간 창과 grace period</a></p>
 <p>Redis 키에 5분 TTL을 설정하는 것만으로 최근 5분의 이동 창이 만들어지지는 않는다. 첫 거래 때 만료를 정하면 고정된 구간에 가까워지고, 거래마다 만료를 연장하면 예전 거래의 카운트가 함께 남을 수 있다. 거래 시각을 보관해 창 밖의 항목을 제거하거나, 시간 버킷을 합산하는 등 집계 방식이 필요하다. 시간대를 잘게 나누면 5분 경계에 걸친 거래를 더 정확히 셀 수 있지만 저장할 버킷은 늘어난다.</p>

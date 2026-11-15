@@ -247,9 +247,21 @@ data-styled.g24[id="TagList__Tags-sc-1a02q9k-0"]{content:"chUkMH,"}/*!sc*/
 <p>앞의 그림에 나온 힙과 JVM 스택은 JVM 명세의 <strong>런타임 데이터 영역</strong>이다. 운영체제에서 볼 때 자바 힙은 JVM 프로세스가 쓰는 메모리의 일부다. OpenJDK의 JVM 구현체인 HotSpot(핫스팟)은 클래스 메타데이터를 메타스페이스에, JIT 컴파일러가 만든 기계어를 코드 캐시에 둔다. GC가 쓰는 자료와 공유 라이브러리도 같은 프로세스의 주소 공간에 있다.</p>
 <p><img src="/static/hotspot-process-memory-37486d8eddcc34ca8e315136c9255830.svg" alt="HotSpot 프로세스의 대표 메모리 용도. 자바 힙, 메타스페이스, 코드 캐시, 플랫폼 스레드 스택, GC 보조 자료, 공유 라이브러리 매핑." id="diagram-hotspot-process-memory"></p>
 </details>
-<p><code class="language-text">new</code>가 끝난 지금은 아직 <code class="language-text">Order()</code> 생성자를 호출하기 전이다. 출력의 세 번째 줄에서 <code class="language-text">invokespecial</code>이 호출하는 <code class="language-text">Order."&lt;init>"</code>가 그 생성자다. 이때 스택에서 주문 객체의 참조를 하나 꺼내 쓴다. 참조가 하나뿐이라면 마지막 <code class="language-text">areturn</code>에서 무엇을 돌려줄까?</p>
+<p><code class="language-text">new</code>가 끝난 지금은 아직 <code class="language-text">Order()</code> 생성자를 호출하기 전이다. 출력의 세 번째 줄에서 <code class="language-text">invokespecial</code>이 호출하는 <code class="language-text">Order."&lt;init>"</code>가 그 생성자다. 이때 스택에서 주문 객체의 참조를 하나 꺼내 쓴다.</p>
+<p>아까 <code class="language-text">new</code>가 올려놓은 참조는 하나였는데. 그걸 생성자에 넘겨주면 마지막 <code class="language-text">areturn</code>은 뭘 돌려주지?</p>
+<p><figure class='gatsby-resp-image-figure' style='margin-bottom: 1rem;'>
+    <span class='gatsby-resp-image-wrapper' style='position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 760px; '>
+      <span class='gatsby-resp-image-background-image' style="padding-bottom: 50%; position: relative; bottom: 0; left: 0; background-image: url('data:image/webp;base64,UklGRooAAABXRUJQVlA4IH4AAABQBACdASoUAAoAPtFUo0uoJKMhsAgBABoJZQC7AywTmYxWcsCtKJ77mKAAAPjG7oGjUIC7q0Iw8C3X35UaCznb1lgEb9OIaF6zyu3iOo0gw1WNJRPKexFkSc8Gx+na00NGnzmek6Yw6FO0UiHCSvthl9sE4GvqxKC3WxAgoAA='); background-size: cover; display: block;"></span>
+  <img class='gatsby-resp-image-image' alt='dup을 생략하면 어떻게 될까. 생성자가 하나뿐인 참조를 가져가면 areturn이 꺼낼 참조는 남지 않는다. 선반 위 주문 객체는 그대로다.' title='' src='/static/5c8ad8b62ba5f5ec8576e9f162b9816a/7df04/scene-one-tag-two-hands.webp' srcset='/static/5c8ad8b62ba5f5ec8576e9f162b9816a/561c4/scene-one-tag-two-hands.webp 190w,
+/static/5c8ad8b62ba5f5ec8576e9f162b9816a/3e041/scene-one-tag-two-hands.webp 380w,
+/static/5c8ad8b62ba5f5ec8576e9f162b9816a/7df04/scene-one-tag-two-hands.webp 760w,
+/static/5c8ad8b62ba5f5ec8576e9f162b9816a/b2cd5/scene-one-tag-two-hands.webp 1140w,
+/static/5c8ad8b62ba5f5ec8576e9f162b9816a/94b1e/scene-one-tag-two-hands.webp 1280w' sizes='(max-width: 760px) 100vw, 760px' style='width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;' loading='lazy' decoding='async'>
+    </span>
+    <figcaption class='gatsby-resp-image-figcaption'>dup을 생략하면 어떻게 될까. 생성자가 하나뿐인 참조를 가져가면 areturn이 꺼낼 참조는 남지 않는다. 선반 위 주문 객체는 그대로다.</figcaption>
+  </figure></p>
 <p>그래서 <code class="language-text">new</code> 바로 뒤에 <code class="language-text">dup</code>이 있다. 방금 올린 참조를 복사하면 스택에는 같은 주문 객체를 가리키는 참조가 두 개 놓인다. 하나는 생성자를 호출할 때 쓰고, 남은 하나는 <code class="language-text">areturn</code>이 꺼내 호출한 쪽에 돌려준다.</p>
-<h3>피연산자 스택에서 두 정수 더하기</h3>
+<h3><code class="language-text">return a + b;</code></h3>
 <p>그럼 <code class="language-text">a + b</code>에서 더할 두 값도 스택을 거칠까? 같은 <code class="language-text">Checkout</code> 클래스에 메서드 하나를 더 넣어 보자.</p>
 <div class="gatsby-highlight" data-language="java"><pre class="language-java"><code class="language-java"><span class="token keyword">static</span> <span class="token keyword">int</span> <span class="token function">add</span><span class="token punctuation">(</span><span class="token keyword">int</span> a<span class="token punctuation">,</span> <span class="token keyword">int</span> b<span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token keyword">return</span> a <span class="token operator">+</span> b<span class="token punctuation">;</span>
@@ -308,4 +320,4 @@ data-styled.g24[id="TagList__Tags-sc-1a02q9k-0"]{content:"chUkMH,"}/*!sc*/
           >
             window.___chunkMapping="{\"app\":[\"/app-263d41856e8ba543d076.js\"],\"component---src-pages-404-jsx\":[\"/component---src-pages-404-jsx-9f8a72d2ed2a45ceab73.js\"],\"component---src-pages-index-jsx\":[\"/component---src-pages-index-jsx-75fab5a7b0b0a580eb71.js\"],\"component---src-pages-search-jsx\":[\"/component---src-pages-search-jsx-4e18011dfc37e4849bed.js\"],\"component---src-pages-tags-jsx\":[\"/component---src-pages-tags-jsx-aabe6ace5b38b6a66f5d.js\"],\"component---src-templates-post-jsx\":[\"/component---src-templates-post-jsx-4ec71b80d25e7d733a83.js\"],\"component---src-templates-resume-jsx\":[\"/component---src-templates-resume-jsx-8ff92a2c23e4e010df0e.js\"],\"component---src-templates-series-index-jsx\":[\"/component---src-templates-series-index-jsx-7379c8ab3cf4f132a104.js\"]}";
           </script>
-        <script>window.___webpackCompilationHash="7a551ca0219089dbb706";</script><script src="/webpack-runtime-17e3da00f8073df829b4.js" async></script><script src="/framework-89f49a7f766ec31641df.js" async></script><script src="/app-263d41856e8ba543d076.js" async></script><!-- slice-end id="_gatsby-scripts-1" --></body></html>
+        <script>window.___webpackCompilationHash="bca18ce90e1c8b9fed06";</script><script src="/webpack-runtime-17e3da00f8073df829b4.js" async></script><script src="/framework-89f49a7f766ec31641df.js" async></script><script src="/app-263d41856e8ba543d076.js" async></script><!-- slice-end id="_gatsby-scripts-1" --></body></html>

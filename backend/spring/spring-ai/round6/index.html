@@ -361,6 +361,17 @@ baedal_agent_llm_latency_seconds_count 0</code></pre></div>
     C <span class="token inter-arrow-label"><span class="token arrow-head arrow operator">--</span> <span class="token label property">아니오</span> <span class="token arrow operator">--></span></span> E<span class="token text string">["Advisor 체인 5 → 100"]</span>
     E <span class="token arrow operator">--></span> F<span class="token text string">["응답 : 실패 시 fallback 문구"]</span></code></pre></div>
 <p>10턴 모두 HTTP 200을 반환했고 응답에 스택트레이스는 포함되지 않았다. Tool 호출, RAG 정책 응답, 인젝션 차단, 상담원 전환도 관찰됐다. 그러나 응답 내용까지 검토하니 임의의 고객센터 번호 생성과 취소 Tool 호출 누락이 남아 있었다. HTTP 성공 여부만으로 상담 품질을 판단할 수는 없었다.</p>
+<p><figure class='gatsby-resp-image-figure' style='margin-bottom: 1rem;'>
+    <span class='gatsby-resp-image-wrapper' style='position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 760px; '>
+      <span class='gatsby-resp-image-background-image' style="padding-bottom: 50%; position: relative; bottom: 0; left: 0; background-image: url('data:image/webp;base64,UklGRo4AAABXRUJQVlA4IIIAAADQAwCdASoUAAoAPtFUo0uoJKMhsAgBABoJZQC7AYvM1MmF9uBcT4AA/dvEY/R3Klk/EuTuFLC93rnV5wdNLCwak8jV+BjaP0UdqJOKPd3kKqrh2OZAkpot5sLk3o5FNNwrymlyfpMjQulu1BCLZTYgRDwOS3lr2Y7/u7EDTRYFcwAA'); background-size: cover; display: block;"></span>
+  <img class='gatsby-resp-image-image' alt='버스 승객의 휴대폰 답장에 지어낸 번호가 그대로 보이고, 010 모양의 가림 막대는 덮을 곳을 찾지 못한다.' title='' src='/static/67e6e6f0f7d9d2ef9ffbf8c66b60940e/7df04/scene-bus-fake-number.webp' srcset='/static/67e6e6f0f7d9d2ef9ffbf8c66b60940e/561c4/scene-bus-fake-number.webp 190w,
+/static/67e6e6f0f7d9d2ef9ffbf8c66b60940e/3e041/scene-bus-fake-number.webp 380w,
+/static/67e6e6f0f7d9d2ef9ffbf8c66b60940e/7df04/scene-bus-fake-number.webp 760w,
+/static/67e6e6f0f7d9d2ef9ffbf8c66b60940e/b2cd5/scene-bus-fake-number.webp 1140w,
+/static/67e6e6f0f7d9d2ef9ffbf8c66b60940e/94b1e/scene-bus-fake-number.webp 1280w' sizes='(max-width: 760px) 100vw, 760px' style='width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;' loading='lazy' decoding='async'>
+    </span>
+    <figcaption class='gatsby-resp-image-figcaption'>버스 승객의 휴대폰 답장에 지어낸 번호가 그대로 보이고, 010 모양의 가림 막대는 덮을 곳을 찾지 못한다.</figcaption>
+  </figure></p>
 <p>하나는 6번 턴이다. "사장님 번호 010-1234-5678 맞나요?"라는 질문에 모델이 <code class="language-text">123-456-7890</code> 같은 임의의 고객센터 번호를 만들어 답했다. 우리 마스커는 휴대폰 접두(010) 중심이라 이 형식은 걸러지지 않는다. 그동안 "있는 번호를 가리는" 방어만 생각했는데, "존재하지 않는 번호를 생성하는" 잘못된 안내은 마스킹의 반대 방향에서 오는 문제였다. Round 6의 새 취약점으로 기록됐다.</p>
 <p>다른 하나는 5번 턴이다. "그럼 그 주문 취소해주세요"에서 <code class="language-text">cancelOrder</code> 호출이 관찰되지 않았다. 모델은 이전 응답 텍스트로 답을 이어갔다. 3편에서 처음 만난 문제가 체인을 다 갖춘 뒤에도 그대로 남아 있다는 확인이다. "Tool 성공률"이 아니라 "호출됐어야 할 턴에 호출됐는가"를 재는 지표가 필요하다는 숙제가 여기서 나온다.</p>
 <h2>31번째 요청은 429</h2>
@@ -404,4 +415,4 @@ baedal_agent_llm_latency_seconds_count 0</code></pre></div>
           >
             window.___chunkMapping="{\"app\":[\"/app-263d41856e8ba543d076.js\"],\"component---src-pages-404-jsx\":[\"/component---src-pages-404-jsx-9f8a72d2ed2a45ceab73.js\"],\"component---src-pages-index-jsx\":[\"/component---src-pages-index-jsx-75fab5a7b0b0a580eb71.js\"],\"component---src-pages-search-jsx\":[\"/component---src-pages-search-jsx-4e18011dfc37e4849bed.js\"],\"component---src-pages-tags-jsx\":[\"/component---src-pages-tags-jsx-aabe6ace5b38b6a66f5d.js\"],\"component---src-templates-post-jsx\":[\"/component---src-templates-post-jsx-4ec71b80d25e7d733a83.js\"],\"component---src-templates-resume-jsx\":[\"/component---src-templates-resume-jsx-8ff92a2c23e4e010df0e.js\"],\"component---src-templates-series-index-jsx\":[\"/component---src-templates-series-index-jsx-7379c8ab3cf4f132a104.js\"]}";
           </script>
-        <script>window.___webpackCompilationHash="7a551ca0219089dbb706";</script><script src="/webpack-runtime-17e3da00f8073df829b4.js" async></script><script src="/framework-89f49a7f766ec31641df.js" async></script><script src="/app-263d41856e8ba543d076.js" async></script><!-- slice-end id="_gatsby-scripts-1" --></body></html>
+        <script>window.___webpackCompilationHash="bca18ce90e1c8b9fed06";</script><script src="/webpack-runtime-17e3da00f8073df829b4.js" async></script><script src="/framework-89f49a7f766ec31641df.js" async></script><script src="/app-263d41856e8ba543d076.js" async></script><!-- slice-end id="_gatsby-scripts-1" --></body></html>

@@ -45,6 +45,17 @@ recv(4) -&gt; b'T17 '
 recv(8) -&gt; b'1000\nT18'
 recv(6) -&gt; b' 2000\n'</code></pre></div>
 <p>첫 데이터 번호부터 18바이트가 빈틈없이 도착해 캡처에 <code class="language-text">+18</code>이 찍혔다. 바로 그때까지 수신 프로그램이 <code class="language-text">recv</code>를 호출한 횟수는 <strong>0</strong>이었다. 바이트가 커널에 도착한 시점과 프로그램이 처음 읽은 시점을 이 두 값으로 구별할 수 있다.</p>
+<p></p><figure class="gatsby-resp-image-figure" style="margin-bottom: 1rem;">
+    <span class="gatsby-resp-image-wrapper" style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 760px; ">
+      <span class="gatsby-resp-image-background-image" style="padding-bottom: 50%; position: relative; bottom: 0; left: 0; background-image: url('data:image/webp;base64,UklGRoQAAABXRUJQVlA4IHgAAADwAwCdASoUAAoAPtFUo0uoJKMhsAgBABoJZQCsABcHFGPpcI71ngAAAP6OHEtbBD/g+nOfsk17SiLAQmdAZDb6hYuqwstTAqz9dWeMbKAiy9MDpW5+Tysx7LIjDQT4mGYdoyzXcLFpkHnpfeYiaqLYXefCJzaF0gA='); background-size: cover; display: block;"></span>
+  <img class="gatsby-resp-image-image" alt="우편실 직원이 종이 두 장을 칸에 넣고 +18 영수증을 건네는 동안, 위층 주인은 아직 한 통도 열지 않았다." title="" src="/static/9ed624d2fbae8c7f68ed5c495932d36d/7df04/scene-mailroom-receipt-unread.webp" srcset="/static/9ed624d2fbae8c7f68ed5c495932d36d/561c4/scene-mailroom-receipt-unread.webp 190w,
+/static/9ed624d2fbae8c7f68ed5c495932d36d/3e041/scene-mailroom-receipt-unread.webp 380w,
+/static/9ed624d2fbae8c7f68ed5c495932d36d/7df04/scene-mailroom-receipt-unread.webp 760w,
+/static/9ed624d2fbae8c7f68ed5c495932d36d/b2cd5/scene-mailroom-receipt-unread.webp 1140w,
+/static/9ed624d2fbae8c7f68ed5c495932d36d/94b1e/scene-mailroom-receipt-unread.webp 1280w" sizes="(max-width: 760px) 100vw, 760px" style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;" loading="lazy" decoding="async">
+    </span>
+    <figcaption class="gatsby-resp-image-figcaption">우편실 직원이 종이 두 장을 칸에 넣고 +18 영수증을 건네는 동안, 위층 주인은 아직 한 통도 열지 않았다.</figcaption>
+  </figure><p></p>
 <p>그제야 4바이트, 8바이트, 남은 6바이트를 차례로 읽어 봤다. 두 번째 결과인 <code class="language-text">1000\nT18</code>에는 첫 송금의 금액과 다음 송금의 번호가 함께 들어 있다. 둘을 다시 나눠 준 건 송신 때의 호출 횟수가 아니라 코드에 넣어 둔 줄바꿈이었다. <a href="https://www.rfc-editor.org/rfc/rfc9293.html#section-3.4">RFC 9293의 시퀀스 번호</a></p>
 <p>캡처는 Docker Desktop에서 Linux 7.0.12-linuxkit(aarch64), Python 3.12.16으로 실행했다. 아래 명령은 외부 네트워크를 끄고 컨테이너의 <code class="language-text">lo</code>만 본다. 여기서 관찰할 수 있는 건 ACK와 첫 읽기의 순서까지다. 물리망에서 지연이 얼마나 생기고 패킷이 몇 개로 나뉘는지는 별도로 재야 한다. <a href="/backend/transfer-performance/tcp-linux/evidence/ack_before_read.py">재현 코드</a>, <a href="/backend/transfer-performance/tcp-linux/evidence/loopback.txt">실행 출력</a></p>
 <div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash"><span class="token function">docker</span> run <span class="token parameter variable">--rm</span> <span class="token parameter variable">--network</span> none <span class="token parameter variable">-i</span> python:3.12-slim python - <span class="token operator">&lt;</span> ack_before_read.py</code></pre></div>

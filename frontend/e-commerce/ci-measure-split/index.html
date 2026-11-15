@@ -388,6 +388,17 @@ Chrome Headless Shell 151.0.7922.34</code></pre></div>
 <p>기능 검증은 세 번 모두 같았다. 단위 테스트와 통합 테스트를 합해 375개, Storybook 18개, E2E 12개가 통과했다.</p>
 <h2>그런데 채택하지 않았다</h2>
 <p>다운로드는 11초에서 6초로 줄었다. 절반이다. 그런데 job 전체는 112초에서 112초다.</p>
+<p><figure class='gatsby-resp-image-figure' style='margin-bottom: 1rem;'>
+    <span class='gatsby-resp-image-wrapper' style='position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 760px; '>
+      <span class='gatsby-resp-image-background-image' style="padding-bottom: 50%; position: relative; bottom: 0; left: 0; background-image: url('data:image/webp;base64,UklGRpAAAABXRUJQVlA4IIQAAAAQBACdASoUAAoAPtFUo0uoJKMhsAgBABoJYwC7ACLIfcYdKJbbhLOigAD+mA9xa1IDMqOTKvtir8bfQs2ROjwcrqdKYw8qZqZ9y44bUHpeHGg5hmWiAqQYyPYWvDNjxcwDs97liT+g6KiD2TtzMmplxjd3JqVVszjqLhCbwSM7kFYMUAA='); background-size: cover; display: block;"></span>
+  <img class='gatsby-resp-image-image' alt='전체 브라우저를 내려받는 단계를 빼자 다운로드는 11초에서 6초로 줄었는데, job 전체의 스톱워치는 두 번 다 112초다.' title='' src='/static/f25f76ae08c85ef820a706877dc2cfb4/7df04/scene-half-crate-same-clock.webp' srcset='/static/f25f76ae08c85ef820a706877dc2cfb4/561c4/scene-half-crate-same-clock.webp 190w,
+/static/f25f76ae08c85ef820a706877dc2cfb4/3e041/scene-half-crate-same-clock.webp 380w,
+/static/f25f76ae08c85ef820a706877dc2cfb4/7df04/scene-half-crate-same-clock.webp 760w,
+/static/f25f76ae08c85ef820a706877dc2cfb4/b2cd5/scene-half-crate-same-clock.webp 1140w,
+/static/f25f76ae08c85ef820a706877dc2cfb4/94b1e/scene-half-crate-same-clock.webp 1280w' sizes='(max-width: 760px) 100vw, 760px' style='width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;' loading='lazy' decoding='async'>
+    </span>
+    <figcaption class='gatsby-resp-image-figcaption'>전체 브라우저를 내려받는 단계를 빼자 다운로드는 11초에서 6초로 줄었는데, job 전체의 스톱워치는 두 번 다 112초다.</figcaption>
+  </figure></p>
 <p>setup 합은 27초에서 23초로 줄었지만, 그 4초는 <code class="language-text">install-deps</code>의 변동 범위 안에 있다. <code class="language-text">install-deps</code>는 13초에서 28초 사이를 오간다. 4초는 그 안에 묻힌다.</p>
 <p>미리 정한 세 기준 중 셋째를 넘지 못했다. 그래서 되돌렸다.</p>
 <p>되돌리면서 하고 싶었던 말이 하나 있었다. 처음 본 176초가 다운로드 쪽 꼬리 위험이고, 받는 양을 절반으로 줄이면 그 위험이 준다는 것이다. 쓰지 않았다. 근거가 없다.</p>
@@ -417,4 +428,4 @@ Chrome Headless Shell 151.0.7922.34</code></pre></div>
           >
             window.___chunkMapping="{\"app\":[\"/app-263d41856e8ba543d076.js\"],\"component---src-pages-404-jsx\":[\"/component---src-pages-404-jsx-9f8a72d2ed2a45ceab73.js\"],\"component---src-pages-index-jsx\":[\"/component---src-pages-index-jsx-75fab5a7b0b0a580eb71.js\"],\"component---src-pages-search-jsx\":[\"/component---src-pages-search-jsx-4e18011dfc37e4849bed.js\"],\"component---src-pages-tags-jsx\":[\"/component---src-pages-tags-jsx-aabe6ace5b38b6a66f5d.js\"],\"component---src-templates-post-jsx\":[\"/component---src-templates-post-jsx-4ec71b80d25e7d733a83.js\"],\"component---src-templates-resume-jsx\":[\"/component---src-templates-resume-jsx-8ff92a2c23e4e010df0e.js\"],\"component---src-templates-series-index-jsx\":[\"/component---src-templates-series-index-jsx-7379c8ab3cf4f132a104.js\"]}";
           </script>
-        <script>window.___webpackCompilationHash="7a551ca0219089dbb706";</script><script src="/webpack-runtime-17e3da00f8073df829b4.js" async></script><script src="/framework-89f49a7f766ec31641df.js" async></script><script src="/app-263d41856e8ba543d076.js" async></script><!-- slice-end id="_gatsby-scripts-1" --></body></html>
+        <script>window.___webpackCompilationHash="bca18ce90e1c8b9fed06";</script><script src="/webpack-runtime-17e3da00f8073df829b4.js" async></script><script src="/framework-89f49a7f766ec31641df.js" async></script><script src="/app-263d41856e8ba543d076.js" async></script><!-- slice-end id="_gatsby-scripts-1" --></body></html>

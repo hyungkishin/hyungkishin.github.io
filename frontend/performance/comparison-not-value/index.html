@@ -294,7 +294,7 @@ data-styled.g24[id="TagList__Tags-sc-1a02q9k-0"]{content:"chUkMH,"}/*!sc*/
 <p>첫 원인 후보는 폰트였다. 셸이 서버 컴포넌트로 올라가면서 한글 문구가 초기 HTML에 실렸다. navigation 이후 300ms 안에 시작된 Pretendard 서브셋 요청도 늘었다.</p>
 <div class="gatsby-highlight" data-language="js"><pre class="language-js"><code class="language-js"><span class="token keyword">const</span> fonts <span class="token operator">=</span> report<span class="token punctuation">.</span>audits<span class="token punctuation">[</span><span class="token string">'network-requests'</span><span class="token punctuation">]</span><span class="token punctuation">.</span>details<span class="token punctuation">.</span>items<span class="token punctuation">.</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">item</span><span class="token punctuation">)</span> <span class="token operator">=></span> item<span class="token punctuation">.</span>resourceType <span class="token operator">===</span> <span class="token string">'Font'</span><span class="token punctuation">)</span>
 <span class="token keyword">const</span> firstBurst <span class="token operator">=</span> fonts<span class="token punctuation">.</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">item</span><span class="token punctuation">)</span> <span class="token operator">=></span> item<span class="token punctuation">.</span>networkRequestTime <span class="token operator">&lt;</span> <span class="token number">300</span><span class="token punctuation">)</span></code></pre></div>
-<p>두 문장 중 반증이 되는 쪽을 골라보자.</p>
+<p>폰트 후보는 한 번 지웠다. 세 조건의 폰트 총합이 모두 같았기 때문이다. 두 문장을 나란히 놓으면 이렇다.</p>
 <blockquote>
 <p><strong>주장</strong>: 첫 300ms의 폰트 요청이 2건 64,312B에서 7건 183,324B로 늘었다.</p>
 <p><strong>반증</strong>: 세 조건의 폰트 총합은 모두 10건 265,088B다.</p>
@@ -302,7 +302,7 @@ data-styled.g24[id="TagList__Tags-sc-1a02q9k-0"]{content:"chUkMH,"}/*!sc*/
 <p>둘 다 사실이다. 하지만 두 번째 문장은 첫 번째 문장을 반박하지 않는다.</p>
 <iframe src="/diagrams/comparison-not-value/01-first-burst.html?embed=1&play=1&theme=light#view=early-burst" title="세 조건의 첫 300ms 폰트 요청과 최종 합계를 비교하는 Archify 애니메이션" loading="lazy" style="display: block; width: 100%; aspect-ratio: 760 / 520; border: 0; border-radius: 20px;"></iframe>
 <p>총합은 마지막 요청까지 모두 더한다. 첫 주장은 navigation 이후 300ms라는 시간 범위만 센다. 전체가 같아도 앞부분의 배분은 달라질 수 있다.</p>
-<p>성능 조사에서는 총 요청 수와 전체 전송량을 먼저 보게 된다. 익숙한 합계가 같으면 가설을 버리기도 쉽다. 여기서도 총합이 맞다는 이유로 시간 범위가 다른 주장을 폐기했다.</p>
+<p>성능 조사에서는 총 요청 수와 전체 전송량을 먼저 보게 된다. 익숙한 합계가 같으면 가설을 버리기도 쉽다. 10건 265,088B가 세 조건에서 똑같이 나오자, 나는 시간 범위가 다른 주장까지 같이 버렸다.</p>
 <p>새 측정은 필요하지 않았다. 커밋된 Lighthouse 결과를 총합이 아니라 요청 시작 시각으로 다시 나누면 됐다. 조건마다 다섯 번 측정한 값도 같았다.</p>
 <h2>509ms를 원인으로 남기면 설명되지 않는 열</h2>
 <p>Before에서 After로 바뀔 때 document와 폰트가 함께 움직였다.</p>
@@ -378,6 +378,17 @@ data-styled.g24[id="TagList__Tags-sc-1a02q9k-0"]{content:"chUkMH,"}/*!sc*/
 </tbody>
 </table>
 <p>차이는 5ms다. 한글에 필요한 Pretendard 서브셋은 4,040ms에 도착했다. 첫 페인트는 그보다 2,335ms 먼저 끝났다.</p>
+<p><figure class='gatsby-resp-image-figure' style='margin-bottom: 1rem;'>
+    <span class='gatsby-resp-image-wrapper' style='position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 760px; '>
+      <span class='gatsby-resp-image-background-image' style="padding-bottom: 50%; position: relative; bottom: 0; left: 0; background-image: url('data:image/webp;base64,UklGRpIAAABXRUJQVlA4IIYAAADwAwCdASoUAAoAPtFUo0uoJKMhsAgBABoJZQCdMoAlrQ5ZDWk46BDgAOIgNsgo8yq+vz6uHwcH5rwOVylrfB07wBtx/Jk3SmRm3Tc4wdaLLSzUskr3XaqlVSSzDnXdG+FDLP5Pji8MApY3ZyYdHtn/8vhA7wHggzb++7DevRdMYSXN0JMAAA=='); background-size: cover; display: block;"></span>
+  <img class='gatsby-resp-image-image' alt='카페 직원이 메뉴판을 평범한 분필 글씨로 다 써서 손님이 이미 읽고 간 뒤에야 장식 글씨 스텐실 소포가 4,040ms 꼬리표를 달고 우편함으로 도착한다.' title='' src='/static/bd5b16512c9c44da7e9d57fc91ae0ef0/7df04/scene-menu-board-before-stencils.webp' srcset='/static/bd5b16512c9c44da7e9d57fc91ae0ef0/561c4/scene-menu-board-before-stencils.webp 190w,
+/static/bd5b16512c9c44da7e9d57fc91ae0ef0/3e041/scene-menu-board-before-stencils.webp 380w,
+/static/bd5b16512c9c44da7e9d57fc91ae0ef0/7df04/scene-menu-board-before-stencils.webp 760w,
+/static/bd5b16512c9c44da7e9d57fc91ae0ef0/b2cd5/scene-menu-board-before-stencils.webp 1140w,
+/static/bd5b16512c9c44da7e9d57fc91ae0ef0/94b1e/scene-menu-board-before-stencils.webp 1280w' sizes='(max-width: 760px) 100vw, 760px' style='width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;' loading='lazy' decoding='async'>
+    </span>
+    <figcaption class='gatsby-resp-image-figcaption'>카페 직원이 메뉴판을 평범한 분필 글씨로 다 써서 손님이 이미 읽고 간 뒤에야 장식 글씨 스텐실 소포가 4,040ms 꼬리표를 달고 우편함으로 도착한다.</figcaption>
+  </figure></p>
 <p><code class="language-text">@font-face</code> 92개에는 <code class="language-text">font-display: swap</code>이 설정돼 있다. 브라우저는 서브셋을 기다리지 않고 대체 글꼴로 먼저 그렸다. simulated 조건에서는 폰트 바이트와 FCP 추정이 함께 움직였지만 applied 조건의 한글과 라틴 FCP 차이는 5ms였다.</p>
 <p>그래서 한글 셸은 초기 HTML에 남겼다. 홈 제목을 로딩 뒤로 숨기지 않았다. 폰트를 차단하거나 라틴으로 바꾸지도 않았다. 시뮬레이션 점수를 낮추기 위한 코드 변경은 여기서 멈췄다.</p>
 <p>해결한 것은 899ms가 아니다. 899ms를 사용자가 기다린 시간으로 읽고 코드를 바꾸려던 진단을 멈췄다. 실제 홈을 먼저 보내는 구조는 유지됐다.</p>
@@ -407,4 +418,4 @@ data-styled.g24[id="TagList__Tags-sc-1a02q9k-0"]{content:"chUkMH,"}/*!sc*/
           >
             window.___chunkMapping="{\"app\":[\"/app-263d41856e8ba543d076.js\"],\"component---src-pages-404-jsx\":[\"/component---src-pages-404-jsx-9f8a72d2ed2a45ceab73.js\"],\"component---src-pages-index-jsx\":[\"/component---src-pages-index-jsx-75fab5a7b0b0a580eb71.js\"],\"component---src-pages-search-jsx\":[\"/component---src-pages-search-jsx-4e18011dfc37e4849bed.js\"],\"component---src-pages-tags-jsx\":[\"/component---src-pages-tags-jsx-aabe6ace5b38b6a66f5d.js\"],\"component---src-templates-post-jsx\":[\"/component---src-templates-post-jsx-4ec71b80d25e7d733a83.js\"],\"component---src-templates-resume-jsx\":[\"/component---src-templates-resume-jsx-8ff92a2c23e4e010df0e.js\"],\"component---src-templates-series-index-jsx\":[\"/component---src-templates-series-index-jsx-7379c8ab3cf4f132a104.js\"]}";
           </script>
-        <script>window.___webpackCompilationHash="7a551ca0219089dbb706";</script><script src="/webpack-runtime-17e3da00f8073df829b4.js" async></script><script src="/framework-89f49a7f766ec31641df.js" async></script><script src="/app-263d41856e8ba543d076.js" async></script><!-- slice-end id="_gatsby-scripts-1" --></body></html>
+        <script>window.___webpackCompilationHash="bca18ce90e1c8b9fed06";</script><script src="/webpack-runtime-17e3da00f8073df829b4.js" async></script><script src="/framework-89f49a7f766ec31641df.js" async></script><script src="/app-263d41856e8ba543d076.js" async></script><!-- slice-end id="_gatsby-scripts-1" --></body></html>

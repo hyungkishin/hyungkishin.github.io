@@ -69,6 +69,17 @@
 4  FeeDemo::quote
      @ 2  FeeDemo$RateFee::fee     inline (hot)</code></pre></div>
 <p>첫 기록부터 <code class="language-text">failed to inline</code>이 나온다. 레벨 3에서 HotSpot은 <code class="language-text">FeePolicy::fee</code>의 대상을 하나로 정할 수 없었다. 인라이닝을 건너뛰어도 수수료 계산은 계속된다.</p>
+<p></p><figure class="gatsby-resp-image-figure" style="margin-bottom: 1rem;">
+    <span class="gatsby-resp-image-wrapper" style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 760px; ">
+      <span class="gatsby-resp-image-background-image" style="padding-bottom: 50%; position: relative; bottom: 0; left: 0; background-image: url('data:image/webp;base64,UklGRnwAAABXRUJQVlA4IHAAAACwAwCdASoUAAoAPtFUo0uoJKMhsAgBABoJZQC06Bem5Fq4ORvAAAD+61pxaTK0RYZw2F7RKDM8ZyPR7oz8OKQRvjQLF5DtkOnn/0oDZWafLQag+MmbsJVvLB6tQv9//X0SbUOUCLQk22m+IlDEQAAA'); background-size: cover; display: block;"></span>
+  <img class="gatsby-resp-image-image" alt="처음에는 수수료 전표를 열어 보지 않고 넘기던 직원이, 같은 전표가 수북이 쌓인 뒤에는 정률 계산기를 전표 받침에 아예 붙여 둔다." title="" src="/static/56d6750ffa1c7c8a96201aa04d9e8d2f/7df04/scene-clerk-tapes-rate-calculator.webp" srcset="/static/56d6750ffa1c7c8a96201aa04d9e8d2f/561c4/scene-clerk-tapes-rate-calculator.webp 190w,
+/static/56d6750ffa1c7c8a96201aa04d9e8d2f/3e041/scene-clerk-tapes-rate-calculator.webp 380w,
+/static/56d6750ffa1c7c8a96201aa04d9e8d2f/7df04/scene-clerk-tapes-rate-calculator.webp 760w,
+/static/56d6750ffa1c7c8a96201aa04d9e8d2f/b2cd5/scene-clerk-tapes-rate-calculator.webp 1140w,
+/static/56d6750ffa1c7c8a96201aa04d9e8d2f/94b1e/scene-clerk-tapes-rate-calculator.webp 1280w" sizes="(max-width: 760px) 100vw, 760px" style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;" loading="lazy" decoding="async">
+    </span>
+    <figcaption class="gatsby-resp-image-figcaption">처음에는 수수료 전표를 열어 보지 않고 넘기던 직원이, 같은 전표가 수북이 쌓인 뒤에는 정률 계산기를 전표 받침에 아예 붙여 둔다.</figcaption>
+  </figure><p></p>
 <p>같은 <code class="language-text">quote</code>를 레벨 4로 다시 컴파일한 줄에는 <code class="language-text">RateFee::fee</code>라는 구체적인 이름이 붙었다. 뒤의 <code class="language-text">inline (hot)</code>은 자주 실행된 정률 계산을 이번에는 <code class="language-text">quote</code> 안에 넣었다는 뜻이다.</p>
 <p>정액 실행 로그를 같은 방법으로 열었더니 <code class="language-text">@ 2</code> 옆에 <code class="language-text">FlatFee::fee inline (hot)</code>이 찍혔다. 클래스 파일에는 두 번 다 <code class="language-text">FeePolicy.fee</code>라고 적혀 있다. 로그를 대조하니 각 실행에서 실제로 넘긴 정책의 <code class="language-text">fee</code>가 <code class="language-text">quote</code> 안에 인라인됐다. <a href="/backend/transfer-performance/02-jvm-execution/evidence/fee-jit-flat.txt">정액 실행 로그 발췌</a></p>
 <h2 id="section-4">호출자의 기계어에 무엇이 남았나</h2>

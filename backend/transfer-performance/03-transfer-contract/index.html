@@ -78,6 +78,17 @@
 <p>심사 지연을 줄인 뒤에도 탐지 조건을 고정해 검증해야 한다. 더 오래된 집계값을 읽거나 검토 대상을 줄여 지연을 낮췄다면 판정 품질도 다시 확인한다. 심사 시간과 함께 오탐과 미탐 건수, 추가 검토량, 입력 데이터의 지연을 확인한다. 실제 정답이 나중에 확정되는 거래는 확정된 거래 결과가 쌓인 뒤 품질을 다시 평가해야 한다.</p>
 <h2 id="section-4">타임아웃 뒤 은행의 처리 결과 확인</h2>
 <p>은행은 이미 돈을 보냈지만 우리 서버는 정해 둔 시간 안에 답을 못 받았다고 해 보자. 로그에는 타임아웃이 찍힌다. 요청이 은행에 아예 닿지 않은 채로 기한이 지나도 타임아웃이다. 이 로그 한 줄을 보고 송금을 다시 요청하면 첫 번째 경우에는 돈이 두 번 나갈 수 있다.</p>
+<p></p><figure class="gatsby-resp-image-figure" style="margin-bottom: 1rem;">
+    <span class="gatsby-resp-image-wrapper" style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 760px; ">
+      <span class="gatsby-resp-image-background-image" style="padding-bottom: 50%; position: relative; bottom: 0; left: 0; background-image: url('data:image/webp;base64,UklGRo4AAABXRUJQVlA4IIIAAADwAwCdASoUAAoAPtFUo0uoJKMhsAgBABoJZQAD5SmlOk3POcGtavQAAP6yAWJJVNKVnTDhOQeTYS9O1VnX+VdL1HO+KVeGuBRe63iN6r2xvAdi7hx0JgKUbEuztexm2xj2YKefuT9L0TZ7I4k5AjsVC/EHLXe8IaOC8SEES2Z8AAAA'); background-size: cover; display: block;"></span>
+  <img class="gatsby-resp-image-image" alt="끊긴 전화와 timeout 출력물을 든 사람의 모습은 위아래가 같지만, 위 칸에서는 상대편이 이미 돈을 내보냈고 아래 칸에서는 요청이 도착하지도 않았다." title="" src="/static/a3ad40e9daf5863b899d1bc069f4a7f0/7df04/scene-same-timeout-two-outcomes.webp" srcset="/static/a3ad40e9daf5863b899d1bc069f4a7f0/561c4/scene-same-timeout-two-outcomes.webp 190w,
+/static/a3ad40e9daf5863b899d1bc069f4a7f0/3e041/scene-same-timeout-two-outcomes.webp 380w,
+/static/a3ad40e9daf5863b899d1bc069f4a7f0/7df04/scene-same-timeout-two-outcomes.webp 760w,
+/static/a3ad40e9daf5863b899d1bc069f4a7f0/b2cd5/scene-same-timeout-two-outcomes.webp 1140w,
+/static/a3ad40e9daf5863b899d1bc069f4a7f0/94b1e/scene-same-timeout-two-outcomes.webp 1280w" sizes="(max-width: 760px) 100vw, 760px" style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;" loading="lazy" decoding="async">
+    </span>
+    <figcaption class="gatsby-resp-image-figcaption">끊긴 전화와 timeout 출력물을 든 사람의 모습은 위아래가 같지만, 위 칸에서는 상대편이 이미 돈을 내보냈고 아래 칸에서는 요청이 도착하지도 않았다.</figcaption>
+  </figure><p></p>
 <p>이 경우 송금 서비스는 결과를 <code class="language-text">UNKNOWN</code>으로 두고 확인을 계속한다. 사용자에게도 결과 확인 중이라는 상태를 제공한다. AWS의 <a href="https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/">멱등 API와 재시도 설명</a>은 응답을 받지 못한 호출자의 실행 여부 불확실성과 재시도에 따른 중복 실행 위험을 설명한다.</p>
 <p>재시도는 같은 요청의 식별자를 유지해야 한다. 사용자가 송금 버튼을 다시 누르거나 네트워크 계층이 재전송하더라도 동일한 의도에는 같은 멱등 키를 사용한다. 서버는 키의 소유자와 요청 내용을 함께 확인한다. 같은 키로 수취인이나 금액이 다른 요청이 들어오면 기존 송금의 재시도로 받아들이지 않는다.</p>
 <p>멱등 키를 조회한 뒤 별도로 송금을 생성하는 두 단계만으로는 동시 중복 요청을 막지 못한다. 두 요청이 동시에 미등록 상태를 확인할 수 있기 때문이다. 이 사례에서는 키의 유니크 제약과 요청 저장을 같은 DB 트랜잭션에 묶는다. 이미 저장된 요청이면 그 요청의 현재 상태를 반환한다. AWS 문서도 멱등 토큰 기록과 변경 작업이 원자적으로 처리돼야 한다고 설명한다.</p>

@@ -399,6 +399,17 @@ data-styled.g24[id="TagList__Tags-sc-1a02q9k-0"]{content:"chUkMH,"}/*!sc*/
 <p>파일에는 고객이 쓴 문의 원문이 남는다. 운영 저장소로 PostgreSQL을 고르면서 보존 기간, 백업과 암호화, 상담원의 조회 권한을 따로 검토할 필요가 생겼다.</p>
 <h2>답이 맞았다고 Tool을 다시 부른 것은 아니다</h2>
 <p>답변의 주문 번호와 도착 시간이 맞아도 배송 상태를 다시 조회했다는 증거는 없었다. 지시 대명사를 제대로 연결한 턴 가운데 <code class="language-text">getDeliveryStatus</code> 재호출 로그가 없는 건이 있었다. 그 답에 나온 도착 시간은 직전 assistant 답변에도 있었다.</p>
+<p><figure class='gatsby-resp-image-figure' style='margin-bottom: 1rem;'>
+    <span class='gatsby-resp-image-wrapper' style='position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 760px; '>
+      <span class='gatsby-resp-image-background-image' style="padding-bottom: 50%; position: relative; bottom: 0; left: 0; background-image: url('data:image/webp;base64,UklGRpAAAABXRUJQVlA4IIQAAAAQBACdASoUAAoAPtFUo0uoJKMhsAgBABoJYwCsAYv0qnmDuyhChdoUgAD+oyghlu722teaQvtgtudn1tU4SF7n75SJ2+B1rd2lDhz/mHeOjY1bfkUIs5epfFkedqz/Z0t0FJAYzXpGoIw0E+Tdyx8KpfjgxjDtNuCx3XLsm4ovKyIIAAA='); background-size: cover; display: block;"></span>
+  <img class='gatsby-resp-image-image' alt='배송 상태를 새로 조회하지 않아도 같은 답이 나오는 경우. 무전기는 그대로 두고, 상담원이 직전 답변에 있던 도착 시간을 옮겨 적는다.' title='' src='/static/cf2c977b650bca347595c089db45285d/7df04/scene-copied-eta-logbook.webp' srcset='/static/cf2c977b650bca347595c089db45285d/561c4/scene-copied-eta-logbook.webp 190w,
+/static/cf2c977b650bca347595c089db45285d/3e041/scene-copied-eta-logbook.webp 380w,
+/static/cf2c977b650bca347595c089db45285d/7df04/scene-copied-eta-logbook.webp 760w,
+/static/cf2c977b650bca347595c089db45285d/b2cd5/scene-copied-eta-logbook.webp 1140w,
+/static/cf2c977b650bca347595c089db45285d/94b1e/scene-copied-eta-logbook.webp 1280w' sizes='(max-width: 760px) 100vw, 760px' style='width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;' loading='lazy' decoding='async'>
+    </span>
+    <figcaption class='gatsby-resp-image-figcaption'>배송 상태를 새로 조회하지 않아도 같은 답이 나오는 경우. 무전기는 그대로 두고, 상담원이 직전 답변에 있던 도착 시간을 옮겨 적는다.</figcaption>
+  </figure></p>
 <p>배달 상태는 흐르는 데이터다. 5분 전의 "20분 후 도착"을 복사한 답은 지금 시점에는 틀린 답일 수 있다. 그런데 겉으로 보이는 응답만으로는 "다시 조회한 답"과 "과거를 복사한 답"이 구분되지 않고, advisor의 토큰 로그로도 구분되지 않았다. 기억은 지시어를 풀라고 둔 것인데 모델은 기억을 조회의 대체재로도 써버린다. "답이 맞았는가"와 "근거가 신선한가"는 다른 질문이라는 것을 여기서 배웠다.</p>
 <h2>다음 이야기</h2>
 <p>세션 헤더가 없으면 요청을 400으로 거절하도록 했다. 한 고객의 문의가 다른 고객의 대화 이력에 들어가는 걸 막기 위해서다.</p>
@@ -419,4 +430,4 @@ data-styled.g24[id="TagList__Tags-sc-1a02q9k-0"]{content:"chUkMH,"}/*!sc*/
           >
             window.___chunkMapping="{\"app\":[\"/app-263d41856e8ba543d076.js\"],\"component---src-pages-404-jsx\":[\"/component---src-pages-404-jsx-9f8a72d2ed2a45ceab73.js\"],\"component---src-pages-index-jsx\":[\"/component---src-pages-index-jsx-75fab5a7b0b0a580eb71.js\"],\"component---src-pages-search-jsx\":[\"/component---src-pages-search-jsx-4e18011dfc37e4849bed.js\"],\"component---src-pages-tags-jsx\":[\"/component---src-pages-tags-jsx-aabe6ace5b38b6a66f5d.js\"],\"component---src-templates-post-jsx\":[\"/component---src-templates-post-jsx-4ec71b80d25e7d733a83.js\"],\"component---src-templates-resume-jsx\":[\"/component---src-templates-resume-jsx-8ff92a2c23e4e010df0e.js\"],\"component---src-templates-series-index-jsx\":[\"/component---src-templates-series-index-jsx-7379c8ab3cf4f132a104.js\"]}";
           </script>
-        <script>window.___webpackCompilationHash="7a551ca0219089dbb706";</script><script src="/webpack-runtime-17e3da00f8073df829b4.js" async></script><script src="/framework-89f49a7f766ec31641df.js" async></script><script src="/app-263d41856e8ba543d076.js" async></script><!-- slice-end id="_gatsby-scripts-1" --></body></html>
+        <script>window.___webpackCompilationHash="bca18ce90e1c8b9fed06";</script><script src="/webpack-runtime-17e3da00f8073df829b4.js" async></script><script src="/framework-89f49a7f766ec31641df.js" async></script><script src="/app-263d41856e8ba543d076.js" async></script><!-- slice-end id="_gatsby-scripts-1" --></body></html>

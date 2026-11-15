@@ -65,6 +65,17 @@
 <p>수신 계좌의 표시 이름을 조회하는 일과 계좌 잔액을 변경하는 일은 요구가 다르다. 앞의 조회에서 엔티티가 불필요했다는 이유로 모든 쓰기까지 같은 방식으로 바꿀 근거는 없다. 도메인 규칙과 엔티티 수명주기가 필요한 쓰기에는 JPA를 쓰고 조회나 집계에는 SQL로 읽은 값을 DTO에 담는 설계도 가능하다.</p>
 <h2 id="section-6">동시 송금에서는 빠른 계산보다 잔액 갱신 조건이 먼저다</h2>
 <p>두 요청이 같은 잔액을 읽고 각각 출금 가능하다고 판단하면, 읽은 값은 두 번째 갱신 시점에 오래된 값일 수 있다. 애플리케이션에서 잔액을 확인한 다음 별도 UPDATE를 하는 check-then-act 구조는 동시 요청을 제어하지 못한다.</p>
+<p></p><figure class="gatsby-resp-image-figure" style="margin-bottom: 1rem;">
+    <span class="gatsby-resp-image-wrapper" style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 760px; ">
+      <span class="gatsby-resp-image-background-image" style="padding-bottom: 50%; position: relative; bottom: 0; left: 0; background-image: url('data:image/webp;base64,UklGRogAAABXRUJQVlA4IHwAAAAwBACdASoUAAoAPtFUo0uoJKMhsAgBABoJYwCw7YukzSsuyRwD3sar7YAA/rdM5YxBOfTHv4BSpWqJzYpIpbvHIeKDD1L/ZWT+nVc7Jp0wJ6jQg8P/4ThtDZwbKbjtDRejrT0t7xRjvxQ+q9fzmPPtT6J7bskglXsgeeAA'); background-size: cover; display: block;"></span>
+  <img class="gatsby-resp-image-image" alt="두 직원이 같은 잔액이 적힌 장부 사본을 각자 보고 동시에 출금 전표에 승인 도장을 찍는다." title="" src="/static/e59cbbfc70f9e2ce59b1f45ba760119d/7df04/scene-twin-ledger-stamps.webp" srcset="/static/e59cbbfc70f9e2ce59b1f45ba760119d/561c4/scene-twin-ledger-stamps.webp 190w,
+/static/e59cbbfc70f9e2ce59b1f45ba760119d/3e041/scene-twin-ledger-stamps.webp 380w,
+/static/e59cbbfc70f9e2ce59b1f45ba760119d/7df04/scene-twin-ledger-stamps.webp 760w,
+/static/e59cbbfc70f9e2ce59b1f45ba760119d/b2cd5/scene-twin-ledger-stamps.webp 1140w,
+/static/e59cbbfc70f9e2ce59b1f45ba760119d/94b1e/scene-twin-ledger-stamps.webp 1280w" sizes="(max-width: 760px) 100vw, 760px" style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;" loading="lazy" decoding="async">
+    </span>
+    <figcaption class="gatsby-resp-image-figcaption">두 직원이 같은 잔액이 적힌 장부 사본을 각자 보고 동시에 출금 전표에 승인 도장을 찍는다.</figcaption>
+  </figure><p></p>
 <p>조건부 UPDATE, <code class="language-text">@Version</code>을 이용한 낙관적 잠금, 행 잠금은 서로 다른 선택지다. 조건부 UPDATE는 DB에서 갱신 조건을 함께 검사하고 영향을 받은 행 수로 성공 여부를 확인한다. 낙관적 잠금은 버전 충돌을 감지한다. 비관적 잠금은 충돌할 작업의 진행을 기다리게 한다. 충돌 빈도와 트랜잭션 길이에 따라 비용이 달라진다.</p>
 <p>MySQL InnoDB의 <code class="language-text">SELECT ... FOR UPDATE</code>는 트랜잭션 안에서 잠금 조회를 수행한다. 외부 이상 탐지 API 응답을 기다리는 동안 계좌 행 잠금을 오래 잡는 구조라면 다른 송금도 기다릴 수 있다. 여러 계좌를 갱신할 때는 잠금 순서를 일관되게 정하고 deadlock 이후 재시도는 멱등성을 포함한 전체 업무 단위로 설계한다. <a href="https://dev.mysql.com/doc/refman/8.4/en/innodb-locking-reads.html">MySQL 잠금 조회</a>, <a href="https://dev.mysql.com/doc/refman/8.4/en/innodb-deadlocks-handling.html">InnoDB deadlock 처리</a></p>
 <p>실제 송금에서는 잔액 갱신만 성공했다고 끝나지 않는다. 업무 상태와 원장, 중복 요청 기록을 어떤 트랜잭션에 묶을지 정해야 한다. 외부 이체가 포함되면 DB 트랜잭션 하나로 외부 결과까지 되돌릴 수 없다. <a href="/backend/transfer-performance/03-transfer-contract/">송금 화면에 ‘완료’를 언제 표시할까?</a>에서 정한 확정 조건과 상태 전이가 여기의 SQL 경계를 제한한다.</p>
