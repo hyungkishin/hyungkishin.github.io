@@ -1,5 +1,5 @@
 {
-  "sha256": "0dc48ace666da07e7571a5e7b7632d58e14dba0e91be8d91cefddbb5be06a947",
+  "sha256": "ecd2ca0b1b76b6ad2d18b91531092065be864e9434ad6d1d42fab9d59ab9a9d9",
   "before": "14번까지 가면 `Hello`가 나온다.",
   "after": "방금 본 `HelloWorld.class`에서는 13번으로 출력할 문자열을 찾는다.",
   "reason": "13번과 14번이 실제로 어떻게 쓰였는지 확인한 다음에 정의를 붙였다. 비교 실험과 구현 소스는 첫 출력이 끝난 뒤 펼쳐 보게 했다."
