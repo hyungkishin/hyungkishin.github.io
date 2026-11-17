@@ -9,7 +9,7 @@ tags:
   - 바이트코드
 ---
 
-3장에서 실행한 `HelloWorld`로 돌아가 보자. 이번에는 출력할 글자만 `Hello`로 줄였다.
+터미널에 `Hello` 한 줄을 찍는 프로그램이다. 컴파일하면 이 다섯 글자는 클래스 파일 어디에 들어갈까?
 
 ```java
 public class HelloWorld {
@@ -30,15 +30,13 @@ java HelloWorld
 Hello
 ```
 
-소스에는 `"Hello"`라고 썼다. 컴파일한 뒤에도 그 다섯 글자가 출력 명령 바로 옆에 남아 있을까?
-
 ## Hello는 어디에 적혀 있을까
 
 ```sh
 javap -v HelloWorld
 ```
 
-방금 실행한 `main`의 바이트코드다.
+`javac`가 만든 `HelloWorld.class`를 `javap`로 읽었다. 방금 실행한 `main`에는 명령이 네 개 있다.
 
 ```text
          0: getstatic     #7                  // Field java/lang/System.out:Ljava/io/PrintStream;
@@ -47,16 +45,25 @@ javap -v HelloWorld
          8: return
 ```
 
-두 번째 줄에 `Hello`가 있다. 그런데 `// String Hello`는 `javap`가 붙인 주석이다. 파일에서 명령에 해당하는 건 `ldc #13`까지다. 같은 출력의 `Constant pool:` 아래에서 13번을 찾았다.
+둘째 줄의 `ldc`는 상수 하나를 스택에 올리는 명령이다. 오른쪽의 `// String Hello`는 `javap`가 붙인 주석이다. 실제 명령에는 `ldc #13`이라고 적혀 있다. 무엇을 올려야 하는지는 같은 파일의 `Constant pool:` 아래에서 찾을 수 있다.
 
 ```text
   #13 = String             #14            // Hello
   #14 = Utf8               Hello
 ```
 
-13번은 문자열이라는 표시와 그 글자가 적힌 항목의 번호를 담고 있다. 14번까지 가면 `Hello`가 나온다. 그래서 `javap`도 13번을 읽고 명령 옆에 `// String Hello`라고 써 줄 수 있다.
+13번에 적힌 `String #14`는 “문자열이고, 글자는 14번에 있다”는 뜻이다. 14번을 읽으면 `Hello`가 나온다. `javap`도 이 두 항목을 읽었기 때문에 명령 옆에 `// String Hello`를 붙일 수 있다.
 
-**상수 풀은 한 클래스의 명령들이 함께 쓰는 값과 이름에 번호를 붙여 둔 곳이다.** 방금 본 `HelloWorld.class`에서는 13번으로 출력할 문자열을 찾는다. 같은 방식으로 7번에서는 읽을 필드를, 15번에서는 호출할 메서드를 찾는다. `javac`가 컴파일할 때 이 항목들을 기록한다.
+**상수 풀은 클래스 파일 안에서 여러 명령이 함께 쓸 값과 이름을 번호로 찾아볼 수 있게 모아 둔 곳이다.** 이 파일에서는 13번이 문자열을, 7번이 읽을 필드를, 15번이 호출할 메서드를 가리킨다. 번호는 `javac`가 그 클래스 파일을 만들 때 붙인다.
+
+그런데 문자열을 한 번 출력하려고 굳이 번호를 써야 할까? `main`에 `System.out.println("Hello");`를 한 줄 더 넣고 컴파일하면 차이가 보인다.
+
+```text
+ 3: ldc           #13                 // String Hello
+11: ldc           #13                 // String Hello
+```
+
+왼쪽의 3과 11은 두 명령이 놓인 위치다. **명령은 두 곳에 있는데 둘 다 같은 13번을 쓴다.** 글자는 14번에 한 번만 적혀 있다. 두 줄의 문자열을 모두 `Hello from the JVM`으로 바꿨을 때도 두 명령의 크기는 각각 2바이트 그대로였다. 글자가 길어진 만큼 커진 곳은 상수 풀이다.
 
 <details>
 <summary>javap -v HelloWorld 전체 출력</summary>
@@ -134,11 +141,11 @@ SourceFile: "HelloWorld.java"
 
 ## 7번에서 찾은 필드로 Hello를 출력하기까지
 
-첫 줄 `getstatic #7`의 주석에는 `java/lang/System.out:Ljava/io/PrintStream;`이라고 적혀 있다. 이번에 파일에서 알아낸 건 `System` 클래스에 선언된 `out`이라는 필드와 그 타입이다. 정작 터미널에 쓸 출력 객체는 언제 읽는 걸까?
+처음 한 줄짜리 예제로 돌아가자. `getstatic #7`의 주석에는 `java/lang/System.out:Ljava/io/PrintStream;`이라고 적혀 있다. 이번에 파일에서 알아낸 건 `System` 클래스에 선언된 `out`이라는 필드와 그 타입이다. 정작 터미널에 쓸 출력 객체는 언제 읽는 걸까?
 
-`java HelloWorld`를 실행하면 HotSpot은 클래스 로더가 읽은 파일로 `HelloWorld` 클래스를 준비한다. 이때 만드는 **런타임 상수 풀**에 7번 필드 정보도 들어간다. `main`이 호출되고 인터프리터가 첫 명령을 실행할 때, 아직 이 참조를 해석하지 않았다면 HotSpot의 `LinkResolver`가 `System` 클래스에서 이름이 `out`이고 타입이 `PrintStream`인 필드를 찾는다.
+`java HelloWorld`로 실행하면 OpenJDK의 JVM인 HotSpot이 클래스를 로드하고, 파일의 상수 풀을 바탕으로 이 클래스의 **런타임 상수 풀**을 만든다. 첫 명령 `getstatic #7`을 실행하려면 7번에 적힌 이름과 타입으로 실제 필드를 찾을 수 있어야 한다. 이 참조가 아직 연결돼 있지 않으면 HotSpot의 `LinkResolver`가 `System` 클래스에서 이름이 `out`이고 타입이 `PrintStream`인 필드를 찾는다.
 
-이제 인터프리터가 그 필드의 **현재 값**을 읽을 수 있다. 그 값이 출력 객체의 참조다. `getstatic`이 이 참조를 `main`의 피연산자 스택에 올리고, 바로 다음 `ldc #13`이 `"Hello"` 문자열 객체의 참조를 그 위에 올린다.
+`getstatic`이 그 필드의 현재 값을 읽는다. 표준 출력에 쓰는 객체의 참조다. 다음 명령 `ldc #13`은 13번 문자열에 해당하는 `String` 객체의 참조를 읽는다. 두 값은 지금 실행 중인 `main`이 계산에 쓸 값을 잠시 두는 곳, **피연산자 스택**에 그 순서로 쌓인다.
 
 세 번째 줄은 `invokevirtual #15`다. 15번에 기록된 메서드는 문자열 하나를 받는 `println(String)`이다. 스택 위의 문자열을 인수로 넘겨 바로 아래 출력 객체의 `println`을 호출한다. 처음 터미널에서 본 `Hello`가 이때 찍힌다.
 
@@ -175,7 +182,7 @@ Klass* sel_klass = resolved_klass->find_field(field, sig, &fd);
 
 </details>
 
-## 글자만 바꾸면 명령도 달라질까
+## Hello를 Bye로 바꾼 결과
 
 `println("Hello")`를 `println("Bye")`로 고쳐 다시 컴파일했다. 명령 옆의 주석은 `// String Bye`로 바뀌었는데, 그 왼쪽은 여전히 `ldc #13`이었다.
 
@@ -185,8 +192,6 @@ Klass* sel_klass = resolved_klass->find_field(field, sig, &fd);
 | 상수 풀 13번 | `String #14` | `String #14` |
 | 상수 풀 14번 | `Utf8 Hello` | `Utf8 Bye` |
 | 터미널 출력 | `Hello` | `Bye` |
-
-같은 글자를 한 번 더 출력하면 상수 풀에도 두 벌이 생길까? `main`에 `println("Hello")`를 두 줄 썼더니 두 명령이 같은 13번을 썼다. 실행할 때도 첫 출력에서 준비한 문자열 참조를 두 번째 출력에 다시 쓴다.
 
 <details>
 <summary>두 출력문의 실제 바이트와 파일 크기</summary>
