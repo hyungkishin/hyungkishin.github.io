@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[hyungkishin.blog RSS]]></title><description><![CDATA[신형기의 개발 기록. 송금, 커머스, 프런트엔드에서 마주친 문제를 코드와 실험으로 살펴봅니다.]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Tue, 17 Nov 2026 13:17:28 GMT</lastBuildDate><item><title><![CDATA[자바 상수 풀에는 무엇이 들어갈까?]]></title><description><![CDATA[println으로 Hello를 출력하고, 따옴표 안의 글자만 Bye로 바꿨다. 두 클래스 파일에서 무엇이 달라졌을까?]]></description><link>https://hyungkishin.github.io/backend/java/constant-pool/</link><guid isPermaLink="false">https://hyungkishin.github.io/backend/java/constant-pool/</guid><dc:creator><![CDATA[hyungkishin]]></dc:creator><pubDate>Tue, 17 Nov 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;3장에서는 &lt;code class=&quot;language-text&quot;&gt;System.out.println(&quot;Hello&quot;)&lt;/code&gt;가 실행될 때 스택에 값이 두 개 올라가는 걸 봤다. 하나는 출력 객체의 참조, 다른 하나는 문자열의 참조였다. 그런데 컴파일한 파일을 보면 그 자리에 객체는 없고 &lt;code class=&quot;language-text&quot;&gt;#7&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;#13&lt;/code&gt; 같은 번호가 적혀 있다. JVM은 번호만 보고 어떻게 출력할 객체와 글자를 찾았을까?&lt;/p&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[hyungkishin.blog RSS]]></title><description><![CDATA[신형기의 개발 기록. 송금, 커머스, 프런트엔드에서 마주친 문제를 코드와 실험으로 살펴봅니다.]]></description><link>https://hyungkishin.github.io</link><generator>GatsbyJS</generator><lastBuildDate>Tue, 17 Nov 2026 13:18:34 GMT</lastBuildDate><item><title><![CDATA[자바 상수 풀에는 무엇이 들어갈까?]]></title><description><![CDATA[println으로 Hello를 출력하고, 따옴표 안의 글자만 Bye로 바꿨다. 두 클래스 파일에서 무엇이 달라졌을까?]]></description><link>https://hyungkishin.github.io/backend/java/constant-pool/</link><guid isPermaLink="false">https://hyungkishin.github.io/backend/java/constant-pool/</guid><dc:creator><![CDATA[hyungkishin]]></dc:creator><pubDate>Tue, 17 Nov 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;3장에서는 &lt;code class=&quot;language-text&quot;&gt;System.out.println(&quot;Hello&quot;)&lt;/code&gt;가 실행될 때 스택에 값이 두 개 올라가는 걸 봤다. 하나는 출력 객체의 참조, 다른 하나는 문자열의 참조였다. 그런데 컴파일한 파일을 보면 그 자리에 객체는 없고 &lt;code class=&quot;language-text&quot;&gt;#7&lt;/code&gt;, &lt;code class=&quot;language-text&quot;&gt;#13&lt;/code&gt; 같은 번호가 적혀 있다. JVM은 번호만 보고 어떻게 출력할 객체와 글자를 찾았을까?&lt;/p&gt;
 &lt;h2&gt;javac가 번호를 적는 이유&lt;/h2&gt;
 &lt;p&gt;Microsoft OpenJDK 21에서 위 코드를 &lt;code class=&quot;language-text&quot;&gt;HelloWorld.java&lt;/code&gt;로 저장하고 두 명령을 차례로 실행했다.&lt;/p&gt;
 &lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;sh&quot;&gt;&lt;pre class=&quot;language-sh&quot;&gt;&lt;code class=&quot;language-sh&quot;&gt;javac HelloWorld.java
@@ -57,21 +57,26 @@ javap &lt;span class=&quot;token parameter variable&quot;&gt;-v&lt;/span&gt; Hel
 &lt;p&gt;OpenJDK 21의 AArch64 인터프리터에서 &lt;code class=&quot;language-text&quot;&gt;getstatic&lt;/code&gt;은 캐시에 기록된 선언 클래스로부터 &lt;code class=&quot;language-text&quot;&gt;System.class&lt;/code&gt; 객체를 얻는다. HotSpot이 &lt;code class=&quot;language-text&quot;&gt;System&lt;/code&gt;의 정적 필드 값을 보관하는 곳이다. 인터프리터는 이 객체의 시작 위치에 &lt;code class=&quot;language-text&quot;&gt;out&lt;/code&gt;의 오프셋을 더한 자리에서 &lt;strong&gt;현재 들어 있는 참조값&lt;/strong&gt;을 읽어 &lt;code class=&quot;language-text&quot;&gt;main&lt;/code&gt;의 피연산자 스택에 올린다. 이제 스택에는 출력 객체의 참조가 하나 있다. 다음번에도 필드 위치는 재사용할 수 있지만 값은 그때 다시 읽는다.&lt;/p&gt;
 &lt;p&gt;두 번째 명령 &lt;code class=&quot;language-text&quot;&gt;ldc #13&lt;/code&gt;은 문자열 리터럴 &lt;code class=&quot;language-text&quot;&gt;&quot;Hello&quot;&lt;/code&gt;에 해당하는 &lt;code class=&quot;language-text&quot;&gt;String&lt;/code&gt; 객체의 참조를 그 위에 올린다. 파일의 14번에서 본 것은 문자 데이터였다. JVM은 같은 내용으로 인턴된 객체가 있으면 그 참조를 쓰고, 없으면 객체를 만들어 등록한다. 이 참조는 첫 &lt;code class=&quot;language-text&quot;&gt;ldc&lt;/code&gt; 전에 이미 준비돼 있을 수도 있다.&lt;/p&gt;
 &lt;p&gt;세 번째 명령 &lt;code class=&quot;language-text&quot;&gt;invokevirtual #15&lt;/code&gt;까지 오면 스택에 값이 둘이다. 위에 있는 문자열을 인수로, 아래의 출력 객체를 호출 대상으로 삼아 &lt;code class=&quot;language-text&quot;&gt;println(String)&lt;/code&gt;을 호출한다. 표준 출력이 터미널에 연결된 이 예제에서는 여기서 &lt;code class=&quot;language-text&quot;&gt;Hello&lt;/code&gt; 한 줄이 찍힌다. 마지막 &lt;code class=&quot;language-text&quot;&gt;return&lt;/code&gt;에서 &lt;code class=&quot;language-text&quot;&gt;main&lt;/code&gt;이 끝난다.&lt;/p&gt;
-&lt;h2&gt;Hello를 Bye로 바꿔 봤다&lt;/h2&gt;
-&lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;java HelloWorld&lt;/code&gt;를 실행하면 터미널에 &lt;code class=&quot;language-text&quot;&gt;Hello&lt;/code&gt;가 한 줄 찍힌다. 같은 파일에서 &lt;code class=&quot;language-text&quot;&gt;println(&quot;Hello&quot;)&lt;/code&gt;를 &lt;code class=&quot;language-text&quot;&gt;println(&quot;Bye&quot;)&lt;/code&gt;로 고치고 다시 컴파일했다. 이번에도 &lt;code class=&quot;language-text&quot;&gt;javap -v HelloWorld&lt;/code&gt;로 같은 자리를 열어 봤다.&lt;/p&gt;
+&lt;h2&gt;Hello를 Bye로 바꾸면 13번도 바뀔까?&lt;/h2&gt;
+&lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;println(&quot;Hello&quot;)&lt;/code&gt;에서 따옴표 안의 글자만 &lt;code class=&quot;language-text&quot;&gt;Bye&lt;/code&gt;로 고치고 다시 컴파일했다. 출력할 글자가 바뀌었는데도 &lt;code class=&quot;language-text&quot;&gt;main&lt;/code&gt;에는 여전히 &lt;code class=&quot;language-text&quot;&gt;ldc #13&lt;/code&gt;이 적혀 있었다.&lt;/p&gt;
 &lt;table&gt;
 &lt;thead&gt;
 &lt;tr&gt;
-&lt;th&gt;확인한 곳&lt;/th&gt;
-&lt;th&gt;처음 컴파일했을 때&lt;/th&gt;
-&lt;th&gt;글자를 바꿔 다시 컴파일했을 때&lt;/th&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th&gt;수정 전&lt;/th&gt;
+&lt;th&gt;수정 후&lt;/th&gt;
 &lt;/tr&gt;
 &lt;/thead&gt;
 &lt;tbody&gt;
 &lt;tr&gt;
-&lt;td&gt;문자열을 읽는 명령&lt;/td&gt;
+&lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;main&lt;/code&gt;의 명령&lt;/td&gt;
 &lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;ldc #13&lt;/code&gt;&lt;/td&gt;
 &lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;ldc #13&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;상수 풀 13번&lt;/td&gt;
+&lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;String #14&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code class=&quot;language-text&quot;&gt;String #14&lt;/code&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;상수 풀 14번&lt;/td&gt;
@@ -85,7 +90,7 @@ javap &lt;span class=&quot;token parameter variable&quot;&gt;-v&lt;/span&gt; Hel
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;p&gt;이 두 파일에서는 명령도 번호도 같았다. 바뀐 건 13번을 따라갔을 때 나오는 글자다. 그래서 똑같이 &lt;code class=&quot;language-text&quot;&gt;ldc #13&lt;/code&gt;을 실행해도 이번에는 &lt;code class=&quot;language-text&quot;&gt;println&lt;/code&gt;에 &lt;code class=&quot;language-text&quot;&gt;Bye&lt;/code&gt;가 넘어간다.&lt;/p&gt;
+&lt;p&gt;달라진 건 14번의 글자였다. 새로 컴파일한 파일에서는 13번 문자열의 내용이 &lt;code class=&quot;language-text&quot;&gt;Bye&lt;/code&gt;니까, 같은 &lt;code class=&quot;language-text&quot;&gt;ldc #13&lt;/code&gt;을 실행해도 이번에는 &lt;code class=&quot;language-text&quot;&gt;println&lt;/code&gt;에 &lt;code class=&quot;language-text&quot;&gt;Bye&lt;/code&gt;가 넘어간다.&lt;/p&gt;
 &lt;h2&gt;다른 클래스도 같은 Hello를 쓴다면&lt;/h2&gt;
 &lt;p&gt;같은 JVM에서 클래스 A와 B가 각각 &lt;code class=&quot;language-text&quot;&gt;&quot;Hello&quot;&lt;/code&gt;를 출력한다고 해보자. A에서 쓰던 문자열 객체가 이미 있는데, B의 참조 배열은 아직 비어 있다. B는 어느 객체를 쓰게 될까?&lt;/p&gt;
 &lt;p&gt;&lt;img src=&quot;/static/ldc-string-05794fc3f128548b0f045f53af544816.svg&quot; alt=&quot;클래스 A와 B의 resolved_references는 따로 있다. StringTable에서 얻은 두 참조는 힙의 같은 Hello 객체를 가리킨다.&quot; id=&quot;diagram-ldc-string&quot;&gt;&lt;/p&gt;
