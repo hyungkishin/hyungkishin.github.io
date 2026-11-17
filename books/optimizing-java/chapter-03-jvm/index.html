@@ -288,7 +288,7 @@ data-styled.g24[id="TagList__Tags-sc-1a02q9k-0"]{content:"chUkMH,"}/*!sc*/
 3: dup
 4: invokespecial #1    // Method java/lang/Object."&lt;init>":()V
 7: areturn</code></pre></div>
-<p><img src="/static/dup-operand-stack-965d92c3082668a8f505c824b3dc8a26.svg" alt="make()의 피연산자 스택에 남은 참조는 new 뒤 1개, dup 뒤 2개, 생성자가 정상 종료된 뒤 1개다. areturn에서 마지막 참조가 호출자에게 넘어가고 make() 프레임은 사라진다." id="diagram-dup-operand-stack"></p>
+<p><img src="/static/dup-operand-stack-1ab4935d87d981ea080fcbc44724865d.svg" alt="make()의 피연산자 스택에 남은 참조는 new 뒤 1개, dup 뒤 2개, 생성자가 정상 종료된 뒤 1개다. areturn에서 마지막 참조가 호출자에게 넘어가고 make() 프레임은 사라진다." id="diagram-dup-operand-stack"></p>
 <p><code class="language-text">new</code>는 힙에 객체를 하나 만들고 스택에 그 참조를 올린다. 바로 다음 줄의 <code class="language-text">dup</code>(duplicate)은 스택 맨 위의 값을 하나 복사한다. 그래서 같은 객체를 가리키는 참조가 두 개다.</p>
 <p><code class="language-text">invokespecial</code>은 그중 하나를 꺼내 <code class="language-text">Object()</code> 생성자를 호출한다. 생성자는 아무 값도 반환하지 않는다. 마지막 <code class="language-text">areturn</code>이 호출자에게 돌려주는 건 <code class="language-text">dup</code> 덕분에 스택에 남아 있던 참조다.</p>
 </details>
