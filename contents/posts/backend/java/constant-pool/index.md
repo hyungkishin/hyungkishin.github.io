@@ -139,15 +139,45 @@ SourceFile: "HelloWorld.java"
 
 </details>
 
-## 7번에서 찾은 필드로 Hello를 출력하기까지
+## 두 번째 줄에서 out만 err로 바꾸면
 
-처음 한 줄짜리 예제로 돌아가자. `getstatic #7`의 주석에는 `java/lang/System.out:Ljava/io/PrintStream;`이라고 적혀 있다. 이번에 파일에서 알아낸 건 `System` 클래스에 선언된 `out`이라는 필드와 그 타입이다. 정작 터미널에 쓸 출력 객체는 언제 읽는 걸까?
+두 줄에서 같이 쓴 건 `Hello`만이 아니다. 둘 다 `System.out`을 읽고, 둘 다 `println`을 호출했다. 두 번째 줄의 `out`만 `err`로 바꿔 다시 컴파일했다.
 
-`java HelloWorld`로 실행하면 OpenJDK의 JVM인 HotSpot이 클래스를 로드하고, 파일의 상수 풀을 바탕으로 이 클래스의 **런타임 상수 풀**을 만든다. 첫 명령 `getstatic #7`을 실행하려면 7번에 적힌 이름과 타입으로 실제 필드를 찾을 수 있어야 한다. 이 참조가 아직 연결돼 있지 않으면 HotSpot의 `LinkResolver`가 `System` 클래스에서 이름이 `out`이고 타입이 `PrintStream`인 필드를 찾는다.
+```java
+System.out.println("Hello");
+System.err.println("Hello");
+```
 
-`getstatic`이 그 필드의 현재 값을 읽는다. 표준 출력에 쓰는 객체의 참조다. 다음 명령 `ldc #13`은 13번 문자열에 해당하는 `String` 객체의 참조를 읽는다. 두 값은 지금 실행 중인 `main`이 계산에 쓸 값을 잠시 두는 곳, **피연산자 스택**에 그 순서로 쌓인다.
+`javap -c HelloWorld`에서 두 줄의 첫 명령을 비교했다.
 
-세 번째 줄은 `invokevirtual #15`다. 15번에 기록된 메서드는 문자열 하나를 받는 `println(String)`이다. 스택 위의 문자열을 인수로 넘겨 바로 아래 출력 객체의 `println`을 호출한다. 처음 터미널에서 본 `Hello`가 이때 찍힌다.
+```text
+       0: getstatic     #7                  // Field java/lang/System.out:Ljava/io/PrintStream;
+       8: getstatic     #21                 // Field java/lang/System.err:Ljava/io/PrintStream;
+```
+
+둘 다 정적 필드를 읽으니 명령은 `getstatic`으로 같다. 달라진 건 **어느 필드를 읽느냐**다. 7번에는 `System`의 `out`, 21번에는 같은 클래스의 `err`가 적혀 있다. 둘의 선언 타입은 모두 `PrintStream`이다. 필드가 달라도 그 뒤의 `ldc #13`과 `invokevirtual #15`는 그대로였다.
+
+컴파일할 때 `javac`가 확인할 수 있는 건 여기까지다. 두 필드에 실제로 어떤 출력 객체가 들어 있는지는 프로그램을 실행해야 읽을 수 있다. 그래서 파일에 남기는 건 클래스 이름, 필드 이름, 필드 타입이다. 실행할 때 JVM이 그 정보로 필드를 찾아 현재 값을 읽는다.
+
+## out은 그대로 두고 println만 print로 바꾸면
+
+이번에는 두 번째 줄도 다시 `System.out`을 쓰게 하고, 끝에서 줄을 바꾸지 않도록 `print`를 호출했다.
+
+```java
+System.out.println("Hello");
+System.out.print("Hello");
+```
+
+이번에는 두 줄 모두 `getstatic #7`, `ldc #13`까지 같았다. 차이는 그다음 줄에서 났다.
+
+```text
+       5: invokevirtual #15                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+      13: invokevirtual #21                 // Method java/io/PrintStream.print:(Ljava/lang/String;)V
+```
+
+15번 끝에 붙은 `(Ljava/lang/String;)V`는 문자열 하나를 받고 반환값이 없다는 뜻이다. `PrintStream`에는 정수를 받는 `println(int)`도 있으니 메서드 이름만으로는 호출 대상을 구별할 수 없다. `javac`는 `"Hello"`의 타입을 보고 `println(String)`을 골라 클래스, 메서드 이름, 인수와 반환 타입을 15번에 기록했다. 이 파일의 21번에는 `print(String)`이 들어갔다. 앞 실험에서 21번이 `err`였던 건 그때 만든 클래스 파일에서의 번호다.
+
+처음의 `System.out.println("Hello")`를 실행하면 7번과 15번의 쓰임이 이어진다. HotSpot은 이 클래스의 런타임 상수 풀을 통해 7번이 가리키는 `System.out` 필드를 찾는다. `getstatic`이 그 필드에서 출력 객체의 참조를 읽어 스택에 올리고, `ldc #13`이 그 위에 문자열의 참조를 올린다. 마지막 `invokevirtual #15`가 그 출력 객체에 `println(String)`을 호출한다. 메서드의 코드는 JDK 쪽에 있고, `HelloWorld.class`에는 어떤 메서드를 호출할지 식별하는 정보가 남는다.
 
 <details>
 <summary>7번의 이름과 타입을 HotSpot은 어떻게 실제 필드와 연결할까?</summary>
