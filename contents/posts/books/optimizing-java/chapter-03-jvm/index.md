@@ -67,7 +67,9 @@ javap -c HelloWorld
 
 ## 인터프리팅과 클래스 로딩
 
-`java HelloWorld`를 실행하면 JVM의 클래스 로더가 `HelloWorld.class`를 읽는다. JVM이 `HelloWorld` 클래스를 준비하고 초기화한 뒤 `main`을 호출한다. 메서드를 호출하면 그 스레드의 JVM 스택에 **프레임**이 생긴다. 프레임 안에는 명령을 실행하면서 값을 잠시 올려 두는 **피연산자 스택**이 있다. 인터프리터는 바이트코드를 한 명령씩 읽어서 실행한다.
+여기까지 JVM이라고 불렀는데, 내가 `java HelloWorld`를 실행할 때 실제로 동작한 건 OpenJDK에 들어 있는 **HotSpot**이다. JVM 명세가 `.class` 파일의 형식과 각 명령의 동작을 정하고, HotSpot은 그 명세를 구현한다. 클래스 로더가 `HelloWorld.class`를 읽으면 HotSpot이 클래스를 준비하고 초기화한 뒤 `main`을 호출한다.
+
+메서드를 호출하면 그 스레드의 JVM 스택에 **프레임**이 생긴다. 프레임 안에는 명령을 실행하면서 값을 잠시 올려 두는 **피연산자 스택**이 있다. 인터프리터는 바이트코드를 한 명령씩 읽어서 실행한다.
 
 첫 줄의 `getstatic`은 `System.out` 필드에서 표준 출력에 쓰는 `PrintStream` 객체의 참조를 읽어 스택에 올린다. 두 번째 줄의 `ldc`는 문자열 `"Hello, World!"`의 참조를 그 위에 올린다.
 
@@ -78,15 +80,6 @@ javap -c HelloWorld
 </figure>
 
 세 번째 줄의 `invokevirtual`에서 이 두 값이 쓰인다. 위에 있던 문자열을 인수로 꺼내고, 그 아래에 있던 `System.out`의 `println`을 호출한다. 그래서 터미널에 `Hello, World!`가 찍혔다. 마지막 `return`은 반환값 없이 `main`을 끝낸다.
-
-<details>
-<summary>HotSpot은 자바 힙 밖의 메모리를 어디에 쓸까?</summary>
-
-앞의 그림에 나온 힙과 JVM 스택은 JVM 명세의 **런타임 데이터 영역**이다. 운영체제에서 볼 때 자바 힙은 JVM 프로세스가 쓰는 메모리의 일부다. OpenJDK의 JVM 구현체인 HotSpot(핫스팟)은 클래스 메타데이터를 메타스페이스에, JIT 컴파일러가 만든 기계어를 코드 캐시에 둔다. GC가 쓰는 자료와 공유 라이브러리도 같은 프로세스의 주소 공간에 있다.
-
-![HotSpot 프로세스의 대표 메모리 용도. 자바 힙, 메타스페이스, 코드 캐시, 플랫폼 스레드 스택, GC 보조 자료, 공유 라이브러리 매핑.](./hotspot-process-memory.svg)
-
-</details>
 
 ### `return a + b;`
 
@@ -181,11 +174,32 @@ static Object make() {
 
 </details>
 
+## HotSpot이 클래스와 객체를 따로 관리하는 이유
+
+`add(2, 3)`이 5를 돌려주면 그 호출에 쓴 프레임은 사라진다. 그다음에 `add(4, 5)`를 호출하면 인수 4와 5가 들어갈 프레임은 새로 생긴다. 두 호출에서 실행할 `iadd`는 이미 로딩한 같은 메서드에 들어 있다.
+
+그 메서드를 어디에 보관할지는 JVM을 구현하는 쪽에서 정한다. HotSpot은 `HelloWorld`를 로딩할 때 메서드 정보와 바이트코드를 **메타스페이스**에 둔다. 앞에서 출력한 `"Hello, World!"`는 자바 힙에 있는 `String` 객체다. 힙에서는 GC가 더 이상 쓰이지 않는 객체의 공간을 회수한다. HotSpot은 클래스 메타데이터에 쓸 네이티브 메모리를 클래스 로더별로 할당한다. 클래스 로더를 회수하면 그 로더에 속한 메타데이터 공간도 한꺼번에 회수해 다시 쓸 수 있다.
+
+코드 캐시도 힙 밖에 있다. 자주 호출하는 메서드를 JIT 컴파일러가 기계어로 옮기면 HotSpot은 그 코드를 캐시에 넣어 다음 호출에서도 쓸 수 있게 한다. 그래서 객체를 얼마나 만들었는지만 봐서는 JVM 프로세스가 메모리를 얼마나 쓰는지 알 수 없다.
+
+![HotSpot 프로세스의 가상 주소 공간. 자바 힙에는 객체, 메타스페이스에는 클래스 메타데이터, 코드 캐시에는 JIT가 만든 기계어가 있다.](./hotspot-process-memory.svg)
+
+같은 `HelloWorld`를 이번에는 `-Xmx32m`으로 실행해 봤다. 이 옵션은 자바 힙의 최대 크기를 32 MiB로 정한다. HotSpot의 메모리 추적을 켜고 종료할 때 통계를 출력했다.
+
+```sh
+java -Xmx32m -XX:NativeMemoryTracking=summary -XX:+UnlockDiagnosticVMOptions -XX:+PrintNMTStatistics HelloWorld
+```
+
+내 환경(Temurin JDK 25, macOS)에서 `Java Heap`의 `committed`는 33,554,432바이트로 정확히 32 MiB였다. 맨 위 `Total` 행의 `committed`는 114,296,533바이트(약 109 MiB)였다. 이 값은 HotSpot이 사용하도록 확보한 메모리를 합친 것이다. 힙 밖의 `Metaspace`, `Code`, `Thread`도 여기에 따로 잡힌다.
+
 ## 참고자료
 
 - 『자바 최적화』 3장, 「자바 가상 머신 개요」
 - JVM 명세 25, [런타임 데이터 영역](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.5), [프레임](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.6), [피연산자 스택](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.6.2), [클래스 로딩](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-5.html#jvms-5.3), [링킹](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-5.html#jvms-5.4), [초기화](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-5.html#jvms-5.5)
 - JVM 명세 25의 바이트코드 명령, [getstatic](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.getstatic), [ldc](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.ldc), [invokevirtual](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.invokevirtual), [return](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.return), [new](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.new), [dup](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.dup), [invokespecial](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.invokespecial), [areturn](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.areturn), [iadd](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.iadd), [ireturn](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.ireturn)
+- [OpenJDK의 HotSpot](https://openjdk.org/groups/hotspot/)
+- [메타스페이스의 클래스 로더별 할당과 회수](https://openjdk.org/jeps/387)
+- [OpenJDK 25에서 메서드의 바이트코드를 보관하는 ConstMethod](https://github.com/openjdk/jdk25u/blob/jdk-25-ga/src/hotspot/share/oops/constMethod.hpp)
 - [HotSpot의 클래스 메타데이터](https://docs.oracle.com/en/java/javase/25/gctuning/other-considerations.html)
 - [RISC-V 정수 연산 명령](https://docs.riscv.org/reference/isa/v20260120/unpriv/rv32.html)
 - [Pratik T의 JVM 구성도](https://medium.com/@pratik.941/understanding-jvm-memory-allocation-a-tutorial-d06e830e615f)
