@@ -202,29 +202,19 @@ data-styled.g24[id="TagList__Tags-sc-1a02q9k-0"]{content:"chUkMH,"}/*!sc*/
         <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"Hello"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span></code></pre></div>
-<p>Microsoft OpenJDK 21.0.12.1에서 컴파일하고 실행했다.</p>
+<p>Microsoft OpenJDK 21.0.12.1에서 이 파일을 컴파일했다. 클래스 파일에 들어간 명령은 <code class="language-text">javap -v</code>로 볼 수 있다.</p>
 <div class="gatsby-highlight" data-language="sh"><pre class="language-sh"><code class="language-sh">javac HelloWorld.java
-<span class="token function">java</span> HelloWorld</code></pre></div>
-<div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text">Hello</code></pre></div>
+javap <span class="token parameter variable">-v</span> HelloWorld</code></pre></div>
 <h2>Hello는 어디에 적혀 있을까</h2>
-<div class="gatsby-highlight" data-language="sh"><pre class="language-sh"><code class="language-sh">javap <span class="token parameter variable">-v</span> HelloWorld</code></pre></div>
-<p><code class="language-text">javac</code>가 만든 <code class="language-text">HelloWorld.class</code>를 <code class="language-text">javap</code>로 읽었다. 방금 실행한 <code class="language-text">main</code>에는 명령이 네 개 있다.</p>
-<div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text">         0: getstatic     #7                  // Field java/lang/System.out:Ljava/io/PrintStream;
-         3: ldc           #13                 // String Hello
-         5: invokevirtual #15                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
-         8: return</code></pre></div>
-<p>둘째 줄의 <code class="language-text">ldc</code>는 상수 하나를 스택에 올리는 명령이다. 오른쪽의 <code class="language-text">// String Hello</code>는 <code class="language-text">javap</code>가 붙인 주석이다. 실제 명령에는 <code class="language-text">ldc #13</code>이라고 적혀 있다. 무엇을 올려야 하는지는 같은 파일의 <code class="language-text">Constant pool:</code> 아래에서 찾을 수 있다.</p>
+<p>소스에는 <code class="language-text">println("Hello")</code>라고 썼다. 그런데 <code class="language-text">main</code>에서 문자열을 가져오는 명령을 보면 글자는 오른쪽 주석에만 있다.</p>
+<div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text">         3: ldc           #13                 // String Hello</code></pre></div>
+<p><code class="language-text">ldc</code> 뒤에 적힌 건 <code class="language-text">#13</code>뿐인데, <code class="language-text">javap</code>는 어디서 <code class="language-text">Hello</code>를 읽었을까? 출력 위쪽에 있는 <code class="language-text">Constant pool:</code>에서 13번을 보면 번호가 하나 더 나온다.</p>
 <div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text">  #13 = String             #14            // Hello
   #14 = Utf8               Hello</code></pre></div>
-<p>13번에 적힌 <code class="language-text">String #14</code>는 “문자열이고, 글자는 14번에 있다”는 뜻이다. 14번을 읽으면 <code class="language-text">Hello</code>가 나온다. <code class="language-text">javap</code>도 이 두 항목을 읽었기 때문에 명령 옆에 <code class="language-text">// String Hello</code>를 붙일 수 있다.</p>
-<p><strong>상수 풀은 클래스 파일 안에서 여러 명령이 함께 쓸 값과 이름을 번호로 찾아볼 수 있게 모아 둔 곳이다.</strong> 이 파일에서는 13번이 문자열을, 7번이 읽을 필드를, 15번이 호출할 메서드를 가리킨다. 번호는 <code class="language-text">javac</code>가 그 클래스 파일을 만들 때 붙인다.</p>
-<p>그런데 문자열을 한 번 출력하려고 굳이 번호를 써야 할까? <code class="language-text">main</code>에 <code class="language-text">System.out.println("Hello");</code>를 한 줄 더 넣고 컴파일하면 차이가 보인다.</p>
-<div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text"> 3: ldc           #13                 // String Hello
-11: ldc           #13                 // String Hello</code></pre></div>
-<p>왼쪽의 3과 11은 두 명령이 놓인 위치다. <strong>명령은 두 곳에 있는데 둘 다 같은 13번을 쓴다.</strong> 글자는 14번에 한 번만 적혀 있다. 두 줄의 문자열을 모두 <code class="language-text">Hello from the JVM</code>으로 바꿨을 때도 두 명령의 크기는 각각 2바이트 그대로였다. 글자가 길어진 만큼 커진 곳은 상수 풀이다.</p>
+<p>13번의 <code class="language-text">String</code>은 이 상수가 문자열이라는 뜻이고, 그 옆의 <code class="language-text">#14</code>는 글자가 들어 있는 항목의 번호다. 14번에 가서야 소스에 썼던 다섯 글자 <code class="language-text">Hello</code>가 나온다. <code class="language-text">javap</code>는 13번에서 문자열이라는 걸 알고 14번에서 글자를 읽어서, 명령 오른쪽에 <code class="language-text">// String Hello</code>라고 표시한다.</p>
 <details>
-<summary>javap -v HelloWorld 전체 출력</summary>
-<div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text">Classfile /private/tmp/hello-javap.L2daqd/HelloWorld.class
+<summary>javap -v HelloWorld 전체 출력 (66줄)</summary>
+<div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text">Classfile /private/tmp/javap-check.mGZ10Z/HelloWorld.class
   Last modified 2026. 11. 17.; size 419 bytes
   SHA-256 checksum 61cd1f5e83d26931f6265f50a34404160f6ab8e9fb820b8bce9ac6f558f05938
   Compiled from "HelloWorld.java"
@@ -291,6 +281,11 @@ Constant pool:
 }
 SourceFile: "HelloWorld.java"</code></pre></div>
 </details>
+<p><strong>상수 풀은 클래스 파일 안에서 여러 명령이 함께 쓸 값과 이름을 번호로 찾아볼 수 있게 모아 둔 곳이다.</strong> 이 파일에서는 13번이 문자열을, 7번이 읽을 필드를, 15번이 호출할 메서드를 가리킨다. 번호는 <code class="language-text">javac</code>가 그 클래스 파일을 만들 때 붙인다.</p>
+<p>그런데 문자열을 한 번 출력하려고 굳이 번호를 써야 할까? <code class="language-text">main</code>에 <code class="language-text">System.out.println("Hello");</code>를 한 줄 더 넣고 컴파일하면 차이가 보인다.</p>
+<div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text"> 3: ldc           #13                 // String Hello
+11: ldc           #13                 // String Hello</code></pre></div>
+<p>왼쪽의 3과 11은 두 명령이 놓인 위치다. <strong>명령은 두 곳에 있는데 둘 다 같은 13번을 쓴다.</strong> 글자는 14번에 한 번만 적혀 있다. 두 줄의 문자열을 모두 <code class="language-text">Hello from the JVM</code>으로 바꿨을 때도 두 명령의 크기는 각각 2바이트 그대로였다. 글자가 길어진 만큼 커진 곳은 상수 풀이다.</p>
 <h2>두 번째 줄에서 out만 err로 바꾸면</h2>
 <p>두 줄에서 같이 쓴 건 <code class="language-text">Hello</code>만이 아니다. 둘 다 <code class="language-text">System.out</code>을 읽고, 둘 다 <code class="language-text">println</code>을 호출했다. 두 번째 줄의 <code class="language-text">out</code>만 <code class="language-text">err</code>로 바꿔 다시 컴파일했다.</p>
 <div class="gatsby-highlight" data-language="java"><pre class="language-java"><code class="language-java"><span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"Hello"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
