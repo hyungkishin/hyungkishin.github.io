@@ -46,7 +46,7 @@ javap -v HelloWorld
 <details>
 <summary>7번에서 System.out을 찾는 과정</summary>
 
-첫 줄만 보면 `getstatic #7`이다. 상수 풀 7번을 열면 바로 `out`이라는 글자가 보일까? `javap -v` 출력에서 7번부터 잘라 왔다.
+상수 풀 7번을 열면 `out`이 바로 보일까?
 
 ```text
  #7 = Fieldref       #8.#9
