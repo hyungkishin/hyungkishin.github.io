@@ -168,7 +168,7 @@ static Object make() {
 7: areturn
 ```
 
-`new`는 힙에 객체를 하나 만들고 스택에 그 참조를 올린다. 바로 다음 줄의 `dup`은 스택 맨 위의 값을 하나 복사한다. 그래서 같은 객체를 가리키는 참조가 두 개다.
+`new`는 힙에 객체를 하나 만들고 스택에 그 참조를 올린다. 바로 다음 줄의 `dup`(duplicate)은 스택 맨 위의 값을 하나 복사한다. 그래서 같은 객체를 가리키는 참조가 두 개다.
 
 `invokespecial`은 그중 하나를 꺼내 `Object()` 생성자를 호출한다. 생성자는 아무 값도 반환하지 않는다. 마지막 `areturn`이 호출자에게 돌려주는 건 `dup` 덕분에 스택에 남아 있던 참조다.
 
@@ -182,8 +182,6 @@ static Object make() {
 
 코드 캐시도 힙 밖에 있다. 자주 호출하는 메서드를 JIT 컴파일러가 기계어로 옮기면 HotSpot은 그 코드를 캐시에 넣어 다음 호출에서도 쓸 수 있게 한다. 그래서 객체를 얼마나 만들었는지만 봐서는 JVM 프로세스가 메모리를 얼마나 쓰는지 알 수 없다.
 
-![HotSpot 프로세스의 가상 주소 공간. 자바 힙에는 객체, 메타스페이스에는 클래스 메타데이터, 코드 캐시에는 JIT가 만든 기계어가 있다.](./hotspot-process-memory.svg)
-
 같은 `HelloWorld`를 이번에는 `-Xmx32m`으로 실행해 봤다. 이 옵션은 자바 힙의 최대 크기를 32 MiB로 정한다. HotSpot의 메모리 추적을 켜고 종료할 때 통계를 출력했다.
 
 ```sh
@@ -191,6 +189,8 @@ java -Xmx32m -XX:NativeMemoryTracking=summary -XX:+UnlockDiagnosticVMOptions -XX
 ```
 
 내 환경(Temurin JDK 25, macOS)에서 `Java Heap`의 `committed`는 33,554,432바이트로 정확히 32 MiB였다. 맨 위 `Total` 행의 `committed`는 114,296,533바이트(약 109 MiB)였다. 이 값은 HotSpot이 사용하도록 확보한 메모리를 합친 것이다. 힙 밖의 `Metaspace`, `Code`, `Thread`도 여기에 따로 잡힌다.
+
+![add를 두 번 호출하면 각 프레임에서 인수와 반환값이 달라지고, 메타스페이스의 바이트코드는 같다. 별도 HelloWorld 출력 실험의 NMT committed는 자바 힙 32 MiB, 힙 이외 약 77 MiB다.](./hotspot-process-memory.svg)
 
 ## 참고자료
 
