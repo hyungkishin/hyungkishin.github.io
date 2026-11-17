@@ -9,7 +9,7 @@ tags:
   - 바이트코드
 ---
 
-[JVM 3장 글](/books/optimizing-java/chapter-03-jvm/)에서 주문 객체를 만드는 코드를 컴파일했을 때 첫 명령은 `new #7`이었다. `javap`가 옆에 달아 준 주석은 `class Order`. 그런데 아래 코드를 컴파일하면 첫 명령에 또 7번이 나온다. 이번 주석은 `System.out`이다. 같은 7번인데 왜 다른 걸 가리킬까?
+JVM 3장 글에서 주문 객체를 만드는 코드를 컴파일했을 때 첫 명령은 `new #7`이었다. `javap`가 옆에 달아 준 주석은 `class Order`. 그런데 아래 코드를 컴파일하면 첫 명령에 또 7번이 나온다. 이번 주석은 `System.out`이다. 같은 7번인데 왜 다른 걸 가리킬까?
 
 7번은 **그 클래스 파일의 상수 풀에서 일곱 번째 항목**을 가리킨다. 클래스 파일마다 따로 있는 표다. 문자열이나 숫자도 담고, 코드에서 사용하는 클래스와 필드, 메서드의 이름과 타입도 기록한다.
 
@@ -59,7 +59,7 @@ Microsoft OpenJDK 21에서 `javac HelloWorld.java`로 컴파일했다. 이때 `j
 
 ## JVM은 실행할 때 그 번호를 어떻게 쓸까
 
-`java HelloWorld`를 실행하면 JVM은 `HelloWorld` 클래스를 만들면서 파일의 상수 풀을 바탕으로 이 클래스의 **런타임 상수 풀**을 구성한다. JVM은 7번에 적힌 클래스 이름과 필드 이름, 타입으로 실제 `System.out` 필드를 찾는다. 심볼 참조가 어느 필드나 메서드를 뜻하는지 이렇게 결정하는 과정을 명세에서는 *해석(resolution)*이라고 한다. 구현에 따라 미리 해석할 수도 있고 처음 필요할 때 해석할 수도 있다. [JVM 명세 5.1절과 5.4절](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-5.html#jvms-5.1)
+`java HelloWorld`를 실행하면 JVM은 `HelloWorld` 클래스를 만들면서 파일의 상수 풀을 바탕으로 이 클래스의 **런타임 상수 풀**을 구성한다. JVM은 7번에 적힌 클래스 이름과 필드 이름, 타입으로 실제 `System.out` 필드를 찾는다. 심볼 참조가 어느 필드나 메서드를 뜻하는지 이렇게 결정하는 과정을 명세에서는 *해석(resolution)*이라고 한다. 구현에 따라 미리 해석할 수도 있고 처음 필요할 때 해석할 수도 있다.
 
 `System.out`에 들어 있는 값을 읽는 건 `main`의 첫 명령을 실행할 때다.
 
@@ -102,4 +102,10 @@ java App
 
 여기도 13번이다. 아까 `HelloWorld.class`에서는 13번에 문자열이 있었는데, `App.class`에서는 `Message.text:()Ljava/lang/String;`이 나온다. `java App`을 다시 실행했을 때 JVM은 그 이름과 타입으로 새 `Message.class`의 메서드를 찾았다. `first`를 `second`로 고치고도 호출하는 쪽은 그대로 둘 수 있었던 이유다.
 
-클래스 파일에서 각 항목을 바이트 단위로 확인하려면 번호 옆의 종류부터 보면 된다. 위 예제에서 사용한 `Fieldref`, `String`, `Methodref`의 형식은 [JVM 명세 4.4절](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.4)에 정리되어 있다.
+## 참고
+
+- [3장. 자바 가상 머신 개요](https://hyungkishin.github.io/books/optimizing-java/chapter-03-jvm/)
+- [JVM 명세, 클래스 파일의 상수 풀](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.4)
+- [JVM 명세, 런타임 상수 풀](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-5.html#jvms-5.1)
+- [JVM 명세, 심볼 참조 해석](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-5.html#jvms-5.4.3)
+- [JVM 명세, getstatic 명령](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-6.html#jvms-6.5.getstatic)
