@@ -9,17 +9,17 @@ tags:
   - 바이트코드
 ---
 
-**상수 풀은 클래스 파일 안에서 번호를 붙여 상수와 이름을 기록해 둔 표다.** 숫자나 문자열은 여기에 들어갈 만하다. 그런데 왜 메서드 이름인 `println`까지 *상수* 풀에 들어갈까? 이 질문은 컴파일이 끝난 뒤에도 JVM이 알아내야 할 것이 무엇인지 생각하면 풀린다.
+[JVM 3장 글](/books/optimizing-java/chapter-03-jvm/)에서 주문 객체를 만드는 코드를 컴파일했을 때 첫 명령은 `new #7`이었다. `javap`가 옆에 달아 준 주석은 `class Order`. 그런데 아래 코드를 컴파일하면 첫 명령에 또 7번이 나온다. 이번 주석은 `System.out`이다. 같은 7번인데 왜 다른 걸 가리킬까?
 
-## 컴파일할 때 어디까지 알 수 있을까
+7번은 **그 클래스 파일의 상수 풀에서 일곱 번째 항목**을 가리킨다. 클래스 파일마다 따로 있는 표다. 문자열이나 숫자도 담고, 코드에서 사용하는 클래스와 필드, 메서드의 이름과 타입도 기록한다.
 
-`App`에서 다른 클래스의 `Message.text()`를 호출한다고 해보자. 컴파일러는 그 메서드가 있는지, 인수를 몇 개 받는지, 반환 타입이 무엇인지 검사할 수 있다. 하지만 이 시점에는 배포할 서버의 자바 프로세스조차 떠 있지 않다. 그 메서드의 실행 주소를 파일에 적어 둘 수 있을까?
+## 메서드 이름까지 상수 풀에 넣는 이유
 
-자바 클래스 파일에는 대상을 다시 찾는 데 필요한 정보를 남긴다. 이 예에서는 클래스 이름 `Message`, 메서드 이름 `text`, 인수 없이 `String`을 반환한다는 타입 정보다. 이렇게 이름과 타입으로 대상을 지정한 것을 **심볼 참조**라고 한다. 이 참조를 상수 풀에 한 번 기록하면 같은 클래스의 여러 호출 지점에서 그 번호를 쓸 수 있다. 호출받는 쪽의 구현은 별도의 클래스 파일에 들어간다.
+`App`에서 `Message.text()`를 호출한다고 해보자. `javac`가 `App.java`를 컴파일할 때 필요한 건 인수 없이 호출할 수 있는 `text`가 `Message`에 있는지, 반환 타입이 무엇인지다. `text`의 본문은 `Message.class`에 있다. 나중에 `App.class`를 다른 컴퓨터로 가져가서 실행해도 JVM이 그 메서드를 찾아 호출할 수 있어야 한다.
 
-## javac가 HelloWorld.class에 남긴 것
+그래서 `javac`는 `App.class`에 클래스 이름 `Message`, 메서드 이름 `text`, 그리고 인수 없이 `String`을 반환한다는 타입 정보를 남긴다. 이름과 타입으로 호출 대상을 적어 둔 게 **심볼 참조**다. 같은 메서드를 두 군데에서 호출해도 이 정보를 두 번 길게 적을 필요가 없다. 각각의 호출 명령에 같은 상수 풀 번호를 쓰면 된다.
 
-조금 더 익숙한 한 줄로 실제 파일을 열어 봤다.
+## HelloWorld.class의 7번에는 뭐가 있나
 
 ```java
 public class HelloWorld {
@@ -44,9 +44,7 @@ Microsoft OpenJDK 21에서 `javac HelloWorld.java`로 컴파일했다. 이때 `j
 | #13 | String | 문자열 리터럴 Hello World에 해당하는 문자 데이터의 번호 |
 | #15 | Methodref | PrintStream의 println 메서드. String 하나를 받고 반환값은 없음 |
 
-같은 번호라도 클래스 파일이 달라지면 뜻이 달라진다. 여기서 13번은 문자열인데, 앞서 예로 든 `App.class`의 13번을 열면 `Message.text()`가 나온다. 각 클래스 파일이 자기 상수 풀을 갖기 때문이다.
-
-한 항목만 실제 출력대로 펼쳐 보자. `getstatic #7`의 7번에는 아래처럼 번호 두 개가 더 있다.
+첫 줄만 보면 `getstatic #7`이다. 상수 풀 7번을 열면 바로 `out`이라는 글자가 보일까? `javap -v` 출력에서 7번부터 잘라 왔다.
 
 ```text
  #7 = Fieldref       #8.#9
@@ -57,23 +55,23 @@ Microsoft OpenJDK 21에서 `javac HelloWorld.java`로 컴파일했다. 이때 `j
 #12 = Utf8           Ljava/io/PrintStream;
 ```
 
-7번은 **필드 참조** 형식이다. 첫 번호를 따라가면 어느 클래스인지 나오고, 둘째 번호를 따라가면 필드 이름과 선언 타입이 나온다. `javap`가 명령 옆에 붙여 주는 주석 `Field java/lang/System.out:Ljava/io/PrintStream;`은 바로 이 항목들을 풀어 쓴 것이다. 여기까지 파일에서 확인할 수 있는 건 **어느 필드를 읽으라는지**다. 그 필드가 지금 가리키는 출력 객체는 프로그램을 실행해야 알 수 있다.
+7번에는 `Fieldref #8.#9`라고 적혀 있다. 8번에서 10번으로 가면 `java/lang/System`이 나온다. 9번은 두 갈래다. 11번이 필드 이름 `out`, 12번이 필드 타입 `Ljava/io/PrintStream;`이다. `javap`가 명령 옆에 붙여 주는 주석 `Field java/lang/System.out:Ljava/io/PrintStream;`은 바로 이 항목들을 풀어 쓴 것이다. 여기까지는 파일만 열어 봤다. 7번이 가리키는 필드의 이름과 타입은 알겠는데, 정작 출력할 때 쓸 객체는 어디 있지?
 
 ## JVM은 실행할 때 그 번호를 어떻게 쓸까
 
-`java HelloWorld`를 실행하면 JVM은 `HelloWorld` 클래스를 만들면서 파일의 상수 풀을 바탕으로 이 클래스의 **런타임 상수 풀**을 구성한다. 이제 `main`에서 쓰는 심볼 참조를 실행 중인 JVM의 실제 필드나 메서드와 연결할 수 있다. JVM 명세에서는 이 과정을 *해석(resolution)*이라고 부른다. 구현에 따라 미리 해석할 수도 있고 처음 필요할 때 해석할 수도 있다. [JVM 명세 5.1절과 5.4절](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-5.html#jvms-5.1)
+`java HelloWorld`를 실행하면 JVM은 `HelloWorld` 클래스를 만들면서 파일의 상수 풀을 바탕으로 이 클래스의 **런타임 상수 풀**을 구성한다. JVM은 7번에 적힌 클래스 이름과 필드 이름, 타입으로 실제 `System.out` 필드를 찾는다. 심볼 참조가 어느 필드나 메서드를 뜻하는지 이렇게 결정하는 과정을 명세에서는 *해석(resolution)*이라고 한다. 구현에 따라 미리 해석할 수도 있고 처음 필요할 때 해석할 수도 있다. [JVM 명세 5.1절과 5.4절](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-5.html#jvms-5.1)
 
-실제로 `main`을 한 명령씩 따라가면 번호의 용도가 드러난다.
+`System.out`에 들어 있는 값을 읽는 건 `main`의 첫 명령을 실행할 때다.
 
 1. `getstatic #7`을 실행하면 JVM은 7번으로 식별한 `System.out` 필드의 **현재 값**을 읽는다. 그 값은 출력 객체의 참조다. 이 참조가 `main`의 피연산자 스택에 올라간다.
 2. `ldc #13`은 문자열 리터럴에 해당하는 `String` 객체의 참조를 그 위에 올린다. 스택에는 이제 출력 객체와 출력할 문자열이 차례로 있다.
 3. `invokevirtual #15`는 출력 객체를 수신자로 삼고 문자열을 인수로 넘겨 `println`을 호출한다. 터미널에서 보는 글자는 이 호출의 결과다.
 
-`System.setOut`으로 출력 대상을 파일로 바꾼 뒤 같은 `main`을 다시 호출해도 7번은 여전히 `System.out`을 뜻한다. 바뀌는 건 첫 명령이 스택에 올리는 참조값이다. 상수 풀에 터미널이나 파일의 주소가 들어 있다고 보면 이 결과를 설명할 수 없다.
+`System.setOut`으로 출력 대상을 파일로 바꾼 뒤 같은 `main`을 다시 호출해도 7번은 여전히 `System.out`을 뜻한다. 첫 호출 때 스택에 올라간 건 터미널에 쓰던 출력 객체의 참조다. 두 번째 호출 때는 파일에 쓰는 객체의 참조가 올라간다. 그사이 `HelloWorld.class`를 고칠 일은 없다.
 
 ## 호출하는 클래스는 그대로 두고 호출받는 쪽만 바꾸면
 
-처음 질문으로 돌아가서, 이름과 타입만 기록해도 되는지 직접 확인했다. 아래 코드를 각각 `App.java`와 `Message.java`로 저장했다.
+아까 `App`은 `Message.text()`의 이름과 타입만 갖고 있다고 했다. 그러면 `text()`에서 돌려주는 문자열을 바꿔도 `App.java`까지 다시 컴파일할 필요가 있을까? 두 클래스를 파일 두 개로 나눠서 돌려 봤다.
 
 ```java
 class App {
@@ -96,12 +94,12 @@ javac Message.java
 java App
 ```
 
-이번 출력은 `second`였다. 전후에 확인한 `App.class`의 SHA-1은 같았다. `javap -c App`으로 보면 호출 명령도 그대로다.
+`second`가 찍혔다. 두 번째에 컴파일한 건 `Message.java` 하나다. `App.class`는 전후의 SHA-1도 같았다. `javap -c App`에서 `text()`를 호출하는 줄은 이렇다.
 
 ```text
 3: invokestatic #13   // Method Message.text:()Ljava/lang/String;
 ```
 
-`App.class`의 13번에는 처음 출력한 `first`도, 두 번째로 출력한 `second`도 들어 있지 않다. 거기 남은 건 `Message.text:()Ljava/lang/String;`이다. 그래서 새 JVM에서 같은 호출 명령을 실행해도 교체한 `Message.class`의 메서드가 호출된다. 컴파일할 때 남긴 이름과 타입이 실제로 쓰이는 순간이다.
+여기도 13번이다. 아까 `HelloWorld.class`에서는 13번에 문자열이 있었는데, `App.class`에서는 `Message.text:()Ljava/lang/String;`이 나온다. `java App`을 다시 실행했을 때 JVM은 그 이름과 타입으로 새 `Message.class`의 메서드를 찾았다. `first`를 `second`로 고치고도 호출하는 쪽은 그대로 둘 수 있었던 이유다.
 
 클래스 파일에서 각 항목을 바이트 단위로 확인하려면 번호 옆의 종류부터 보면 된다. 위 예제에서 사용한 `Fieldref`, `String`, `Methodref`의 형식은 [JVM 명세 4.4절](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.4)에 정리되어 있다.
