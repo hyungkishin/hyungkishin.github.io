@@ -43,13 +43,15 @@ javap -v HelloWorld
 
 13번을 열었더니 또 번호다. `String #14`에서 14는 글자가 들어 있는 항목의 번호다. 클래스 파일 형식에서는 이 번호를 `string_index`라고 한다. 14번까지 가면 `Utf8 Hello`가 나온다. `Utf8`은 메서드 이름 같은 텍스트에도 쓰인다. 13번의 `String`이라는 표시가 있어야 JVM은 이 글자를 자바 문자열 상수로 사용할 수 있다.
 
-![클래스 파일에서는 13번 String 항목이 14번 Utf8의 Hello를 가리킨다. 실행 직후에는 출력 객체의 참조 위에 문자열 객체의 참조가 올라간다.](./ldc-string.svg)
+14번에는 글자만 있다. 그러면 같은 내용의 `String` 객체가 이미 있는지는 어디서 확인할까? HotSpot에는 **문자열 내용으로 인턴된 객체를 찾는 표**가 있다. 그게 `StringTable`이다. 이 예제에서 “이미 인턴돼 있다”는 건 `Hello`라는 내용으로 조회했을 때 기존 객체를 찾을 수 있다는 뜻이다.
 
-14번에는 `Hello`를 인코딩한 바이트만 있다. 그렇다면 힙의 `String` 객체는 누가 만들까? **JVM이 이 문자열 상수에 쓸 참조를 준비할 때**, 같은 내용으로 이미 등록된 문자열이 있는지 확인한다. 있으면 그 객체를 쓰고, 없으면 힙에 `String` 객체를 만들어 등록한다. 이렇게 내용이 같은 리터럴들이 한 객체를 공유하도록 하는 걸 **인터닝(interning)**이라고 한다.
+![JVM의 StringTable과 HelloWorld의 resolved_references가 힙의 같은 Hello 문자열 객체를 가리킨다.](./ldc-string.svg)
 
-HotSpot의 `ConstantPool::string_at_impl`을 보면 확인 순서가 보인다. 먼저 이 클래스의 13번에 쓸 참조를 이미 저장했는지 본다. 비어 있을 때만 `StringTable::intern`에서 참조를 얻어 저장한다. 이 참조는 `ldc`가 처음 필요로 할 때 준비할 수도 있고 그보다 앞서 준비돼 있을 수도 있다. 클래스 파일만 보고 정확히 몇 번째 명령에서 객체를 만들었는지까지 알 수는 없다.
+그림은 참조를 준비한 뒤의 모습이다. 화살표 둘 다 힙에 있는 같은 `String` 객체를 가리킨다. **위 칸은 다른 클래스도 함께 쓰고, 아래 칸은 이 클래스의 상수 풀에 딸린 참조 배열**이다.
 
-이제 같은 JVM에서 이 `main`을 두 번 호출해 보자. 첫 호출에서 `ldc #13`이 스택에 올리는 건 `Hello` 문자열 객체의 참조다. 두 번째 호출에는 새 프레임이 생겨도, 같은 `ldc #13`은 **같은 객체의 참조**를 그 프레임의 스택에 올린다. 두 번 출력하려고 문자열 객체를 두 번 만들 필요가 없다.
+HotSpot은 먼저 아래 칸을 본다. 클래스 파일의 `#13`에 대응하는 내부 인덱스가 따로 있어서 그 인덱스로 `resolved_references`를 읽는다. 거기가 비어 있으면 그때 위쪽 `StringTable`에서 내용이 `Hello`인 문자열을 찾는다. 있으면 기존 객체를 쓰고, 없으면 JVM이 힙에 문자열 객체를 만들어 인턴한다. 어느 쪽이든 얻은 참조를 아래 칸에 저장한다.
+
+같은 JVM에서 `main`을 한 번 더 호출하면 어떻게 될까? 아래 칸에 이미 참조가 있으니 문자열 내용으로 다시 찾을 필요가 없다. `ldc #13`은 그 참조를 이번 `main`의 피연산자 스택에 올린다. 바로 앞의 `getstatic`이 올려 둔 출력 객체의 참조 위에 쌓인다. 참조를 처음 준비하는 일은 첫 `ldc`보다 먼저 끝나 있을 수도 있다.
 
 ## println도 상수 풀을 쓴다
 
@@ -105,6 +107,7 @@ HotSpot의 `ConstantPool::string_at_impl`을 보면 확인 순서가 보인다. 
 
 ## 참고
 
+- [OpenJDK 21 HotSpot, StringTable 구현](https://github.com/openjdk/jdk/blob/jdk-21-ga/src/hotspot/share/classfile/stringTable.cpp)
 - [OpenJDK 21 HotSpot, 문자열 상수의 참조를 읽고 저장하는 코드](https://github.com/openjdk/jdk/blob/jdk-21-ga/src/hotspot/share/oops/constantPool.cpp#L1246-L1255)
 - [JVM 명세, 문자열 상수의 클래스 파일 형식](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.4.3)
 - [JVM 명세, ldc 명령](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-6.html#jvms-6.5.ldc)
