@@ -1,6 +1,6 @@
 {
-  "sha256": "fc8558c15f8a243569705229789ef11956c30781529fd172d3bb9490e21875f1",
-  "before": "그게 `StringTable`이다.",
-  "after": "화살표 둘 다 힙에 있는 같은 `String` 객체를 가리킨다.",
-  "reason": "위치와 접근 기준이 다른 두 자료구조만 그림에 남겼다. 첫 조회와 재실행 순서는 본문에서 설명한다."
+  "sha256": "6bfff85ca6d491bc10aaeb8d2145b0f89946a2755c66d8dfe6c4d2ac1b2833bc",
+  "before": "B는 어느 객체를 쓰게 될까?",
+  "after": "HotSpot은 B의 `resolved_references`부터 확인한다.",
+  "reason": "B의 칸이 빈 시점부터 조회 순서를 설명하고 두 클래스가 참조를 저장한 결과만 세 칸으로 그렸다."
 }
