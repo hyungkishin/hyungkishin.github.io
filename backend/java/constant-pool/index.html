@@ -222,7 +222,17 @@ Code:
 11: ldc #13    // String Hello</code></pre></div>
 <p>클래스 파일에서 두 명령은 각각 <code class="language-text">12 0d</code> 두 바이트였다. <code class="language-text">12</code>는 명령 번호인 0x12, <code class="language-text">0d</code>는 상수 풀 인덱스 13이다. <code class="language-text">Hello</code> 다섯 글자는 상수 풀 14번에 한 번만 기록됐다. 첫 번째 출력문도 두 번째 출력문도 같은 문자열 항목을 쓴다.</p>
 <p>두 줄 모두 <code class="language-text">"Hello from the JVM"</code>으로 바꾸면 어떨까? 글자가 13바이트 늘었는데 두 <code class="language-text">ldc</code>는 여전히 <code class="language-text">12 0d</code>였고, 각각의 다음 명령도 그대로 5번과 13번 위치에서 시작했다. <code class="language-text">main</code>의 명령은 전부 합쳐 여전히 17바이트였다. 클래스 파일은 431바이트에서 444바이트로 딱 13바이트 늘었다. 두 곳에서 출력해도 길어진 글자를 한 곳에만 썼기 때문이다.</p>
-<p>이 예제에서 번호를 한 번 따라가는 대가로 얻는 게 그 두 가지다. <strong>같은 글자를 여러 명령이 함께 쓰고, 글자가 길어져도 그 글자를 읽는 명령까지 길어지지는 않는다.</strong> 여기서 두 바이트는 <code class="language-text">ldc #13</code>의 크기다. 상수 풀 인덱스가 한 바이트에 들어가지 않으면 컴파일러는 두 바이트 인덱스를 받는 <code class="language-text">ldc_w</code>를 쓸 수 있다.</p>
+<p>여기까지 확인한 건 디스크에 있는 파일이다. 그럼 실행할 때는? 글자를 한 번만 저장한 대신, 출력할 때마다 13번에서 14번까지 다시 읽어야 할까?</p>
+<h2>첫 번째 출력과 두 번째 출력</h2>
+<p>두 줄 모두 다시 <code class="language-text">println("Hello")</code>로 두자. 파일에서 13번과 14번을 따라가면 문자열의 <strong>내용</strong>을 알 수 있다. 하지만 실행 중인 <code class="language-text">println</code>에 넘길 값은 힙에 있는 <strong>문자열 객체의 참조</strong>다. HotSpot은 그 참조를 얻으면 <code class="language-text">HelloWorld</code> 클래스에 마련한 배열에 보관한다. 두 출력문은 같은 13번을 쓰므로 이 배열에서도 같은 칸을 읽는다.</p>
+<p><strong>첫 줄, <code class="language-text">3: ldc #13</code>.</strong> 그 칸이 아직 비어 있다고 하자. HotSpot은 <code class="language-text">Hello</code>라는 내용으로 이미 등록된 문자열을 찾는다. 있으면 그 객체를 쓰고, 없으면 만들어 등록한다. 얻은 참조는 두 곳에 쓰인다. 클래스의 배열에 저장하고, 지금 실행 중인 <code class="language-text">main</code>의 피연산자 스택에도 올린다. 첫 번째 <code class="language-text">println</code>이 스택에서 문자열을 인수로 꺼내 써도 <strong>배열에 저장한 참조는 그대로 남는다.</strong></p>
+<p><strong>둘째 줄, <code class="language-text">11: ldc #13</code>.</strong> HotSpot이 같은 칸을 읽으면 첫 줄에서 쓴 객체의 참조가 나온다. 그 참조를 다시 스택에 올리면 두 번째 <code class="language-text">println</code>에 넘길 준비가 끝난다. 클래스 파일의 14번에서 글자를 다시 읽거나 <code class="language-text">Hello</code>라는 내용으로 검색할 일이 없다.</p>
+<p>첫 줄부터 참조가 이미 준비돼 있었다면 첫 번째 <code class="language-text">ldc</code>도 둘째 줄과 똑같이 처리한다. 위의 두 주소는 <code class="language-text">javap</code>로 확인한 명령 위치이고, 첫 줄에서 칸이 비어 있었다는 건 두 실행 경로를 비교하기 위해 둔 조건이다.</p>
+<details>
+<summary>OpenJDK 21 HotSpot에서 같은 칸을 읽는 코드</summary>
+<p>파일에서 본 13은 상수 풀 번호다. <code class="language-text">Rewriter::maybe_rewrite_ldc</code>는 문자열을 읽는 두 명령을 메모리에서 내부 명령 <code class="language-text">_fast_aldc</code>로 바꾸고, 두 명령에 같은 참조 배열 인덱스를 넣는다. 이 배열이 <code class="language-text">resolved_references</code>다. 내부 인덱스가 파일의 13과 같은 숫자일 필요는 없다.</p>
+<p>AArch64 인터프리터의 <code class="language-text">fast_aldc</code>는 그 인덱스로 참조 하나를 읽는다. 참조가 있으면 그대로 쓰고, 빈 칸이면 <code class="language-text">InterpreterRuntime::resolve_ldc</code>를 호출한다. 문자열을 처리하는 <code class="language-text">ConstantPool::string_at_impl</code>에서는 <code class="language-text">StringTable::intern</code>으로 참조를 얻어 배열에 저장한다.</p>
+</details>
 <h2>7번에는 출력 객체가 들어 있을까</h2>
 <p>처음의 한 줄짜리 출력문으로 돌아오면, <code class="language-text">ldc</code> 바로 앞의 명령은 <code class="language-text">getstatic</code>이다. 이번 주석에는 글자 하나가 아니라 필드 선언이 나온다.</p>
 <div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text">0: getstatic #7    // Field java/lang/System.out:Ljava/io/PrintStream;</code></pre></div>
@@ -237,10 +247,14 @@ Code:
 <p>파일에 남은 건 필드의 선언이다. 나중에 그 자리에 어떤 출력 객체가 들어 있을지는 <code class="language-text">javac</code>가 이 파일을 쓰는 시점에는 알 수 없다. 그럼 실제로 프로그램을 실행했을 때, 누가 이 세 이름을 가지고 <code class="language-text">out</code>을 찾을까?</p>
 <h2>java HelloWorld를 실행한 뒤</h2>
 <p>애플리케이션 클래스 로더를 통해 <code class="language-text">HelloWorld</code>가 로드되면 JVM은 파일에 적힌 항목들을 바탕으로 이 클래스의 <strong>런타임 상수 풀</strong>을 만든다. <code class="language-text">main</code>을 호출하면 메인 스레드에 프레임이 생긴다. 처음에는 피연산자 스택이 비어 있다.</p>
+<p>첫 명령은 <code class="language-text">getstatic #7</code>이다. HotSpot은 7번에 적힌 클래스에서 이름과 타입이 맞는 필드를 찾고, 다음 접근에도 쓸 수 있도록 필드 위치를 저장한다.</p>
+<details>
+<summary>HotSpot에서 실제로 System.out 필드를 찾는 과정</summary>
 <p>첫 명령 <code class="language-text">getstatic #7</code>에서 참조를 아직 해석하지 않은 경우를 보자. OpenJDK 21 HotSpot의 인터프리터는 메인 스레드에서 <code class="language-text">InterpreterRuntime::resolve_get_put</code>을 호출한다. 이 함수가 현재 메서드의 상수 풀을 가져오고, <code class="language-text">LinkResolver</code>가 필드를 찾는다. 실제 조회는 이 줄이다.</p>
 <div class="gatsby-highlight" data-language="cpp"><pre class="language-cpp"><code class="language-cpp">Klass<span class="token operator">*</span> sel_klass <span class="token operator">=</span> resolved_klass<span class="token operator">-></span><span class="token function">find_field</span><span class="token punctuation">(</span>field<span class="token punctuation">,</span> sig<span class="token punctuation">,</span> <span class="token operator">&amp;</span>fd<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre></div>
 <p>여기서 <code class="language-text">resolved_klass</code>는 <code class="language-text">System</code>이다. HotSpot은 먼저 <code class="language-text">HelloWorld</code>를 정의한 로더를 기준으로 <code class="language-text">java/lang/System</code>을 해석한다. 일반적인 JDK 실행에서는 부모 로더로 위임해 부트스트랩 로더가 정의한 클래스를 쓴다. 이미 이 클래스 참조를 해석해 뒀다면 그 결과를 쓴다.</p>
 <p>이제 <code class="language-text">find_field</code>가 그 클래스에서 이름이 <code class="language-text">out</code>이고 타입이 <code class="language-text">Ljava/io/PrintStream;</code>인 필드를 찾을 수 있다. 접근 권한과 정적 필드 여부까지 확인하면 HotSpot은 필드를 선언한 클래스와 그 안에서의 위치(오프셋)를 캐시에 기록할 수 있다. 파일에 적힌 심볼 참조를 실제 필드에 연결하는 과정이 <strong>필드 해석</strong>이다. JVM은 이 일을 첫 접근보다 앞서 해 둘 수도 있다.</p>
+</details>
 <p>오프셋을 얻고도 아직 한 번 더 읽어야 한다. OpenJDK 21의 AArch64 인터프리터는 정적 필드 값이 보관된 <code class="language-text">System.class</code> 객체에서 <code class="language-text">out</code>의 오프셋만큼 떨어진 곳을 읽는다. 거기에 들어 있는 <code class="language-text">PrintStream</code> 객체의 참조가 스택에 올라간다. 다음번에도 필드 위치는 재사용할 수 있고, 값은 그때 다시 읽는다.</p>
 <p>두 번째 명령 <code class="language-text">ldc #13</code>은 문자열 리터럴 <code class="language-text">"Hello"</code>에 해당하는 <code class="language-text">String</code> 객체의 참조를 그 위에 올린다. 파일의 14번에서 본 것은 문자 데이터였다. JVM은 같은 내용으로 인턴된 객체가 있으면 그 참조를 쓰고, 없으면 객체를 만들어 등록한다. 이 참조는 첫 <code class="language-text">ldc</code> 전에 이미 준비돼 있을 수도 있다.</p>
 <p>상수 풀 15번에는 <code class="language-text">PrintStream.println:(Ljava/lang/String;)V</code>가 적혀 있다. 인수가 <code class="language-text">String</code> 하나이고 반환 타입이 <code class="language-text">void</code>인 메서드다. 세 번째 명령 <code class="language-text">invokevirtual #15</code>에 이르면 스택에 값이 둘이다. 위에 있는 문자열을 인수로, 아래의 출력 객체를 호출 대상으로 삼아 <code class="language-text">println(String)</code>을 호출한다. 표준 출력이 터미널에 연결된 이 예제에서는 여기서 <code class="language-text">Hello</code> 한 줄이 찍힌다. 마지막 <code class="language-text">return</code>에서 <code class="language-text">main</code>이 끝난다.</p>
@@ -293,6 +307,8 @@ Code:
 <p>B에서 같은 <code class="language-text">ldc</code>를 다시 실행할 때는 B의 배열에 참조가 들어 있다. 그 참조를 이번 호출의 피연산자 스택에 올리면 된다. 앞 예제의 <code class="language-text">#13</code>은 클래스 파일 안의 번호이고, HotSpot은 여기에 대응하는 내부 인덱스로 배열을 읽는다. 다른 클래스에서 같은 리터럴을 몇 번에 기록했는지는 상관없다.</p>
 <h2>참고</h2>
 <ul>
+<li><a href="https://github.com/openjdk/jdk/blob/jdk-21-ga/src/hotspot/share/interpreter/rewriter.cpp#L300-L325">OpenJDK 21, 문자열 ldc에 참조 배열 인덱스를 넣는 코드</a></li>
+<li><a href="https://github.com/openjdk/jdk/blob/jdk-21-ga/src/hotspot/cpu/aarch64/templateTable_aarch64.cpp#L379-L405">OpenJDK 21, AArch64 인터프리터에서 문자열 참조를 읽는 코드</a></li>
 <li><a href="https://github.com/openjdk/jdk/blob/jdk-21-ga/src/hotspot/share/interpreter/interpreterRuntime.cpp#L657-L727">OpenJDK 21, 인터프리터의 필드 해석 요청과 캐시 기록</a></li>
 <li><a href="https://github.com/openjdk/jdk/blob/jdk-21-ga/src/hotspot/share/oops/constantPool.cpp#L490-L535">OpenJDK 21, 상수 풀의 클래스 이름 해석</a></li>
 <li><a href="https://github.com/openjdk/jdk/blob/jdk-21-ga/src/hotspot/share/interpreter/linkResolver.cpp#L952-L1000">OpenJDK 21, 필드의 이름과 타입 조회 및 접근 검사</a></li>
