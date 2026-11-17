@@ -21,20 +21,111 @@ public class HelloWorld {
 
 ## javap가 붙인 주석은 어디서 왔을까
 
-Microsoft OpenJDK 21에서 `javac HelloWorld.java`로 컴파일하고 `javap -v HelloWorld`로 파일을 읽었다. 출력에는 `Constant pool`과 `main`의 `Code`가 따로 있다. 같은 13번이 두 군데 나온다.
+위 코드를 `HelloWorld.java`로 저장했다. Microsoft OpenJDK 21.0.12.1에서 실행한 명령이다.
 
-```text
-Constant pool:
-  #13 = String  #14              // Hello
-  #14 = Utf8    Hello
-
-Code:
-   3: ldc       #13              // String Hello
+```sh
+javac HelloWorld.java
+javap -v HelloWorld
 ```
 
-명령은 `ldc #13`인데 그 옆의 주석에는 `Hello`라고 적혀 있다. 어디서 그 글자를 읽었을까? 위쪽의 13번을 보면 문자열이라는 표시와 14번이 있다. 14번에 가야 실제 글자 `Hello`가 나온다. `javap`가 이 두 항목을 읽어서 사람이 볼 수 있게 붙인 게 `// String Hello`다.
+`javac`는 아무 메시지 없이 끝났다. 이어서 실행한 `javap`의 출력 중 `main` 부분이다.
 
-위쪽의 **상수 풀(constant pool)**은 한 클래스의 코드가 사용하는 상수, 필드 정보, 메서드 정보를 번호별로 담아 둔 곳이다. `javac`가 클래스 파일을 만들 때 채운다. 여기서 `ldc`는 **상수를 스택에 올리는 동작**이고, 그 동작에 쓸 값은 **이 파일의 상수 풀 13번**으로 지정했다. 문자열 항목이 가리키는 14번을 클래스 파일 형식에서는 `string_index`라고 부른다.
+```text
+  public static void main(java.lang.String[]);
+    descriptor: ([Ljava/lang/String;)V
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code:
+      stack=2, locals=1, args_size=1
+         0: getstatic     #7                  // Field java/lang/System.out:Ljava/io/PrintStream;
+         3: ldc           #13                 // String Hello
+         5: invokevirtual #15                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+         8: return
+```
+
+`3: ldc #13`에서 왼쪽의 3은 명령이 놓인 위치다. 오른쪽의 **`#13`은 이 클래스의 상수 풀 13번 항목을 가리킨다.** 같은 출력의 `Constant pool:` 아래에 그 항목이 있다.
+
+```text
+  #13 = String             #14            // Hello
+  #14 = Utf8               Hello
+```
+
+13번의 `String #14`에서 14번으로 가면 글자 `Hello`가 나온다. 그래서 `javap`가 `ldc #13` 오른쪽에 `// String Hello`라는 주석을 붙였다.
+
+<details>
+<summary>javap -v HelloWorld 전체 출력</summary>
+
+```text
+Classfile /private/tmp/hello-javap.L2daqd/HelloWorld.class
+  Last modified 2026. 11. 17.; size 419 bytes
+  SHA-256 checksum 61cd1f5e83d26931f6265f50a34404160f6ab8e9fb820b8bce9ac6f558f05938
+  Compiled from "HelloWorld.java"
+public class HelloWorld
+  minor version: 0
+  major version: 65
+  flags: (0x0021) ACC_PUBLIC, ACC_SUPER
+  this_class: #21                         // HelloWorld
+  super_class: #2                         // java/lang/Object
+  interfaces: 0, fields: 0, methods: 2, attributes: 1
+Constant pool:
+   #1 = Methodref          #2.#3          // java/lang/Object."<init>":()V
+   #2 = Class              #4             // java/lang/Object
+   #3 = NameAndType        #5:#6          // "<init>":()V
+   #4 = Utf8               java/lang/Object
+   #5 = Utf8               <init>
+   #6 = Utf8               ()V
+   #7 = Fieldref           #8.#9          // java/lang/System.out:Ljava/io/PrintStream;
+   #8 = Class              #10            // java/lang/System
+   #9 = NameAndType        #11:#12        // out:Ljava/io/PrintStream;
+  #10 = Utf8               java/lang/System
+  #11 = Utf8               out
+  #12 = Utf8               Ljava/io/PrintStream;
+  #13 = String             #14            // Hello
+  #14 = Utf8               Hello
+  #15 = Methodref          #16.#17        // java/io/PrintStream.println:(Ljava/lang/String;)V
+  #16 = Class              #18            // java/io/PrintStream
+  #17 = NameAndType        #19:#20        // println:(Ljava/lang/String;)V
+  #18 = Utf8               java/io/PrintStream
+  #19 = Utf8               println
+  #20 = Utf8               (Ljava/lang/String;)V
+  #21 = Class              #22            // HelloWorld
+  #22 = Utf8               HelloWorld
+  #23 = Utf8               Code
+  #24 = Utf8               LineNumberTable
+  #25 = Utf8               main
+  #26 = Utf8               ([Ljava/lang/String;)V
+  #27 = Utf8               SourceFile
+  #28 = Utf8               HelloWorld.java
+{
+  public HelloWorld();
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return
+      LineNumberTable:
+        line 1: 0
+
+  public static void main(java.lang.String[]);
+    descriptor: ([Ljava/lang/String;)V
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code:
+      stack=2, locals=1, args_size=1
+         0: getstatic     #7                  // Field java/lang/System.out:Ljava/io/PrintStream;
+         3: ldc           #13                 // String Hello
+         5: invokevirtual #15                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+         8: return
+      LineNumberTable:
+        line 3: 0
+        line 4: 8
+}
+SourceFile: "HelloWorld.java"
+```
+
+</details>
+
+**상수 풀(constant pool)**은 한 클래스의 코드가 사용하는 상수, 필드 정보, 메서드 정보를 번호별로 담아 둔 곳이다. `javac`가 클래스 파일을 만들 때 채운다. 여기서 `ldc`는 **상수를 스택에 올리는 동작**이고, 그 동작에 쓸 값은 **이 파일의 상수 풀 13번**으로 지정했다. 문자열 항목이 가리키는 14번을 클래스 파일 형식에서는 `string_index`라고 부른다.
 
 ## ldc 옆에 Hello를 그대로 쓰면 안 될까
 
