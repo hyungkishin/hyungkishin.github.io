@@ -45,7 +45,11 @@ javap -v HelloWorld
 
 ![클래스 파일에서는 13번 String 항목이 14번 Utf8의 Hello를 가리킨다. 실행 직후에는 출력 객체의 참조 위에 문자열 객체의 참조가 올라간다.](./ldc-string.svg)
 
-그림 위쪽은 `javap`로 본 **파일의 기록**이다. 아래쪽은 `java HelloWorld`를 실행해 **방금 ldc를 마친 순간**이다. JVM은 런타임 상수 풀의 13번에 해당하는 `String` 객체의 참조를 스택에 올린다. 같은 내용의 문자열이 이미 인턴되어 있으면 그 객체를 사용한다. 숫자 14와 글자 다섯 개는 이때 스택에 복사되지 않는다.
+14번에는 `Hello`를 인코딩한 바이트만 있다. 그렇다면 힙의 `String` 객체는 누가 만들까? **JVM이 이 문자열 상수에 쓸 참조를 준비할 때**, 같은 내용으로 이미 등록된 문자열이 있는지 확인한다. 있으면 그 객체를 쓰고, 없으면 힙에 `String` 객체를 만들어 등록한다. 이렇게 내용이 같은 리터럴들이 한 객체를 공유하도록 하는 걸 **인터닝(interning)**이라고 한다.
+
+HotSpot의 `ConstantPool::string_at_impl`을 보면 확인 순서가 보인다. 먼저 이 클래스의 13번에 쓸 참조를 이미 저장했는지 본다. 비어 있을 때만 `StringTable::intern`에서 참조를 얻어 저장한다. 이 참조는 `ldc`가 처음 필요로 할 때 준비할 수도 있고 그보다 앞서 준비돼 있을 수도 있다. 클래스 파일만 보고 정확히 몇 번째 명령에서 객체를 만들었는지까지 알 수는 없다.
+
+이제 같은 JVM에서 이 `main`을 두 번 호출해 보자. 첫 호출에서 `ldc #13`이 스택에 올리는 건 `Hello` 문자열 객체의 참조다. 두 번째 호출에는 새 프레임이 생겨도, 같은 `ldc #13`은 **같은 객체의 참조**를 그 프레임의 스택에 올린다. 두 번 출력하려고 문자열 객체를 두 번 만들 필요가 없다.
 
 ## println도 상수 풀을 쓴다
 
@@ -101,6 +105,7 @@ javap -v HelloWorld
 
 ## 참고
 
+- [OpenJDK 21 HotSpot, 문자열 상수의 참조를 읽고 저장하는 코드](https://github.com/openjdk/jdk/blob/jdk-21-ga/src/hotspot/share/oops/constantPool.cpp#L1246-L1255)
 - [JVM 명세, 문자열 상수의 클래스 파일 형식](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.4.3)
 - [JVM 명세, ldc 명령](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-6.html#jvms-6.5.ldc)
 - [3장. 자바 가상 머신 개요](https://hyungkishin.github.io/books/optimizing-java/chapter-03-jvm/)

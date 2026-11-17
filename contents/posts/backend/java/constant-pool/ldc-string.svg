@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="680" height="658" viewBox="0 0 680 658" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="1004" viewBox="0 0 680 1004" role="img" aria-labelledby="title desc">
 <title id="title">ldc #13으로 Hello를 읽을 때</title>
-<desc id="desc">클래스 파일의 ldc는 상수 풀 13번을 지정한다. 13번 String의 string_index는 14이고 14번 Utf8에는 Hello의 바이트가 있다. 실행하면 main의 피연산자 스택에 이미 있던 출력 객체 참조 위에 힙의 Hello 문자열 객체 참조가 올라간다.</desc>
+<desc id="desc">클래스 파일의 ldc는 상수 풀 13번을 지정한다. 13번 String의 string_index는 14이고 14번 Utf8에는 Hello의 바이트가 있다. JVM은 기존 인턴 문자열을 재사용하거나 새로 만들어 등록하고 참조를 보관한다. 실행하면 main의 피연산자 스택에 이미 있던 출력 객체 참조 위에 힙의 Hello 문자열 객체 참조가 올라간다.</desc>
 <defs><marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0L7 3.5L0 7Z" fill="#334c68"/></marker></defs>
 <style>text{font-family:Pretendard,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;fill:#182c41}.title{font-size:24px;font-weight:700}.label{font-size:19px}.code{font-family:Menlo,Consolas,monospace;font-size:22px;font-weight:600}.line{fill:none;stroke:#334c68;stroke-width:2.5;marker-end:url(#arrow)}</style>
-<rect width="680" height="658" rx="18" fill="#fff"/>
+<rect width="680" height="1004" rx="18" fill="#fff"/>
 <rect x="12" y="12" width="656" height="321" rx="15" fill="#f1f6fc" stroke="#bfd2e4"/>
 <text x="34" y="53" class="title">컴파일 후의 HelloWorld.class</text>
 <text x="36" y="92" class="label">main의 명령</text><text x="284" y="92" class="label">클래스 파일의 상수 풀</text>
@@ -14,8 +14,19 @@
 <path d="M451 177V209" class="line"/>
 <rect x="283" y="219" width="352" height="91" rx="8" fill="white" stroke="#8daed0"/>
 <text x="301" y="251" class="code">#14  Utf8  Hello</text><text x="301" y="286" class="label">문자 데이터　48 65 6C 6C 6F</text>
+<rect x="12" y="349" width="656" height="326" rx="15" fill="#fff8ed" stroke="#d6b787"/>
+<text x="34" y="387" class="title">JVM이 13번에 쓸 참조를 준비할 때</text>
+<text x="35" y="427" class="label">같은 내용으로 등록된 문자열(인턴된 문자열)이 있는가?</text>
+<rect x="33" y="452" width="285" height="93" rx="8" fill="white" stroke="#bf9c68"/>
+<text x="49" y="484" class="title">있다</text><text x="49" y="519" class="label">기존 String 객체를 사용한다.</text>
+<rect x="340" y="452" width="295" height="93" rx="8" fill="white" stroke="#bf9c68"/>
+<text x="355" y="484" class="title">없다</text><text x="355" y="514" class="label">힙에 String을 만들어 등록한다.</text>
+<path d="M171 547V560L264 579" class="line"/><path d="M486 547V560L397 579" class="line"/>
+<rect x="78" y="587" width="522" height="60" rx="8" fill="#fff" stroke="#bf9c68"/>
+<text x="100" y="624" class="label">HotSpot은 이 객체의 참조를 13번용으로 저장한다.</text>
+<g transform="translate(0 346)">
 <rect x="12" y="350" width="656" height="296" rx="15" fill="#f2f8f5" stroke="#b9d4c7"/>
-<text x="34" y="393" class="title">실행 중 ldc #13을 마친 직후</text>
+<text x="34" y="393" class="title">ldc #13을 실행할 때마다</text>
 <text x="35" y="441" class="label">main 프레임의 피연산자 스택</text><text x="429" y="441" class="label">힙</text>
 <rect x="34" y="460" width="289" height="58" rx="6" fill="#dbefe5" stroke="#729e88"/>
 <text x="52" y="496" class="label">맨 위　문자열 객체의 참조</text>
@@ -24,5 +35,6 @@
 <path d="M326 489H416" class="line"/>
 <rect x="426" y="458" width="209" height="69" rx="10" fill="white" stroke="#729e88"/>
 <text x="444" y="486" class="code">String</text><text x="444" y="514" class="label">내용　“Hello”</text>
-<text x="35" y="618" class="label">아래 칸은 바로 앞의 getstatic #7이 채웠다.</text>
+<text x="35" y="618" class="label">같은 JVM에서 다시 실행해도 같은 객체의 참조가 올라간다.</text>
+</g>
 </svg>
