@@ -203,15 +203,93 @@ data-styled.g24[id="TagList__Tags-sc-1a02q9k-0"]{content:"chUkMH,"}/*!sc*/
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span></code></pre></div>
 <h2>javap가 붙인 주석은 어디서 왔을까</h2>
-<p>Microsoft OpenJDK 21에서 <code class="language-text">javac HelloWorld.java</code>로 컴파일하고 <code class="language-text">javap -v HelloWorld</code>로 파일을 읽었다. 출력에는 <code class="language-text">Constant pool</code>과 <code class="language-text">main</code>의 <code class="language-text">Code</code>가 따로 있다. 같은 13번이 두 군데 나온다.</p>
-<div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text">Constant pool:
-  #13 = String  #14              // Hello
-  #14 = Utf8    Hello
+<p>위 코드를 <code class="language-text">HelloWorld.java</code>로 저장했다. Microsoft OpenJDK 21.0.12.1에서 실행한 명령이다.</p>
+<div class="gatsby-highlight" data-language="sh"><pre class="language-sh"><code class="language-sh">javac HelloWorld.java
+javap <span class="token parameter variable">-v</span> HelloWorld</code></pre></div>
+<p><code class="language-text">javac</code>는 아무 메시지 없이 끝났다. 이어서 실행한 <code class="language-text">javap</code>의 출력 중 <code class="language-text">main</code> 부분이다.</p>
+<div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text">  public static void main(java.lang.String[]);
+    descriptor: ([Ljava/lang/String;)V
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code:
+      stack=2, locals=1, args_size=1
+         0: getstatic     #7                  // Field java/lang/System.out:Ljava/io/PrintStream;
+         3: ldc           #13                 // String Hello
+         5: invokevirtual #15                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+         8: return</code></pre></div>
+<p><code class="language-text">3: ldc #13</code>에서 왼쪽의 3은 명령이 놓인 위치다. 오른쪽의 <strong><code class="language-text">#13</code>은 이 클래스의 상수 풀 13번 항목을 가리킨다.</strong> 같은 출력의 <code class="language-text">Constant pool:</code> 아래에 그 항목이 있다.</p>
+<div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text">  #13 = String             #14            // Hello
+  #14 = Utf8               Hello</code></pre></div>
+<p>13번의 <code class="language-text">String #14</code>에서 14번으로 가면 글자 <code class="language-text">Hello</code>가 나온다. 그래서 <code class="language-text">javap</code>가 <code class="language-text">ldc #13</code> 오른쪽에 <code class="language-text">// String Hello</code>라는 주석을 붙였다.</p>
+<details>
+<summary>javap -v HelloWorld 전체 출력</summary>
+<div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text">Classfile /private/tmp/hello-javap.L2daqd/HelloWorld.class
+  Last modified 2026. 11. 17.; size 419 bytes
+  SHA-256 checksum 61cd1f5e83d26931f6265f50a34404160f6ab8e9fb820b8bce9ac6f558f05938
+  Compiled from "HelloWorld.java"
+public class HelloWorld
+  minor version: 0
+  major version: 65
+  flags: (0x0021) ACC_PUBLIC, ACC_SUPER
+  this_class: #21                         // HelloWorld
+  super_class: #2                         // java/lang/Object
+  interfaces: 0, fields: 0, methods: 2, attributes: 1
+Constant pool:
+   #1 = Methodref          #2.#3          // java/lang/Object."&lt;init>":()V
+   #2 = Class              #4             // java/lang/Object
+   #3 = NameAndType        #5:#6          // "&lt;init>":()V
+   #4 = Utf8               java/lang/Object
+   #5 = Utf8               &lt;init>
+   #6 = Utf8               ()V
+   #7 = Fieldref           #8.#9          // java/lang/System.out:Ljava/io/PrintStream;
+   #8 = Class              #10            // java/lang/System
+   #9 = NameAndType        #11:#12        // out:Ljava/io/PrintStream;
+  #10 = Utf8               java/lang/System
+  #11 = Utf8               out
+  #12 = Utf8               Ljava/io/PrintStream;
+  #13 = String             #14            // Hello
+  #14 = Utf8               Hello
+  #15 = Methodref          #16.#17        // java/io/PrintStream.println:(Ljava/lang/String;)V
+  #16 = Class              #18            // java/io/PrintStream
+  #17 = NameAndType        #19:#20        // println:(Ljava/lang/String;)V
+  #18 = Utf8               java/io/PrintStream
+  #19 = Utf8               println
+  #20 = Utf8               (Ljava/lang/String;)V
+  #21 = Class              #22            // HelloWorld
+  #22 = Utf8               HelloWorld
+  #23 = Utf8               Code
+  #24 = Utf8               LineNumberTable
+  #25 = Utf8               main
+  #26 = Utf8               ([Ljava/lang/String;)V
+  #27 = Utf8               SourceFile
+  #28 = Utf8               HelloWorld.java
+{
+  public HelloWorld();
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."&lt;init>":()V
+         4: return
+      LineNumberTable:
+        line 1: 0
 
-Code:
-   3: ldc       #13              // String Hello</code></pre></div>
-<p>명령은 <code class="language-text">ldc #13</code>인데 그 옆의 주석에는 <code class="language-text">Hello</code>라고 적혀 있다. 어디서 그 글자를 읽었을까? 위쪽의 13번을 보면 문자열이라는 표시와 14번이 있다. 14번에 가야 실제 글자 <code class="language-text">Hello</code>가 나온다. <code class="language-text">javap</code>가 이 두 항목을 읽어서 사람이 볼 수 있게 붙인 게 <code class="language-text">// String Hello</code>다.</p>
-<p>위쪽의 **상수 풀(constant pool)**은 한 클래스의 코드가 사용하는 상수, 필드 정보, 메서드 정보를 번호별로 담아 둔 곳이다. <code class="language-text">javac</code>가 클래스 파일을 만들 때 채운다. 여기서 <code class="language-text">ldc</code>는 <strong>상수를 스택에 올리는 동작</strong>이고, 그 동작에 쓸 값은 <strong>이 파일의 상수 풀 13번</strong>으로 지정했다. 문자열 항목이 가리키는 14번을 클래스 파일 형식에서는 <code class="language-text">string_index</code>라고 부른다.</p>
+  public static void main(java.lang.String[]);
+    descriptor: ([Ljava/lang/String;)V
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code:
+      stack=2, locals=1, args_size=1
+         0: getstatic     #7                  // Field java/lang/System.out:Ljava/io/PrintStream;
+         3: ldc           #13                 // String Hello
+         5: invokevirtual #15                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+         8: return
+      LineNumberTable:
+        line 3: 0
+        line 4: 8
+}
+SourceFile: "HelloWorld.java"</code></pre></div>
+</details>
+<p>**상수 풀(constant pool)**은 한 클래스의 코드가 사용하는 상수, 필드 정보, 메서드 정보를 번호별로 담아 둔 곳이다. <code class="language-text">javac</code>가 클래스 파일을 만들 때 채운다. 여기서 <code class="language-text">ldc</code>는 <strong>상수를 스택에 올리는 동작</strong>이고, 그 동작에 쓸 값은 <strong>이 파일의 상수 풀 13번</strong>으로 지정했다. 문자열 항목이 가리키는 14번을 클래스 파일 형식에서는 <code class="language-text">string_index</code>라고 부른다.</p>
 <h2>ldc 옆에 Hello를 그대로 쓰면 안 될까</h2>
 <p>문자열 한 개를 한 번만 쓸 거라면 명령 바로 뒤에 글자를 적는 방식도 생각할 수 있다. 다만 그렇게 설계하면 어디까지가 글자이고 어디부터가 다음 명령인지 구분해야 한다. 예를 들어 명령에 글자의 바이트 길이도 함께 적어야 한다. 같은 문자열을 다시 쓰면 그 자리에도 글자가 들어간다.</p>
 <p><code class="language-text">main</code>에 같은 출력문을 한 줄 더 넣고 컴파일했다.</p>
