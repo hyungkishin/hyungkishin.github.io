@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="326" viewBox="0 0 680 326" role="img" aria-labelledby="title desc">
+<title id="title">클래스 A와 B가 공유하는 문자열</title>
+<desc id="desc">A와 B는 각각 자기 resolved_references에 StringTable에서 얻은 참조를 저장한다. 두 화살표의 끝은 힙에 있는 같은 Hello 객체다.</desc>
+<defs><marker id="tip" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M1 1L7 4L1 7" fill="none" stroke="#53677a" stroke-width="1.4"/></marker></defs>
+<style>text{font-family:Pretendard,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;fill:#203047}.name{font:600 20px Menlo,Consolas,monospace}.scope{font-size:18px;fill:#51677b}.note{font-size:20px}.arrow{fill:none;stroke:#53677a;stroke-width:2;marker-end:url(#tip)}</style>
+<rect width="680" height="326" rx="15" fill="#fff"/>
+<text x="22" y="34" style="font-size:21px">각 클래스의 빈 칸은 JVM의 StringTable에서 찾아 채운다</text>
+<rect x="18" y="59" width="338" height="92" rx="12" fill="#f4f7fb" stroke="#c9d5df"/>
+<text x="37" y="94" class="scope">클래스 A</text>
+<text x="37" y="128" class="name">resolved_references</text>
+<rect x="18" y="198" width="338" height="92" rx="12" fill="#f4f7fb" stroke="#c9d5df"/>
+<text x="37" y="233" class="scope">클래스 B</text>
+<text x="37" y="267" class="name">resolved_references</text>
+<path d="M357 105 C408 105 408 137 450 137" class="arrow"/>
+<path d="M357 244 C408 244 408 189 450 189" class="arrow"/>
+<rect x="458" y="109" width="208" height="108" rx="12" fill="#e7f4ed" stroke="#87ad98"/>
+<text x="477" y="145" class="scope">힙의 String 객체</text>
+<text x="477" y="190" style="font:600 30px Menlo,Consolas,monospace">"Hello"</text>
+</svg>
