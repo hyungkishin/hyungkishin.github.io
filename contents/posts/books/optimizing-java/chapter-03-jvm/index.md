@@ -168,6 +168,8 @@ static Object make() {
 7: areturn
 ```
 
+![make()의 피연산자 스택에 남은 참조는 new 뒤 1개, dup 뒤 2개, 생성자가 정상 종료된 뒤 1개다. areturn에서 마지막 참조가 호출자에게 넘어가고 make() 프레임은 사라진다.](./dup-operand-stack.svg)
+
 `new`는 힙에 객체를 하나 만들고 스택에 그 참조를 올린다. 바로 다음 줄의 `dup`(duplicate)은 스택 맨 위의 값을 하나 복사한다. 그래서 같은 객체를 가리키는 참조가 두 개다.
 
 `invokespecial`은 그중 하나를 꺼내 `Object()` 생성자를 호출한다. 생성자는 아무 값도 반환하지 않는다. 마지막 `areturn`이 호출자에게 돌려주는 건 `dup` 덕분에 스택에 남아 있던 참조다.
@@ -178,19 +180,9 @@ static Object make() {
 
 `add(2, 3)`이 5를 돌려주면 그 호출에 쓴 프레임은 사라진다. 그다음에 `add(4, 5)`를 호출하면 인수 4와 5가 들어갈 프레임은 새로 생긴다. 두 호출에서 실행할 `iadd`는 이미 로딩한 같은 메서드에 들어 있다.
 
-그 메서드를 어디에 보관할지는 JVM을 구현하는 쪽에서 정한다. HotSpot은 `HelloWorld`를 로딩할 때 메서드 정보와 바이트코드를 **메타스페이스**에 둔다. 앞에서 출력한 `"Hello, World!"`는 자바 힙에 있는 `String` 객체다. 힙에서는 GC가 더 이상 쓰이지 않는 객체의 공간을 회수한다. HotSpot은 클래스 메타데이터에 쓸 네이티브 메모리를 클래스 로더별로 할당한다. 클래스 로더를 회수하면 그 로더에 속한 메타데이터 공간도 한꺼번에 회수해 다시 쓸 수 있다.
+앞에서 출력한 `"Hello, World!"`는 자바 힙에 있는 `String` 객체다. `add`의 바이트코드는 어디에 있을까? HotSpot은 `HelloWorld`를 로딩할 때 메서드 정보와 바이트코드를 힙 밖의 **메타스페이스**에 둔다. 이 정보는 클래스를 읽은 로더별로 묶어서 관리한다. 그래서 `add` 호출이 끝나도 메서드는 남고, 나중에 클래스 로더가 회수될 때 그 메모리도 함께 정리할 수 있다.
 
-코드 캐시도 힙 밖에 있다. 자주 호출하는 메서드를 JIT 컴파일러가 기계어로 옮기면 HotSpot은 그 코드를 캐시에 넣어 다음 호출에서도 쓸 수 있게 한다. 그래서 객체를 얼마나 만들었는지만 봐서는 JVM 프로세스가 메모리를 얼마나 쓰는지 알 수 없다.
-
-같은 `HelloWorld`를 이번에는 `-Xmx32m`으로 실행해 봤다. 이 옵션은 자바 힙의 최대 크기를 32 MiB로 정한다. HotSpot의 메모리 추적을 켜고 종료할 때 통계를 출력했다.
-
-```sh
-java -Xmx32m -XX:NativeMemoryTracking=summary -XX:+UnlockDiagnosticVMOptions -XX:+PrintNMTStatistics HelloWorld
-```
-
-내 환경(Temurin JDK 25, macOS)에서 `Java Heap`의 `committed`는 33,554,432바이트로 정확히 32 MiB였다. 맨 위 `Total` 행의 `committed`는 114,296,533바이트(약 109 MiB)였다. 이 값은 HotSpot이 사용하도록 확보한 메모리를 합친 것이다. 힙 밖의 `Metaspace`, `Code`, `Thread`도 여기에 따로 잡힌다.
-
-![add를 두 번 호출하면 각 프레임에서 인수와 반환값이 달라지고, 메타스페이스의 바이트코드는 같다. 별도 HelloWorld 출력 실험의 NMT committed는 자바 힙 32 MiB, 힙 이외 약 77 MiB다.](./hotspot-process-memory.svg)
+![add를 두 번 호출하면 프레임은 새로 생긴다. 인수와 반환값은 달라도 두 호출이 쓰는 바이트코드는 메타스페이스의 같은 메서드에 있다.](./hotspot-process-memory.svg)
 
 ## 참고자료
 

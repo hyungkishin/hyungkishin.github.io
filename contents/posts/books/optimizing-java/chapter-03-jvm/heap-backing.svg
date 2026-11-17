@@ -12,7 +12,7 @@
     .detail, .out-ref, .text-ref, .pre-note { opacity: 0; }
     @media (prefers-reduced-motion: no-preference) {
       svg:target .scene { transform-origin: 0 0; animation: zoom 3.1s cubic-bezier(.48,0,.22,1) 4.2s both; }
-      svg:target .surroundings { animation: leave-view 2.4s ease 4.3s both; }
+      svg:target .surroundings { animation: leave-view .55s ease 3.65s both; }
       svg:target .moving-title { animation: lift-title 1.9s ease 5.2s both; }
       svg:target .detail { animation: arrive 1s ease 6.2s both; }
       svg:target .out-ref { animation: arrive .32s ease-out 7.5s both; }
@@ -48,7 +48,7 @@
   <g clip-path="url(#visible-map)">
     <g class="scene">
       <g class="surroundings">
-        <text x="147" y="37" class="code" text-anchor="end" font-size="16">HelloWorld.class</text>
+        <text x="12" y="37" class="code" font-size="15">HelloWorld.class</text>
         <path d="M165 31h37" class="link" marker-end="url(#arrow)"/>
         <rect x="210" y="11" width="132" height="42" class="box"/>
         <text x="276" y="38" font-size="18" font-weight="620" text-anchor="middle">클래스 로더</text>
