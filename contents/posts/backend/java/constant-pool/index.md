@@ -9,7 +9,7 @@ tags:
   - 바이트코드
 ---
 
-3장에서 `println`을 호출하기 직전 스택에 있던 값은 두 개였다. 하나는 출력 객체의 참조, 다른 하나는 출력할 문자열의 참조였다. 이번에는 그 값이 올라오기 전, 컴파일한 파일부터 봤다.
+3장에서 `println`을 호출하기 직전 스택에 올라간 값은 출력 객체의 참조와 문자열의 참조였다. 그 둘이 어디서 왔는지 보려고 이번에는 클래스 파일을 열었다. 출력할 글자는 `Hello`로 줄였다.
 
 ```java
 public class HelloWorld {
@@ -19,38 +19,32 @@ public class HelloWorld {
 }
 ```
 
-## HelloWorld.class에 적힌 7번
+## javap가 붙인 주석은 어디서 왔을까
 
-Microsoft OpenJDK 21에서 `HelloWorld.java`를 컴파일했다.
-
-```sh
-javac HelloWorld.java
-javap -v HelloWorld
-```
-
-`javac`가 만든 파일에서 `javap`로 읽은 `main`의 바이트코드다.
+Microsoft OpenJDK 21에서 `javac HelloWorld.java`로 컴파일하고 `javap -v HelloWorld`로 파일을 읽었다. 출력에는 `Constant pool`과 `main`의 `Code`가 따로 있다. 같은 13번이 두 군데 나온다.
 
 ```text
-0: getstatic     #7
-3: ldc           #13
-5: invokevirtual #15
-8: return
+Constant pool:
+  #13 = String  #14              // Hello
+  #14 = Utf8    Hello
+
+Code:
+   3: ldc       #13              // String Hello
 ```
 
-소스에는 `System.out`이라고 썼는데 첫 명령에는 `getstatic #7`만 있다. `getstatic`은 정적 필드의 값을 읽으라는 뜻이고, 어느 필드를 읽을지는 7번에 적혀 있다.
+명령은 `ldc #13`인데 그 옆의 주석에는 `Hello`라고 적혀 있다. 어디서 그 글자를 읽었을까? 위쪽의 13번을 보면 문자열이라는 표시와 14번이 있다. 14번에 가야 실제 글자 `Hello`가 나온다. `javap`가 이 두 항목을 읽어서 사람이 볼 수 있게 붙인 게 `// String Hello`다.
 
-이 번호는 `HelloWorld.class`의 **상수 풀** 안에서 쓴다. `javac`는 문자열 같은 값과 코드에서 사용하는 필드나 메서드를 식별할 정보를 이곳에 기록한다. 같은 필드를 여러 번 읽어도 각 명령에 이름과 타입을 다시 적을 필요가 없다. 이 파일에서는 `#7`이면 된다.
+위쪽의 **상수 풀(constant pool)**은 한 클래스의 코드가 사용하는 상수와 필드와 메서드 정보를 번호별로 담아 둔 곳이다. `javac`가 클래스 파일을 만들 때 채운다. 여기서 `ldc`는 **상수를 스택에 올리는 동작**이고, 그 동작에 쓸 값은 **이 파일의 상수 풀 13번**으로 지정했다. 문자열 항목이 가리키는 14번을 클래스 파일 형식에서는 `string_index`라고 부른다.
 
-| main에 쓴 명령 | 이 파일의 상수 풀에서 찾을 수 있는 것 |
-| --- | --- |
-| `getstatic #7` | `System.out` 필드의 클래스 이름, 필드 이름, 선언 타입 |
-| `ldc #13` | 문자열 리터럴. 13번의 `String #14`에서 14번 `Utf8 Hello`로 이어진다 |
-| `invokevirtual #15` | `PrintStream.println`이라는 메서드 이름과 `String` 하나를 받고 `void`를 반환하는 타입 정보 |
+## 7번에는 출력 객체가 들어 있을까
 
-7번이나 15번처럼 이름과 타입으로 대상을 지정한 항목을 **심볼 참조**라고 한다. 13번에 적힌 `#14`도 같은 상수 풀의 번호다. 클래스 파일 형식에서 `String` 항목은 글자를 보관한 `Utf8` 항목의 번호(`string_index`)를 담는다. `Utf8`은 메서드 이름을 적을 때도 쓰인다. 13번의 `String` 표시가 있어야 이 글자를 **문자열 리터럴로** 쓴다는 걸 알 수 있다.
+`ldc` 바로 앞의 명령은 `getstatic`이다. 이번 주석에는 글자 하나가 아니라 필드 선언이 나온다.
 
-<details>
-<summary>7번에서 System.out을 찾는 과정</summary>
+```text
+0: getstatic #7    // Field java/lang/System.out:Ljava/io/PrintStream;
+```
+
+`Constant pool` 출력에서 7번은 다음처럼 적혀 있다.
 
 ```text
  #7 = Fieldref       #8.#9
@@ -61,33 +55,29 @@ javap -v HelloWorld
 #12 = Utf8           Ljava/io/PrintStream;
 ```
 
-8번에서 10번으로 가면 `java/lang/System`이 나온다. 9번은 두 갈래다. 11번이 필드 이름 `out`, 12번이 필드 타입 `Ljava/io/PrintStream;`이다. `javap`가 명령 옆에 붙여 주는 주석 `Field java/lang/System.out:Ljava/io/PrintStream;`은 바로 이 항목들을 풀어 쓴 것이다.
+7번의 첫 번호를 따라가면 필드를 찾을 클래스 `java/lang/System`이 나온다. 둘째 번호에는 필드 이름 `out`과 선언 타입 `PrintStream`이 묶여 있다. 이렇게 이름과 타입으로 대상을 지정한 항목을 **심볼 참조**라고 한다. 같은 필드를 여러 군데서 읽는다면 각 명령에 같은 상수 풀 번호를 쓸 수 있다.
 
-</details>
+파일에 남은 건 필드의 선언이다. 나중에 그 자리에 어떤 출력 객체가 들어 있을지는 `javac`가 이 파일을 쓰는 시점에는 알 수 없다. 그럼 실제로 프로그램을 실행했을 때, 누가 이 세 이름을 가지고 `out`을 찾을까?
 
-## 7번을 읽고 실제 System.out 필드를 찾는 곳
+## java HelloWorld를 실행한 뒤
 
-`java HelloWorld`를 실행하면 JVM은 애플리케이션 클래스 로더를 통해 `HelloWorld`를 로드한다. 이때 파일의 상수 풀을 바탕으로 **HelloWorld의 런타임 상수 풀**을 만든다. `main`이 호출되면 메인 스레드에 프레임이 생기고, 처음에는 피연산자 스택이 비어 있다. 첫 명령은 `getstatic #7`이다.
+애플리케이션 클래스 로더를 통해 `HelloWorld`가 로드되면 JVM은 파일에 적힌 항목들을 바탕으로 이 클래스의 **런타임 상수 풀**을 만든다. `main`을 호출하면 메인 스레드에 프레임이 생긴다. 처음에는 피연산자 스택이 비어 있다.
 
-OpenJDK 21 HotSpot의 인터프리터에서 7번 필드 참조가 아직 해석되지 않았다면, 메인 스레드는 `InterpreterRuntime::resolve_get_put`을 호출한다. 이 함수는 지금 실행하는 메서드가 `HelloWorld.main`이므로 **HelloWorld의 상수 풀**을 가져와 필드 조회를 `LinkResolver`에 맡긴다. 여기서 디스크의 클래스 파일을 다시 열지는 않는다.
-
-7번에 적힌 클래스는 `java/lang/System`이다. HotSpot은 `java/lang/System`에 해당하는 클래스가 이미 이 참조에 연결돼 있으면 그 결과를 쓴다. 아직이면 `HelloWorld`를 정의한 로더를 기준으로 이름을 해석한다. 일반적인 JDK 실행에서 애플리케이션 로더가 부모에게 위임하면 `java.lang.System`은 부트스트랩 로더가 정의한 클래스로 연결된다. 이미 로드된 `System`을 이때 새로 만들 필요는 없다.
-
-`LinkResolver`가 그 클래스에서 `out`을 찾는 코드는 다음과 같다.
+첫 명령 `getstatic #7`에서 참조를 아직 해석하지 않은 경우를 보자. OpenJDK 21 HotSpot의 인터프리터는 메인 스레드에서 `InterpreterRuntime::resolve_get_put`을 호출한다. 이 함수가 현재 메서드의 상수 풀을 가져오고, `LinkResolver`가 필드를 찾는다. 실제 조회는 이 줄이다.
 
 ```cpp
 Klass* sel_klass = resolved_klass->find_field(field, sig, &fd);
 ```
 
-이 예제에서 `resolved_klass`는 방금 찾은 `System`, `field`는 `out`, `sig`는 `Ljava/io/PrintStream;`이다. `find_field`는 클래스에 선언된 필드 정보에서 이름과 타입이 일치하는 필드를 찾아 결과를 `fd`에 채운다. 이어서 `LinkResolver`는 `HelloWorld`에서 이 필드에 접근할 수 있는지, `getstatic`에 맞는 정적 필드인지 검사한다. 이 과정이 끝나면 HotSpot은 필드를 선언한 클래스와 필드의 **오프셋**(기준 위치에서 몇 바이트 떨어져 있는지)을 캐시에 기록할 수 있다. 파일 속 심볼 참조를 실제 필드에 연결하는 이 작업을 **해석(resolution)**이라고 한다. JVM은 참조를 미리 해석할 수도 있다.
+여기서 `resolved_klass`는 `System`이다. HotSpot은 먼저 `HelloWorld`를 정의한 로더를 기준으로 `java/lang/System`을 해석한다. 일반적인 JDK 실행에서는 부모 로더로 위임해 부트스트랩 로더가 정의한 클래스를 쓴다. 이미 이 클래스 참조를 해석해 뒀다면 그 결과를 쓴다.
 
-## 스택에 올라가는 값
+이제 `find_field`가 그 클래스에서 이름이 `out`이고 타입이 `Ljava/io/PrintStream;`인 필드를 찾을 수 있다. 접근 권한과 정적 필드 여부까지 확인하면 HotSpot은 필드를 선언한 클래스와 그 안에서의 위치(오프셋)를 캐시에 기록할 수 있다. 파일에 적힌 심볼 참조를 실제 필드에 연결하는 과정이 **필드 해석**이다. JVM은 이 일을 첫 접근보다 앞서 해 둘 수도 있다.
 
-OpenJDK 21의 AArch64 인터프리터에서 `getstatic`은 캐시에 기록된 선언 클래스로부터 `System.class` 객체를 얻는다. HotSpot이 `System`의 정적 필드 값을 보관하는 곳이다. 인터프리터는 이 객체의 시작 위치에 `out`의 오프셋을 더한 자리에서 **현재 들어 있는 참조값**을 읽어 `main`의 피연산자 스택에 올린다. 이제 스택에는 출력 객체의 참조가 하나 있다. 다음번에도 필드 위치는 재사용할 수 있지만 값은 그때 다시 읽는다.
+오프셋을 얻고도 아직 한 번 더 읽어야 한다. OpenJDK 21의 AArch64 인터프리터는 정적 필드 값이 보관된 `System.class` 객체에서 `out`의 오프셋만큼 떨어진 곳을 읽는다. 거기에 들어 있는 `PrintStream` 객체의 참조가 스택에 올라간다. 다음번에도 필드 위치는 재사용할 수 있고, 값은 그때 다시 읽는다.
 
 두 번째 명령 `ldc #13`은 문자열 리터럴 `"Hello"`에 해당하는 `String` 객체의 참조를 그 위에 올린다. 파일의 14번에서 본 것은 문자 데이터였다. JVM은 같은 내용으로 인턴된 객체가 있으면 그 참조를 쓰고, 없으면 객체를 만들어 등록한다. 이 참조는 첫 `ldc` 전에 이미 준비돼 있을 수도 있다.
 
-세 번째 명령 `invokevirtual #15`까지 오면 스택에 값이 둘이다. 위에 있는 문자열을 인수로, 아래의 출력 객체를 호출 대상으로 삼아 `println(String)`을 호출한다. 표준 출력이 터미널에 연결된 이 예제에서는 여기서 `Hello` 한 줄이 찍힌다. 마지막 `return`에서 `main`이 끝난다.
+상수 풀 15번에는 `PrintStream.println:(Ljava/lang/String;)V`가 적혀 있다. 인수가 `String` 하나이고 반환 타입이 `void`인 메서드다. 세 번째 명령 `invokevirtual #15`에 이르면 스택에 값이 둘이다. 위에 있는 문자열을 인수로, 아래의 출력 객체를 호출 대상으로 삼아 `println(String)`을 호출한다. 표준 출력이 터미널에 연결된 이 예제에서는 여기서 `Hello` 한 줄이 찍힌다. 마지막 `return`에서 `main`이 끝난다.
 
 ## Hello를 Bye로 바꾸면 13번도 바뀔까?
 
@@ -102,7 +92,20 @@ OpenJDK 21의 AArch64 인터프리터에서 `getstatic`은 캐시에 기록된 �
 
 ## 다른 클래스도 같은 Hello를 쓴다면
 
-이번에는 한 JVM에서 클래스 A가 `"Hello"`를 출력한 뒤 B도 `"Hello"`를 출력하는 경우다. A의 문자열은 이미 인턴돼 있고 B의 참조 배열은 비어 있다고 하자.
+앞선 실험에서 14번의 글자를 고치면 출력이 바뀌는 건 확인했다. 이번에는 글자를 그대로 두고, 같은 JVM에서 클래스 두 개가 각각 `"Hello"`를 반환하게 했다. 클래스 파일이 둘이면 돌려주는 문자열 객체도 두 개일까?
+
+```java
+class A { static String hello() { return "Hello"; } }
+class B { static String hello() { return "Hello"; } }
+
+class Same {
+    public static void main(String[] args) {
+        System.out.println(A.hello() == B.hello());
+    }
+}
+```
+
+`Same.java`로 저장해 컴파일한 뒤 `java Same`을 실행했더니 `true`가 찍혔다. 여기서 `==`는 두 참조가 같은 객체를 가리킬 때 참이다. A와 B의 상수 풀은 따로 있어도 두 메서드가 돌려준 문자열 객체는 하나였다.
 
 ![클래스 A와 B의 resolved_references는 따로 있다. StringTable에서 얻은 두 참조는 힙의 같은 Hello 객체를 가리킨다.](./ldc-string.svg)
 
