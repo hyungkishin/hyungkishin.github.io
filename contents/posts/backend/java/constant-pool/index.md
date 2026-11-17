@@ -58,7 +58,26 @@ System.out.println("Hello");
 
 두 줄 모두 `"Hello from the JVM"`으로 바꾸면 어떨까? 글자가 13바이트 늘었는데 두 `ldc`는 여전히 `12 0d`였고, 각각의 다음 명령도 그대로 5번과 13번 위치에서 시작했다. `main`의 명령은 전부 합쳐 여전히 17바이트였다. 클래스 파일은 431바이트에서 444바이트로 딱 13바이트 늘었다. 두 곳에서 출력해도 길어진 글자를 한 곳에만 썼기 때문이다.
 
-이 예제에서 번호를 한 번 따라가는 대가로 얻는 게 그 두 가지다. **같은 글자를 여러 명령이 함께 쓰고, 글자가 길어져도 그 글자를 읽는 명령까지 길어지지는 않는다.** 여기서 두 바이트는 `ldc #13`의 크기다. 상수 풀 인덱스가 한 바이트에 들어가지 않으면 컴파일러는 두 바이트 인덱스를 받는 `ldc_w`를 쓸 수 있다.
+여기까지 확인한 건 디스크에 있는 파일이다. 그럼 실행할 때는? 글자를 한 번만 저장한 대신, 출력할 때마다 13번에서 14번까지 다시 읽어야 할까?
+
+## 첫 번째 출력과 두 번째 출력
+
+두 줄 모두 다시 `println("Hello")`로 두자. 파일에서 13번과 14번을 따라가면 문자열의 **내용**을 알 수 있다. 하지만 실행 중인 `println`에 넘길 값은 힙에 있는 **문자열 객체의 참조**다. HotSpot은 그 참조를 얻으면 `HelloWorld` 클래스에 마련한 배열에 보관한다. 두 출력문은 같은 13번을 쓰므로 이 배열에서도 같은 칸을 읽는다.
+
+**첫 줄, `3: ldc #13`.** 그 칸이 아직 비어 있다고 하자. HotSpot은 `Hello`라는 내용으로 이미 등록된 문자열을 찾는다. 있으면 그 객체를 쓰고, 없으면 만들어 등록한다. 얻은 참조는 두 곳에 쓰인다. 클래스의 배열에 저장하고, 지금 실행 중인 `main`의 피연산자 스택에도 올린다. 첫 번째 `println`이 스택에서 문자열을 인수로 꺼내 써도 **배열에 저장한 참조는 그대로 남는다.**
+
+**둘째 줄, `11: ldc #13`.** HotSpot이 같은 칸을 읽으면 첫 줄에서 쓴 객체의 참조가 나온다. 그 참조를 다시 스택에 올리면 두 번째 `println`에 넘길 준비가 끝난다. 클래스 파일의 14번에서 글자를 다시 읽거나 `Hello`라는 내용으로 검색할 일이 없다.
+
+첫 줄부터 참조가 이미 준비돼 있었다면 첫 번째 `ldc`도 둘째 줄과 똑같이 처리한다. 위의 두 주소는 `javap`로 확인한 명령 위치이고, 첫 줄에서 칸이 비어 있었다는 건 두 실행 경로를 비교하기 위해 둔 조건이다.
+
+<details>
+<summary>OpenJDK 21 HotSpot에서 같은 칸을 읽는 코드</summary>
+
+파일에서 본 13은 상수 풀 번호다. `Rewriter::maybe_rewrite_ldc`는 문자열을 읽는 두 명령을 메모리에서 내부 명령 `_fast_aldc`로 바꾸고, 두 명령에 같은 참조 배열 인덱스를 넣는다. 이 배열이 `resolved_references`다. 내부 인덱스가 파일의 13과 같은 숫자일 필요는 없다.
+
+AArch64 인터프리터의 `fast_aldc`는 그 인덱스로 참조 하나를 읽는다. 참조가 있으면 그대로 쓰고, 빈 칸이면 `InterpreterRuntime::resolve_ldc`를 호출한다. 문자열을 처리하는 `ConstantPool::string_at_impl`에서는 `StringTable::intern`으로 참조를 얻어 배열에 저장한다.
+
+</details>
 
 ## 7번에는 출력 객체가 들어 있을까
 
@@ -87,6 +106,11 @@ System.out.println("Hello");
 
 애플리케이션 클래스 로더를 통해 `HelloWorld`가 로드되면 JVM은 파일에 적힌 항목들을 바탕으로 이 클래스의 **런타임 상수 풀**을 만든다. `main`을 호출하면 메인 스레드에 프레임이 생긴다. 처음에는 피연산자 스택이 비어 있다.
 
+첫 명령은 `getstatic #7`이다. HotSpot은 7번에 적힌 클래스에서 이름과 타입이 맞는 필드를 찾고, 다음 접근에도 쓸 수 있도록 필드 위치를 저장한다.
+
+<details>
+<summary>HotSpot에서 실제로 System.out 필드를 찾는 과정</summary>
+
 첫 명령 `getstatic #7`에서 참조를 아직 해석하지 않은 경우를 보자. OpenJDK 21 HotSpot의 인터프리터는 메인 스레드에서 `InterpreterRuntime::resolve_get_put`을 호출한다. 이 함수가 현재 메서드의 상수 풀을 가져오고, `LinkResolver`가 필드를 찾는다. 실제 조회는 이 줄이다.
 
 ```cpp
@@ -96,6 +120,8 @@ Klass* sel_klass = resolved_klass->find_field(field, sig, &fd);
 여기서 `resolved_klass`는 `System`이다. HotSpot은 먼저 `HelloWorld`를 정의한 로더를 기준으로 `java/lang/System`을 해석한다. 일반적인 JDK 실행에서는 부모 로더로 위임해 부트스트랩 로더가 정의한 클래스를 쓴다. 이미 이 클래스 참조를 해석해 뒀다면 그 결과를 쓴다.
 
 이제 `find_field`가 그 클래스에서 이름이 `out`이고 타입이 `Ljava/io/PrintStream;`인 필드를 찾을 수 있다. 접근 권한과 정적 필드 여부까지 확인하면 HotSpot은 필드를 선언한 클래스와 그 안에서의 위치(오프셋)를 캐시에 기록할 수 있다. 파일에 적힌 심볼 참조를 실제 필드에 연결하는 과정이 **필드 해석**이다. JVM은 이 일을 첫 접근보다 앞서 해 둘 수도 있다.
+
+</details>
 
 오프셋을 얻고도 아직 한 번 더 읽어야 한다. OpenJDK 21의 AArch64 인터프리터는 정적 필드 값이 보관된 `System.class` 객체에서 `out`의 오프셋만큼 떨어진 곳을 읽는다. 거기에 들어 있는 `PrintStream` 객체의 참조가 스택에 올라간다. 다음번에도 필드 위치는 재사용할 수 있고, 값은 그때 다시 읽는다.
 
@@ -139,6 +165,8 @@ B에서 같은 `ldc`를 다시 실행할 때는 B의 배열에 참조가 들어 
 
 ## 참고
 
+- [OpenJDK 21, 문자열 ldc에 참조 배열 인덱스를 넣는 코드](https://github.com/openjdk/jdk/blob/jdk-21-ga/src/hotspot/share/interpreter/rewriter.cpp#L300-L325)
+- [OpenJDK 21, AArch64 인터프리터에서 문자열 참조를 읽는 코드](https://github.com/openjdk/jdk/blob/jdk-21-ga/src/hotspot/cpu/aarch64/templateTable_aarch64.cpp#L379-L405)
 - [OpenJDK 21, 인터프리터의 필드 해석 요청과 캐시 기록](https://github.com/openjdk/jdk/blob/jdk-21-ga/src/hotspot/share/interpreter/interpreterRuntime.cpp#L657-L727)
 - [OpenJDK 21, 상수 풀의 클래스 이름 해석](https://github.com/openjdk/jdk/blob/jdk-21-ga/src/hotspot/share/oops/constantPool.cpp#L490-L535)
 - [OpenJDK 21, 필드의 이름과 타입 조회 및 접근 검사](https://github.com/openjdk/jdk/blob/jdk-21-ga/src/hotspot/share/interpreter/linkResolver.cpp#L952-L1000)
