@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="326" viewBox="0 0 680 326" role="img" aria-labelledby="title desc">
+<title id="title">두 곳에서 가리키는 같은 문자열 객체</title>
+<desc id="desc">JVM의 StringTable은 문자열 내용으로 찾고, HelloWorld의 resolved_references는 13번에 대응하는 칸에서 참조를 읽는다. 두 참조가 힙의 같은 Hello 객체를 가리킨다.</desc>
+<defs><marker id="tip" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M1 1L7 4L1 7" fill="none" stroke="#53677a" stroke-width="1.4"/></marker></defs>
+<style>text{font-family:Pretendard,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;fill:#203047}.name{font:600 20px Menlo,Consolas,monospace}.scope{font-size:18px;fill:#51677b}.note{font-size:20px}.arrow{fill:none;stroke:#53677a;stroke-width:2;marker-end:url(#tip)}</style>
+<rect width="680" height="326" rx="15" fill="#fff"/>
+<rect x="14" y="16" width="347" height="128" rx="12" fill="#f4f7fb" stroke="#c9d5df"/>
+<text x="34" y="48" class="scope">JVM에서 공유</text>
+<text x="34" y="82" class="name">StringTable</text>
+<text x="34" y="118" class="note">내용이 “Hello”인 문자열을 찾는다</text>
+<rect x="14" y="180" width="347" height="128" rx="12" fill="#f4f7fb" stroke="#c9d5df"/>
+<text x="34" y="212" class="scope">HelloWorld 클래스 전용</text>
+<text x="34" y="246" class="name">resolved_references</text>
+<text x="34" y="282" class="note">#13에 대응하는 칸에서 읽는다</text>
+<path d="M362 81 C408 81 408 137 450 137" class="arrow"/>
+<path d="M362 244 C408 244 408 189 450 189" class="arrow"/>
+<rect x="458" y="109" width="208" height="108" rx="12" fill="#e7f4ed" stroke="#87ad98"/>
+<text x="477" y="145" class="scope">힙의 String 객체</text>
+<text x="477" y="190" style="font:600 30px Menlo,Consolas,monospace">"Hello"</text>
+</svg>
