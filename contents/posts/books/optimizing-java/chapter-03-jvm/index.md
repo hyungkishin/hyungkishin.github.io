@@ -1,6 +1,6 @@
 ---
 title: "3장. 자바 가상 머신 개요"
-description: "return new Order()를 컴파일하면 명령이 네 개 나온다. 주문은 하나인데 참조는 왜 복사할까? javap 출력에서 dup을 찾아보고, 두 정수를 더할 때는 왜 그 명령이 없는지도 확인한다."
+description: "Hello, World!를 출력하는 자바 프로그램을 컴파일하고, javap로 println을 호출하기까지 피연산자 스택에 어떤 값이 올라가는지 따라간다."
 date: 2026-11-14
 update: 2026-11-17
 tags:
@@ -29,64 +29,55 @@ tags:
   </tbody>
 </table>
 
-표에 나온 바이트코드는 JVM이 실행하는 명령이다. 자바에서 주문 객체 하나를 만들어 돌려줄 때는 `return new Order();` 한 줄이면 된다. JVM에서도 명령 하나면 될까?
+표에서 JVM이 맡은 일은 '바이트코드 실행'이다. 그럼 `Hello, World!`를 출력할 때 JVM은 어떤 명령을 실행할까?
 
 ```java
-class Order {
-    int quantity;
-}
-
-class Checkout {
-    static Order createOrder() {
-        return new Order();
+public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
     }
 }
 ```
 
-두 클래스를 `Checkout.java`에 같이 저장하고 컴파일한다.
+`HelloWorld.java`로 저장하고 실행해 봤다.
 
 ```sh
-javac Checkout.java
+javac HelloWorld.java
+java HelloWorld
 ```
-
-`Order.class`와 `Checkout.class`가 생긴다. `createOrder()`를 쓴 곳은 `Checkout`이니, `javap -c`로 `Checkout.class` 안의 바이트코드를 출력해 봤다.
-
-```sh
-javap -c Checkout
-```
-
-출력에서 `createOrder()`의 본문만 가져왔다.
 
 ```text
-0: new           #7    // class Order
-3: dup
-4: invokespecial #9    // Method Order."<init>":()V
-7: areturn
+Hello, World!
 ```
 
-명령이 네 개다. 아직 주문 객체를 만든 건 아니다. `javap`는 파일에 적힌 명령을 보여 줄 뿐이다.
+`javac`가 만든 `HelloWorld.class`를 `javap -c`로 열면 방금 실행한 `main`의 바이트코드를 볼 수 있다.
 
-그럼 `Checkout.createOrder()`를 호출하면 JVM은 이 네 줄을 어떻게 실행할까?
+```sh
+javap -c HelloWorld
+```
+
+```text
+0: getstatic     #7     // Field java/lang/System.out:Ljava/io/PrintStream;
+3: ldc           #13    // String Hello, World!
+5: invokevirtual #15    // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+8: return
+```
+
+소스에 한 줄 쓴 `println`은 세 번째 명령에 나온다. 그 앞의 두 줄은 어디에 쓰일까?
 
 ## 인터프리팅과 클래스 로딩
 
-아까 `javap`로 읽은 `Checkout.class`를 이번에는 클래스 로더가 읽는다. JVM은 그 내용으로 `Checkout` 클래스를 만든다. 이게 **클래스 로딩**이다.
+`java HelloWorld`를 실행하면 JVM의 클래스 로더가 `HelloWorld.class`를 읽는다. JVM이 `HelloWorld` 클래스를 준비하고 초기화한 뒤 `main`을 호출한다. 메서드를 호출하면 그 스레드의 JVM 스택에 **프레임**이 생긴다. 프레임 안에는 명령을 실행하면서 값을 잠시 올려 두는 **피연산자 스택**이 있다. 인터프리터는 바이트코드를 한 명령씩 읽어서 실행한다.
 
-JVM이 `Checkout`을 검증하고 초기화하면 `createOrder()`의 본문을 실행할 수 있다. 인터프리터로 실행하면 첫 줄의 `new`부터 한 명령씩 읽어서 처리한다. 이걸 **인터프리팅**이라고 한다.
+첫 줄의 `getstatic`은 `System.out` 필드에서 표준 출력에 쓰는 `PrintStream` 객체의 참조를 읽어 스택에 올린다. 두 번째 줄의 `ldc`는 문자열 `"Hello, World!"`의 참조를 그 위에 올린다.
 
-`createOrder()`를 호출하면 그 스레드의 JVM 스택에 **프레임**이 하나 생긴다. 프레임 안에는 **피연산자 스택**이 있다. 메서드를 실행하면서 값을 올리고 꺼내는 곳이다. 아직은 비어 있다.
+<figure data-play-on-view id="diagram-println">
 
-첫 줄의 `new`는 힙에 `Order` 객체를 만들고, 그 객체의 참조를 피연산자 스택에 올린다. 예제에서 주문 수량은 `int quantity;`라고만 선언했다. 이때 값은 0으로부터 시작한다.
-
-<figure data-play-on-view id="diagram-order-allocation">
-
-![JVM의 런타임 데이터 영역과 new 실행 직후의 createOrder() 프레임. 피연산자 스택에는 Order 객체의 참조가 하나 있다.](./heap-backing.svg)
+![println 호출 직전 main 프레임의 피연산자 스택. 아래에는 System.out의 참조, 위에는 문자열의 참조가 있다.](./heap-backing.svg)
 
 </figure>
 
-세 번째 줄의 `invokespecial`은 스택에서 참조 하나를 꺼내 `Order()` 생성자를 호출한다. 출력에 적힌 `()V`에서 끝의 `V`는 반환값이 없다는 뜻이다. 아까 `new`가 올려놓은 참조는 하나였는데. 그걸 생성자에 넘겨주면 마지막 `areturn`은 뭘 돌려주지?
-
-두 번째 줄의 `dup`은 피연산자 스택 맨 위의 값을 복사한다. 여기서 복사하는 값은 방금 만든 `Order`의 참조다. 같은 객체를 가리키는 참조가 두 개라서, 생성자를 호출할 때 하나를 꺼내도 스택에 하나가 남는다. `areturn`이 그 참조를 호출자에게 돌려준다.
+세 번째 줄의 `invokevirtual`에서 이 두 값이 쓰인다. 위에 있던 문자열을 인수로 꺼내고, 그 아래에 있던 `System.out`의 `println`을 호출한다. 그래서 터미널에 `Hello, World!`가 찍혔다. 마지막 `return`은 반환값 없이 `main`을 끝낸다.
 
 <details>
 <summary>HotSpot은 자바 힙 밖의 메모리를 어디에 쓸까?</summary>
@@ -99,7 +90,7 @@ JVM이 `Checkout`을 검증하고 초기화하면 `createOrder()`의 본문을 �
 
 ### `return a + b;`
 
-같은 `Checkout`에 메서드를 하나 더 넣었다. 이번에도 `return` 한 줄이다. 다만 이번엔 생성자를 부를 일이 없다.
+`HelloWorld`에 두 정수를 더하는 메서드를 하나 더 넣었다. 이번에는 스택에 숫자가 올라간다.
 
 ```java
 static int add(int a, int b) {
@@ -107,7 +98,7 @@ static int add(int a, int b) {
 }
 ```
 
-다시 컴파일하고 `javap -c Checkout`으로 `add`의 명령을 출력해 봤다.
+다시 컴파일하고 `javap -c HelloWorld`으로 `add`의 명령을 출력해 봤다.
 
 ```text
 0: iload_0
@@ -120,9 +111,9 @@ static int add(int a, int b) {
 
 `add(2, 3)`으로 호출해 보자. 첫 번째 인수 2는 프레임의 지역 변수 0번 자리에, 두 번째 인수 3은 1번 자리에 들어간다.
 
-덧셈 바로 위의 두 줄은 그 값을 읽어 오는 명령이다. `iload_0`이 0번 자리의 2를 스택에 올리고, `iload_1`이 그 위에 1번 자리의 3을 올린다. `iadd`는 스택에서 그 둘을 꺼내 더하고 5를 올린다.
+덧셈 바로 위의 두 줄은 그 값을 읽어 오는 명령이다. `iload_0`이 0번 자리의 2를 스택에 올리고, `iload_1`이 그 위에 1번 자리의 3을 올린다. `iadd`는 스택에서 그 둘을 꺼내 더하고 5를 올린다. 다음 명령이 바로 `ireturn`이다. 스택에 남은 5를 꺼내 호출자에게 돌려준다.
 
-RISC-V의 덧셈 명령은 `add x5, x6, x7`처럼 쓴다. `x6`와 `x7`에서 값을 읽어 더하고 `x5`에 쓰라는 뜻이다. JVM의 `iadd` 옆은 비어 있다. 더할 두 값은 피연산자 스택 맨 위에 있고, 결과도 같은 스택에 올리기 때문이다. 책에서 JVM을 **스택 기반**이라고 한 이유다.
+더할 값도 결과도 피연산자 스택에 있으니 명령 옆에 변수 이름이 필요 없다. 책에서 JVM을 **스택 기반**이라고 한 이유다.
 
 <figure data-play-on-view>
 
@@ -130,7 +121,17 @@ RISC-V의 덧셈 명령은 `add x5, x6, x7`처럼 쓴다. `x6`와 `x7`에서 값
 
 </figure>
 
-방금 `iload_1`에서는 값을 올렸는데, 바로 다음 줄 `iadd`에서는 두 개를 꺼냈다. 책은 인터프리터의 이 동작을 `while` 안의 `switch`로 설명한다. 루프를 한 번 돌 때마다 명령을 하나 읽고, 그 명령에 맞는 `case`로 간다.
+<details>
+<summary>RISC-V의 덧셈 명령과 비교하면</summary>
+
+RISC-V의 덧셈 명령은 `add x5, x6, x7`처럼 쓴다. `x6`와 `x7`에서 값을 읽어 더하고 `x5`에 쓰라는 뜻이다. JVM의 `iadd`에서는 두 입력값과 결과가 놓일 자리가 피연산자 스택으로 정해져 있다.
+
+</details>
+
+<details>
+<summary>인터프리터는 이 네 명령을 어떻게 실행할까?</summary>
+
+`iload_1`에서는 값을 올리고, 바로 다음 줄 `iadd`에서는 두 개를 꺼낸다. 책은 인터프리터의 이 동작을 `while` 안의 `switch`로 설명한다. 루프를 한 번 돌 때마다 명령을 하나 읽고, 그 명령에 맞는 `case`로 간다.
 
 ```text
 while (실행할 명령이 남아 있다) {
@@ -152,13 +153,39 @@ while (실행할 명령이 남아 있다) {
 }
 ```
 
-이번에는 `dup` 없이 바로 `ireturn`이다. `iadd`가 올려 둔 5를 그사이에 꺼내 쓰는 명령이 없으니 그대로 돌려주면 된다.
+</details>
+
+<details>
+<summary>객체 하나를 반환할 때는 왜 dup이 나올까?</summary>
+
+`HelloWorld`에 아래 메서드를 추가한 다음 다시 컴파일했다.
+
+```java
+static Object make() {
+    return new Object();
+}
+```
+
+`javap -c HelloWorld`의 `make()` 부분이다.
+
+```text
+0: new           #2    // class java/lang/Object
+3: dup
+4: invokespecial #1    // Method java/lang/Object."<init>":()V
+7: areturn
+```
+
+`new`는 힙에 객체를 하나 만들고 스택에 그 참조를 올린다. 바로 다음 줄의 `dup`은 스택 맨 위의 값을 하나 복사한다. 그래서 같은 객체를 가리키는 참조가 두 개다.
+
+`invokespecial`은 그중 하나를 꺼내 `Object()` 생성자를 호출한다. 생성자는 아무 값도 반환하지 않는다. 마지막 `areturn`이 호출자에게 돌려주는 건 `dup` 덕분에 스택에 남아 있던 참조다.
+
+</details>
 
 ## 참고자료
 
 - 『자바 최적화』 3장, 「자바 가상 머신 개요」
 - JVM 명세 25, [런타임 데이터 영역](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.5), [프레임](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.6), [피연산자 스택](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.6.2), [클래스 로딩](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-5.html#jvms-5.3), [링킹](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-5.html#jvms-5.4), [초기화](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-5.html#jvms-5.5)
-- JVM 명세 25의 바이트코드 명령, [new](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.new), [dup](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.dup), [invokespecial](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.invokespecial), [areturn](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.areturn), [iadd](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.iadd), [ireturn](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.ireturn)
+- JVM 명세 25의 바이트코드 명령, [getstatic](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.getstatic), [ldc](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.ldc), [invokevirtual](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.invokevirtual), [return](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.return), [new](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.new), [dup](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.dup), [invokespecial](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.invokespecial), [areturn](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.areturn), [iadd](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.iadd), [ireturn](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.ireturn)
 - [HotSpot의 클래스 메타데이터](https://docs.oracle.com/en/java/javase/25/gctuning/other-considerations.html)
 - [RISC-V 정수 연산 명령](https://docs.riscv.org/reference/isa/v20260120/unpriv/rv32.html)
 - [Pratik T의 JVM 구성도](https://medium.com/@pratik.941/understanding-jvm-memory-allocation-a-tutorial-d06e830e615f)

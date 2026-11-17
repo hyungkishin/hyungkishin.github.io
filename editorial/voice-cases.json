@@ -13,7 +13,7 @@
   {
     "id": "jvm",
     "source": "contents/posts/books/optimizing-java/chapter-03-jvm/index.md",
-    "context": "return new Order();를 컴파일한 결과에 new, dup, invokespecial, areturn이 차례로 나온다. 독자가 두 번째 줄의 dup이 무슨 명령인지 물었다.",
+    "context": "Hello World 예제에 따로 추가한 HelloWorld.make()의 본문은 return new Object(); 한 줄이다. javap로 보면 new, dup, invokespecial, areturn이 차례로 나온다. 독자가 두 번째 줄의 dup이 무슨 명령인지 물었다.",
     "choices": {
       "A": "상자는 선반에 있고 쟁반에서 꼬리표를 가져가는 장면을 보여 준다. 다음 문단에서 꼬리표가 참조였다고 설명한다.",
       "B": "dup은 스택 맨 위의 값을 복사하는 명령이라고 그 줄에서 설명한다. 이 예제에서 복사한 참조 하나는 생성자를 부를 때 쓰고, 남은 하나는 areturn으로 돌려준다."
