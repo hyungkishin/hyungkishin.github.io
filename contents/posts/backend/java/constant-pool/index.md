@@ -19,57 +19,35 @@ public class HelloWorld {
 }
 ```
 
-Microsoft OpenJDK 21.0.12.1에서 컴파일하고 실행했다.
+Microsoft OpenJDK 21.0.12.1에서 이 파일을 컴파일했다. 클래스 파일에 들어간 명령은 `javap -v`로 볼 수 있다.
 
 ```sh
 javac HelloWorld.java
-java HelloWorld
-```
-
-```text
-Hello
+javap -v HelloWorld
 ```
 
 ## Hello는 어디에 적혀 있을까
 
-```sh
-javap -v HelloWorld
-```
-
-`javac`가 만든 `HelloWorld.class`를 `javap`로 읽었다. 방금 실행한 `main`에는 명령이 네 개 있다.
+소스에는 `println("Hello")`라고 썼다. 그런데 `main`에서 문자열을 가져오는 명령을 보면 글자는 오른쪽 주석에만 있다.
 
 ```text
-         0: getstatic     #7                  // Field java/lang/System.out:Ljava/io/PrintStream;
          3: ldc           #13                 // String Hello
-         5: invokevirtual #15                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
-         8: return
 ```
 
-둘째 줄의 `ldc`는 상수 하나를 스택에 올리는 명령이다. 오른쪽의 `// String Hello`는 `javap`가 붙인 주석이다. 실제 명령에는 `ldc #13`이라고 적혀 있다. 무엇을 올려야 하는지는 같은 파일의 `Constant pool:` 아래에서 찾을 수 있다.
+`ldc` 뒤에 적힌 건 `#13`뿐인데, `javap`는 어디서 `Hello`를 읽었을까? 출력 위쪽에 있는 `Constant pool:`에서 13번을 보면 번호가 하나 더 나온다.
 
 ```text
   #13 = String             #14            // Hello
   #14 = Utf8               Hello
 ```
 
-13번에 적힌 `String #14`는 “문자열이고, 글자는 14번에 있다”는 뜻이다. 14번을 읽으면 `Hello`가 나온다. `javap`도 이 두 항목을 읽었기 때문에 명령 옆에 `// String Hello`를 붙일 수 있다.
-
-**상수 풀은 클래스 파일 안에서 여러 명령이 함께 쓸 값과 이름을 번호로 찾아볼 수 있게 모아 둔 곳이다.** 이 파일에서는 13번이 문자열을, 7번이 읽을 필드를, 15번이 호출할 메서드를 가리킨다. 번호는 `javac`가 그 클래스 파일을 만들 때 붙인다.
-
-그런데 문자열을 한 번 출력하려고 굳이 번호를 써야 할까? `main`에 `System.out.println("Hello");`를 한 줄 더 넣고 컴파일하면 차이가 보인다.
-
-```text
- 3: ldc           #13                 // String Hello
-11: ldc           #13                 // String Hello
-```
-
-왼쪽의 3과 11은 두 명령이 놓인 위치다. **명령은 두 곳에 있는데 둘 다 같은 13번을 쓴다.** 글자는 14번에 한 번만 적혀 있다. 두 줄의 문자열을 모두 `Hello from the JVM`으로 바꿨을 때도 두 명령의 크기는 각각 2바이트 그대로였다. 글자가 길어진 만큼 커진 곳은 상수 풀이다.
+13번의 `String`은 이 상수가 문자열이라는 뜻이고, 그 옆의 `#14`는 글자가 들어 있는 항목의 번호다. 14번에 가서야 소스에 썼던 다섯 글자 `Hello`가 나온다. `javap`는 13번에서 문자열이라는 걸 알고 14번에서 글자를 읽어서, 명령 오른쪽에 `// String Hello`라고 표시한다.
 
 <details>
-<summary>javap -v HelloWorld 전체 출력</summary>
+<summary>javap -v HelloWorld 전체 출력 (66줄)</summary>
 
 ```text
-Classfile /private/tmp/hello-javap.L2daqd/HelloWorld.class
+Classfile /private/tmp/javap-check.mGZ10Z/HelloWorld.class
   Last modified 2026. 11. 17.; size 419 bytes
   SHA-256 checksum 61cd1f5e83d26931f6265f50a34404160f6ab8e9fb820b8bce9ac6f558f05938
   Compiled from "HelloWorld.java"
@@ -138,6 +116,17 @@ SourceFile: "HelloWorld.java"
 ```
 
 </details>
+
+**상수 풀은 클래스 파일 안에서 여러 명령이 함께 쓸 값과 이름을 번호로 찾아볼 수 있게 모아 둔 곳이다.** 이 파일에서는 13번이 문자열을, 7번이 읽을 필드를, 15번이 호출할 메서드를 가리킨다. 번호는 `javac`가 그 클래스 파일을 만들 때 붙인다.
+
+그런데 문자열을 한 번 출력하려고 굳이 번호를 써야 할까? `main`에 `System.out.println("Hello");`를 한 줄 더 넣고 컴파일하면 차이가 보인다.
+
+```text
+ 3: ldc           #13                 // String Hello
+11: ldc           #13                 // String Hello
+```
+
+왼쪽의 3과 11은 두 명령이 놓인 위치다. **명령은 두 곳에 있는데 둘 다 같은 13번을 쓴다.** 글자는 14번에 한 번만 적혀 있다. 두 줄의 문자열을 모두 `Hello from the JVM`으로 바꿨을 때도 두 명령의 크기는 각각 2바이트 그대로였다. 글자가 길어진 만큼 커진 곳은 상수 풀이다.
 
 ## 두 번째 줄에서 out만 err로 바꾸면
 
