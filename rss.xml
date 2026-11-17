@@ -293,7 +293,7 @@ SourceFile: &quot;HelloWorld.java&quot;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 3: dup
 4: invokespecial #1    // Method java/lang/Object.&quot;&amp;lt;init&gt;&quot;:()V
 7: areturn&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;&lt;img src=&quot;/static/dup-operand-stack-1ab4935d87d981ea080fcbc44724865d.svg&quot; alt=&quot;make()의 피연산자 스택에 남은 참조는 new 뒤 1개, dup 뒤 2개, 생성자가 정상 종료된 뒤 1개다. areturn에서 마지막 참조가 호출자에게 넘어가고 make() 프레임은 사라진다.&quot; id=&quot;diagram-dup-operand-stack&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/static/dup-operand-stack-965d92c3082668a8f505c824b3dc8a26.svg&quot; alt=&quot;make()의 피연산자 스택에 남은 참조는 new 뒤 1개, dup 뒤 2개, 생성자가 정상 종료된 뒤 1개다. areturn에서 마지막 참조가 호출자에게 넘어가고 make() 프레임은 사라진다.&quot; id=&quot;diagram-dup-operand-stack&quot;&gt;&lt;/p&gt;
 &lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;new&lt;/code&gt;는 힙에 객체를 하나 만들고 스택에 그 참조를 올린다. 바로 다음 줄의 &lt;code class=&quot;language-text&quot;&gt;dup&lt;/code&gt;(duplicate)은 스택 맨 위의 값을 하나 복사한다. 그래서 같은 객체를 가리키는 참조가 두 개다.&lt;/p&gt;
 &lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;invokespecial&lt;/code&gt;은 그중 하나를 꺼내 &lt;code class=&quot;language-text&quot;&gt;Object()&lt;/code&gt; 생성자를 호출한다. 생성자는 아무 값도 반환하지 않는다. 마지막 &lt;code class=&quot;language-text&quot;&gt;areturn&lt;/code&gt;이 호출자에게 돌려주는 건 &lt;code class=&quot;language-text&quot;&gt;dup&lt;/code&gt; 덕분에 스택에 남아 있던 참조다.&lt;/p&gt;
 &lt;/details&gt;
