@@ -61,15 +61,31 @@ javap -v HelloWorld
 
 </details>
 
-## java HelloWorld를 실행하면
+## 7번을 읽고 실제 System.out 필드를 찾는 곳
 
-이제 `java HelloWorld`를 실행한다. 클래스 로더가 `HelloWorld.class`를 읽으면 JVM은 그 내용으로 클래스를 만들고, 파일에 기록된 항목들을 바탕으로 **이 클래스의 런타임 상수 풀**을 구성한다. 앞에서 이름과 타입으로 적어 둔 참조를 실제 필드나 메서드와 연결하는 과정이 *해석(resolution)*이다. JVM은 미리 해석할 수도 있고 해당 명령에 처음 필요할 때 해석할 수도 있다.
+`java HelloWorld`를 실행하면 JVM은 애플리케이션 클래스 로더를 통해 `HelloWorld`를 로드한다. 이때 파일의 상수 풀을 바탕으로 **HelloWorld의 런타임 상수 풀**을 만든다. `main`이 호출되면 메인 스레드에 프레임이 생기고, 처음에는 피연산자 스택이 비어 있다. 첫 명령은 `getstatic #7`이다. 파일의 7번에는 필드 이름과 타입 말고도 한 가지가 더 있었다. **그 필드를 어느 클래스에서 찾을지**, 여기서는 `java/lang/System`이다.
 
-`main`이 호출되면 메인 스레드에 프레임이 생긴다. 처음에는 그 안의 피연산자 스택이 비어 있다. 이제 아까 파일에서 본 네 줄을 실행할 차례다.
+그럼 이 세 가지로 누가 필드를 찾을까? OpenJDK 21 HotSpot에서 인터프리터가 아직 연결되지 않은 필드 참조를 처음 만나는 경우를 따라가 봤다. 메인 스레드에서 인터프리터가 HotSpot의 런타임 함수 `InterpreterRuntime::resolve_get_put`을 호출한다. 이 함수는 지금 실행하는 메서드가 `HelloWorld.main`이므로 **HelloWorld의 상수 풀**을 가져와 필드 조회를 `LinkResolver`에 맡긴다. 여기서 디스크의 클래스 파일을 다시 열지는 않는다.
 
-1. **어디에 출력할까?** `getstatic #7`은 7번이 뜻하는 `System.out` 필드에서 현재 값을 읽는다. 그 값인 출력 객체의 참조가 스택에 올라간다.
-2. **무슨 글자를 출력할까?** `ldc #13`은 13번에 해당하는 `String` 객체의 참조를 스택에 올린다. 파일에 있던 `Utf8 Hello`는 문자 데이터였다. JVM은 이 데이터에 해당하는 인턴 문자열을 사용한다. 같은 내용으로 등록된 객체가 있으면 그 객체를 쓰고, 없으면 만들어 등록한다. 참조는 이 명령을 처음 실행하기 전에 준비돼 있을 수도 있다.
-3. **이제 호출에 필요한 값이 둘 다 있다.** `invokevirtual #15`는 위에 있는 문자열을 인수로, 그 아래의 출력 객체를 호출 대상으로 써서 `println(String)`을 호출한다. 표준 출력을 터미널에 연결해 둔 이 예제에서는 여기서 `Hello` 한 줄이 찍힌다. 마지막 `return`에서 `main`이 끝난다.
+**먼저 클래스를 찾는다.** HotSpot은 `java/lang/System`에 해당하는 클래스가 이미 이 참조에 연결돼 있으면 그 결과를 쓴다. 아직이면 `HelloWorld`를 정의한 로더를 기준으로 이름을 해석한다. 일반적인 JDK 실행에서 애플리케이션 로더가 부모에게 위임하면 `java.lang.System`은 부트스트랩 로더가 정의한 클래스로 연결된다. 이미 로드된 `System`을 이때 새로 만들 필요는 없다.
+
+**그다음 그 클래스에서 필드를 찾는다.** HotSpot 소스에서 실제 조회는 이 한 줄이다.
+
+```cpp
+Klass* sel_klass = resolved_klass->find_field(field, sig, &fd);
+```
+
+이 예제에서 `resolved_klass`는 방금 찾은 `System`, `field`는 `out`, `sig`는 `Ljava/io/PrintStream;`이다. `find_field`는 클래스에 선언된 필드 정보에서 이름과 타입이 일치하는 필드를 찾아 결과를 `fd`에 채운다. 이어서 `LinkResolver`는 `HelloWorld`에서 이 필드에 접근할 수 있는지, `getstatic`에 맞는 정적 필드인지 검사한다. 이 과정이 끝나면 HotSpot은 필드를 선언한 클래스와 필드의 **오프셋**(기준 위치에서 몇 바이트 떨어져 있는지)을 캐시에 기록할 수 있다. 파일 속 심볼 참조를 실제 필드에 연결하는 이 작업을 **해석(resolution)**이라고 한다. JVM은 참조를 미리 해석할 수도 있다.
+
+여기까지 알아낸 건 **어디를 읽을지**다. 스택에 올릴 출력 객체는 언제 읽을까?
+
+## 필드 위치를 찾은 다음에야 값을 읽는다
+
+OpenJDK 21의 AArch64 인터프리터에서 `getstatic`은 캐시에 기록된 선언 클래스로부터 `System.class` 객체를 얻는다. HotSpot이 `System`의 정적 필드 값을 보관하는 곳이다. 인터프리터는 이 객체의 시작 위치에 `out`의 오프셋을 더한 자리에서 **현재 들어 있는 참조값**을 읽어 `main`의 피연산자 스택에 올린다. 이제 스택에는 출력 객체의 참조가 하나 있다. 다음번에도 필드 위치는 재사용할 수 있지만 값은 그때 다시 읽는다.
+
+두 번째 명령 `ldc #13`은 문자열 리터럴 `"Hello"`에 해당하는 `String` 객체의 참조를 그 위에 올린다. 파일의 14번에서 본 것은 문자 데이터였다. JVM은 같은 내용으로 인턴된 객체가 있으면 그 참조를 쓰고, 없으면 객체를 만들어 등록한다. 이 참조는 첫 `ldc` 전에 이미 준비돼 있을 수도 있다.
+
+세 번째 명령 `invokevirtual #15`까지 오면 스택에 값이 둘이다. 위에 있는 문자열을 인수로, 아래의 출력 객체를 호출 대상으로 삼아 `println(String)`을 호출한다. 표준 출력이 터미널에 연결된 이 예제에서는 여기서 `Hello` 한 줄이 찍힌다. 마지막 `return`에서 `main`이 끝난다.
 
 ## Hello를 Bye로 바꿔 봤다
 
@@ -95,6 +111,11 @@ B에서 같은 `ldc`를 다시 실행할 때는 B의 배열에 참조가 들어 
 
 ## 참고
 
+- [OpenJDK 21, 인터프리터의 필드 해석 요청과 캐시 기록](https://github.com/openjdk/jdk/blob/jdk-21-ga/src/hotspot/share/interpreter/interpreterRuntime.cpp#L657-L727)
+- [OpenJDK 21, 상수 풀의 클래스 이름 해석](https://github.com/openjdk/jdk/blob/jdk-21-ga/src/hotspot/share/oops/constantPool.cpp#L490-L535)
+- [OpenJDK 21, 필드의 이름과 타입 조회 및 접근 검사](https://github.com/openjdk/jdk/blob/jdk-21-ga/src/hotspot/share/interpreter/linkResolver.cpp#L952-L1000)
+- [OpenJDK 21, AArch64 인터프리터의 정적 필드 기준 위치](https://github.com/openjdk/jdk/blob/jdk-21-ga/src/hotspot/cpu/aarch64/templateTable_aarch64.cpp#L2283-L2307)
+- [OpenJDK 21, AArch64 인터프리터의 필드값 읽기](https://github.com/openjdk/jdk/blob/jdk-21-ga/src/hotspot/cpu/aarch64/templateTable_aarch64.cpp#L2489-L2535)
 - [OpenJDK 21 HotSpot, StringTable 구현](https://github.com/openjdk/jdk/blob/jdk-21-ga/src/hotspot/share/classfile/stringTable.cpp)
 - [OpenJDK 21 HotSpot, 문자열 상수의 참조를 읽고 저장하는 코드](https://github.com/openjdk/jdk/blob/jdk-21-ga/src/hotspot/share/oops/constantPool.cpp#L1246-L1255)
 - [JVM 명세, 문자열 상수의 클래스 파일 형식](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.4.3)
