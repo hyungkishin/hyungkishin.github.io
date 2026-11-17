@@ -41,7 +41,11 @@ javap -v HelloWorld
 #14 = Utf8    Hello
 ```
 
-`ldc #13`은 13번 상수를 가져오라는 명령이다. 13번을 보니 문자열이라는 표시와 14번이 적혀 있다. 실제 글자 `Hello`는 14번에 있다. 여기까지는 파일을 읽기만 했고 아직 화면에 찍힌 글자는 없다.
+왜 13번에서 또 14번으로 갈까? 클래스 파일 형식에서 `String` 항목은 **이 문자열 리터럴의 글자가 몇 번에 있는지** 기록한다. 그 번호를 담는 필드가 `string_index`이고, 이 파일에서는 값이 14다. 글자 자체는 14번 `Utf8` 항목에 기록한다. `Utf8`은 메서드 이름 같은 텍스트에도 쓰인다. 13번의 `String`이라는 표시가 있어야 JVM은 이 글자를 자바 문자열 상수로 사용할 수 있다.
+
+![클래스 파일에서는 13번 String 항목이 14번 Utf8의 Hello를 가리킨다. 실행 직후에는 출력 객체의 참조 위에 문자열 객체의 참조가 올라간다.](./ldc-string.svg)
+
+그림 위쪽은 `javap`로 본 **파일의 기록**이다. 아래쪽은 `java HelloWorld`를 실행해 **방금 ldc를 마친 순간**이다. JVM은 런타임 상수 풀의 13번에 해당하는 `String` 객체의 참조를 스택에 올린다. 같은 내용의 문자열이 이미 인턴되어 있으면 그 객체를 사용한다. 숫자 14와 글자 다섯 개는 이때 스택에 복사되지 않는다.
 
 ## println도 상수 풀을 쓴다
 
@@ -97,6 +101,8 @@ javap -v HelloWorld
 
 ## 참고
 
+- [JVM 명세, 문자열 상수의 클래스 파일 형식](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.4.3)
+- [JVM 명세, ldc 명령](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-6.html#jvms-6.5.ldc)
 - [3장. 자바 가상 머신 개요](https://hyungkishin.github.io/books/optimizing-java/chapter-03-jvm/)
 - [JVM 명세, 클래스 파일의 상수 풀](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.4)
 - [JVM 명세, 런타임 상수 풀](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-5.html#jvms-5.1)
