@@ -211,9 +211,20 @@ data-styled.g24[id="TagList__Tags-sc-1a02q9k-0"]{content:"chUkMH,"}/*!sc*/
 Code:
    3: ldc       #13              // String Hello</code></pre></div>
 <p>명령은 <code class="language-text">ldc #13</code>인데 그 옆의 주석에는 <code class="language-text">Hello</code>라고 적혀 있다. 어디서 그 글자를 읽었을까? 위쪽의 13번을 보면 문자열이라는 표시와 14번이 있다. 14번에 가야 실제 글자 <code class="language-text">Hello</code>가 나온다. <code class="language-text">javap</code>가 이 두 항목을 읽어서 사람이 볼 수 있게 붙인 게 <code class="language-text">// String Hello</code>다.</p>
-<p>위쪽의 **상수 풀(constant pool)**은 한 클래스의 코드가 사용하는 상수와 필드와 메서드 정보를 번호별로 담아 둔 곳이다. <code class="language-text">javac</code>가 클래스 파일을 만들 때 채운다. 여기서 <code class="language-text">ldc</code>는 <strong>상수를 스택에 올리는 동작</strong>이고, 그 동작에 쓸 값은 <strong>이 파일의 상수 풀 13번</strong>으로 지정했다. 문자열 항목이 가리키는 14번을 클래스 파일 형식에서는 <code class="language-text">string_index</code>라고 부른다.</p>
+<p>위쪽의 **상수 풀(constant pool)**은 한 클래스의 코드가 사용하는 상수, 필드 정보, 메서드 정보를 번호별로 담아 둔 곳이다. <code class="language-text">javac</code>가 클래스 파일을 만들 때 채운다. 여기서 <code class="language-text">ldc</code>는 <strong>상수를 스택에 올리는 동작</strong>이고, 그 동작에 쓸 값은 <strong>이 파일의 상수 풀 13번</strong>으로 지정했다. 문자열 항목이 가리키는 14번을 클래스 파일 형식에서는 <code class="language-text">string_index</code>라고 부른다.</p>
+<h2>ldc 옆에 Hello를 그대로 쓰면 안 될까</h2>
+<p>문자열 한 개를 한 번만 쓸 거라면 명령 바로 뒤에 글자를 적는 방식도 생각할 수 있다. 다만 그렇게 설계하면 어디까지가 글자이고 어디부터가 다음 명령인지 구분해야 한다. 예를 들어 명령에 글자의 바이트 길이도 함께 적어야 한다. 같은 문자열을 다시 쓰면 그 자리에도 글자가 들어간다.</p>
+<p><code class="language-text">main</code>에 같은 출력문을 한 줄 더 넣고 컴파일했다.</p>
+<div class="gatsby-highlight" data-language="java"><pre class="language-java"><code class="language-java"><span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"Hello"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"Hello"</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre></div>
+<p><code class="language-text">javap -v HelloWorld</code>에서 두 출력문에 해당하는 <code class="language-text">ldc</code>는 따로 나오는데, 그 옆의 번호는 같다.</p>
+<div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text"> 3: ldc #13    // String Hello
+11: ldc #13    // String Hello</code></pre></div>
+<p>클래스 파일에서 두 명령은 각각 <code class="language-text">12 0d</code> 두 바이트였다. <code class="language-text">12</code>는 명령 번호인 0x12, <code class="language-text">0d</code>는 상수 풀 인덱스 13이다. <code class="language-text">Hello</code> 다섯 글자는 상수 풀 14번에 한 번만 기록됐다. 첫 번째 출력문도 두 번째 출력문도 같은 문자열 항목을 쓴다.</p>
+<p>두 줄 모두 <code class="language-text">"Hello from the JVM"</code>으로 바꾸면 어떨까? 글자가 13바이트 늘었는데 두 <code class="language-text">ldc</code>는 여전히 <code class="language-text">12 0d</code>였고, 각각의 다음 명령도 그대로 5번과 13번 위치에서 시작했다. <code class="language-text">main</code>의 명령은 전부 합쳐 여전히 17바이트였다. 클래스 파일은 431바이트에서 444바이트로 딱 13바이트 늘었다. 두 곳에서 출력해도 길어진 글자를 한 곳에만 썼기 때문이다.</p>
+<p>이 예제에서 번호를 한 번 따라가는 대가로 얻는 게 그 두 가지다. <strong>같은 글자를 여러 명령이 함께 쓰고, 글자가 길어져도 그 글자를 읽는 명령까지 길어지지는 않는다.</strong> 여기서 두 바이트는 <code class="language-text">ldc #13</code>의 크기다. 상수 풀 인덱스가 한 바이트에 들어가지 않으면 컴파일러는 두 바이트 인덱스를 받는 <code class="language-text">ldc_w</code>를 쓸 수 있다.</p>
 <h2>7번에는 출력 객체가 들어 있을까</h2>
-<p><code class="language-text">ldc</code> 바로 앞의 명령은 <code class="language-text">getstatic</code>이다. 이번 주석에는 글자 하나가 아니라 필드 선언이 나온다.</p>
+<p>처음의 한 줄짜리 출력문으로 돌아오면, <code class="language-text">ldc</code> 바로 앞의 명령은 <code class="language-text">getstatic</code>이다. 이번 주석에는 글자 하나가 아니라 필드 선언이 나온다.</p>
 <div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text">0: getstatic #7    // Field java/lang/System.out:Ljava/io/PrintStream;</code></pre></div>
 <p><code class="language-text">Constant pool</code> 출력에서 7번은 다음처럼 적혀 있다.</p>
 <div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text"> #7 = Fieldref       #8.#9
