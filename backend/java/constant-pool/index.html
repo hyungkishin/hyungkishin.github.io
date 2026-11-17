@@ -208,12 +208,12 @@ data-styled.g24[id="TagList__Tags-sc-1a02q9k-0"]{content:"chUkMH,"}/*!sc*/
 <p>위 코드를 <code class="language-text">HelloWorld.java</code>에 저장했다. Microsoft OpenJDK 21에서 다음 두 명령을 실행했다.</p>
 <div class="gatsby-highlight" data-language="sh"><pre class="language-sh"><code class="language-sh">javac HelloWorld.java
 javap <span class="token parameter variable">-v</span> HelloWorld</code></pre></div>
-<p>첫 명령이 <code class="language-text">HelloWorld.class</code>를 만든다. 두 번째 명령은 그 파일에 적힌 내용을 보여 준다. <code class="language-text">main</code>에서 문자열을 가져오는 줄과 상수 풀에서 그 줄이 가리키는 항목만 골라 봤다.</p>
+<p><code class="language-text">javac</code>로 만든 <code class="language-text">HelloWorld.class</code>를 <code class="language-text">javap</code>로 열었다. 소스에는 <code class="language-text">"Hello"</code>라고 썼는데, <code class="language-text">main</code>에서 문자열을 읽는 명령에는 <code class="language-text">#13</code>만 적혀 있다.</p>
 <div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text">3: ldc #13
 
 #13 = String  #14
 #14 = Utf8    Hello</code></pre></div>
-<p>왜 13번에서 또 14번으로 갈까? 클래스 파일 형식에서 <code class="language-text">String</code> 항목은 <strong>이 문자열 리터럴의 글자가 몇 번에 있는지</strong> 기록한다. 그 번호를 담는 필드가 <code class="language-text">string_index</code>이고, 이 파일에서는 값이 14다. 글자 자체는 14번 <code class="language-text">Utf8</code> 항목에 기록한다. <code class="language-text">Utf8</code>은 메서드 이름 같은 텍스트에도 쓰인다. 13번의 <code class="language-text">String</code>이라는 표시가 있어야 JVM은 이 글자를 자바 문자열 상수로 사용할 수 있다.</p>
+<p>13번을 열었더니 또 번호다. <code class="language-text">String #14</code>에서 14는 글자가 들어 있는 항목의 번호다. 클래스 파일 형식에서는 이 번호를 <code class="language-text">string_index</code>라고 한다. 14번까지 가면 <code class="language-text">Utf8 Hello</code>가 나온다. <code class="language-text">Utf8</code>은 메서드 이름 같은 텍스트에도 쓰인다. 13번의 <code class="language-text">String</code>이라는 표시가 있어야 JVM은 이 글자를 자바 문자열 상수로 사용할 수 있다.</p>
 <p><img src="/static/ldc-string-961c5529a7e9e97bdafac436e1beb41c.svg" alt="클래스 파일에서는 13번 String 항목이 14번 Utf8의 Hello를 가리킨다. 실행 직후에는 출력 객체의 참조 위에 문자열 객체의 참조가 올라간다." id="diagram-ldc-string"></p>
 <p>14번에는 <code class="language-text">Hello</code>를 인코딩한 바이트만 있다. 그렇다면 힙의 <code class="language-text">String</code> 객체는 누가 만들까? <strong>JVM이 이 문자열 상수에 쓸 참조를 준비할 때</strong>, 같은 내용으로 이미 등록된 문자열이 있는지 확인한다. 있으면 그 객체를 쓰고, 없으면 힙에 <code class="language-text">String</code> 객체를 만들어 등록한다. 이렇게 내용이 같은 리터럴들이 한 객체를 공유하도록 하는 걸 **인터닝(interning)**이라고 한다.</p>
 <p>HotSpot의 <code class="language-text">ConstantPool::string_at_impl</code>을 보면 확인 순서가 보인다. 먼저 이 클래스의 13번에 쓸 참조를 이미 저장했는지 본다. 비어 있을 때만 <code class="language-text">StringTable::intern</code>에서 참조를 얻어 저장한다. 이 참조는 <code class="language-text">ldc</code>가 처음 필요로 할 때 준비할 수도 있고 그보다 앞서 준비돼 있을 수도 있다. 클래스 파일만 보고 정확히 몇 번째 명령에서 객체를 만들었는지까지 알 수는 없다.</p>
